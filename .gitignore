@@ -1,0 +1,27 @@
+node_modules/
+dist/
+
+# Raw source files (PDFs, HTML saves, API dumps) — not tracked
+sources/**
+!sources/*/
+!sources/*/README.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Keys
+.config

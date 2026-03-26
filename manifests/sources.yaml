@@ -1,0 +1,51 @@
+entries:
+  - type: riftcodex
+    set_id: OGN
+    category: cards
+    output: output/cards-ogn.md
+    processed: 2026-03-25
+  - type: riftcodex
+    set_id: OGS
+    category: cards
+    output: output/cards-ogs.md
+    processed: 2026-03-25
+  - type: riftcodex
+    set_id: OPP
+    category: cards
+    output: output/cards-opp.md
+    processed: 2026-03-25
+  - type: riftcodex
+    set_id: SFD
+    category: cards
+    output: output/cards-sfd.md
+    processed: 2026-03-25
+  - type: riftcodex
+    set_id: UNL
+    category: cards
+    output: output/cards-unl.md
+    processed: 2026-03-25
+  - type: riftcodex
+    set_id: JDG
+    category: cards
+    output: output/cards-jdg.md
+    processed: 2026-03-25
+  - type: riftcodex
+    set_id: PR
+    category: cards
+    output: output/cards-pr.md
+    processed: 2026-03-25
+  - type: pdf
+    path: sources/rules/Riftbound Core Rules v1.2.pdf
+    category: rules
+    output: output/core-rules.md
+    processed: 2026-03-25
+  - type: url
+    url: https://riftbound.leagueoflegends.com/en-us/news/organizedplay/riftbound-tournament-rules/
+    category: tournament
+    output: output/tournament-rules.md
+    processed: 2026-03-25
+  - type: url
+    url: https://riftbound.leagueoflegends.com/en-us/news/announcements/tournament-rules-january-update/
+    category: tournament
+    output: output/tournament-rules-jan-2026-update.md
+    processed: 2026-03-25
