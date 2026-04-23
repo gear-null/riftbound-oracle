@@ -1,5 +1,6 @@
 node_modules/
 dist/
+print/
 
 # Raw source files (PDFs, HTML saves, API dumps) — not tracked
 sources/**

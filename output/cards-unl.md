@@ -1,14 +1,28 @@
 ---
 category: cards
-generated: 2026-03-25
+generated: 2026-04-22
 generator: riftbound-oracle
 ---
 
-# Unleashed — Complete Card List
+# UNL Set — Complete Card List
 
-**Total cards:** 156
+**Total cards:** 280
 
-## Units (87)
+## Units (156)
+
+### Arena Kingpin
+
+**Energy:** 5 | **Might:** 3 | **Type:** Unit | **Rarity:** Common | **Domain:** Fury
+
+I enter ready.:rb_exhaust:: Give a unit +3 :rb_might: this turn.
+
+> *Don't you dare suggest it's a hairpiece.*
+
+**Tags:** Yordle, Noxus
+
+*Artist: Kudos Productions | Unleashed #1*
+
+---
 
 ### Inferna
 
@@ -35,6 +49,34 @@ generator: riftbound-oracle
 **Tags:** Bilgewater
 
 *Artist: Envar Studio | Unleashed #3*
+
+---
+
+### Prepared Neophyte
+
+**Energy:** 3 | **Might:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Fury
+
+If you've spent :rb_energy_4: or more to play a spell this turn, I have +4 :rb_might:.
+
+> *Power begets power.*
+
+**Tags:** Shadow Isles
+
+*Artist: Kudos Productions | Unleashed #4*
+
+---
+
+### Revna the Lorekeeper
+
+**Energy:** 7 | **Might:** 7 | **Power:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Fury
+
+[Ganking] (I can move from battlefield to battlefield.)When you play a spell, if you spent :rb_energy_4: or more, ready me.
+
+> *Nothing stops us! Not cold, not death!*
+
+**Tags:** Freljord
+
+*Artist: Envar Studio | Unleashed #5*
 
 ---
 
@@ -68,17 +110,57 @@ generator: riftbound-oracle
 
 ---
 
-### Jhin - Murderous Artist
+### Lord Broadmane
 
-**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Fury
 
-[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)[Ganking] (I can move from battlefield to battlefield.)When I move, [Add] :rb_energy_1::rb_rune_rainbow:. (Abilities that add resources can't be reacted to.)
+[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)When you play me, give your other units here [Assault] this turn. (+1 :rb_might: while they're attackers.)
 
-> *And now, the curtain rises.*
+**Tags:** Noxus
 
-**Tags:** Jhin, Ionia
+*Artist: Kudos Productions | Unleashed #12*
 
-*Artist: Alessandro Poli | Unleashed #22*
+---
+
+### Scorchclaw
+
+**Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Fury
+
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][&gt;] I have +1 :rb_might: and enter ready. (While you have 3+ XP, get the effect.)
+
+> *Sit. Stay. Burn.*
+
+**Tags:** Dog, Noxus
+
+*Artist: 黯荧岛Dark Glow | Unleashed #16*
+
+---
+
+### Yeti Brawler
+
+**Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Fury
+
+When I conquer, if you assigned 3 or more excess damage, play two Gold gear tokens exhausted. (They have &quot;[Reaction][&gt;] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.&quot;)
+
+> *If you love your job, it's hardly work.*
+
+**Tags:** Noxus
+
+*Artist: Kudos Productions | Unleashed #18*
+
+---
+
+### Grim Apothecary
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
+
+[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)When you play me, you may return a friendly unit at a battlefield to its owner's hand.
+
+> *The cure is better than the disease, but not by much.*
+
+**Tags:** Noxus
+
+*Artist: Wild Blue Studios | Unleashed #21*
 
 ---
 
@@ -96,15 +178,31 @@ generator: riftbound-oracle
 
 ---
 
-### Rengar - Unseen
+### Jhin - Murderous Artist
 
 **Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
 
-[Accelerate] (You may pay :rb_energy_1::rb_rune_fury: as an additional cost to have me enter ready.)[Assault 2] (+2 :rb_might: while I'm an attacker.)[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)[Ganking] (I can move from battlefield to battlefield.)
+[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)[Ganking] (I can move from battlefield to battlefield.)When I move, [Add] :rb_energy_1::rb_rune_rainbow:. (Abilities that add resources can't be reacted to.)
 
-**Tags:** Cat, Rengar, Ixtal
+> *And now, the curtain rises.*
 
-*Artist: HCuu | Unleashed #24*
+**Tags:** Jhin, Ionia
+
+*Artist: Alessandro Poli | Unleashed #22*
+
+---
+
+### Katarina - Reckless
+
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
+
+When you hide a card, ready me.When you play a card from face down, deal 2 to an enemy unit.
+
+> *Keep friends close and enemies guessing.*
+
+**Tags:** Katarina, Noxus
+
+*Artist: Six More Vodka | Unleashed #23*
 
 ---
 
@@ -119,6 +217,46 @@ generator: riftbound-oracle
 **Tags:** Cat, Rengar, Ixtal
 
 *Artist: League Splash Team | Unleashed #24*
+
+---
+
+### Rengar - Unseen
+
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
+
+[Accelerate] (You may pay :rb_energy_1::rb_rune_fury: as an additional cost to have me enter ready.)[Assault 2] (+2 :rb_might: while I'm an attacker.)[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)[Ganking] (I can move from battlefield to battlefield.)
+
+**Tags:** Cat, Rengar, Ixtal
+
+*Artist: HCuu | Unleashed #24*
+
+---
+
+### Undying Legion
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
+
+[Legion][&gt;] You may play me from your trash for :rb_energy_3::rb_rune_fury:. (Get the effect if you've played another card this turn.)
+
+> *Choose carefully your oath, lest duty bind you even in death.*
+
+**Tags:** Spirit, Shadow Isles
+
+*Artist: Six More Vodka | Unleashed #25*
+
+---
+
+### Xerath - Freed
+
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
+
+:rb_rune_fury:, :rb_exhaust:: Deal 3 to a unit. Use this ability only while I'm at a battlefield.
+
+> *I stand at the brink of infinity.*
+
+**Tags:** Shurima, Xerath
+
+*Artist: Six More Vodka | Unleashed #26*
 
 ---
 
@@ -139,6 +277,20 @@ We are but ashes in his flame."
 
 ---
 
+### Pyke - Dockside Butcher (Alternate Art)
+
+**Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
+
+[Hidden][Ganking]You may pay :rb_rune_fury: as an additional cost to play me.When you play me, if you paid the additional cost, ready me and give me +2 :rb_might: this turn.
+
+> *Hard day's killin' ahead.*
+
+**Tags:** Pyke, Bilgewater
+
+*Artist: Six More Vodka | Unleashed #28*
+
+---
+
 ### Pyke - Dockside Butcher
 
 **Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Epic | **Domain:** Fury
@@ -153,17 +305,25 @@ We are but ashes in his flame."
 
 ---
 
-### Pyke - Dockside Butcher (Alternate Art)
+### Red Brambleback (Alternate Art)
 
-**Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
 
-[Hidden][Ganking]You may pay :rb_rune_fury: as an additional cost to play me.When you play me, if you paid the additional cost, ready me and give me +2 :rb_might: this turn.
+[Accelerate]Your conquer effects for conquering here trigger an additional time.When I conquer, [Buff] a friendly unit.
 
-> *Hard day's killin' ahead.*
+*Artist: JunHuan | Unleashed #29*
 
-**Tags:** Pyke, Bilgewater
+---
 
-*Artist: Six More Vodka | Unleashed #28*
+### Red Brambleback
+
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Fury
+
+[Accelerate] (You may pay :rb_energy_1::rb_rune_fury: as an additional cost to have me enter ready.)Your conquer effects for conquering here trigger an additional time.When I conquer, [Buff] a friendly unit. (Give it a +1 :rb_might: buff if it doesn't have one.)
+
+**Tags:** Ionia
+
+*Artist: JunHuan | Unleashed #29*
 
 ---
 
@@ -195,6 +355,20 @@ We are but ashes in his flame."
 
 ---
 
+### Frisky Hunter
+
+**Energy:** 4 | **Might:** 3 | **Type:** Unit | **Rarity:** Common | **Domain:** Calm
+
+When you play me, play a 1 :rb_might: Bird unit token with [Deflect] here. (Opponents must pay :rb_rune_rainbow: to choose it with a spell or ability.)
+
+> *Always following the scent of prey.*
+
+**Tags:** Cat, Zaun
+
+*Artist: Kudos Productions | Unleashed #33*
+
+---
+
 ### Herald of Spring
 
 **Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Calm
@@ -208,6 +382,20 @@ We are but ashes in his flame."
 **Tags:** Ionia
 
 *Artist: Six More Vodka | Unleashed #34*
+
+---
+
+### Monch
+
+**Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Common | **Domain:** Calm
+
+If an opponent controls a stunned unit, I cost :rb_energy_2: less and enter ready.
+
+> *Just because it doesn't exist doesn't mean it can't hurt you.*
+
+**Tags:** Bandle City
+
+*Artist: Envar Studio | Unleashed #35*
 
 ---
 
@@ -239,6 +427,35 @@ If a friendly unit died during your Beginning Phase this turn, I enter ready.
 
 ---
 
+### Wuju Apprentice
+
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Calm
+
+[Hunt] (When I conquer or hold, gain 1 XP.)[Level 6][&gt;] When you play me, draw 1. (While you have 6+ XP, get the effect.)
+
+> *I've learned a great deal during my apprenticeship.
+Allow me to demonstrate.*
+
+**Tags:** Ionia
+
+*Artist: Polar Engine Studio | Unleashed #40*
+
+---
+
+### Allay, Eager Admirer
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Calm
+
+[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)While I'm at a battlefield, your other units here have [Deflect].
+
+> *Hey, Vex! Look what I've got! It's a surprise! For you! Aren't you excited?!*
+
+**Tags:** Yordle, Bandle City
+
+*Artist: Envar Studio | Unleashed #41*
+
+---
+
 ### Enthusiastic Promoter
 
 **Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Calm
@@ -267,6 +484,20 @@ If a friendly unit died during your Beginning Phase this turn, I enter ready.
 
 ---
 
+### Trevor Snoozebottom
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Calm
+
+[Shield] (+1 :rb_might: while I'm a defender.)When I hold, play a ready 3 :rb_might: Sprite unit token with [Temporary] here. (Kill it at the start of its controller's next Beginning Phase, before scoring.)
+
+> *He's raised sleepwalking to an art form.*
+
+**Tags:** Yordle, Ionia
+
+*Artist: Six More Vodka | Unleashed #48*
+
+---
+
 ### Iascylla
 
 **Energy:** 7 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
@@ -278,6 +509,18 @@ When I hold, at the start of your next Main Phase, you may move an enemy unit to
 **Tags:** Bilgewater
 
 *Artist: Envar Studio | Unleashed #50*
+
+---
+
+### Ivern - Nurturer
+
+**Energy:** 5 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
+
+When you play me or when I hold, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest. Then if you revealed a Bird, Cat, Dog, or Poro, do this: [Buff] a friendly unit. (Give it a +1 :rb_might: buff if it doesn't have one.)
+
+**Tags:** Ivern, Ionia
+
+*Artist: League Splash Team | Unleashed #51*
 
 ---
 
@@ -293,15 +536,57 @@ When you play me or when I hold, look at the top 3 cards of your Main Deck. You 
 
 ---
 
-### Ivern - Nurturer
+### Nami - Headstrong
 
-**Energy:** 5 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
 
-When you play me or when I hold, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest. Then if you revealed a Bird, Cat, Dog, or Poro, do this: [Buff] a friendly unit. (Give it a +1 :rb_might: buff if it doesn't have one.)
+You may pay :rb_rune_calm: as an additional cost to play me.When you play me, if you paid the additional cost, [Stun] an enemy unit. (It doesn't deal combat damage this turn.)When I hold, the next time you play a unit this turn, ready it and [Buff] it.
 
-**Tags:** Ivern, Ionia
+**Tags:** Mount Targon, Nami
 
-*Artist: League Splash Team | Unleashed #51*
+*Artist: Six More Vodka | Unleashed #52*
+
+---
+
+### Scuttle Crab
+
+**Energy:** 2 | **Might:** 0 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
+
+(Units with 0 :rb_might: can conquer and hold.)When you play me, draw 1.[Deathknell][&gt;] Choose an opponent. They reveal their hand. You can look at their facedown cards this turn. Gain 1 XP. (When I die, get the effects.)
+
+> *As harmless as it is delicious.*
+
+**Tags:** Bilgewater
+
+*Artist: 黯荧岛Dark Glow | Unleashed #53*
+
+---
+
+### Vex - Mocking (Alternate Art)
+
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
+
+[Shield][Tank]When you [Stun] an enemy unit at a battlefield, you may move me to that battlefield.
+
+> *Let's turn these smiles upside down.*
+
+**Tags:** Yordle, Vex, Shadow Isles
+
+*Artist: League Splash Team | Unleashed #55*
+
+---
+
+### Vex - Mocking
+
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
+
+[Shield] (+1 :rb_might: while I'm a defender.)[Tank] (I must be assigned combat damage first.)When you [Stun] an enemy unit at a battlefield, you may move me to that battlefield.
+
+> *Let's turn these smiles upside down.*
+
+**Tags:** Yordle, Vex, Shadow Isles
+
+*Artist: Envar Studio | Unleashed #55*
 
 ---
 
@@ -319,17 +604,17 @@ When I attack or defend, give one of your other units here +3 :rb_might: and [Ta
 
 ---
 
-### Lillia - Protector of Dreams (Alternate Art)
+### Alpha Wildclaw
 
-**Energy:** 5 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
+**Energy:** 6 | **Might:** 7 | **Power:** 2 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
 
-When you play a token unit, give me +1 :rb_might: this turn.Your token units have [Tank].
+[Tank] (I must be assigned combat damage first.)Your units here with less Might than me can't be chosen by enemy spells and abilities.
 
-> *Nothing cries louder than loneliness.*
+> *Best take care of the big one, before it takes care of you.*
 
-**Tags:** Fae, Lillia, Ionia
+**Tags:** Cat, Freljord
 
-*Artist: League Splash Team | Unleashed #58*
+*Artist: Six More Vodka | Unleashed #57*
 
 ---
 
@@ -347,15 +632,17 @@ When you play a token unit, give me +1 :rb_might: this turn.Your token units hav
 
 ---
 
-### Master Yi - Unstoppable
+### Lillia - Protector of Dreams (Alternate Art)
 
-**Energy:** 12 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
+**Energy:** 5 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
 
-[Level 3][&gt;] I cost :rb_energy_2::rb_rune_calm: less. (While you have 3+ XP, get the effect.)[Level 6][&gt;] I cost :rb_energy_4::rb_rune_calm::rb_rune_calm: less instead.[Level 11][&gt;] I cost :rb_energy_6::rb_rune_calm::rb_rune_calm::rb_rune_calm: less instead.[Level 16][&gt;] I can't be chosen by enemy spells and abilities.
+When you play a token unit, give me +1 :rb_might: this turn.Your token units have [Tank].
 
-**Tags:** Master Yi, Ionia
+> *Nothing cries louder than loneliness.*
 
-*Artist: Ziyan Lin | Unleashed #59*
+**Tags:** Fae, Lillia, Ionia
+
+*Artist: League Splash Team | Unleashed #58*
 
 ---
 
@@ -373,17 +660,15 @@ When you play a token unit, give me +1 :rb_might: this turn.Your token units hav
 
 ---
 
-### Vilemaw
+### Master Yi - Unstoppable
 
-**Energy:** 8 | **Might:** 8 | **Power:** 2 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
+**Energy:** 12 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
 
-[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)Enemy units here with less Might than me don't deal combat damage.When I hold, draw 1.
+[Level 3][&gt;] I cost :rb_energy_2::rb_rune_calm: less. (While you have 3+ XP, get the effect.)[Level 6][&gt;] I cost :rb_energy_4::rb_rune_calm::rb_rune_calm: less instead.[Level 11][&gt;] I cost :rb_energy_6::rb_rune_calm::rb_rune_calm::rb_rune_calm: less instead.[Level 16][&gt;] I can't be chosen by enemy spells and abilities.
 
-> *Its lair lies beyond a twisted treeline.*
+**Tags:** Master Yi, Ionia
 
-**Tags:** Shadow Isles, Spider
-
-*Artist: Envar Studio | Unleashed #60*
+*Artist: Ziyan Lin | Unleashed #59*
 
 ---
 
@@ -401,6 +686,48 @@ When you play a token unit, give me +1 :rb_might: this turn.Your token units hav
 
 ---
 
+### Vilemaw
+
+**Energy:** 8 | **Might:** 8 | **Power:** 2 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
+
+[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)Enemy units here with less Might than me don't deal combat damage.When I hold, draw 1.
+
+> *Its lair lies beyond a twisted treeline.*
+
+**Tags:** Shadow Isles, Spider
+
+*Artist: Envar Studio | Unleashed #60*
+
+---
+
+### Dramatic Visionary
+
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Common | **Domain:** Mind
+
+[Deathknell][&gt;] [Predict 2]. (When I die, look at the top two cards of your Main Deck. Recycle any of them and put the rest back in any order.)
+
+> *Truth rarely comes without sacrifice.*
+
+**Tags:** Ionia
+
+*Artist: Envar Studio | Unleashed #62*
+
+---
+
+### Fate Weaver
+
+**Energy:** 5 | **Might:** 4 | **Type:** Unit | **Rarity:** Common | **Domain:** Mind
+
+When you play me, look at the top 4 cards of your Main Deck. You may reveal a spell with Energy cost :rb_energy_4: or more from among them and draw it. Recycle the rest.
+
+> *Long or short, every thread must meet the shears in the end.*
+
+**Tags:** Ionia
+
+*Artist: Valentin Gloaguen | Unleashed #64*
+
+---
+
 ### Icevale Archer
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Mind
@@ -412,6 +739,48 @@ When I attack, you may pay :rb_energy_1: to give a unit here -1 :rb_might: this 
 **Tags:** Freljord
 
 *Artist: Six More Vodka | Unleashed #65*
+
+---
+
+### Ruined Rex
+
+**Energy:** 6 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Mind
+
+[Deathknell][&gt;] Deal 4 to an enemy unit. (When I die, get the effect.)
+
+> *It's back, and worse than ever.*
+
+**Tags:** Bilgewater
+
+*Artist: Kudos Productions | Unleashed #67*
+
+---
+
+### Spectral Centaur
+
+**Energy:** 6 | **Might:** 5 | **Type:** Unit | **Rarity:** Common | **Domain:** Mind
+
+When another friendly unit dies, give me +2 :rb_might: this turn.
+
+> *Death provides him with an ever-growing herd.*
+
+**Tags:** Spirit, Shadow Isles
+
+*Artist: Kudos Productions | Unleashed #68*
+
+---
+
+### Chakram Dancer
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Mind
+
+[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)When you play me, give your other units here [Shield] this turn. (+1 :rb_might: while they're defenders.)
+
+> *Elegant. Effortless. Deadly.*
+
+**Tags:** Bilgewater
+
+*Artist: Wild Blue Studios | Unleashed #71*
 
 ---
 
@@ -429,6 +798,20 @@ When I attack, you may pay :rb_energy_1: to give a unit here -1 :rb_might: this 
 
 ---
 
+### Petal Pixie
+
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Mind
+
+I have +1 :rb_might: for each of your units with [Temporary] at my battlefield.
+
+> *She savors fleeting moments of beauty, knowing none but herself will ever see them.*
+
+**Tags:** Fae, Ionia
+
+*Artist: Envar Studio | Unleashed #76*
+
+---
+
 ### Soul Shepherd
 
 **Energy:** 5 | **Might:** 3 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Mind
@@ -440,6 +823,20 @@ Your token units have +1 :rb_might:.
 **Tags:** Shadow Isles
 
 *Artist: Six More Vodka | Unleashed #77*
+
+---
+
+### Diana - Lunari (Alternate Art)
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+
+When a showdown begins here, you may pay :rb_energy_1:. If you do, [Predict], then reveal the top card of your Main Deck. If it's a spell, draw it.
+
+> *Follow no false light.*
+
+**Tags:** Diana, Mount Targon
+
+*Artist: League Splash Team | Unleashed #79*
 
 ---
 
@@ -466,6 +863,54 @@ When I move, draw 1, then discard 1. Then, do the following based on the discard
 **Tags:** Ionia, Hwei
 
 *Artist: League Splash Team | Unleashed #80*
+
+---
+
+### Keeper of Masks
+
+**Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Mind
+
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Temporary] (Kill me at the start of my controller's Beginning Phase, before scoring.)When you play me, play two Reflection unit tokens here. They become copies of me.
+
+**Tags:** Ionia
+
+*Artist: Six More Vodka | Unleashed #81*
+
+---
+
+### Lillia - Fae Fawn (Alternate Art)
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+
+[Accelerate]When I move from a location, play a 3 :rb_might: Sprite unit token with [Temporary] there.
+
+**Tags:** Fae, Lillia, Ionia
+
+*Artist: League Splash Team | Unleashed #82*
+
+---
+
+### Lillia - Fae Fawn
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Mind
+
+[Accelerate] (You may pay :rb_energy_1::rb_rune_mind: as an additional cost to have me enter ready.)When I move from a location, play a 3 :rb_might: Sprite unit token with [Temporary] there. (Kill it at the start of its controller's Beginning Phase, before scoring.)
+
+**Tags:** Fae, Lillia, Ionia
+
+*Artist: Envar Studio | Unleashed #82*
+
+---
+
+### Sprite Queen
+
+**Energy:** 7 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Mind
+
+When you play me or at the start of your Beginning Phase, play a ready 3 :rb_might: Sprite unit token with [Temporary] to your base. (Kill them at the start of their controller's next Beginning Phase, before scoring.)
+
+**Tags:** Fae, Ionia
+
+*Artist: Envar Studio | Unleashed #84*
 
 ---
 
@@ -505,20 +950,6 @@ Once each turn, if you would play a token unit while I'm at a battlefield, you m
 
 ---
 
-### Jhin - Meticulous Killer
-
-**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Mind
-
-[Vision] (When you play me, look at the top card of your Main Deck. You may recycle it.)If you've spent :rb_energy_4: or more to play a spell this turn, you may play me for :rb_rune_mind:.
-
-> *One, two, three, four. Two, two, three, four...*
-
-**Tags:** Jhin, Ionia
-
-*Artist: League Splash Team | Unleashed #89*
-
----
-
 ### Jhin - Meticulous Killer (Alternate Art)
 
 **Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
@@ -533,17 +964,17 @@ Once each turn, if you would play a token unit while I'm at a battlefield, you m
 
 ---
 
-### LeBlanc - Everywhere At Once (Alternate Art)
+### Jhin - Meticulous Killer
 
-**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Mind
 
-[Backline]Your [Temporary] effects at my battlefield don't trigger.
+[Vision] (When you play me, look at the top card of your Main Deck. You may recycle it.)If you've spent :rb_energy_4: or more to play a spell this turn, you may play me for :rb_rune_mind:.
 
-> *Vision. Might. Guile. It's almost comical how history repeats itself.*
+> *One, two, three, four. Two, two, three, four...*
 
-**Tags:** Noxus, LeBlanc
+**Tags:** Jhin, Ionia
 
-*Artist: League Splash Team | Unleashed #90*
+*Artist: League Splash Team | Unleashed #89*
 
 ---
 
@@ -561,6 +992,20 @@ Once each turn, if you would play a token unit while I'm at a battlefield, you m
 
 ---
 
+### LeBlanc - Everywhere At Once (Alternate Art)
+
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+
+[Backline]Your [Temporary] effects at my battlefield don't trigger.
+
+> *Vision. Might. Guile. It's almost comical how history repeats itself.*
+
+**Tags:** Noxus, LeBlanc
+
+*Artist: League Splash Team | Unleashed #90*
+
+---
+
 ### Demacian Diplomat
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
@@ -572,6 +1017,20 @@ When you play me, gain 1 XP.
 **Tags:** Demacia
 
 *Artist: Kudos Productions | Unleashed #92*
+
+---
+
+### Dragonsoul Sage
+
+**Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
+
+[Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1:. (Abilities that add resources can't be reacted to.)
+
+> *The Dragon's secrets are not mine to share. I can only share the gifts that it has given me.*
+
+**Tags:** Ionia
+
+*Artist: Dao Trong Le | Unleashed #93*
 
 ---
 
@@ -589,6 +1048,62 @@ When you play me, gain 1 XP.
 
 ---
 
+### Kinkou Initiate
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
+
+When you play me, draw 1 if your other units have total Might 5 or more.
+
+> *True strength lifts up others.*
+
+**Tags:** Ionia
+
+*Artist: Six More Vodka | Unleashed #97*
+
+---
+
+### Targonian Visionary
+
+**Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
+
+[Level 11][&gt;] I have +4 :rb_might:. (While you have 11+ XP, get the effect.)
+
+> *She has seen the world before. She will see that world again.*
+
+**Tags:** Mount Targon
+
+*Artist: Kudos Productions | Unleashed #98*
+
+---
+
+### Towering Combatant
+
+**Energy:** 4 | **Might:** 3 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
+
+[Shield 2] (+2 :rb_might: while I'm a defender.)[Tank] (I must be assigned combat damage first.)
+
+> *Was this really your plan, pal?*
+
+**Tags:** Shurima
+
+*Artist: JiHun Lee | Unleashed #99*
+
+---
+
+### Voracious Gromp
+
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
+
+[Hunt 3] (When I conquer or hold, gain 3 XP.)
+
+> *Oh no! It's real! The Gromp is real!*
+
+**Tags:** Freljord
+
+*Artist: Polar Engine Studio | Unleashed #100*
+
+---
+
 ### Crowd Favorite
 
 **Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Body
@@ -600,6 +1115,34 @@ When you play me, gain 1 XP.
 **Tags:** Noxus
 
 *Artist: Six More Vodka | Unleashed #102*
+
+---
+
+### Gentle Gemdragon
+
+**Energy:** 8 | **Might:** 8 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Body
+
+When you play me or another Dragon, ready up to 2 runes.
+
+> *Gentle" is not the same as "harmless.*
+
+**Tags:** Dragon, Mount Targon
+
+*Artist: Polar Engine Studio | Unleashed #104*
+
+---
+
+### Imposing Challenger
+
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Body
+
+When I move, you may move an enemy unit here with less Might than me to a different battlefield.
+
+> *Are there truly none with the courage to face our new champion?*
+
+**Tags:** Ionia
+
+*Artist: Kudos Productions | Unleashed #105*
 
 ---
 
@@ -617,17 +1160,31 @@ If you've gained XP this turn, I have +1 :rb_might: and [Ganking]. (I can move f
 
 ---
 
-### Master Yi - Tempered
+### Determined Sentry
 
-**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
+**Energy:** 1 | **Might:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
 
-[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 6][&gt;] I have [Deflect] and [Ganking]. (While you have 6+ XP, opponents must pay :rb_rune_rainbow: to choose me with a spell or ability and I can move from battlefield to battlefield.)
+I can't move to base.
 
-> *Watch, and learn.*
+> *Discretion has nothing on valor.*
 
-**Tags:** Master Yi, Ionia
+**Tags:** Yordle, Bandle City
 
-*Artist: HXY | Unleashed #113*
+*Artist: Kudos Productions | Unleashed #111*
+
+---
+
+### Irresistible Faefolk
+
+**Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
+
+When I move to a battlefield, you may move an enemy unit to that battlefield.
+
+> *Cute, yes. Cuddly, no.*
+
+**Tags:** Fae, Ionia
+
+*Artist: Six More Vodka | Unleashed #112*
 
 ---
 
@@ -642,6 +1199,20 @@ If you've gained XP this turn, I have +1 :rb_might: and [Ganking]. (I can move f
 **Tags:** Master Yi, Ionia
 
 *Artist: League Splash Team | Unleashed #113*
+
+---
+
+### Master Yi - Tempered
+
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
+
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 6][&gt;] I have [Deflect] and [Ganking]. (While you have 6+ XP, opponents must pay :rb_rune_rainbow: to choose me with a spell or ability and I can move from battlefield to battlefield.)
+
+> *Watch, and learn.*
+
+**Tags:** Master Yi, Ionia
+
+*Artist: HXY | Unleashed #113*
 
 ---
 
@@ -673,6 +1244,48 @@ If you've gained XP this turn, I have +1 :rb_might: and [Ganking]. (I can move f
 
 ---
 
+### Poppy - Paragon (Alternate Art)
+
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
+
+[Deflect]When you play me, if an opponent's score is within 3 points of the Victory Score, ready me and gain 3 XP.
+
+> *Me? The hero? Nah, that's ridiculous.*
+
+**Tags:** Yordle, Demacia, Poppy
+
+*Artist: League Splash Team | Unleashed #116*
+
+---
+
+### Poppy - Paragon
+
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
+
+[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)When you play me, if an opponent's score is within 3 points of the Victory Score, ready me and gain 3 XP.
+
+> *Me? The hero? Nah, that's ridiculous.*
+
+**Tags:** Yordle, Demacia, Poppy
+
+*Artist: League Splash Team | Unleashed #116*
+
+---
+
+### Arachnoid Horror
+
+**Energy:** 6 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Body
+
+[Hunt 2] (When I conquer or hold, gain 2 XP.)I can be played to an occupied battlefield if an enemy unit is alone there.Friendly units can be played to an occupied battlefield if an enemy unit is alone there.
+
+> *Don't go alone.*
+
+**Tags:** Shadow Isles, Spider
+
+*Artist: Six More Vodka | Unleashed #117*
+
+---
+
 ### Elder Dragon (Alternate Art)
 
 **Energy:** 12 | **Might:** 10 | **Power:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
@@ -701,20 +1314,6 @@ Any amount of your damage is enough to kill enemy units.When you play me, choose
 
 ---
 
-### Kha'Zix - Evolving Hunter
-
-**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Body
-
-[Hunt] (When I conquer or hold, gain 1 XP.)When I attack, you may spend 3 XP to deal damage equal to my Might to an enemy unit here.
-
-> *Consume and adapt.*
-
-**Tags:** Kha'Zix, The Void
-
-*Artist: League Splash Team | Unleashed #119*
-
----
-
 ### Kha'Zix - Evolving Hunter (Alternate Art)
 
 **Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
@@ -729,17 +1328,17 @@ Any amount of your damage is enough to kill enemy units.When you play me, choose
 
 ---
 
-### Rengar - Trophy Hunter
+### Kha'Zix - Evolving Hunter
 
-**Energy:** 5 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Body
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Body
 
-[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)I can be played to a battlefield where there are enemy units (even if you don't have units there).
+[Hunt] (When I conquer or hold, gain 1 XP.)When I attack, you may spend 3 XP to deal damage equal to my Might to an enemy unit here.
 
-> *Let's see what they're made of.*
+> *Consume and adapt.*
 
-**Tags:** Cat, Rengar, Ixtal
+**Tags:** Kha'Zix, The Void
 
-*Artist: TSWCK逍 | Unleashed #120*
+*Artist: League Splash Team | Unleashed #119*
 
 ---
 
@@ -757,6 +1356,34 @@ Any amount of your damage is enough to kill enemy units.When you play me, choose
 
 ---
 
+### Rengar - Trophy Hunter
+
+**Energy:** 5 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Body
+
+[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)I can be played to a battlefield where there are enemy units (even if you don't have units there).
+
+> *Let's see what they're made of.*
+
+**Tags:** Cat, Rengar, Ixtal
+
+*Artist: TSWCK逍 | Unleashed #120*
+
+---
+
+### Bewitching Spirit
+
+**Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Chaos
+
+When you play me, choose a player. They discard 1.
+
+> *Bandle Scout Rule 43: When a mysterious voice in the woods whispers for you to follow it, don't go alone! Your friends might want to see too!*
+
+**Tags:** Spirit, Shadow Isles
+
+*Artist: Wild Blue Studios | Unleashed #121*
+
+---
+
 ### Crescent Guardian
 
 **Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Common | **Domain:** Chaos
@@ -768,6 +1395,21 @@ If you've played a spell this turn, you may pay :rb_rune_chaos: as an additional
 **Tags:** Mount Targon
 
 *Artist: Aron Elekes | Unleashed #122*
+
+---
+
+### Evershade Stalker
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Common | **Domain:** Chaos
+
+When you play me, discard 1, then draw 1.
+
+> *That's a LOT of eyes."
+ - Common last words*
+
+**Tags:** Shadow Isles
+
+*Artist: Six More Vodka | Unleashed #123*
 
 ---
 
@@ -787,6 +1429,34 @@ A: Buy a new boat.*
 
 ---
 
+### Mister Root
+
+**Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Chaos
+
+[Accelerate] (You may pay :rb_energy_1::rb_rune_chaos: as an additional cost to have me enter ready.)When I move to a battlefield, gain 2 XP.
+
+> *Dreams themselves can dream as well.*
+
+**Tags:** Fae, Ionia
+
+*Artist: Caravan Studio | Unleashed #127*
+
+---
+
+### Vicious Snapjaws
+
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Common | **Domain:** Chaos
+
+When another friendly unit dies, gain 1 XP.
+
+> *They don't know friend or foe, only food.*
+
+**Tags:** Bilgewater
+
+*Artist: JiHun Lee | Unleashed #129*
+
+---
+
 ### Walking Roost
 
 **Energy:** 5 | **Might:** 6 | **Type:** Unit | **Rarity:** Common | **Domain:** Chaos
@@ -798,6 +1468,21 @@ A: Buy a new boat.*
 **Tags:** Shadow Isles
 
 *Artist: Xavier Leroux | Unleashed #130*
+
+---
+
+### Angler Beast
+
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Chaos
+
+When you play me, return all units with 2 :rb_might: or less to their owners' hands.
+
+> *There's plenty of room for everyone at the bottom of the sea."
+ - Pyke*
+
+**Tags:** Bilgewater
+
+*Artist: Kudos Productions | Unleashed #132*
 
 ---
 
@@ -827,17 +1512,17 @@ When I attack, you may pay :rb_energy_1: to move an enemy unit here to its base.
 
 ---
 
-### Kha'Zix - Mutating Horror
+### Evelynn - Entrancing
 
-**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
 
-[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)When I attack or defend, if an enemy unit is alone here, give me +2 :rb_might: this turn and gain 2 XP.
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Backline] (I must be assigned combat damage last.)When you play me from face down on your turn, you may move an enemy unit at a different location to my battlefield.
 
-> *I sense worthy prey.*
+> *Girls just wanna tear your throat out with their teeth.*
 
-**Tags:** Kha'Zix, The Void
+**Tags:** Evelynn, Demon
 
-*Artist: 蛋费鸡丁 | Unleashed #143*
+*Artist: Kudos Productions | Unleashed #141*
 
 ---
 
@@ -855,15 +1540,33 @@ When I attack, you may pay :rb_energy_1: to move an enemy unit here to its base.
 
 ---
 
-### Pyke - Returned (Alternate Art)
+### Kha'Zix - Mutating Horror
 
-**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
 
-[Hidden][Backline]Once each turn, when an enemy unit dies while I'm at a battlefield, play a Gold gear token exhausted.
+[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)When I attack or defend, if an enemy unit is alone here, give me +2 :rb_might: this turn and gain 2 XP.
 
-**Tags:** Pyke, Bilgewater
+> *I sense worthy prey.*
 
-*Artist: Six More Vodka | Unleashed #145*
+**Tags:** Kha'Zix, The Void
+
+*Artist: 蛋费鸡丁 | Unleashed #143*
+
+---
+
+### Maduli the Gatekeeper
+
+**Energy:** 7 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
+
+I can't be readied.:rb_rune_chaos:: Move me to an occupied enemy battlefield if my Might is greater than the total Might of enemy units there.
+
+> *... Made a song so eerie, thought I'd die."
+
+- Old Gaff's tale*
+
+**Tags:** Bandle City
+
+*Artist: Caravan Studio | Unleashed #144*
 
 ---
 
@@ -876,6 +1579,32 @@ When I attack, you may pay :rb_energy_1: to move an enemy unit here to its base.
 **Tags:** Pyke, Bilgewater
 
 *Artist: Six More Vodka | Unleashed #145*
+
+---
+
+### Pyke - Returned (Alternate Art)
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+
+[Hidden][Backline]Once each turn, when an enemy unit dies while I'm at a battlefield, play a Gold gear token exhausted.
+
+**Tags:** Pyke, Bilgewater
+
+*Artist: Six More Vodka | Unleashed #145*
+
+---
+
+### Syndra - Transcendent
+
+**Energy:** 6 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
+
+While I'm in a showdown, your spells have [Repeat] :rb_energy_2::rb_rune_chaos:. (You may pay the additional cost to repeat the spell's effect.)
+
+> *This power is mine to command.*
+
+**Tags:** Ionia, Syndra
+
+*Artist: Naifan Zhang | Unleashed #146*
 
 ---
 
@@ -903,6 +1632,20 @@ As you play me, add the Baron Pit battlefield token to the board if it's not the
 
 ---
 
+### Diana - No Longer Human (Alternate Art)
+
+**Energy:** 4 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+
+[Ambush]When you play a spell, give me +2 :rb_might: this turn.
+
+> *I cannot turn back.*
+
+**Tags:** Diana, Mount Targon
+
+*Artist: League Splash Team | Unleashed #149*
+
+---
+
 ### Diana - No Longer Human
 
 **Energy:** 4 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Chaos
@@ -917,17 +1660,73 @@ As you play me, add the Baron Pit battlefield token to the board if it's not the
 
 ---
 
-### Diana - No Longer Human (Alternate Art)
+### Vex - Apathetic (Alternate Art)
 
-**Energy:** 4 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
 
-[Ambush]When you play a spell, give me +2 :rb_might: this turn.
+[Deflect]When an opponent plays a unit while I'm at a battlefield, [Stun] it. They can't move it this turn.
 
-> *I cannot turn back.*
+> *I'll show them the meaning of apathy. Or not.*
 
-**Tags:** Diana, Mount Targon
+**Tags:** Yordle, Vex, Shadow Isles
 
-*Artist: League Splash Team | Unleashed #149*
+*Artist: League Splash Team | Unleashed #150*
+
+---
+
+### Vex - Apathetic
+
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Chaos
+
+[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)When an opponent plays a unit while I'm at a battlefield, [Stun] it. They can't move it this turn. (It doesn't deal combat damage this turn.)
+
+> *I'll show them the meaning of apathy. Or not.*
+
+**Tags:** Yordle, Vex, Shadow Isles
+
+*Artist: League Splash Team | Unleashed #150*
+
+---
+
+### Bandle Soldier
+
+**Energy:** 4 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Order
+
+[Level 3][&gt;] I enter ready. (While you have 3+ XP, get the effect.)
+
+> *Bandle Scout Rule 170: Everything makes you better at everything.*
+
+**Tags:** Yordle, Bandle City
+
+*Artist: Caravan Studio | Unleashed #151*
+
+---
+
+### Black Rose Dignitary
+
+**Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Order
+
+[Assault] (+1 :rb_might: while I'm an attacker.)[Deathknell][&gt;] Channel 1 rune exhausted. (When I die, get the effect.)
+
+> *The beauty of the petals hides the sting of the thorns.*
+
+**Tags:** Noxus
+
+*Artist: Grafit Studio | Unleashed #152*
+
+---
+
+### Carrion Dredger
+
+**Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Order
+
+[Deathknell][&gt;] Play a 1 :rb_might: Bird unit token with [Deflect] to your base. (When I die, get the effect. Opponents must pay :rb_rune_rainbow: to choose a [Deflect] unit with a spell or ability.)
+
+> *The automaton paused and stared in wonder. Amidst the detritus sat a single unbroken egg.*
+
+**Tags:** Mech, Zaun
+
+*Artist: Six More Vodka | Unleashed #153*
 
 ---
 
@@ -987,6 +1786,20 @@ When you play me, gain 1 XP for each friendly unit.
 
 ---
 
+### Enthralling Protector
+
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Order
+
+[Hunt] (When I conquer or hold, gain 1 XP.)Spend 2 XP: [Buff] me. (Give me a +1 :rb_might: buff if I don't have one.)
+
+> *Irresistible force indeed.*
+
+**Tags:** Fae, Ionia
+
+*Artist: Dao Trong Le | Unleashed #162*
+
+---
+
 ### Mageseeker Investigator
 
 **Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Order
@@ -1001,6 +1814,20 @@ Opponents must pay :rb_rune_rainbow: for each unit beyond the first to move mult
 
 ---
 
+### Safety Inspector
+
+**Energy:** 5 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Order
+
+You may spend 3 XP as an additional cost to play me.When you play me, each player must kill one of their units. If you paid my additional cost, you don't kill a unit this way.
+
+> *Looks fine to me!*
+
+**Tags:** Yordle, Bandle City
+
+*Artist: Kudos Productions | Unleashed #164*
+
+---
+
 ### Stalking Wolf
 
 **Energy:** 4 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Order
@@ -1012,6 +1839,20 @@ Opponents must pay :rb_rune_rainbow: for each unit beyond the first to move mult
 **Tags:** Dog, Freljord
 
 *Artist: Six More Vodka | Unleashed #166*
+
+---
+
+### Starhound
+
+**Energy:** 5 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Order
+
+When you play me, return a Bird, Cat, Dog, or Poro from your trash to your hand.
+
+> *It guards to flock, no matter where they stray.*
+
+**Tags:** Dog, Mount Targon
+
+*Artist: Kudos Productions | Unleashed #167*
 
 ---
 
@@ -1055,17 +1896,59 @@ You may kill a friendly unit as an additional cost to play me. If you do, I cost
 
 ---
 
-### Ivern - Friend to All
+### LeBlanc - Fragmented (Alternate Art)
 
-**Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
+**Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
 
-As you play me, choose Bird, Cat, Dog, or Poro. I gain that tag.When I conquer or hold, score 1 point if your units have all of the following tags among them — Bird, Cat, Dog, and Poro.
+[Assault][Deathknell][&gt;] Draw 1. If it's your Beginning Phase, draw 2 instead.
 
-> *Life is such a strange miracle.*
+> *My greatest strength is that there are so many of us...*
 
-**Tags:** Ivern, Ionia
+**Tags:** Noxus, LeBlanc
 
-*Artist: Zhongqi Li | Unleashed #177*
+*Artist: League Splash Team | Unleashed #172*
+
+---
+
+### LeBlanc - Fragmented
+
+**Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Order
+
+[Assault] (+1 :rb_might: while I'm an attacker.)[Deathknell][&gt;] Draw 1. If it's your Beginning Phase, draw 2 instead. (When I die, get the effect.)
+
+> *My greatest strength is that there are so many of us...*
+
+**Tags:** Noxus, LeBlanc
+
+*Artist: League Splash Team | Unleashed #172*
+
+---
+
+### Vi - Peacekeeper
+
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Order
+
+[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)When I attack, [Stun] an enemy unit here. (It doesn't deal combat damage this turn.)
+
+> *I'm my own backup.*
+
+**Tags:** Vi, Piltover
+
+*Artist: Envar Studio | Unleashed #176*
+
+---
+
+### Vi - Peacekeeper (Alternate Art)
+
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+
+[Ambush]When I attack, [Stun] an enemy unit here.
+
+> *I'm my own backup.*
+
+**Tags:** Vi, Piltover
+
+*Artist: League Splash Team | Unleashed #176*
 
 ---
 
@@ -1083,15 +1966,43 @@ As you play me, choose Bird, Cat, Dog, or Poro. I gain that tag.When I conquer o
 
 ---
 
-### Rift Herald (Alternate Art)
+### Ivern - Friend to All
 
-**Energy:** 8 | **Might:** 7 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+**Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
 
-When I move to a battlefield, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest.[Deathknell][&gt;] Play a unit from your hand to your base, ignoring its Energy cost.
+As you play me, choose Bird, Cat, Dog, or Poro. I gain that tag.When I conquer or hold, score 1 point if your units have all of the following tags among them — Bird, Cat, Dog, and Poro.
 
-**Tags:** The Void
+> *Life is such a strange miracle.*
 
-*Artist: Grafit Studio | Unleashed #179*
+**Tags:** Ivern, Ionia
+
+*Artist: Zhongqi Li | Unleashed #177*
+
+---
+
+### Poppy - Defender of the Meek (Alternate Art)
+
+**Energy:** 6 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+
+You may spend 3 XP as an additional cost to play me. If you do, I cost :rb_energy_3: less.[Ambush][Tank]
+
+> *I'm in, 100%! That's everything, right?*
+
+**Tags:** Yordle, Demacia, Poppy
+
+*Artist: League Splash Team | Unleashed #178*
+
+---
+
+### Poppy - Defender of the Meek
+
+**Energy:** 6 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
+
+You may spend 3 XP as an additional cost to play me. If you do, I cost :rb_energy_3: less.[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)[Tank] (I must be assigned combat damage first.)
+
+**Tags:** Yordle, Demacia, Poppy
+
+*Artist: Dao Trong Le | Unleashed #178*
 
 ---
 
@@ -1104,6 +2015,46 @@ When I move to a battlefield, look at the top 3 cards of your Main Deck. You may
 **Tags:** The Void
 
 *Artist: Grafit Studio | Unleashed #179*
+
+---
+
+### Rift Herald (Alternate Art)
+
+**Energy:** 8 | **Might:** 7 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+
+When I move to a battlefield, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest.[Deathknell][&gt;] Play a unit from your hand to your base, ignoring its Energy cost.
+
+**Tags:** The Void
+
+*Artist: Grafit Studio | Unleashed #179*
+
+---
+
+### Shadow
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm, Chaos
+
+If you play me to a battlefield, I enter ready.[Action][&gt;] :rb_energy_1::rb_rune_rainbow:, :rb_exhaust:: [Stun] an enemy unit attacking here. (It doesn't deal combat damage this turn.)
+
+> *Another person to kill. Shadow, can you handle it?"
+
+- Vex*
+
+**Tags:** Vex, Shadow Isles
+
+*Artist: 莺之歌 | Unleashed #194*
+
+---
+
+### Daisy!
+
+**Energy:** 9 | **Might:** 8 | **Power:** 2 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm, Order
+
+I enter ready.Reduce my cost by :rb_energy_1: for each of the following tags among your units — Bird, Cat, Dog, and Poro.When I attack while your units have all 4 tags, [Stun] an enemy unit here. (It doesn't deal combat damage this turn.)
+
+**Tags:** Ivern, Ionia
+
+*Artist: Polar Engine Studio | Unleashed #196*
 
 ---
 
@@ -1203,19 +2154,19 @@ And may it lead us to our fluft*
 
 ---
 
-### Vi - Piltover Enforcer (Overnumbered)
+### Baron Nashor (Ultimate)
 
-**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+**Energy:** 10 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
 
-[Assault]
+As you play me, add the Baron Pit battlefield token to the board if it's not there already. If you do, I enter there.I can't be chosen by enemy spells and abilities.Other friendly units have +2 :rb_might:.
 
-**Tags:** Poro
+**Tags:** The Void
 
-*Artist: FOREDAWN | Unleashed #225*
+*Artist: 張漁 ·ZHANG YU | Unleashed #238*
 
 ---
 
-## Spells (27)
+## Spells (54)
 
 ### Smite
 
@@ -1241,6 +2192,69 @@ And may it lead us to our fluft*
 
 ---
 
+### Vault Breaker
+
+**Energy:** 1 | **Power:** 1 | **Type:** Spell | **Rarity:** Common | **Domain:** Fury
+
+[Action] (Play on your turn or in showdowns.)Give a unit [Assault 2] and [Ganking] this turn. (+2 :rb_might: while it's an attacker. It can move from battlefield to battlefield.)
+
+> *If you hit a wall, hit it hard!"
+
+- Vi*
+
+*Artist: Kudos Productions | Unleashed #10*
+
+---
+
+### Lotus Trap
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Fury
+
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Reaction] (Play any time, even before spells and abilities resolve.)Choose a unit. Double all damage that would be dealt to it this turn.
+
+> *Art shall blossom from your fear."
+ - Jhin*
+
+*Artist: Kudos Productions | Unleashed #13*
+
+---
+
+### Monster Harpoon
+
+**Energy:** 1 | **Power:** 1 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Fury
+
+[Action] (Play on your turn or in showdowns.)Deal 2 to a unit at a battlefield. If you control a facedown card, deal 4 to it instead.
+
+> *Ready" and "fire" are easy. Aiming, now that's the hard part.*
+
+*Artist: Kudos Productions | Unleashed #14*
+
+---
+
+### Right of Conquest
+
+**Energy:** 3 | **Power:** 1 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Fury
+
+Draw 1, then draw 1 for each battlefield you or allies control.
+
+> *You get what you can take.*
+
+*Artist: Kudos Productions | Unleashed #15*
+
+---
+
+### Square Up
+
+**Energy:** 4 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Fury
+
+[Repeat] — Discard 1 (You may pay the additional cost to repeat this spell's effect.)Give a unit [Assault 4] this turn. (+4 :rb_might: while it's an attacker.)
+
+> *Nothing like a good roar to work up an appetite for violence.*
+
+*Artist: Kudos Productions | Unleashed #17*
+
+---
+
 ### Dancing Grenade
 
 **Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Rare | **Domain:** Fury
@@ -1254,13 +2268,37 @@ Deal 2 to a unit. Its controller may play this spell again for :rb_rune_rainbow:
 
 ---
 
-### Combat Expertise
+### Combat Experience
 
 **Energy:** 1 | **Type:** Spell | **Rarity:** Common | **Domain:** Calm
 
 [Reaction] (Play any time, even before spells and abilities resolve.)Give a unit +1 :rb_might: this turn.[Level 6][&gt;] Give it +3 :rb_might: this turn instead. (While you have 6+ XP, get the effect.)
 
 *Artist: Kudos Productions | Unleashed #31*
+
+---
+
+### Double Trouble
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Common | **Domain:** Calm
+
+[Repeat] :rb_energy_2: (You may pay the additional cost to repeat this spell's effect.)Look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest.
+
+> *Two heads pay better than one.*
+
+*Artist: Kudos Productions | Unleashed #32*
+
+---
+
+### Skyward Strike
+
+**Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Common | **Domain:** Calm
+
+Move an enemy unit.[Level 6][&gt;] [Stun] an enemy unit. (While you have 6+ XP, get the effect. A stunned unit doesn't deal combat damage this turn.)
+
+> *Take a moment to heel up.*
+
+*Artist: Kudos Productions | Unleashed #38*
 
 ---
 
@@ -1276,6 +2314,16 @@ Deal 2 to a unit. Its controller may play this spell again for :rb_rune_rainbow:
 
 ---
 
+### Flurry of Feathers
+
+**Energy:** 4 | **Power:** 2 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Calm
+
+[Reaction]Choose one —Counter a spell.Play four 1 :rb_might: Bird unit tokens with [Deflect]. (Opponents must pay :rb_rune_rainbow: to choose them with a spell or ability.)
+
+*Artist: Polar Engine Studio | Unleashed #44*
+
+---
+
 ### Friendship
 
 **Energy:** 1 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Calm
@@ -1288,6 +2336,18 @@ Deal 2 to a unit. Its controller may play this spell again for :rb_rune_rainbow:
 
 ---
 
+### Tricksy Tentacles
+
+**Energy:** 4 | **Power:** 1 | **Type:** Spell | **Rarity:** Rare | **Domain:** Calm
+
+Move any number of enemy units with the same controller and a total Might of 8 or less to a single location.
+
+> *Not exactly charming.*
+
+*Artist: Kudos Productions | Unleashed #54*
+
+---
+
 ### Downstage Dramatics
 
 **Energy:** 2 | **Type:** Spell | **Rarity:** Common | **Domain:** Mind
@@ -1297,6 +2357,42 @@ Deal 2 to a unit. Its controller may play this spell again for :rb_rune_rainbow:
 > *A true artist reveres both canvas and brush.*
 
 *Artist: 莺之歌 | Unleashed #61*
+
+---
+
+### Eclipse
+
+**Energy:** 3 | **Type:** Spell | **Rarity:** Common | **Domain:** Mind
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Give a unit -4 :rb_might: this turn.[Predict]. (Look at the top card of your Main Deck. You may recycle it.)
+
+> *When sun and moon meet, darkness triumphs.*
+
+*Artist: Kudos Productions | Unleashed #63*
+
+---
+
+### Moonlight Affliction
+
+**Energy:** 7 | **Type:** Spell | **Rarity:** Common | **Domain:** Mind
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Give a unit -10 :rb_might: this turn.
+
+> *Light can illuminate, or it can blind.*
+
+*Artist: Kudos Productions | Unleashed #66*
+
+---
+
+### Sprite Burst
+
+**Energy:** 5 | **Type:** Spell | **Rarity:** Common | **Domain:** Mind
+
+Play two ready 3 :rb_might: Sprite unit tokens with [Temporary]. (Kill each at the start of its controller's Beginning Phase, before scoring.)
+
+> *They're lovely, while they last.*
+
+*Artist: Envar Studio | Unleashed #69*
 
 ---
 
@@ -1338,6 +2434,16 @@ Deal 3 to an enemy unit. When it dies this turn, play a Gold gear token exhauste
 
 ---
 
+### Smoke and Mirrors
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Rare | **Domain:** Mind
+
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Action] (Play on your turn or in showdowns.)Choose a unit you control and another unit you control at a different location. If at least one of them has [Temporary], move each to the other's location. Draw 1.
+
+*Artist: Wild Blue Studios | Unleashed #83*
+
+---
+
 ### Concentrate
 
 **Energy:** 5 | **Type:** Spell | **Rarity:** Common | **Domain:** Body
@@ -1352,6 +2458,18 @@ Draw 2.[Level 6][&gt;] This costs :rb_energy_2: less. (While you have 6+ XP, get
 
 ---
 
+### Grim Resolve
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Common | **Domain:** Body
+
+[Action] (Play on your turn or in showdowns.)Give a friendly unit +3 :rb_might: this turn. When it wins a combat this turn, gain 2 XP.
+
+> *If you think losing is the best teacher, you should really give winning a try.*
+
+*Artist: Kudos Productions | Unleashed #95*
+
+---
+
 ### Call to Battle
 
 **Energy:** 3 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Body
@@ -1361,6 +2479,79 @@ Move a unit you control to a battlefield you control. Then, choose an opponent. 
 > *I said, what're you gonna do about it?!*
 
 *Artist: Kudos Productions | Unleashed #101*
+
+---
+
+### Disposal Order
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Body
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Choose one —Choose up to 3 cards from opponents' trashes. Their owners recycle them.Draw 1.
+
+> *Get it cleaned up by sunrise. No questions.*
+
+*Artist: Kudos Productions | Unleashed #103*
+
+---
+
+### Repulse
+
+**Energy:** 1 | **Power:** 1 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Body
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Choose a friendly unit at a battlefield. Counter an enemy spell or ability that chooses it and no other friendly unit.
+
+*Artist: Kudos Productions | Unleashed #106*
+
+---
+
+### Stare Down
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Body
+
+Choose a friendly unit and a battlefield. Move all enemy units at that battlefield with less Might than the chosen unit to their base. Gain 1 XP.
+
+> *The eyes have it.*
+
+*Artist: Polar Engine Studio | Unleashed #107*
+
+---
+
+### Clash of Giants
+
+**Energy:** 6 | **Power:** 2 | **Type:** Spell | **Rarity:** Rare | **Domain:** Body
+
+Choose two units. They deal damage equal to their Mights to each other.
+
+> *The land slumbers, but it is not dead. With my roar, I wake it. With my thunder, I call it."
+ - Volibear*
+
+*Artist: Polar Engine Studio | Unleashed #110*
+
+---
+
+### Isolate
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Common | **Domain:** Chaos
+
+Move an enemy unit from a battlefield to its base. Then, if there's an enemy unit alone at that battlefield, draw 1.
+
+> *Hey, where is everyone?"
+- Common last words</em*
+
+*Artist: Kudos Productions | Unleashed #124*
+
+---
+
+### Lunar Boon
+
+**Energy:** 3 | **Type:** Spell | **Rarity:** Common | **Domain:** Chaos
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Discard 1, then draw 2.
+
+> *A new moon is rising."
+ - Diana*
+
+*Artist: Kudos Productions | Unleashed #125*
 
 ---
 
@@ -1396,6 +2587,26 @@ Move a unit you control to a battlefield you control. Then, choose an opponent. 
 
 ---
 
+### Bone Skewer
+
+**Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Rare | **Domain:** Chaos
+
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)Choose a battlefield. An opponent reveals their hand. You may choose a unit from it. They play that unit to that battlefield, ignoring any and all costs. When they do, [Stun] it. (It doesn't deal combat damage this turn.)
+
+*Artist: Kudos Productions | Unleashed #139*
+
+---
+
+### Conscription
+
+**Energy:** 5 | **Power:** 2 | **Type:** Spell | **Rarity:** Rare | **Domain:** Chaos
+
+You may spend 5 XP as an additional cost to play this.Choose an enemy unit at a battlefield with 3 :rb_might: or less. If you paid the additional cost, choose any enemy unit at a battlefield instead. Take control of it, exhaust it, and recall it.
+
+*Artist: Kudos Productions | Unleashed #140*
+
+---
+
 ### Heedless Resurrection
 
 **Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Rare | **Domain:** Chaos
@@ -1403,6 +2614,31 @@ Move a unit you control to a battlefield you control. Then, choose an opponent. 
 [Reaction] (Play any time, even before spells and abilities resolve.)As an additional cost to play this, kill a friendly unit.Play a unit from your trash that costs no more Energy and no more Power than the killed unit, ignoring its cost.
 
 *Artist: Kudos Productions | Unleashed #142*
+
+---
+
+### Heroic Charge
+
+**Energy:** 3 | **Type:** Spell | **Rarity:** Common | **Domain:** Order
+
+[Action] (Play on your turn or in showdowns.)Give a friendly unit +1 :rb_might: this turn and [Stun] an enemy unit at its location. (A stunned unit doesn't deal combat damage this turn.)
+
+> *Sometimes you just gotta do it yourself."
+ - Poppy*
+
+*Artist: Kudos Productions | Unleashed #155*
+
+---
+
+### Soul Harvest
+
+**Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Common | **Domain:** Order
+
+Kill a unit at a battlefield with 3 :rb_might: or less.
+
+> *It won't hurt a bit- it'll hurt a LOT.*
+
+*Artist: Kudos Productions | Unleashed #159*
 
 ---
 
@@ -1437,6 +2673,18 @@ This costs :rb_energy_2: less if you choose a Bird, Cat, Dog, or Poro.Play a uni
 [Reaction] (Play any time, even before spells and abilities resolve.)As an additional cost to play this, kill a friendly [Mighty] unit. (A unit is Mighty while it has 5+ :rb_might:.)Draw 2 and channel 1 rune exhausted.
 
 *Artist: Kudos Productions | Unleashed #173*
+
+---
+
+### Tactical Retreat
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Rare | **Domain:** Order
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Choose a friendly unit. The next time it would die this turn, heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)
+
+> *Valor has nothing on discretion.*
+
+*Artist: Kudos Productions | Unleashed #175*
 
 ---
 
@@ -1478,6 +2726,22 @@ Kill all units.
 **Tags:** Rengar
 
 *Artist: 华锐 | Unleashed #184*
+
+---
+
+### Death from Below
+
+**Energy:** 4 | **Power:** 1 | **Type:** Spell | **Rarity:** Epic | **Domain:** Fury, Chaos
+
+Kill a unit at a battlefield. Then, if it had 3 :rb_might: or less, you may play this from your trash for :rb_rune_rainbow:.
+
+> *Keep a man down long enough, and the gutter becomes his kingdom."
+
+- Pyke*
+
+**Tags:** Pyke
+
+*Artist: 莺之歌 | Unleashed #186*
 
 ---
 
@@ -1542,6 +2806,21 @@ Choose a unit. Play a ready Reflection unit token to your base. It becomes a cop
 
 ---
 
+### Void Assault
+
+**Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Epic | **Domain:** Body, Chaos
+
+Move a friendly unit, then move an enemy unit. (If they both move to a battlefield you don't control, you're the attacker.)
+
+> *If I eat you, will I learn how to die?"
+ - Kha'Zix*
+
+**Tags:** Kha'Zix
+
+*Artist: 莺之歌 | Unleashed #202*
+
+---
+
 ### Keeper's Verdict
 
 **Energy:** 2 | **Power:** 2 | **Type:** Spell | **Rarity:** Epic | **Domain:** Body, Order
@@ -1558,7 +2837,7 @@ Choose a unit. Play a ready Reflection unit token to your base. It becomes a cop
 
 ---
 
-## Gears (10)
+## Gears (19)
 
 ### Fresh Beans
 
@@ -1596,6 +2875,32 @@ When you play a unit during a showdown, you may exhaust this to draw 1.
 
 ---
 
+### Forgotten Signpost
+
+**Energy:** 2 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Calm
+
+[Action][&gt;] Exhaust a unit you control, :rb_exhaust:: Move a different unit you control to the location of the unit you exhausted to pay for this ability.
+
+> *Great City of Demacia -  470
+
+Immortal Bastion -  2,105
+
+Bandle City -  ????*
+
+*Artist: Kudos Productions | Unleashed #45*
+
+---
+
+### Honeyfruit
+
+**Energy:** 2 | **Type:** Gear | **Rarity:** Rare | **Domain:** Calm
+
+This enters exhausted.[Reaction][&gt;] :rb_exhaust:: [Add] :rb_rune_rainbow:. (Abilities that add resources can't be reacted to.)[Level 6][&gt;] [&gt;&gt;][Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1::rb_rune_rainbow:. (Use this ability only while you have 6+ XP.)
+
+*Artist: 黯荧岛Dark Glow | Unleashed #49*
+
+---
+
 ### Frigid Jewel
 
 **Energy:** 2 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Mind
@@ -1605,6 +2910,28 @@ When you draw your second card each turn, give a friendly unit +2 :rb_might: thi
 > *The power of the Frejlord shines from every facet.*
 
 *Artist: Kudos Productions | Unleashed #74*
+
+---
+
+### Sprite Fountain
+
+**Energy:** 2 | **Power:** 1 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Mind
+
+[Temporary] (Kill this at the start of its controller's Beginning Phase, before scoring.)When you play this, play a ready 3 :rb_might: Sprite unit token with [Temporary] to your base.[Deathknell][&gt;] Repeat this gear's play effect. (When this dies, get the effect.)
+
+*Artist: Envar Studio | Unleashed #78*
+
+---
+
+### Sumpworks Map
+
+**Energy:** 2 | **Type:** Gear | **Rarity:** Rare | **Domain:** Mind
+
+[Reaction] (Play any time, even before spells and abilities resolve.)[Temporary] (Kill this at the start of its controller's Beginning Phase, before scoring.)When an opponent scores, draw 1.
+
+> *Hang on, it's upside-down.*
+
+*Artist: Kudos Productions | Unleashed #85*
 
 ---
 
@@ -1642,6 +2969,30 @@ When you play a unit, you may pay :rb_energy_1: to gain 1 XP.Spend 3 XP, :rb_exh
 
 ---
 
+### Blast Cone
+
+**Energy:** 4 | **Power:** 1 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Chaos
+
+When you play this, you may move an enemy unit.When you move an enemy unit, you may exhaust this to [Stun] it. (It doesn't deal combat damage this turn.)
+
+> *Seeds of destruction.*
+
+*Artist: 黯荧岛Dark Glow | Unleashed #133*
+
+---
+
+### Scryer's Bloom
+
+**Energy:** 1 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Chaos
+
+This enters exhausted.Kill this, :rb_energy_1:, :rb_exhaust:: [Predict 2], then draw 1. Gain 1 XP.  (To Predict 2, look at the top two cards of your Main Deck. Recycle any of them and put the rest back in any order.)
+
+> *Not all foliage conceals.*
+
+*Artist: 黯荧岛Dark Glow | Unleashed #136*
+
+---
+
 ### The List
 
 **Energy:** 1 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Chaos
@@ -1668,6 +3019,44 @@ When you play this, banish all units from your trash.:rb_exhaust:: Play a unit b
 
 ---
 
+### Shepherd's Heirloom
+
+**Energy:** 2 | **Type:** Gear | **Rarity:** Common | **Domain:** Order
+
+When you play this, gain 1 XP.[Equip] — Spend 1 XP (Pay the cost: Attach this to a unit you control.)
+
+> *Even the sheep can tell it's special. And sheep aren't very smart.*
+
+**Tags:** Equipment
+
+*Artist: Kudos Productions | Unleashed #158*
+
+---
+
+### Divining Shells
+
+**Energy:** 2 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Order
+
+[Vision] (When you play this, look at the top card of your Main Deck. You may recycle it.)[Action][&gt;] Kill this, :rb_exhaust:: Give a unit +2 :rb_might: this turn.
+
+> *Today's treasure is tomorrow's trash.*
+
+*Artist: Kudos Productions | Unleashed #161*
+
+---
+
+### Shard of Undoing
+
+**Energy:** 6 | **Type:** Gear | **Rarity:** Rare | **Domain:** Order
+
+The first time a friendly unit dies during your Beginning Phase each turn, each opponent must kill one of their units.
+
+> *Treasure is eternal. It's life that's fleeting.*
+
+*Artist: Kudos Productions | Unleashed #174*
+
+---
+
 ### Hextech Gauntlets
 
 **Energy:** 3 | **Type:** Gear | **Rarity:** Epic | **Domain:** Fury, Order
@@ -1680,7 +3069,7 @@ When you play this, banish all units from your trash.:rb_exhaust:: Play a unit b
 
 ---
 
-## Legends (22)
+## Legends (36)
 
 ### Jhin - Virtuoso
 
@@ -1826,6 +3215,102 @@ When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
 
 ---
 
+### Jhin - Virtuoso (Overnumbered)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Mind
+
+When you play a spell, if you spent :rb_energy_4: or more, you may banish it. Then, if there are four spells banished with me, put each in its trash, channel 4 runes, and draw 1.
+
+**Tags:** Jhin
+
+*Artist: Blaine Burgos | Unleashed #226*
+
+---
+
+### Jhin - Virtuoso (Signature)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Mind
+
+When you play a spell, if you spent :rb_energy_4: or more, you may banish it. Then, if there are four spells banished with me, put each in its trash, channel 4 runes, and draw 1.
+
+**Tags:** Jhin
+
+*Artist: Blaine Burgos | Unleashed #226*
+
+---
+
+### Rengar - Pridestalker (Overnumbered)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Body
+
+When you play a unit, give a unit +1 :rb_might: this turn.
+
+**Tags:** Rengar
+
+*Artist: Duy Nguyen | Unleashed #227*
+
+---
+
+### Rengar - Pridestalker (Signature)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Body
+
+When you play a unit, give a unit +1 :rb_might: this turn.
+
+**Tags:** Rengar
+
+*Artist: Duy Nguyen | Unleashed #227*
+
+---
+
+### Pyke - Bloodharbor Ripper (Overnumbered)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Chaos
+
+:rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted.
+
+**Tags:** Pyke
+
+*Artist: Kindlejack | Unleashed #228*
+
+---
+
+### Pyke - Bloodharbor Ripper (Signature)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Chaos
+
+:rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted.
+
+**Tags:** Pyke
+
+*Artist: Kindlejack | Unleashed #228*
+
+---
+
+### Vi - Piltover Enforcer (Signature)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Order
+
+When you conquer, if you assigned 3 or more excess damage, you may exhaust me to ready a unit.
+
+**Tags:** Vi
+
+*Artist: Jonathan Santoro | Unleashed #229*
+
+---
+
+### Vi - Piltover Enforcer (Overnumbered)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Order
+
+When you conquer, if you assigned 3 or more excess damage, you may exhaust me to ready a unit.
+
+**Tags:** Vi
+
+*Artist: Jonathan Santoro | Unleashed #229*
+
+---
+
 ### Lillia - Bashful Bloom (Overnumbered)
 
 **Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Mind
@@ -1850,15 +3335,51 @@ When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
 
 ---
 
-### Ivern - Green Father (Overnumbered)
+### Master Yi - Wuju Master (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Order
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Body
 
-When you conquer or hold, you may exhaust me to replace that battlefield with a Brush battlefield token.
+[Level 6][&gt;] Your units have +1 :rb_might:.[Level 11][&gt;] Your units enter ready.
 
-**Tags:** Ivern
+**Tags:** Master Yi
 
-*Artist: Michelle Mauk | Unleashed #233*
+*Artist: Shawn Lee | Unleashed #231*
+
+---
+
+### Master Yi - Wuju Master (Overnumbered)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Body
+
+[Level 6][&gt;] Your units have +1 :rb_might:.[Level 11][&gt;] Your units enter ready.
+
+**Tags:** Master Yi
+
+*Artist: Shawn Lee | Unleashed #231*
+
+---
+
+### Vex - Gloomist (Signature)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Chaos
+
+When you or an ally hold, you may exhaust me to draw 1.
+
+**Tags:** Vex
+
+*Artist: Hozure | Unleashed #232*
+
+---
+
+### Vex - Gloomist (Overnumbered)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Chaos
+
+When you or an ally hold, you may exhaust me to draw 1.
+
+**Tags:** Vex
+
+*Artist: Hozure | Unleashed #232*
 
 ---
 
@@ -1874,15 +3395,15 @@ When you conquer or hold, you may exhaust me to replace that battlefield with a 
 
 ---
 
-### Diana - Scorn of the Moon (Overnumbered)
+### Ivern - Green Father (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Mind, Chaos
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Order
 
-[Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns.
+When you conquer or hold, you may exhaust me to replace that battlefield with a Brush battlefield token.
 
-**Tags:** Diana
+**Tags:** Ivern
 
-*Artist: Lisha Du | Unleashed #234*
+*Artist: Michelle Mauk | Unleashed #233*
 
 ---
 
@@ -1898,15 +3419,39 @@ When you conquer or hold, you may exhaust me to replace that battlefield with a 
 
 ---
 
-### Kha'Zix - Voidreaver (Signature)
+### Diana - Scorn of the Moon (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Body, Chaos
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Mind, Chaos
 
-When you win a combat, gain 1 XP.Spend 1 XP, :rb_exhaust:: [Buff] a unit.Spend 2 XP, :rb_exhaust:: Move an exhausted friendly unit from a battlefield to its base.
+[Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns.
 
-**Tags:** Kha'Zix
+**Tags:** Diana
 
-*Artist: Jeffrey Chen | Unleashed #236*
+*Artist: Lisha Du | Unleashed #234*
+
+---
+
+### LeBlanc - Deceiver (Signature)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Mind, Order
+
+When you conquer or hold, you may discard 1 and exhaust me to play a ready Reflection unit token there. It becomes a copy of another unit there. Give it [Temporary].
+
+**Tags:** LeBlanc
+
+*Artist: Valentine Tran | Unleashed #235*
+
+---
+
+### LeBlanc - Deceiver (Overnumbered)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Mind, Order
+
+When you conquer or hold, you may discard 1 and exhaust me to play a ready Reflection unit token there. It becomes a copy of another unit there. Give it [Temporary].
+
+**Tags:** LeBlanc
+
+*Artist: Valentine Tran | Unleashed #235*
 
 ---
 
@@ -1922,15 +3467,15 @@ When you win a combat, gain 1 XP.Spend 1 XP, :rb_exhaust:: [Buff] a unit.Spend 2
 
 ---
 
-### Poppy - Keeper of the Hammer (Overnumbered)
+### Kha'Zix - Voidreaver (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Body, Order
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Body, Chaos
 
-When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
+When you win a combat, gain 1 XP.Spend 1 XP, :rb_exhaust:: [Buff] a unit.Spend 2 XP, :rb_exhaust:: Move an exhausted friendly unit from a battlefield to its base.
 
-**Tags:** Poppy
+**Tags:** Kha'Zix
 
-*Artist: KK Zhang | Unleashed #237*
+*Artist: Jeffrey Chen | Unleashed #236*
 
 ---
 
@@ -1946,7 +3491,49 @@ When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
 
 ---
 
-## Battlefields (10)
+### Poppy - Keeper of the Hammer (Overnumbered)
+
+**Type:** Legend | **Rarity:** Showcase | **Domain:** Body, Order
+
+When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
+
+**Tags:** Poppy
+
+*Artist: KK Zhang | Unleashed #237*
+
+---
+
+## Battlefields (15)
+
+### Abandoned Hall
+
+**Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
+
+When a player plays a spell, they may give a unit they control here +1 :rb_might: this turn.
+
+*Artist: Envar Studio | Unleashed #205*
+
+---
+
+### Altar of Blood
+
+**Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
+
+If a unit here would die during combat, its controller may pay :rb_rune_rainbow::rb_rune_rainbow::rb_rune_rainbow: to heal it, exhaust it, and recall it instead.
+
+*Artist: Kudos Productions | Unleashed #206*
+
+---
+
+### Amateur Recital
+
+**Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
+
+When you hold here, you may move a unit at a battlefield to its base.
+
+*Artist: Envar Studio | Unleashed #207*
+
+---
 
 ### Black Flame Altar
 
@@ -2018,6 +3605,16 @@ When a unit here is returned to a player's hand, that player may pay :rb_energy_
 
 ---
 
+### Star Spring
+
+**Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
+
+The first time a player plays a non-token unit here each turn, they may move another unit they control here to its base.
+
+*Artist: Six More Vodka | Unleashed #215*
+
+---
+
 ### The Academy
 
 **Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
@@ -2035,6 +3632,16 @@ When you hold here, give your next spell this turn [Repeat] equal to its base co
 When you conquer here, if you assigned 3 or more excess damage, play a 1 :rb_might: Bird unit token with [Deflect].
 
 *Artist: Kudos Productions | Unleashed #217*
+
+---
+
+### Valley of Idols
+
+**Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
+
+When a player plays a unit here, they may pay :rb_energy_1: to [Buff] it. (Give it a +1 :rb_might: buff if it doesn't have one.)
+
+*Artist: Caravan Studio | Unleashed #218*
 
 ---
 

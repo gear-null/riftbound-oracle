@@ -23,7 +23,7 @@ entries:
     set_id: UNL
     category: cards
     output: output/cards-unl.md
-    processed: 2026-03-25
+    processed: 2026-04-22
   - type: riftcodex
     set_id: JDG
     category: cards
@@ -34,18 +34,11 @@ entries:
     category: cards
     output: output/cards-pr.md
     processed: 2026-03-25
-  - type: pdf
-    path: sources/rules/Riftbound Core Rules v1.2.pdf
+  - type: rules-hub
+    url: https://riftbound.leagueoflegends.com/en-us/rules-hub/
     category: rules
-    output: output/core-rules.md
-    processed: 2026-03-25
-  - type: url
-    url: https://riftbound.leagueoflegends.com/en-us/news/organizedplay/riftbound-tournament-rules/
-    category: tournament
-    output: output/tournament-rules.md
-    processed: 2026-03-25
-  - type: url
-    url: https://riftbound.leagueoflegends.com/en-us/news/announcements/tournament-rules-january-update/
-    category: tournament
-    output: output/tournament-rules-jan-2026-update.md
-    processed: 2026-03-25
+    output: output/rules.md
+    processed: 2026-04-23
+    pdfs:
+      - output/core-rules.pdf
+      - output/tournament-rules.pdf

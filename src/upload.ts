@@ -1,8 +1,10 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, createReadStream } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { resolve, dirname, basename } from "node:path";
 import { createServer } from "node:http";
 import { google } from "googleapis";
 import { readManifest, type ManifestEntry } from "./manifest.js";
+
+type Drive = ReturnType<typeof google.drive>;
 
 const TOKEN_PATH = resolve(import.meta.dirname, "../.config/oauth-token.json");
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
@@ -85,6 +87,19 @@ function getDriveFolderId(): string {
   return folderId;
 }
 
+/** Authorize once and return a ready-to-use Drive client + target folder id. */
+async function getDriveClient(): Promise<{ drive: Drive; folderId: string }> {
+  const authClient = await authorize();
+  const drive = google.drive({ version: "v3", auth: authClient });
+  const folderId = getDriveFolderId();
+  return { drive, folderId };
+}
+
+/** Escape user-influenced values before interpolating into Drive API query strings. */
+export function escapeDriveQuery(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
 // Words that should stay fully uppercase in Drive file names
 const UPPERCASE_WORDS = new Set(["ogn", "ogs", "opp", "sfd", "unl", "jdg", "pr", "tcg", "api", "pdf"]);
 
@@ -100,29 +115,188 @@ function toTitleCase(slug: string): string {
     .join(" ");
 }
 
-async function deleteExisting(
-  drive: ReturnType<typeof google.drive>,
+/**
+ * Find the canonical Drive file for a name, deleting any older duplicates.
+ *
+ * SIDE EFFECT: if multiple files share the name, this keeps the most recently
+ * modified one (matching `planCleanup`'s tiebreaker) and deletes the rest, so
+ * upload converges on a single file ID per logical source. Returns the kept
+ * file's id, or null if nothing matches.
+ */
+async function findCanonicalAndDedupe(
+  drive: Drive,
   name: string,
   folderId: string,
   mimeFilter?: string
-): Promise<void> {
-  const mimeClause = mimeFilter ? ` and mimeType = '${mimeFilter}'` : "";
+): Promise<string | null> {
+  const mimeClause = mimeFilter
+    ? ` and mimeType = '${escapeDriveQuery(mimeFilter)}'`
+    : "";
   const existing = await drive.files.list({
-    q: `name = '${name}' and '${folderId}' in parents${mimeClause} and trashed = false`,
-    fields: "files(id)",
+    q: `name = '${escapeDriveQuery(name)}' and '${escapeDriveQuery(folderId)}' in parents${mimeClause} and trashed = false`,
+    fields: "files(id, modifiedTime)",
+    orderBy: "modifiedTime desc",
   });
 
-  if (existing.data.files) {
-    for (const file of existing.data.files) {
-      await drive.files.delete({ fileId: file.id! });
+  const files = existing.data.files ?? [];
+  if (files.length === 0) return null;
+
+  const [keep, ...extras] = files;
+  for (const extra of extras) {
+    await drive.files.delete({ fileId: extra.id! });
+  }
+  return keep.id ?? null;
+}
+
+export interface DriveFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  createdTime: string;
+  modifiedTime: string;
+  size?: string;
+}
+
+/** List every file in the given Drive folder (handles pagination). */
+async function fetchDriveFiles(
+  drive: Drive,
+  folderId: string
+): Promise<DriveFile[]> {
+  const out: DriveFile[] = [];
+  let pageToken: string | undefined;
+  do {
+    const res = await drive.files.list({
+      q: `'${escapeDriveQuery(folderId)}' in parents and trashed = false`,
+      fields:
+        "nextPageToken, files(id, name, mimeType, createdTime, modifiedTime, size)",
+      pageSize: 100,
+      pageToken,
+    });
+    for (const f of res.data.files ?? []) {
+      if (!f.id || !f.name) continue;
+      out.push({
+        id: f.id,
+        name: f.name,
+        mimeType: f.mimeType ?? "",
+        createdTime: f.createdTime ?? "",
+        modifiedTime: f.modifiedTime ?? "",
+        size: f.size ?? undefined,
+      });
+    }
+    pageToken = res.data.nextPageToken ?? undefined;
+  } while (pageToken);
+
+  return out;
+}
+
+/** List every file in the target Drive folder that the current OAuth session can see. */
+export async function listDriveFiles(): Promise<DriveFile[]> {
+  const { drive, folderId } = await getDriveClient();
+  return fetchDriveFiles(drive, folderId);
+}
+
+export interface CleanupPlan {
+  kept: DriveFile[];
+  toDelete: { file: DriveFile; reason: string }[];
+}
+
+/** Derive the set of expected Drive file names from the current manifest. */
+export function expectedDriveNames(
+  entries: ManifestEntry[]
+): Set<string> {
+  const names = new Set<string>();
+  for (const entry of entries) {
+    const baseName = entry.output.replace(/^output\//, "").replace(/\.md$/, "");
+    const driveName = toTitleCase(baseName);
+    if (entry.type === "pdf" && !entry.convert) {
+      names.add(driveName + ".pdf");
+    } else {
+      names.add(driveName);
+    }
+    if (entry.type === "rules-hub" && entry.pdfs) {
+      for (const pdfPath of entry.pdfs) {
+        names.add(pdfDriveName(pdfPath));
+      }
     }
   }
+  return names;
+}
+
+/** Derive the Drive display name for a sibling PDF (e.g., "output/core-rules.pdf" → "Core Rules.pdf"). */
+function pdfDriveName(pdfPath: string): string {
+  return toTitleCase(basename(pdfPath, ".pdf")) + ".pdf";
+}
+
+/** Plan a cleanup: which visible files are orphans vs. keepers. */
+export function planCleanup(
+  files: DriveFile[],
+  expected: Set<string>
+): CleanupPlan {
+  const byName = new Map<string, DriveFile[]>();
+  for (const f of files) {
+    const group = byName.get(f.name);
+    if (group) group.push(f);
+    else byName.set(f.name, [f]);
+  }
+
+  const kept: DriveFile[] = [];
+  const toDelete: { file: DriveFile; reason: string }[] = [];
+
+  for (const [name, group] of byName) {
+    if (expected.has(name)) {
+      // Keep the newest, delete older duplicates
+      group.sort((a, b) => b.modifiedTime.localeCompare(a.modifiedTime));
+      const [keep, ...extras] = group;
+      kept.push(keep);
+      for (const extra of extras) {
+        toDelete.push({
+          file: extra,
+          reason: `older duplicate of "${name}" (kept ${keep.modifiedTime})`,
+        });
+      }
+    } else {
+      for (const f of group) {
+        toDelete.push({ file: f, reason: "not in current manifest" });
+      }
+    }
+  }
+
+  return { kept, toDelete };
+}
+
+export interface CleanupResult extends CleanupPlan {
+  deleted: DriveFile[];
+}
+
+/** Execute a cleanup plan against the given Drive client. Exported for testing. */
+export async function executeCleanupPlan(
+  drive: Drive,
+  plan: CleanupPlan
+): Promise<DriveFile[]> {
+  const deleted: DriveFile[] = [];
+  for (const { file } of plan.toDelete) {
+    await drive.files.delete({ fileId: file.id });
+    deleted.push(file);
+  }
+  return deleted;
+}
+
+/** List visible Drive files, plan a cleanup, and optionally execute deletions. */
+export async function cleanupDrive(opts: {
+  confirm: boolean;
+}): Promise<CleanupResult> {
+  const { drive, folderId } = await getDriveClient();
+  const files = await fetchDriveFiles(drive, folderId);
+  const manifest = readManifest();
+  const expected = expectedDriveNames(manifest.entries);
+  const plan = planCleanup(files, expected);
+
+  const deleted = opts.confirm ? await executeCleanupPlan(drive, plan) : [];
+  return { ...plan, deleted };
 }
 
 export async function uploadToDrive(): Promise<string[]> {
-  const authClient = await authorize();
-  const drive = google.drive({ version: "v3", auth: authClient });
-  const folderId = getDriveFolderId();
+  const { drive, folderId } = await getDriveClient();
   const manifest = readManifest();
   const uploaded: string[] = [];
 
@@ -138,18 +312,29 @@ export async function uploadToDrive(): Promise<string[]> {
         continue;
       }
 
-      await deleteExisting(drive, driveName + ".pdf", folderId);
+      const pdfName = driveName + ".pdf";
+      const existingId = await findCanonicalAndDedupe(drive, pdfName, folderId);
 
-      await drive.files.create({
-        requestBody: {
-          name: driveName + ".pdf",
-          parents: [folderId],
-        },
-        media: {
-          mimeType: "application/pdf",
-          body: createReadStream(pdfPath),
-        },
-      });
+      if (existingId) {
+        await drive.files.update({
+          fileId: existingId,
+          media: {
+            mimeType: "application/pdf",
+            body: createReadStream(pdfPath),
+          },
+        });
+      } else {
+        await drive.files.create({
+          requestBody: {
+            name: pdfName,
+            parents: [folderId],
+          },
+          media: {
+            mimeType: "application/pdf",
+            body: createReadStream(pdfPath),
+          },
+        });
+      }
     } else {
       // Upload markdown as Google Doc
       const filePath = resolve(entry.output);
@@ -158,22 +343,68 @@ export async function uploadToDrive(): Promise<string[]> {
         continue;
       }
 
-      await deleteExisting(drive, driveName, folderId, "application/vnd.google-apps.document");
+      const existingId = await findCanonicalAndDedupe(
+        drive,
+        driveName,
+        folderId,
+        "application/vnd.google-apps.document"
+      );
 
-      await drive.files.create({
-        requestBody: {
-          name: driveName,
-          parents: [folderId],
-          mimeType: "application/vnd.google-apps.document",
-        },
-        media: {
-          mimeType: "text/markdown",
-          body: createReadStream(filePath),
-        },
-      });
+      if (existingId) {
+        await drive.files.update({
+          fileId: existingId,
+          media: {
+            mimeType: "text/markdown",
+            body: createReadStream(filePath),
+          },
+        });
+      } else {
+        await drive.files.create({
+          requestBody: {
+            name: driveName,
+            parents: [folderId],
+            mimeType: "application/vnd.google-apps.document",
+          },
+          media: {
+            mimeType: "text/markdown",
+            body: createReadStream(filePath),
+          },
+        });
+      }
     }
 
     uploaded.push(driveName);
+
+    // Upload any sibling PDFs discovered by the rules-hub processor.
+    if (entry.type === "rules-hub" && entry.pdfs) {
+      for (const pdfPath of entry.pdfs) {
+        const absPath = resolve(pdfPath);
+        if (!existsSync(absPath)) {
+          console.warn(`  Skipping ${pdfPath}: PDF not found (run process first)`);
+          continue;
+        }
+        const pdfName = pdfDriveName(pdfPath);
+        const existingPdfId = await findCanonicalAndDedupe(drive, pdfName, folderId);
+        if (existingPdfId) {
+          await drive.files.update({
+            fileId: existingPdfId,
+            media: {
+              mimeType: "application/pdf",
+              body: createReadStream(absPath),
+            },
+          });
+        } else {
+          await drive.files.create({
+            requestBody: { name: pdfName, parents: [folderId] },
+            media: {
+              mimeType: "application/pdf",
+              body: createReadStream(absPath),
+            },
+          });
+        }
+        uploaded.push(pdfName);
+      }
+    }
   }
 
   return uploaded;

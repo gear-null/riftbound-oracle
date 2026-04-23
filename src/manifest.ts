@@ -37,7 +37,22 @@ export interface RiftcodexSource {
   processed?: string;
 }
 
-export type ManifestEntry = FileSource | UrlSource | RiftcodexSource;
+/** The Riftbound Rules Hub — a landing page with linked PDFs and articles */
+export interface RulesHubSource {
+  type: "rules-hub";
+  url: string;
+  category: string;
+  output: string;
+  /** Sibling PDFs auto-discovered from the hub; populated by the processor on each run. */
+  pdfs?: string[];
+  processed?: string;
+}
+
+export type ManifestEntry =
+  | FileSource
+  | UrlSource
+  | RiftcodexSource
+  | RulesHubSource;
 
 export interface Manifest {
   entries: ManifestEntry[];

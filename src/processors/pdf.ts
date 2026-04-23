@@ -13,9 +13,9 @@ function getPython(): string {
   return "python3";
 }
 
-function runPdfExtract(
+export function extractPdfText(
   absolutePath: string,
-  onProgress: (message: string) => void
+  onProgress: (message: string) => void = () => {}
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn(getPython(), [PYTHON_SCRIPT, absolutePath]);
@@ -53,7 +53,7 @@ function runPdfExtract(
 export async function processPdf(opts: ProcessOptions): Promise<string> {
   const absolutePath = resolve(opts.sourcePath);
 
-  const rawText = await runPdfExtract(
+  const rawText = await extractPdfText(
     absolutePath,
     opts.onProgress ?? (() => {})
   );
