@@ -45,6 +45,8 @@ export interface RulesHubSource {
   output: string;
   /** Sibling PDFs auto-discovered from the hub; populated by the processor on each run. */
   pdfs?: string[];
+  /** Extra article URLs to include even if the hub doesn't link to them (e.g. FAQs). */
+  extra_articles?: string[];
   processed?: string;
 }
 

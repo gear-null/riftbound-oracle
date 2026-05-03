@@ -12,7 +12,7 @@ const turndown = new TurndownService({
 });
 turndown.remove(["script", "style", "nav", "footer", "header", "iframe", "noscript"]);
 
-const ARTICLE_PATH_PATTERN = /patch-notes|errata/i;
+const ARTICLE_PATH_PATTERN = /patch-notes|errata|changelog/i;
 
 interface LinkInfo {
   url: string;
@@ -31,6 +31,8 @@ export interface ProcessRulesHubOptions {
   hubUrl: string;
   category: string;
   outputPath: string;
+  /** Extra article URLs to fetch in addition to those discovered on the hub. */
+  extraArticles?: string[];
   onProgress?: (message: string) => void;
   // Injectable for testing
   fetchHtml?: RulesHubHtmlFetcher;
@@ -62,6 +64,26 @@ function dedupe(links: LinkInfo[]): LinkInfo[] {
   return out;
 }
 
+/**
+ * Pull a clean display label from an anchor.
+ *
+ * The Rules Hub wraps news cards in `<a>` tags whose `textContent` concatenates
+ * the category badge, ISO publish date, title, and description into one blob
+ * (e.g. "Announcements2026-04-29T16:00:00.000ZApril 2026 …Updates explained.").
+ * We prefer the inner card title when present, and as a defensive fallback we
+ * strip ISO timestamps from raw anchor text.
+ */
+function anchorLabel(a: Element): string {
+  const cardTitle = a.querySelector('[data-testid="card-title"]');
+  if (cardTitle) {
+    return (cardTitle.textContent ?? "").trim().replace(/\s+/g, " ");
+  }
+  return (a.textContent ?? "")
+    .replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z/g, "")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
 export function collectHubLinks(document: Document, baseUrl: string): LinkInfo[] {
   const anchors = Array.from(document.querySelectorAll("a[href]"));
   const links: LinkInfo[] = [];
@@ -69,8 +91,7 @@ export function collectHubLinks(document: Document, baseUrl: string): LinkInfo[]
     const href = a.getAttribute("href");
     const url = absoluteUrl(href, baseUrl);
     if (!url) continue;
-    const text = (a.textContent ?? "").trim().replace(/\s+/g, " ");
-    links.push({ url, text });
+    links.push({ url, text: anchorLabel(a) });
   }
   return dedupe(links);
 }
@@ -137,6 +158,29 @@ export function slugify(s: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Words that should stay fully uppercase when humanizing slugs into headings. */
+const UPPERCASE_WORDS = new Set(["faq", "tcg", "api", "pdf", "ord", "cr", "tr", "opl"]);
+
+/**
+ * Turn a URL slug or path into a human-readable heading.
+ * "/news/.../unleashed-rules-faq-and-clarifications/" → "Unleashed Rules FAQ and Clarifications".
+ */
+export function humanizeSlug(slugOrPath: string): string {
+  const slug = slugOrPath.split("/").filter(Boolean).pop() ?? slugOrPath;
+  return slug
+    .split("-")
+    .map((word, i) => {
+      const lower = word.toLowerCase();
+      if (UPPERCASE_WORDS.has(lower)) return lower.toUpperCase();
+      // Lowercase common connectors mid-phrase
+      if (i > 0 && (lower === "and" || lower === "or" || lower === "of" || lower === "the")) {
+        return lower;
+      }
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(" ");
+}
+
 async function defaultFetchHtml(url: string): Promise<string> {
   const res = await fetch(url);
   if (!res.ok) {
@@ -166,6 +210,14 @@ export async function processRulesHub(
   const hubOverview = extractHubOverview(hubHtml);
   const links = collectHubLinks(hubDom.window.document, opts.hubUrl);
   const { pdfs, articles } = categorizeLinks(links);
+
+  // Append explicitly-declared extra articles, deduped against hub-discovered ones.
+  const seenArticleUrls = new Set(articles.map((a) => a.url));
+  for (const url of opts.extraArticles ?? []) {
+    if (seenArticleUrls.has(url)) continue;
+    seenArticleUrls.add(url);
+    articles.push({ url, text: humanizeSlug(new URL(url).pathname) });
+  }
 
   const outputDir = dirname(resolve(opts.outputPath));
   const pdfOutputs: string[] = [];

@@ -122,6 +122,7 @@ async function processEntry(
           hubUrl: entry.url,
           category: entry.category,
           outputPath: entry.output,
+          extraArticles: entry.extra_articles,
           onProgress: (progress) => {
             s.message(`Processing ${label} — ${progress}`);
           },

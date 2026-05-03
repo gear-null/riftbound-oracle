@@ -38,7 +38,9 @@ entries:
     url: https://riftbound.leagueoflegends.com/en-us/rules-hub/
     category: rules
     output: output/rules.md
-    processed: 2026-04-23
+    processed: 2026-05-03
     pdfs:
       - output/core-rules.pdf
       - output/tournament-rules.pdf
+    extra_articles:
+      - https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/unleashed-rules-faq-and-clarifications/

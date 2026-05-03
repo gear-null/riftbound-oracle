@@ -1,6 +1,6 @@
 ---
 category: rules
-generated: 2026-04-23
+generated: 2026-05-03
 generator: riftbound-oracle
 ---
 
@@ -49,7 +49,7 @@ The Tournament Rules outline the guidelines for running Riftbound tournaments an
 
 The Tournament Rules also provide additional guidance for running tournaments and adjudicating issues that arise during play.
 
-[Tournament Rules](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/d77651bcaa7ca5a5b41a0ac0ea8112725a635680.pdf) (last updated: 3/30/26)
+[Tournament Rules](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/e70866614d68a00a1cbd12c7de08124e0ea5e755.pdf) (last updated: 4/29/26)
 
 ### Patch Notes
 
@@ -80,7 +80,7 @@ Take [UVS’s judge test](https://locator.riftbound.uvsgames.com/settings/accoun
 The canonical rules PDFs are uploaded as separate sources so NotebookLM can cite them with native PDF previews:
 
 - **Core Rules** — `core-rules.pdf` (source: https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/861747d1d4d505b7c14d73aba9749d1c3a209a67.pdf)
-- **Tournament Rules** — `tournament-rules.pdf` (source: https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/d77651bcaa7ca5a5b41a0ac0ea8112725a635680.pdf)
+- **Tournament Rules** — `tournament-rules.pdf` (source: https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/e70866614d68a00a1cbd12c7de08124e0ea5e755.pdf)
 
 ---
 
@@ -1531,3 +1531,471 @@ I can \[Ambush\] to a battlefield where there are enemy units, even if you don't
 \[Ambush\] (You may play me as a \[Reaction\] to a battlefield where you have units.)
 
 I can be played to a battlefield where there are enemy units (even if you don't have units there).
+
+---
+
+## April 2026 Tournament Rules Update & Changelog
+
+_Source: https://riftbound.leagueoflegends.com/en-us/news/announcements/april-2026-tournament-rules-update-changelog_
+
+Hey Riftbounders, Vriss back again with another Tournament Rules Update!
+
+Today’s update is a little lighter, focused mostly on cleaning up rough edges and clarifying points of confusion. As always, we’ve been monitoring events of all levels so we can adjust the Tournament Rules to make them the best they can be. We have really appreciated everyone’s feedback and investment in the inner workings that make our events tick; we couldn’t do it without you! Let’s dive in:
+
+View the newest [Tournament Rules document](https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/e70866614d68a00a1cbd12c7de08124e0ea5e755.pdf).
+
+### Clarifying 2v2 Information Sharing
+
+As more players team up and get involved in 2v2 Riftbound, we’ve noticed some confusion around what information you can share with your teammate during gameplay. As defined in the Core Rules, you are allowed to share private information, including directly showing the cards from your hand, to your teammate (or any player for that matter!) We think it is important for teammates to be able to effectively communicate and work together, and we’ve added language to the tournament rules to further enforce that.
+
+### What to do When a Game is a Draw
+
+While naturally drawing games in Riftbound is very unlikely, we wanted to add some more information just in case. This applies to both intentional and unintentional draws for individual games. For the next game:
+
+-   Reuse the same Main Deck/Sideboard configuration as the previous game.
+-   Reuse the same Battlefields as the previous game.
+-   Reuse the same turn order as the previous game.
+
+### Banned Cards and Preconstructed Decks
+
+Riftbound’s last series of updates introduced our first [banned list](https://riftbound.leagueoflegends.com/en-us/news/announcements/announcing-riftbounds-first-bans/). While these bans were made for the overall health of the Constructed metagame, they also impacted Jinx’s preconstructed Riftbound Champion Deck. We think it is extremely important for a new player interested in Riftbound to be able to buy a Champion Deck and be able to use it immediately to participate in Nexus Nights.
+
+To facilitate this, at Casual organized play level, players using the **exact** deck list of a preconstructed Riftbound product will be permitted to use any banned cards in those decks. Once a player wants to make a change to cards in the deck, including adding a sideboard, they must remove the banned cards.
+
+### General Cleanup
+
+With each iteration of the tournament rules, we look to upgrade the clarity and consistency of our infraction/penalty system. This update improves upon:
+
+-   Penalties at Low OPL
+    -   Choices that need to be made by an opponent for a remedy are now always made randomly by the judge instead.
+-   Looking at Extra Cards
+    -   Reworked this penalty to be more distinct from Looking at Secret Information and have clearer use cases/remedies.
+-   Deck Presentation Error
+    -   Added additional language to cover more situations where a player’s deck size is incorrect. This error now also includes when a player stores cards in their deck box that should not be there.
+-   Outside Assistance
+    -   Extended this infraction to the player providing the assistance if they are also a competitor in the event.
+-   Unsporting Major
+    -   Reworded language and added examples of zero tolerance behavior.
+
+—
+
+## Changelog
+
+-   Clarifying 2v2 information sharing
+    -   Added 502.11. to clarifying information sharing in 2v2 and direct to the relevant part of the Core Rules.
+-   Slight change to remedies at low OPL
+    -   Changed 702.1.c.1. to be mandatorily random by a judge at low OPL.
+-   Clarifying Gameplay Decisions
+    -   Removed “a judge allows it” from 509.4. As ultimately judge approval is implicit if players disagree and having this language was more confusing than helpful.
+-   Clarifying Draws
+    -   Added/fixed 403.9.-403.11. to cover restricting sideboarding after a drawn game or game skipped by a penalty.
+    -   Added reference to sideboard section in 406.1.a.
+    -   Added new 406.1.b. to clarify using the same battlefield after a drawn game, renumbered the rest of the section to compensate.
+    -   Updated reference in 406.1.g.7. to reflect numbering updates, 406.1.c.-406.1.e.3.
+-   Ban Updates
+    -   Added 601.2.d.1. to link to banlist.
+    -   Added 601.2.d.2. and 601.2.d.2.a. to allow precons with banned cards to be used at low OPL.
+-   Looking at extra cards rework
+    -   Updated this error to be clearer where it applies and how to remedy it.
+    -   Reworded 702.5., 702.5.a., 702.5.b. And 702.5.c.1.
+    -   Added sub bullets 702.5.b.1., 702.5.c.1.a. and 702.5.c.2.
+-   Deck Presentation Error
+    -   Expanded examples in 703.4.a.4.
+    -   Added 703.4.a.5. and 703.4.a.5.a. to cover having extra cards not on your deck list stored in your deck box.
+-   Outside Assistance
+    -   Added new 703.9.c. to extend this penalty to the assistance giver if they are also in the event, renumbered following bullets to compensate.
+-   Unsporting Major
+    -   Reworded 704.3.a.1. - 704.3.a.3.
+    -   Added 704.3.a.4.
+-   Correcting numbering error
+    -   Renumbered 509.4.c.1. from mistaken numbering 509.4.c.1.1.
+
+---
+
+## Unleashed Rules FAQ and Clarifications
+
+_Source: https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/unleashed-rules-faq-and-clarifications/_
+
+We are aware that _Unleashed_’s core rules updates caused consternation among some players and judges. This set’s updates had several mitigating factors which came together and impacted how we approached it, among them were changes to our internal processes which were necessary towards us improving our systems for generating and updating our rules documents. We are also improving how we present these changes and communicate them to players and judges. Today’s content will hopefully resolve many of the issues and sources of confusion for the community.
+
+While the updates we released for _Unleashed_ were substantive, it was a first step of a transitional period for Riftbound’s rules and templating, as they are dependent on future sets. Given this limitation, we are going to focus on clarifying points of confusion under the current structures. There will be things which will remain awkward in the meantime and we appreciate everyone’s patience as we forge ahead together.
+
+We’ll start this FAQ out by clearing up a few points that were left confusing from the rules update—if you’re not deeply invested in the rules and just want to see answers to common questions, skip down to the [Frequently Asked Questions](#FAQ) section in the latter half of the document. For any points that differ between this document and the Core Rules Document, this document will take precedence. When the next rules update is published, this document will become obsolete. You can always visit the [Rules Hub](https://riftbound.leagueoflegends.com/en-us/rules-hub/) to find the current rules documents for Riftbound.
+
+Throughout this document, we use some specific shorthand to represent symbols in card text. Here’s a short guide:
+
+-   \[E\] means “exhaust”
+-   \[M\] means “Might”
+-   \[A\] means “one power of any domain”
+-   \[C\] means “one power of this card’s domain”
+    -   \[C\] in Accelerate costs takes on the domain of the unit, or turns into \[A\] if the unit has no domain or multiple domains.
+    -   \[C\] in other cases is treated as the corresponding power symbol in all respects, matching how the cards are actually printed—it’s just a design shorthand!
+
+# Revised and Clarified Rulings
+
+## Triggered Abilities
+
+We’ll start with the most significant and contextual rules change in this update. As of our third rules update, triggered abilities have been changed in their structure: rather than a one clause condition and a potentially multi-clause effect, there are now multiple pieces that need to be considered when putting a triggered ability on the chain and finalizing it. The easiest way to think about these is shifting where the effect and condition split into two components of the triggered ability: instead of at the first comma, it now depends on how the triggered ability is templated. Triggered abilities will have one or more of the following four items in sequence:
+
+-   A trigger condition
+-   A conditional statement next to the trigger condition
+-   A “you may” that appears next to the conditional statement
+-   A cost within instruction next to the “you may”
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/df46e514ad234f8e88aa0ebf7d96fa3ab324ae66-1848x1039.jpg)
+
+We can best see this in the example of Piltover Enforcer, the Vi Legend from _Unleashed_: “\[When you conquer\], \[if you assigned 3 or more excess damage\], \[you may\] \[exhaust me to\] ready a unit.” This ability contains all four elements in the sequence.
+
+-   A trigger condition: “When you conquer”
+-   Extra conditional: “If you assigned 3 or more excess damage,”
+-   A “you may” that appears next to the conditional: “You may,” - this indicates the decision of whether or not to place the ability on the chain
+-   A cost within instruction next to the “you may”: “Exhaust me to...” - is the cost within instructions that becomes the base cost of the triggered ability.
+
+We can imagine splitting this ability into two sections: the part including this sequence and the part after it:
+
+**Before**
+
+**After**
+
+“When you conquer, if you assigned 3 or more
+excess damage, you may exhaust me to”
+
+“ready a unit.”
+
+The second section only becomes a finalized chain item when the first section is fulfilled by the process of finalization; that being the process by which players make choices, pay costs, and check legality for cards and abilities. When the trigger condition and extra conditional are fulfilled and the player decides to place it on the chain, it will become a pending chain item and be queued for finalization. If its controller chooses a legal target and pays the cost during the subsequent finalization, the second section will become a finalized chain item. All it says on the chain is “Ready a unit,” where the unit is the one chosen during finalization.
+
+Triggered abilities, however, don’t need to contain all of the above elements in order for the sequence to follow these rules, as long as the elements that do appear are where they would be based on our understanding of the above sequence.
+
+Let’s look at a few examples:
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/71229cc56a8817ecea7db32ff065380434973250-1848x1039.jpg)
+
+> Sona, Harmonious reads “At the end of your turn, if I'm at a battlefield, **ready up to 4 friendly runes**.” “If I’m at a battlefield,” appears where we would expect it to based on the sequence described above, so it is part of the condition and not the effect. The ability can be split into “At the end of your turn, if I’m at a battlefield,” and “ready up to 4 runes.”
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/97113ea4085fdf5dc883cf46c0eab58d4045630b-1848x1039.jpg)
+
+> Disarming Rake reads “When you play me, you may **kill a gear**.” The “you may” appears here where we would expect it to based on the sequence above, so it is the choice of whether or not to place the ability on the chain, and not part of the effect itself. The ability can be split into “When you play me, you may” and “kill a gear.”
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e244cf7a470d82e7feb3a23fec962aadef2beb0e-1848x1039.jpg)
+
+> Ekko, Recurrent reads, “\[Deathknell\]\[>\] Recycle me to ready your runes.” Deathknell is functionally short for “When I die, …” We can translate this to our sequence as “When I die, recycle me to ready your runes.” “Recycle me to” is a cost within instructions that appears where we would expect it to based on our sequence, so it becomes the base cost of the ability when it is placed on the chain and is not part of the effect. The ability can be split into “When I die, recycle me to” and “ready your runes.”
+
+Any of these elements that appear later in the ability than where you would expect based on the sequence do not function in this way.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4eeb754e55eefa8a6d471401d660943e7c1feb9d-1848x1039.jpg)
+
+> Loose Cannon, the Jinx Legend, reads “At the start of your Beginning Phase, **draw 1 if you have one or fewer cards in your hand**.” The conditional statement “if you have one or fewer cards in your hand,” does not appear where we would expect in the sequence described above, so it is considered part of the effect and not the condition. This ability can be split into “At the start of your Beginning Phase,” and “draw 1 if you have one of fewer cards in your hand.”
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/b5d2f3eb1b453973b56596a60ad044c1f67bc9f5-1848x1039.jpg)
+
+> Ornn, Blacksmith reads “When you play me or when I hold, **look at the top 4 cards of your Main Deck. You may reveal a gear from among them and draw it. Then recycle the rest**.” The “you may” here doesn’t appear in the appropriate place to be part of the sequence, so it is not a decision made when the ability triggers and instead is made when ability resolves. This ability can be split into “When you play me or when I hold,” and “look at the top 4 cards of your Main Deck. You may reveal a gear from among them and draw it. Then recycle the rest.”
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/f652dcd9ceef2d961e11b5b03b974cc1044ca01b-1848x1039.jpg)
+
+> Insightful Investigator reads “When you play me, **choose an opponent. They reveal their hand. You may pay 2 XP to choose a card from their hand. If you do, they discard that card and draw 1**.” Here we see the final example, where the ability contains a cost within instructions that does not fall where we would expect it to be for the sequence. This cost within instructions is paid on resolution and not as the base cost of the triggered ability. The ability can be split into “When you play me,” and “Choose an opponent. They reveal their hand. You may pay 2 XP to choose a card from their hand. If you do, they discard that card and draw 1.” The second part of the ability is all one chain item—it resolves it one go, and cannot be reacted to partway through resolution.
+
+One notable effect of this change is that we see a larger difference between two previously similar templates: costs within instructions (“\[do X\] to \[do Y\]”) and “if you do” templates. The two templates had some overlap, in that they asked players to perform an action in order to get an effect. The templates, however, were still functionally different before this rules update. Costs don’t care if the game action being performed is replaced, as long as an attempt was made to perform the action.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/b80ae342e715890c6401b44446e9d5a4f538fa2f-1848x1039.jpg)
+
+“If you do” templating is more particular, as seen in cards like Jayce, Man of Progress whose triggered ability begins with, “When you play me, you may kill a friendly gear. If you do, …” Killing the friendly gear in this case is not a cost for the ability, but a game action that a later instruction checks. If the game action is not performed or is replaced, the later instruction will not have its condition fulfilled - the player didn’t “do” it, so “if you do” is not true.
+
+While this was always the case, now there is even more differentiation, as “if you do” templating isn’t a cost within instructions and therefore cannot be the base cost of the triggered ability. Even if resources are instructed to be spent, as in the case of Draven, Vanquisher (RIP), who reads “When I attack or defend, you may pay \[C\]. If you do, …” those resources are not a cost and are paid on resolution of the ability and not finalization.
+
+## Control of Battlefields and Showdowns
+
+Two areas that were unclear in the rules update were control of battlefields and when Showdowns open. How battlefield control is managed is contradictory in two places: in the control rules under rule 187.4.c., and in the cleanup rules under rule 323.6. To clarify this: rule 323.6. should read, “Players lose control of any controlled battlefields without their Units occupying them if the turn is in an open state and there is no Showdown or Combat ongoing there.” This was our intent, as seen in the patch notes, and the wording of rule 323.6 lagged behind it.
+
+**187.4.c.**
+
+If a player has no Units at a Battlefield and the turn is in an Open state, they lose Control of that Battlefield in the following cleanup, unless there is a Combat or Showdown ongoing there.
+
+**323.6.**
+
+(OLD) 4. If the turn is in an Open State, Battlefields with no Units occupying them and no Showdown or Combat ongoing become Uncontrolled.
+
+_(NEW) 4. Players lose control of any controlled Battlefields without their Units occupying them if the turn is in an open state and there is no Showdown or Combat ongoing there._
+
+The second of these areas is how Showdowns are opened. Here, the cleanup rules are correct and take precedence over the other rules. Rule 316.5.b. should read, “A Showdown is marked as staged at a battlefield in the cleanup after the Contested status is applied to that battlefield.” Rule 344.2. should read, “If Control of a battlefield is Contested and there aren’t units controlled by different players there, a Showdown is opened during the Cleanup at the end of the action that caused the battlefield to become Contested.”
+
+For example, if a player moves a unit to a battlefield they don’t control, they will apply the Contested status to that battlefield immediately upon becoming located there, regardless of whether there are units controlled by another player there or not. The battlefield having the Contested status causes a Showdown to be staged there in the following cleanup per rule 323.8. The previous wording of 316.5.b. implied that a Showdown will only be staged at a battlefield if that battlefield is uncontrolled, but the change to how Showdowns become Combats means Showdowns need to be able to be staged when the battlefield is still controlled.
+
+**323.8.**
+
+6\. Mark a Showdown as Staged at each Battlefield that Contested was applied to.
+
+**316.5.b.**
+
+(OLD) A Showdown is marked as Staged at a Battlefield when the Contested status is applied to a Battlefield with no current controller.
+
+_(NEW) A Showdown is marked as staged at a Battlefield in the cleanup after the Contested status is applied to that Battlefield._
+
+**344.2.**
+
+(OLD) If Control of a Battlefield is Contested and the Battlefield in question is uncontrolled when it becomes Contested, a Showdown is opened during the Cleanup at the end of the action that caused the Battlefield to become Contested.
+
+_(NEW) If Control of a Battlefield is Contested and there aren’t units controlled by different players there, a Showdown is opened during the Cleanup at the end of the action that caused the Battlefield to become Contested._
+
+## Mandatory Actions and Private Information
+
+Rift Herald is an interesting card. Usually, we don’t print effects like Rift Herald’s Deathknell that don’t say “may.” However, even without the “may,” an important principle that we want to hold for Riftbound is that game effects cannot force a player to perform a game action on an object with specific characteristics whose information status is private.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/908b7961944e76502e05c7c012379ad37ff5b6f8-1848x1039.jpg)
+
+Imagine if we lived in such a world. When Rift Herald’s Deathknell resolves, your opponent claims to not have a unit in their hand. But what if they do have a unit and they want to try to save it for a more opportune moment? What if playing it would be actively detrimental to them? Suddenly, every time your opponent says they don’t have a card to play that matches the appropriate characteristics it makes you wonder if they’re lying to you. How do you hold them accountable? Do you go over and look at their hand? Do you call a friend to check their hand? If you’re at a tournament, do you call a judge? This is an unsustainable level of paranoia to subject players to. We don’t want that and neither do you.
+
+The following rule will be added in the next rules update and will go into effect now:
+
+> A player cannot be compelled to perform an action on cards whose privacy is secret or private if that action specifies a type or quality of card. If an effect would compel a player to perform an action on cards whose privacy is secret or private, and if that effect specifies a type or quality of card, the player in question may ignore it instead.
+
+## Lethal Damage Modification
+
+Elder Dragon’s passive ability reads, “Any amount of your damage is enough to kill enemy units.” This functions to change the definition of lethal damage for those units that have damage marked by you on them. In order to break that down in a technical way, we’ll have to define a few terms.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2282e49e594b79472404e8b21f0782c5edaabfec-1848x1039.jpg)
+
+Lethal damage is an amount of damage such that a unit with it marked will die in a cleanup. This value is defined as being a non-zero amount greater than or equal to a unit’s Might by default. However, some effects may alter it. Any reference to lethal damage, including in the cleanup tasks in rule 323.5. and when assigning Combat damage in rule 460.2.c.3., will be altered in this way. Damage is marked on a unit by a player when a deal action that player is responsible for damages that unit. Damage marked by players is “_their damage_.”
+
+The combination of these two concepts codifies how Elder Dragon functions. This means Elder Dragon can check damage marked on units by its controller before it enters the board, and that players need only assign one damage to units during the Combat Damage step while they control Elder Dragon.
+
+**323.5.**
+
+3b. All Units that have non-zero Damage marked on them equalling or exceeding their Might are killed and placed in their owners' Trash.
+
+**460.2.c.3.**
+
+Units must have lethal damage assigned to them in full before damage is assigned to a different Unit.
+
+## Control of Battlefield Abilities
+
+Our first battlefield with a triggered ability anyone can trigger that targets game objects was printed in _Unleashed_ and it has unearthed some strangeness in the battlefield control rules. That battlefield is Abandoned Hall.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3207fd1c0fe3ce412c50906ce6b7a09a7cb9e88e-1848x1039.jpg)
+
+Normally, control of a battlefield ability is awarded to the battlefield’s controller, or the turn player if it is uncontrolled, but there are cases where that might not be the case. The intent of the current rules is that a player making choices for a triggered ability of a battlefield means that player controls that ability. This is reflected in a small but easily neglected part of the battlefield ability control rules in “unless otherwise specified.” That should be treated as the following: If an Ability of a Battlefield indicates that a specific player makes a choice, that player takes responsibility for adding it to the chain if applicable and makes all choices required by the ability. They and only they control the ability.
+
+Note that if a battlefield ability requires more than one player to make a choice, that ability will still be controlled by the controller of the battlefield.
+
+## Legion
+
+Legion’s change in this rules update is a byproduct of the transition that Riftbound finds itself in. To pull back the curtain, our hope in the future is to reduce the confusion around “play” meaning different things in templating. Unfortunately, this rules update has pulled us in three directions and made things temporarily more confusing. We will communicate these rules in a more comprehensible way in the next rules update. That being said, we recognize that these three technical meanings of play are quite frustrating for players and we’re in the process of paring them down.
+
+For this rules update, we’ll address three functional meanings of “play”, though two of them are aligned in a way that should make them feel like they are functionally similar.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9e434dad53b24f6d115508941a390c52868af5dc-1848x1039.jpg)
+
+The first meaning is, “resolve an item on the chain.” This is the play that appears in trigger conditions, in cards like Darius, Trifarian and Ravenbloom Student.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/61daf7d1d9d03a97b19e39e566f2896be344a7e5-1848x1039.jpg)
+
+The second meaning is, “finalize an item on the chain.” This is the play that appears in other conditional statements and effects that check if cards have been played, in cards like Battering Ram, Crescent Guardian, and the Legion dependent keyword.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/23d53d58c1007d302669db87003f77ca5a5b6dbe-1848x1039.jpg)
+
+The final meaning of play is, “place an item on the chain and queue it for finalization.” This is the version of play that we see in all other contexts in which play is used as a verb, in cards like Here to Help, Raging Firebrand, and Void Drone.
+
+Having three technical usages of the same word is not ideal, to say the least. This can be seen in the most egregious case with Brynhir Thundersong’s play effect, which reads, “When you play me, opponents can’t play cards this turn.” Using play to mean resolve and also “perform the play game action” in the same card effect has been an abiding source of confusion among players since Origins.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/690fd24dac43b0fe1490fe1434c6bcdfaa6b7033-1848x1039.jpg)
+
+That being said, the usages of “play as game action” and “play as finalize” are functionally aligned---finalizing a card and putting a card on the chain to be queued for finalization are similar actions. Even if we wanted an effect to check for the game action, it would ultimately have to check for finalization because the process of play could be undone during finalization. These timings are similar enough that we hope it will be relatively easy for players to develop an intuition for them. “Play as resolution” is an outlier and it will remain so for this transition period.
+
+## Results of Combat
+
+A final point of clarification, the Determine Combat Result task is currently missing a minor but very important part. Rule 461.3.d. should read: There is “No Result” if units were recalled during the Combat Cleanup, if both Players have units present during this task, or if neither player has units present during this task.
+
+For example, if a tie occurred after the Combat Damage step—as in, there were Attackers and Defenders still remaining at the battlefield in the Combat Cleanup and the Attackers were recalled—under the previous wording of rule 461.3.d., the defending player will win the Combat because there are only units controlled by one player located at the battlefield as the task occurs.
+
+**461.3.d.**
+
+(OLD) There is “No Result” if either both Players have units present during this step, or neither player has units present during this step
+
+_(NEW) There is “No Result” if units were recalled during the Combat Cleanup, if both Players have units present during this task, or if neither player has units present during this task._
+
+# Frequently Asked Questions
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/536ec453790de12c517ae3cd2d69d2b98783fa9a-1848x1039.jpg)
+
+**What happens when you conquer Aspirant’s Climb with Green Father and Brush the battlefield when both players are at 8 points?**
+
+If this is the first battlefield that player has scored, they'll draw 1 and the game will continue with both players at 8 points.
+
+If you replace Aspirant’s Climb with Brush via Green Father’s conquer or hold effect, the Victory Score will change immediately as the passive ability of Aspirant’s Climb is no longer in effect, bringing both players to the Victory Score simultaneously. Rules 323.1. and 467. define winning the game as happening during a cleanup when one player has points greater than or equal to the Victory Score and greater than any opponent. If both players are at 8 points, they have not fulfilled both requirements for winning the game. They will need to score additional points in order to win. When they do so, 466.1.b. says “when a player tries to gain a point through a Score, and their current point total is one point from the Victory Score for their Mode of Play **or higher**, do the following: …” If the point is from Conquering, they will draw 1 instead of gaining the point unless they have scored each battlefield that turn. In effect, every point at or above the Victory Score becomes the final point.
+
+**323.1.**
+
+1\. If a player has points greater than or equal to the Victory Score, and more points than any opponent, that player wins.
+
+**467.**
+
+When a cleanup occurs and a player has accrued Points greater than or equal to the Victory Score for their Mode of Play, and if they have more points than any opponent, they Win the Game.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/63efa98ec4c0d5411d5ea1a0f038b0a79caa97f1-1848x1039.jpg)
+
+**What happens if you Brush a Brush? Can you swap back the original battlefield you Brushed?**
+
+The Brush token will cease to exist. When swapping back, a player can choose to swap back to any object that was replaced, including the original battlefield.
+
+This is because a replacing game object inherits all of the statuses and conditions of the game object it replaced, per 438.1. A game object can be instructed to “swap back”; the token stops existing and the original card is returned to the space that the token occupied, inheriting all its current effects and statuses per rule 438.7.b. “All of the effects and statuses” includes not only temporary effects applied to the battlefield, but also the relationship between replaced and replacing battlefields.
+
+**438.1.**
+
+Replacing is the act of Creating a token in the place of another card or token without playing it while inheriting all effects or statuses of the game object it replaced.
+
+**438.7.b.**
+
+To Swap Back, the token stops existing and the original card is returned to the space that the token just occupied, inheriting all current effects and statuses.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1b136917061d8d29d8ec22404213dc906a99ee8b-1848x1039.jpg)
+
+**If I play Turn to Dust on an attached Equipment, will the Equipment die in the Beginning Phase?**
+
+Yes. The granted Temporary keyword will be active. It will trigger and kill the equipment in its controller’s next Beginning Phase.
+
+Attached Equipment only have their printed rules text made inactive per rules 718.2. and 135.4. This means that any granted rules text will still be active; granted Temporary will trigger and kill attached Equipment and granted Deflect will add \[A\] to the cost of enemy spells and abilities that target them. Prior to this rules update, all rules text of attached Equipment was inactive.
+
+**135.4.**
+
+A card’s printed Rules Text is Inactive while that card is Attached to another card.
+
+**718.2.**
+
+While in this state, the card’s printed Rules Text is Inactive.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e140d0798836f29b8e9c614b4105dbd2997a48b1-1848x1039.jpg)
+
+**If Temporary is granted to an attached Spinning Axe, will it die at the start of my Beginning Phase?**
+
+Yes. The Spinning Axe will have two instances of the Temporary keyword - one that is active and one that is inactive. The inactive keyword will not trigger, but the active one will. Alas, Spinning Axe will die.
+
+Multiple instances of the Temporary keyword are redundant per rule 816.2., but that rule refers to the fact that multiple instances that could trigger will only trigger once, as clarified by rule 816.2.a. In the case of granted Temporary on an attached Spinning Axe, that rule isn’t of any concern - there is only one instance of Temporary that could trigger, so it will.
+
+It can help to visualize the attached permanent as it is undergoing these changes, as if it were being digitally simulated. Imagine all of its printed rules text as going gray while it is attached, as it is inactive. Then the granted Temporary keyword, because it is active, is the normal text color for Spinning Axe. There are two colors of Temporary on Spinning Axe, but the grey Temporary doesn’t have any function. We can treat it as if it didn’t exist for the purposes of rule 816.2.a.
+
+**816.2.**
+
+Multiple instances of Temporary are redundant.
+
+**816.2.a.**
+
+Regardless of how many instances there are, the ability will only trigger once.
+
+You mentioned rule 187.4.c. earlier and it says “open state”, I don’t remember that in the old rules. What gives?
+
+Control of battlefields cannot be lost while there are items on the chain, per rule 187.4.c. in the _Unleashed_ rules update. This means that spells and abilities that banish and play units, or that kill units as a cost or effect in order to play another unit, will be able to kill or banish units at battlefields and then play the resulting unit to that same battlefield.
+
+**187.4.c.**
+
+If a player has no Units at a Battlefield and the turn is in an Open state, they lose Control of that Battlefield in the following cleanup, unless there is a Combat or Showdown ongoing there.
+
+Let’s look at some examples:
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d6702c6c73feaffdff77e4b6258b37763f380741-1848x1039.jpg)
+
+> I play Cruel Patron, and I have a 1 \[M\] Recruit alone at a battlefield I control. I choose to kill my Recruit to pay the additional cost of Cruel Patron. Although this causes a cleanup, because there is an item on the chain (Cruel Patron) I don’t lose control of the battlefield. I can choose to play Cruel Patron to that same battlefield with no issue.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/988c9b8b68c7004041af11c02663b5e7697720e4-1848x1039.jpg)
+
+> I activate Baited Hook targeting a 4 \[M\] unit that is alone at a battlefield I control. When Baited Hook resolves, I kill that unit and look at the top 5 cards of my Main Deck. I choose to play a unit from among them, which goes pending on the chain. When Baited Hook’s activated ability resolves, the outstanding cleanup initiates, but I can’t lose control of the battlefield because the played unit is on the chain pending. Once the cleanup finishes, I will finalize the unit and I can choose the battlefield where I killed my 4 \[M\] unit to play it to.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/14d0ee9458c3d1f30bf54024576e928bbaa2b10b-1848x1039.jpg)
+
+> I play Arcane Shift targeting my Thousand-Tailed Watcher who is alone at a battlefield I control. As it resolves, Watcher is banished and played to the chain. When Arcane Shift has finished resolving, a cleanup is outstanding and because Watcher is still pending on the chain, control of the battlefield can’t be lost. When finalizing Watcher, the battlefield I banished it from is a valid location to play it to because I still control it.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9a64d7d2083fb7a650c435af8f69e7ced5d9801c-1848x1039.jpg)
+
+> There is one final example worth discussing, though the interaction worked similarly prior to this rules update: in the previous rules update, if my Glasc Mixologist died alone in Combat at a battlefield I control, the active Combat at the battlefield prevented me from losing control of the battlefield. Thus I could play the unit from Mixologist’s Deathknell to the same Battlefield it died at. Previously this was only possible in Combat, but as of this rules update the same process will occur whenever Glasc Mixologist dies alone at a battlefield with the same controller, regardless of if there is a Combat there or not.
+
+**Can a cleanup happen while I’m finalizing a card or ability?**
+
+No. A cleanup cannot occur during the process of finalizing a card or ability.
+
+Finalizing is part of the FEPR process—Finalize, Execute, Pass, Resolve—which is the process that handles items on the chain. Finalizing is the step where you make choices, pay costs, and check legality. Cleanups will occur after adding an item to the chain, after finalizing that item, and after that item resolves. At each point that a cleanup occurs, it will pause the FEPR process until it is complete. However, cleanups will only happen between these steps and never during a step itself.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/aefd8208288c1adc4b2ed5858359c3c35c74af35-1848x1039.jpg)
+
+**If I conquer a battlefield with Zilean, Time Mage, can I copy him with my Deceiver legend? Will I make infinite Zileans?**
+
+Yes, you can copy Zilean, but you will not make an infinite number. The Deceiver reflexive trigger effect for turning the tokens into copies of Zilean takes place after they are already resolved.
+
+Let’s walk through this step by step. Remember, we are first going to add to the chain and then we will work in reverse order to resolve these things.
+
+1.  You trigger Deceiver when you score the battlefield, discarding a card and exhausting her as the cost to finalize the trigger.
+2.  When the effect resolves, you play a 0 \[M\] Reflection token to the chain.
+3.  Zilean’s replacement effect sees you playing a token and it replaces that event with you playing the token and a copy of that token. Now there are two 0 \[M\] Reflection tokens waiting on the chain.
+4.  The Deceiver trigger puts the reflexive trigger on the chain that copies a unit (chosen on finalization) and gives the tokens Temporary.
+
+Remember, you finalize all of these items in the order that they were added to the chain, starting with the two tokens that are placed on the chain in the order of their controller’s choosing.
+
+So now we work through the above ordering in reverse:
+
+1.  As soon as either token is finalized, it resolves immediately.
+2.  Both tokens enter ready when they resolve this way, because the copy that is generated by Zilean’s replacement effect inherits any modifications (rule 375).
+3.  Next you finalize the reflexive trigger, choosing a unit to copy. You target Zilean.
+4.  When it resolves, it will cause the two Reflection tokens to become a copy of Zilean, as well as granting them Temporary—both Reflections receive this modification for the same reason that they are both ready, because of rule 375.
+
+By this point, even if the two tokens become copies of Zilean, there is no subsequent play game action involving tokens to apply their replacement effects to, so they will not be able to cause any further tokens to be produced.
+
+**375.**
+
+If an event that a Replacement Effect applies to would be modified by a Game Effect, or the results of that event would be modified by a Game Action, the Replacement Effect will inherit those modifications.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fbe555a0008c4ec2b7930a5aaacd5f1fe1e1b7b5-1848x1039.jpg)
+
+**If I play Counter Strike in response to my opponent’s Elder Dragon’s play effect, will the chosen unit still die?**
+
+No, the unit protected by Counter Strike will not die.
+
+Elder Dragon’s passive ability changes the definition for what is considered lethal damage for a unit, as long as that unit has damage marked by Elder Dragon’s controller on it. However, this doesn’t change the actual amount of damage being dealt. Elder Dragon deals 1 damage to up to one unit at each location—if one of those units has a prevent effect applied to it, that prevent effect will replace as much of that damage as it can. In the case of Counter Strike, it will replace all of the damage. If the damage is entirely prevented, it is never dealt per rule 437.2.a., and thus there is no opportunity for the passive ability of Elder Dragon to apply to that unit.
+
+**437.2.a.**
+
+The damage being dealt as a result of Preventing can never be less than 0, but can be 0. This is equivalent to not dealing damage.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/080b5ed99d63018ef9382b92a457e0b0837e124b-1848x1039.jpg)
+
+**My opponent plays Elder Dragon and targets my two units at the two battlefields, as well as one of my units in base. If I play Flash in reaction, moving the two units at battlefields to base, will they be dealt damage?**
+
+They will not.
+
+Elder Dragon’s play effect has a number of targeting restrictions equal to the number of locations on the board. Its controller chooses up to one enemy unit at each of those locations to target with the ability and each of those units must follow their respective targeting restriction. It is the equivalent to saying “Deal 1 to up to one enemy unit at battlefield A. Deal 1 to up to one enemy unit at battlefield B. Deal 1 to up to one enemy unit in your base. Deal 1 to up to one enemy unit in Opponent A’s Base. …” Each of those targeting restrictions is fulfilled separately for each unit targeted.
+
+If you play Flash in reaction to the play effect of Elder Dragon, any units that are moved to a location other than the one where they were targeted will no longer fulfill the targeting restriction of the Elder Dragon play effect and will be unaffected by the ability as it resolves.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1106405e7ecfcb3d57b39b261dee9e3cf7574d60-1848x1039.jpg)
+
+**If I play Singularity and my opponent counters it, can I still play Jhin, Meticulous Killer for \[C\] this turn?**
+
+You can. Jhin checks the energy spent to play a spell, not whether that spell resolved. If the energy was spent and the spell became a Finalized Chain Item (and was not undone, for example as part of step 5 of the process of play) then it doesn’t matter if the spell is later countered. The energy wasn’t unspent, even if the spell was countered.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/14d466450aa72aa09e92cb977e0def25bbf28a72-1848x1039.jpg)
+
+**I play Alpha Strike targeting my Master Yi, Unstoppable and splitting 12 damage among three of the four enemy units at battlefields. If my opponent plays Flash in reaction to my Alpha Strike, moving two of the targeted units to base, can they then play Repulse and counter my Alpha Strike?**
+
+No, they cannot play Repulse targeting your Alpha Strike. (Except if both of the other chosen units have changed to a non-board zone, such as via the effect of something like Grim Apothecary’s play effect, Heedless Resurrection’s additional cost, or the instructions of Thrill of the Hunt.)
+
+A spell that targets a game object creates a targeting relationship between it and the targeted game object. As long as that targeted game object remains on the board, that relationship is maintained even if the target no longer fulfills the targeting restrictions of the spell. Even if the units in this example aren’t at a battlefield anymore, they are still being chosen by Alpha Strike. We know this is true because the spell remembers that it is targeting those units if they happen to fulfill its targeting restrictions again per rule 359.3.e.3. The only exception to this principle is if the units change to a non-board zone—in such a case, they are no longer the same game object and any relationship between them and the spell that targets them is severed. Even if they returned to the same battlefield, they won’t be legal targets and the spell won’t be choosing them.
+
+**359.3.e.3.**
+
+If a target ceases to meet the targeting requirements while the spell is on the chain, then meets them again, it's a legal target.
+
+It can help to visualize Alpha Strike’s targets with a colored arrow pointing from Alpha Strike to those units. Even if the units move to base and are no longer legal targets, they are still being chosen by Alpha Strike; we can imagine that the arrow is greyed out, but still present. Meanwhile, if they moved to a non-board zone the arrow would disappear entirely, since the game object it is connected to no longer exists. Repulse cares about the number of those arrows that point to friendly units, not the color of the arrows.
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6aaaa8d624df837deb68a9d7096392b1a5fb5268-1848x1039.jpg)
+
+**If I hold Reckoner’s Arena with Yone, Blademaster, will I place his triggered ability on the chain when the hold effect of Reckoner’s Arena resolves?**
+
+No, you will not. The main thing you need to know is that activating a conquer effect such as the Reckoner’s Arena effect is the equivalent of checking the condition of all of the specified conquer effects, as if a conquer had occurred at Reckoner’s Arena. Any triggered abilities of units at Reckoner’s Arena that trigger on conquering will see a conquer event occurring, but they will still need to check their other conditions in order to go on the chain.
+
+In this case, the rest of Yone’s conquer effect condition is “...that was previously uncontrolled,” and since the battlefield wasn’t previously uncontrolled, Yone’s ability will not trigger.
+
+Note that no actual conquer occurs—we’re simply treating the game as if a conquer had occurred at that battlefield for the purposes of the specified abilities. In Reckoner’s Arena’s case it specifies units, so only units with conquer effects at Reckoner’s Arena will see this conquer event and potentially trigger.
+
+_(We recognize the rules for “activate” in the way discussed above are underdefined. Expect further revisions in the next rules update.)_
+
+![](https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/463a0c81f070a3c0a92b164744fa68db3f05e01c-1848x1039.jpg)
+
+**What happens if I play Atakhan from my deck with Rek’Sai, Breacher on the board? Can I pay the Accelerate cost and kill Rek’Sai for the Atakhan additional cost? Will it enter ready?**
+
+Yes, as long as you pay the Accelerate cost, Atakhan will enter ready, even if he kills Rek’Sai for his additional cost. This is because Accelerate creates a delayed replacement effect that causes Atakhan to enter ready. Although he lacks the Accelerate keyword when he resolves, he still has the delayed replacement effect that Accelerate generates.
