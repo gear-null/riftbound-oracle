@@ -36,7 +36,7 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 | `section <id>` | A whole numbered section in document order |
 | `grep <fts query>` | Lexical search over rule text. SQLite FTS5 syntax: `"burn" NOT "burn out"`, `banish*`, `sideboard AND size` |
 | `build` | Rebuild the rule index from the corpus. Run this first on a fresh clone |
-| `selftest` | 35-check regression harness; run after every rules update |
+| `selftest` | 45-check regression harness; run after every rules update |
 | `report <answer.json>` | **How you finish.** Verify + render + open, in one step |
 | `verify <answer.json>` | The citation gate alone. Exit 1 if anything fails |
 | `render <answer.json> [out]` | Render alone; prefer `report` |

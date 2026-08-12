@@ -22,7 +22,7 @@ Grafted in after judging:
 file:// constraints respected: no network, no clipboard API (execCommand fallback),
 localStorage guarded, print handler opens <details>, dark mode via prefers-color-scheme.
 """
-import html, json, sys
+import html, json, re, sys
 from verify_citations import RuleIndex, verify_citation
 from render_rulebook import anchor as rulebook_anchor
 
@@ -174,8 +174,20 @@ def verify_answer(ans, idx):
     return ans
 
 
+def note_number(note_id):
+    """"n12" -> "12". Falls back to the raw id for anything unnumbered."""
+    digits = "".join(ch for ch in str(note_id) if ch.isdigit())
+    return digits or str(note_id)
+
+
 def holding_html(h, notes_by_id):
-    """Type the holding line: every span must be an exact substring of the line."""
+    """Type the holding line: every span must be an exact substring of the line.
+
+    Each span carries a superscript note number, the way a citation works in
+    prose. Previously the only marker was a `⌁` on inferred spans, so a reader
+    could see THAT a claim was underwritten but not WHICH note underwrote it —
+    the link existed, but its destination was invisible until clicked.
+    """
     line, spans = h["line"], h.get("spans", [])
     out, cur = [], 0
     for sp in spans:
@@ -184,10 +196,16 @@ def holding_html(h, notes_by_id):
             continue  # invariant violated; fall through to plain text
         out.append(esc(line[cur:i]))
         cls = "sp-grounded" if sp["basis"] == "grounded" else "sp-inferred"
-        glyph = "" if sp["basis"] == "grounded" else "<sup>⌁</sup>"
+        # The glyph still separates basis at a glance, for a reader who is not
+        # going to chase the number.
+        glyph = "" if sp["basis"] == "grounded" else "⌁"
+        num = note_number(sp["note"])
         out.append(
             f'<a class="{cls}" href="#{esc(sp["note"])}" '
-            f'title="{esc(BASIS[sp["basis"]][1])}">{esc(sp["text"])}{glyph}</a>'
+            f'title="{esc(BASIS[sp["basis"]][1])} — see note {esc(num)}">'
+            f'{esc(sp["text"])}</a>'
+            f'<a class="noteref" href="#{esc(sp["note"])}" '
+            f'aria-label="note {esc(num)}"><sup>{esc(glyph)}{esc(num)}</sup></a>'
         )
         cur = i + len(sp["text"])
     out.append(esc(line[cur:]))
@@ -229,6 +247,58 @@ def cite_html(c, idx):
   <button class="copy" data-cite="{esc(full)}">copy cite</button>
 </div>
 </div></details>'''
+
+
+LEGEND_MARKER = "<!--LEGEND-->"
+
+
+def legend_html(page_html, idx):
+    """A key to the bracketed shorthand this report actually uses.
+
+    Built from the finished page rather than from the answer object, so it
+    covers every token a reader can see — quoted rule text and card text
+    included, not just what the model wrote.
+
+    Deliberately a key, not a substitution: `[A]` stays `[A]` in the text. The
+    point is a reader who gradually stops needing the legend and can then read
+    Riot's own PDFs unaided, which replacing the shorthand with glyphs would
+    quietly prevent.
+    """
+    from symbols import build_legend, is_number_token, scan, NUMBER_RULE
+
+    legend = build_legend(list(idx.rules.values()))
+    # Unescape after stripping tags: the keyword marker [>] is written into the
+    # page as `[&gt;]`, so scanning the raw HTML silently never matched it —
+    # the one symbol a reader is least likely to guess.
+    visible = html.unescape(re.sub(r"<[^>]+>", " ", page_html))
+    used = scan(visible, legend)
+    if not used:
+        return ""
+
+    def row(token, meaning, rule, colour):
+        style = f' style="color:{colour}"' if colour else ""
+        link = (f'<a class="sym-rule" href="{RULEBOOK}#{esc(rulebook_anchor("CR", rule))}">'
+                f'CR {esc(rule)}</a>')
+        return (f'<div class="sym-row"><code class="sym"{style}>[{esc(token)}]</code>'
+                f'<span class="sym-mean">{esc(meaning)}</span>{link}</div>')
+
+    rows = []
+    # Numbers first — the most common token and the least guessable. Shown as
+    # the literal amounts on the page rather than an "[N]" placeholder, so the
+    # key needs no convention of its own to decode.
+    for token in sorted((t for t in used if is_number_token(t)), key=int):
+        amount = int(token)
+        rows.append(row(token, f"{amount} Energy", NUMBER_RULE, None))
+    for token in sorted(t for t in used if not is_number_token(t)):
+        e = legend[token]
+        rows.append(row(token, e["meaning"], e["rule"], e["colour"]))
+
+    return (
+        '<h2>Symbols used here</h2>'
+        '<div class="legend">' + "".join(rows) + "</div>"
+        '<p class="legend-note">Shorthand is left as Riot prints it, so this key '
+        'becomes unnecessary with use. Each entry links to the rule that defines it.</p>'
+    )
 
 
 def resolve_cards(ans):
@@ -338,6 +408,7 @@ def render(ans, idx):
         cites = "".join(cite_html(c, idx) for c in n.get("cites", []))
         note_blocks.append(f'''<section class="note b-{n["basis"]}" id="{esc(n["id"])}">
   <div class="note-head"><span class="glyph">{glyph}</span>
+    <sup class="noteref note-own">{esc(note_number(n["id"]))}</sup>
     <h3>{esc(n["claim"])}</h3>{crux}</div>
   <div class="basis" title="{esc(why)}">{esc(n["basis"])} — {esc(why)}</div>
   {f'<p class="detail">{esc(n["detail"])}</p>' if n.get("detail") else ""}
@@ -360,7 +431,7 @@ def render(ans, idx):
     ncites = sum(len(n.get("cites", [])) for n in ans["notes"])
     nverified = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
 
-    return f'''<!doctype html>
+    page = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ruling — {esc(ans["question"][:60])}</title>
@@ -445,7 +516,22 @@ h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform
 .card figcaption{{padding:.6rem .7rem;font-size:.82rem;display:flex;flex-direction:column;gap:.3rem}}
 .card-text{{color:var(--dim);font-size:.76rem;line-height:1.45}}
 ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
-@media(max-width:700px){{.hline{{font-size:1.05rem}}}}
+.noteref{{color:var(--accent);text-decoration:none;font-family:ui-sans-serif,system-ui;
+ font-weight:700;font-size:.68em;padding-left:.15em}}
+.weakref{{color:inherit;font-weight:600;text-decoration:underline dotted}}
+.noteref:hover{{text-decoration:underline}}
+.note-own{{color:var(--dim);font-size:.7rem;min-width:1.1rem;padding:0}}
+.legend{{display:grid;grid-template-columns:auto 1fr auto;gap:.4rem .8rem;align-items:baseline;
+ background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.85rem 1rem}}
+.sym-row{{display:contents}}
+.sym{{font-weight:700;font-size:.9rem;justify-self:start}}
+.sym-mean{{font-size:.88rem}}
+.sym-rule{{font:.72rem ui-monospace,monospace;color:var(--accent);text-decoration:none;
+ white-space:nowrap}}
+.sym-rule:hover{{text-decoration:underline}}
+.legend-note{{font-size:.78rem;color:var(--dim);margin:.55rem 0 0;font-style:italic}}
+@media(max-width:700px){{.hline{{font-size:1.05rem}}
+ .legend{{grid-template-columns:auto 1fr}} .sym-rule{{grid-column:2}}}}
 @media print{{.cite{{break-inside:avoid}} .copy,.rulebook-link{{display:none}} body{{background:#fff}}}}
 </style></head><body><div class="wrap">
 
@@ -459,7 +545,8 @@ ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
   <div class="disp {esc(disp)}">{esc(disp)}</div>
   <div class="hline">{holding_html(h, notes_by_id)}</div>
   <div class="strength">
-    weakest link: <b>{esc(ans["_weakest"])}</b> ({esc(ans["_strength"])}) ·
+    weakest link: <a class="weakref" href="#{esc(ans["_weakest"])}">note
+    {esc(note_number(ans["_weakest"]))}</a> ({esc(ans["_strength"])}) ·
     {nverified}/{ncites} citations verified verbatim
     {f'<div class="forced">verdict forced to UNSETTLED — a cited rule failed verification (was {esc(forced)})</div>' if forced else ""}
   </div>
@@ -473,6 +560,7 @@ ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
 {cards_html(ans)}
 {f'<h2>The rules do not settle</h2><ul class="plain">{openq}</ul>' if openq else ""}
 {f'<h2>Verification problems</h2><ul class="plain">{problems}</ul>' if problems else ""}
+<!--LEGEND-->
 
 </div><script>
 // file:// has no clipboard API in Chrome — execCommand fallback is mandatory.
@@ -498,6 +586,10 @@ window.addEventListener('afterprint', function(){{
   document.querySelectorAll('details').forEach(function(d){{d.open=d.dataset.wasOpen==='1';}});
 }});
 </script></body></html>'''
+
+    # The legend reflects what is actually on the page, so it is computed from
+    # the finished page and substituted last.
+    return page.replace(LEGEND_MARKER, legend_html(page, idx))
 
 
 def main():

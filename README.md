@@ -53,7 +53,7 @@ Confirm it works:
 
 ```bash
 cd .claude/skills/rules-report/lib
-python3 rules_cli.py selftest        # 35 checks
+python3 rules_cli.py selftest        # 45 checks
 python3 rules_cli.py card "Astral Heron"
 ```
 
@@ -92,11 +92,23 @@ cross-references live. It is a local file, so this works offline and keeps worki
 links to the glossary sections its keywords map onto. Artwork is loaded from Riot's CDN by URL —
 no image is stored in this repo.
 
-**Confidence is a floor, not an average.** The header reads e.g. `weakest link: n1 (grounded)`.
-`n1` is the shakiest claim in the chain and `grounded` is how well it is supported —
+**Claims are numbered like footnotes.** The verdict is one sentence, and each part of it carries a
+superscript pointing at the numbered claim that supports it — `…played this turn⌁5`. Click through
+to claim 5 and its citations open. A `⌁` before the number means that step is inferred rather than
+stated outright.
+
+**Confidence is a floor, not an average.** The header reads e.g. `weakest link: note 5
+(structural)`. That names the shakiest claim in the chain and how well it is supported —
 `grounded` (a rule says it outright), `structural` (it follows from the rules cited), or `gap`
 (the rules don't address it). One `structural` step makes the whole answer structural. A chain is
 only as strong as its weakest link, so that is what gets reported.
+
+**A key to the shorthand, when it is used.** Rules text is full of bracketed shorthand — `[E]: Add
+[Y].` is opaque until you know it means "exhaust this: add one Power of Order". Reports end with a
+legend covering exactly the symbols on that page, each linking to the rule that defines it. The
+text itself is left as Riot prints it, deliberately: the legend is there to become unnecessary, so
+that you end up able to read Riot's own PDFs unaided. The legend is derived from CR 134.2 and
+135.2.e rather than hardcoded, so it follows a renumbering on its own.
 
 ### The tools your agent uses
 
@@ -174,7 +186,7 @@ npm run oracle skill-data                # rebuild data/cards.json
 cd .claude/skills/rules-report/lib
 python3 rules_cli.py build               # re-parse -> data/rules.json
 python3 rules_cli.py rulebook            # re-render -> data/rules.html
-python3 rules_cli.py selftest            # 35 checks
+python3 rules_cli.py selftest            # 45 checks
 ```
 
 `data/rules.json` is committed on purpose: a rules update then arrives as a **reviewable diff of

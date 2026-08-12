@@ -287,6 +287,56 @@ def card_rendering():
     check("no cards field renders nothing", resolve_cards({}) == [])
 
 
+def symbols_and_notes():
+    """The legend is derived from the rules, so it must survive a renumber."""
+    print("\n=== symbol legend + note references ===")
+    import json as _json
+    from corpus import rules_json
+    from symbols import build_legend, scan
+    from render_report import note_number, verify_answer, render
+    from verify_citations import RuleIndex
+
+    rules = _json.load(open(rules_json(), encoding="utf-8"))
+    legend = build_legend(rules)
+
+    # Six domains (CR 134.2.a-f) plus exhaust/might/any/own/keyword (CR 135.2.e).
+    check("all six domain shorthands are derived", 
+          all(t in legend for t in "RGBOPY"),
+          "missing " + ", ".join(t for t in "RGBOPY" if t not in legend))
+    check("the non-domain symbols are derived",
+          all(t in legend for t in ("A", "C", "E", "M", ">")),
+          ", ".join(sorted(legend)))
+    check("every legend entry cites a real rule",
+          all(e["rule"] in {r["id"] for r in rules if r["doc"] == "CR"}
+              for e in legend.values()))
+
+    # Bracketed prose must not be glossed as symbols or the key becomes noise.
+    check("prose brackets are not treated as symbols",
+          not scan("issue a [Warning], then [do X] on [Reaction]", legend))
+    check("real symbols are found", scan("[E]: Add [Y].", legend) == {"E", "Y"})
+
+    # [>] is written into the page as `[&gt;]`; scanning raw HTML missed it.
+    from render_report import legend_html
+    esc_page = "<p>a keyword marker [&gt;] and a cost of [E]</p>"
+    lg = legend_html(esc_page, RuleIndex())
+    check("an HTML-escaped symbol still reaches the legend", "[&gt;]" in lg or "[>]" in lg,
+          "keyword marker missing from the key")
+
+    check("note ids reduce to numbers", note_number("n12") == "12")
+    check("an unnumbered note id survives", note_number("intro") == "intro")
+
+    src = os.path.join(HERE, "demo-answer.json")
+    if os.path.exists(src):
+        idx = RuleIndex()
+        html = render(verify_answer(json.load(open(src, encoding="utf-8")), idx), idx)
+        check("the legend placeholder is always substituted", "<!--LEGEND-->" not in html)
+        spans = json.load(open(src, encoding="utf-8"))["holding"].get("spans", [])
+        if spans:
+            check("holding spans carry a superscript note ref",
+                  html.count('class="noteref"') >= len(spans),
+                  f'{html.count(chr(34) + "noteref" + chr(34))} refs for {len(spans)} spans')
+
+
 def main():
     print("rules-report selftest")
     parser_fidelity()
@@ -295,6 +345,7 @@ def main():
     holding_invariants(idx)
     rulebook_and_links()
     card_rendering()
+    symbols_and_notes()
 
     print()
     if FAILS:
