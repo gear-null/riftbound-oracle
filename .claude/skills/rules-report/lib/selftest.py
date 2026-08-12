@@ -9,7 +9,7 @@ is a real regression, not a hypothetical.
 
 Exit 0 = safe to answer questions against this corpus.
 """
-import json, os, re, subprocess, sys
+import glob, json, os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -416,6 +416,27 @@ def card_rendering():
               "0</b>" in stats_html(zero[0]["stats"]), zero[0]["name"])
 
 
+def python_floor():
+    """The skill must import on the oldest Python it might meet.
+
+    Packaged for Claude Desktop / mobile it runs in a sandbox whose interpreter
+    we do not choose, and stock macOS still ships 3.9. A single `bool | None`
+    in a dataclass field is evaluated at class creation, so one annotation took
+    the entire skill down with a TypeError before anything ran.
+    """
+    print("\n=== python floor (3.9) ===")
+    import ast
+    offenders = []
+    for path in sorted(glob.glob(os.path.join(HERE, "*.py"))):
+        tree = ast.parse(open(path, encoding="utf-8").read())
+        for node in ast.walk(tree):
+            ann = getattr(node, "annotation", None) or getattr(node, "returns", None)
+            if isinstance(ann, ast.BinOp) and isinstance(ann.op, ast.BitOr):
+                offenders.append(f"{os.path.basename(path)}:{node.lineno}")
+    check("no PEP-604 unions in annotations (3.10+ only)", not offenders,
+          ", ".join(offenders[:4]))
+
+
 def render_gate():
     """The one thing between a failed verification and a pretty report.
 
@@ -648,6 +669,7 @@ def main():
     topic_blocks(idx)
     attribution_and_spans(idx)
     render_gate()
+    python_floor()
 
     print()
     if FAILS:

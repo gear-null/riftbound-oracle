@@ -14,6 +14,7 @@ Checks, cheapest first:
 """
 import json, re, sys, unicodedata
 from dataclasses import dataclass, field
+from typing import List, Optional
 
 from corpus import rules_json as _rules_json_path
 
@@ -189,10 +190,10 @@ class RuleIndex:
 class CitationCheck:
     rule_id: str
     exists: bool
-    quote_verbatim: bool | None      # None = no quote supplied
-    in_retrieved_set: bool | None    # None = no retrieval set supplied
+    quote_verbatim: Optional[bool]   # None = no quote supplied
+    in_retrieved_set: Optional[bool]  # None = no retrieval set supplied
     problems: list = field(default_factory=list)
-    narrowed_to: str | None = None   # tightest rule whose own text has the quote
+    narrowed_to: Optional[str] = None   # tightest rule whose own text has the quote
 
     @property
     def ok(self):
@@ -217,8 +218,9 @@ class CitationCheck:
         return self.narrowed_to or self.rule_id
 
 
-def verify_citation(idx: RuleIndex, rule_id: str, quote: str | None = None,
-                    retrieved: set | None = None, doc: str | None = None) -> CitationCheck:
+def verify_citation(idx: RuleIndex, rule_id: str, quote: Optional[str] = None,
+                    retrieved: Optional[set] = None,
+                    doc: Optional[str] = None) -> CitationCheck:
     problems = []
     # Accept "CR:194.3" as well as ("194.3", doc="CR"). Without normalising here
     # the narrowing pass compared a prefixed id against bare stored ids, found

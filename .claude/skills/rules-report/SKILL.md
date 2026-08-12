@@ -27,9 +27,8 @@ name a rule that has since moved.
 
 ## Before you start
 
-**Requires Python 3.10+.** Stock macOS ships 3.9, which cannot parse this code
-(`bool | None` in a dataclass) and fails most commands with a `TypeError`. If
-`python3 --version` is below 3.10, use a newer interpreter.
+**Requires Python 3.9+**, which includes the interpreter stock macOS ships. No
+third-party packages.
 
 Everything the tools need ships inside this folder. You never need to run
 `build` — that is a maintainer command needing source material a normal install

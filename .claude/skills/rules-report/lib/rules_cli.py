@@ -271,13 +271,19 @@ def cmd_report(args):
     subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
     print(f"\nreport: {os.path.normpath(os.path.abspath(out))}")
     if "--no-open" not in args:
+        # Sandboxed runners (Claude Desktop / mobile skills) have no browser and
+        # no opener binary. Report what actually happened rather than claiming a
+        # window opened somewhere the reader cannot see.
         opener = {"darwin": "open", "win32": "start"}.get(sys.platform, "xdg-open")
+        opened = False
         try:
-            subprocess.run([opener, out], check=False,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            print("opened in your browser")
+            rc = subprocess.run([opener, out], check=False,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            opened = rc.returncode == 0
         except Exception:
-            pass
+            opened = False
+        print("opened in your browser" if opened
+              else "no browser here — open the file above, or download it from this session")
 
 
 def cmd_verify(args):

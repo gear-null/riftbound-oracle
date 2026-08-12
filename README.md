@@ -31,7 +31,7 @@ mkdir -p .claude/skills
 cp -R /tmp/riftbound-oracle/.claude/skills/rules-report .claude/skills/
 ```
 
-That's it. **Requires Python 3.10+** and an agent that can run shell commands and read
+That's it. **Requires Python 3.9+** and an agent that can run shell commands and read
 files (Claude Code, or anything with equivalent tool access).
 
 Check it works:
