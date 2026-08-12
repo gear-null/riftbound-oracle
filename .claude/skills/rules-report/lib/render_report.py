@@ -429,9 +429,15 @@ def cards_html(ans):
                 "<span>no card by this name</span></div>"
             )
         elif img:
+            # Artwork lives on Riot's CDN, so an offline reader has a URL that
+            # cannot load. Without a handler the <img> collapsed to a ~26px
+            # strip of alt text; the documented "labelled placeholder" only
+            # ever appeared when the URL was absent entirely.
             art = (
                 f'<img class="card-art" src="{esc(img)}" alt="{esc(c["name"])} card artwork"'
-                ' loading="lazy" referrerpolicy="no-referrer">'
+                ' loading="lazy" referrerpolicy="no-referrer"'
+                ' onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),'
+                '{className:\'card-art card-art--none\',textContent:\'artwork offline\'}))">'
             )
         else:
             art = (

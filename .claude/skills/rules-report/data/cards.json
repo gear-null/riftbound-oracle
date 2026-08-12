@@ -106,19 +106,25 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4c4ab0c838854ccd5d5399a045835876450287e8-744x1039.png?accountingTag=RB"
  },
  "ahri": {
-  "name": "Ahri - Alluring",
-  "text": "When I hold, you score 1 point.",
+  "name": "Ahri - Nine-Tailed Fox",
+  "text": "When an enemy unit attacks a battlefield you control, give it -1 :rb_might: this turn, to a minimum of 1 :rb_might:.",
   "stats": {
-   "energy": 5,
-   "might": 4,
-   "power": 1,
-   "type": "Unit",
-   "rarity": "Promo",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
+   "rarity": "Rare",
    "domain": [
-    "Calm"
+    "Calm",
+    "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fabbcc2f83f397cf07299236a702db05a151053b-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fbce641f5e4d8cdf2956e8ead5884b6cd3ccd90d-744x1040.png?accountingTag=RB",
+  "ambiguous": [
+   "Ahri - Alluring",
+   "Ahri - Inquisitive",
+   "Ahri - Nine-Tailed Fox"
+  ]
  },
  "ahri - alluring": {
   "name": "Ahri - Alluring",
@@ -128,12 +134,12 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fabbcc2f83f397cf07299236a702db05a151053b-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/933f5d58cc0e27d017982306b9ae0f581c9c8d27-744x1039.png?accountingTag=RB"
  },
  "ahri - inquisitive": {
   "name": "Ahri - Inquisitive",
@@ -143,12 +149,12 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7adc5aa8dba66bf918b8140699cb3a74f7b0efb5-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d4c332e90c97e5e70b996598cd4a0f731b77fdef-744x1039.png?accountingTag=RB"
  },
  "ahri - nine-tailed fox": {
   "name": "Ahri - Nine-Tailed Fox",
@@ -158,13 +164,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dc89c6a2415debd5bf504ed46843f5dcc1d9b815-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fbce641f5e4d8cdf2956e8ead5884b6cd3ccd90d-744x1040.png?accountingTag=RB"
  },
  "ahri, inquisitive": {
   "name": "Ahri, Inquisitive",
@@ -547,20 +553,24 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ca1a56035333e31b3a04d67ee9131bb4d533e5db-744x1039.png?accountingTag=RB"
  },
  "annie": {
-  "name": "Annie - Dark Child",
-  "text": "At the end of your turn, ready 2 runes.",
+  "name": "Annie - Stubborn",
+  "text": "When you play me, return a spell from your trash to your hand.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 4,
+   "might": 3,
+   "power": 1,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Fury",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/89963e1d1cffd69c620fb5d6b037f50d5c334463-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/44eb968cf0c54e75970588b69eef5c5f5ccc9b24-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Annie - Dark Child",
+   "Annie - Fiery",
+   "Annie - Stubborn"
+  ]
  },
  "annie - dark child": {
   "name": "Annie - Dark Child",
@@ -616,7 +626,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
@@ -631,7 +641,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
@@ -737,7 +747,7 @@
    "might": 3,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Fury"
    ]
@@ -783,7 +793,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Order"
    ]
@@ -798,7 +808,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Order"
    ]
@@ -813,7 +823,7 @@
    "might": null,
    "power": null,
    "type": "Battlefield",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Colorless"
    ]
@@ -918,13 +928,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0472274c49f6540858758ebf9bd2f107a601541a-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0472274c49f6540858758ebf9bd2f107a601541a-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Azir - Ascendant",
+   "Azir - Emperor of the Sands",
+   "Azir - Sovereign"
+  ]
  },
  "azir - ascendant": {
   "name": "Azir - Ascendant",
@@ -949,7 +964,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Order"
@@ -965,7 +980,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Order"
    ]
@@ -1115,7 +1130,7 @@
    "might": null,
    "power": null,
    "type": "Battlefield",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Colorless"
    ]
@@ -1130,7 +1145,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -1145,7 +1160,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -1340,7 +1355,7 @@
    "might": 2,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Fury"
    ]
@@ -1520,7 +1535,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Mind"
    ]
@@ -1529,18 +1544,18 @@
  },
  "body rune": {
   "name": "Body Rune",
-  "text": "",
+  "text": "[NO TEXT]",
   "stats": {
    "energy": null,
    "might": null,
    "power": null,
    "type": "Rune",
-   "rarity": "Showcase",
+   "rarity": "Common",
    "domain": [
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/011081f82cab36f8ec0d6874492512fd7859f59e-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3313c73c5b31daa482073bfefbf4d2255a89d7d0-744x1039.png?accountingTag=RB"
  },
  "bonds of strength": {
   "name": "Bonds of Strength",
@@ -1580,7 +1595,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Body"
    ]
@@ -1792,7 +1807,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
@@ -1807,7 +1822,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
@@ -1861,18 +1876,18 @@
  },
  "calm rune": {
   "name": "Calm Rune",
-  "text": "",
+  "text": "[NO TEXT]",
   "stats": {
    "energy": null,
    "might": null,
    "power": null,
    "type": "Rune",
-   "rarity": "Showcase",
+   "rarity": "Common",
    "domain": [
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/88187b586b9b3cc2f48fd20c806dd5fc5e1bfc71-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9b70aa1b334728a3e8beeea0c9154a2d0f79b1eb-744x1039.png?accountingTag=RB"
  },
  "cannon barrage": {
   "name": "Cannon Barrage",
@@ -2026,18 +2041,18 @@
  },
  "chaos rune": {
   "name": "Chaos Rune",
-  "text": "",
+  "text": "[NO TEXT]",
   "stats": {
    "energy": null,
    "might": null,
    "power": null,
    "type": "Rune",
-   "rarity": "Showcase",
+   "rarity": "Common",
    "domain": [
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fbcde2f71fcc06fb8afc83855e24447a393f8943-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3861fc566891a70c21cf3d3075adec716deb7080-744x1039.png?accountingTag=RB"
  },
  "charm": {
   "name": "Charm",
@@ -2167,7 +2182,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Mind"
    ]
@@ -2682,13 +2697,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/31f3c975c6f5693f6567b0ebdb66bd4dd92d730b-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5b9a904048b7fb936377844ec2d31564b7fedf81-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Darius - Executioner",
+   "Darius - Hand of Noxus",
+   "Darius - Trifarian"
+  ]
  },
  "darius - executioner": {
   "name": "Darius - Executioner",
@@ -2698,12 +2718,12 @@
    "might": 6,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/76a697f29d4fc3cd9a5e9a0ce79f229d26bc0c90-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/46fc840c17925406d22703b82ad02f5eb2ab62cf-744x1039.png?accountingTag=RB"
  },
  "darius - hand of noxus": {
   "name": "Darius - Hand of Noxus",
@@ -2713,13 +2733,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/31f3c975c6f5693f6567b0ebdb66bd4dd92d730b-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5b9a904048b7fb936377844ec2d31564b7fedf81-744x1039.png?accountingTag=RB"
  },
  "darius - trifarian": {
   "name": "Darius - Trifarian",
@@ -2729,7 +2749,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury"
    ]
@@ -3069,7 +3089,12 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f538c2659c02af20a173503784989e39a0c291f6-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f538c2659c02af20a173503784989e39a0c291f6-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Diana - Lunari",
+   "Diana - No Longer Human",
+   "Diana - Scorn of the Moon"
+  ]
  },
  "diana - lunari": {
   "name": "Diana - Lunari",
@@ -3276,7 +3301,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Body"
    ]
@@ -3291,7 +3316,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Chaos"
    ]
@@ -3306,7 +3331,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Calm"
    ]
@@ -3336,7 +3361,7 @@
    "might": null,
    "power": null,
    "type": "Spell",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Mind"
    ]
@@ -3457,7 +3482,7 @@
    "might": 1,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Body"
    ]
@@ -3480,19 +3505,26 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3153c05a8c3fb4d8f945a95fad54ea25e087ad47-744x1039.png?accountingTag=RB"
  },
  "draven": {
-  "name": "Draven - Showboat",
-  "text": "My Might is increased by your points.",
+  "name": "Draven - Glorious Executioner",
+  "text": "When you win a combat, draw 1. (You win if only your units remain after combat.)",
   "stats": {
-   "energy": 5,
-   "might": 3,
-   "power": 1,
-   "type": "Unit",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
    "rarity": "Rare",
    "domain": [
-    "Fury"
+    "Fury",
+    "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7600d6cea66e8146ea2202f72cb9035cb44608a3-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b01b2d0454ceeffdc106c4c64a390b275ebf390b-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Draven - Audacious",
+   "Draven - Glorious Executioner",
+   "Draven - Showboat",
+   "Draven - Vanquisher"
+  ]
  },
  "draven - audacious": {
   "name": "Draven - Audacious",
@@ -3502,7 +3534,7 @@
    "might": 6,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Chaos"
    ]
@@ -3517,7 +3549,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Chaos"
@@ -4043,7 +4075,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Order"
    ]
@@ -4074,13 +4106,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d0e143d9edbc14971b2a7b463b3c25b2b6a0c098-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d0e143d9edbc14971b2a7b463b3c25b2b6a0c098-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Ezreal - Dashing",
+   "Ezreal - Prodigal Explorer",
+   "Ezreal - Prodigy"
+  ]
  },
  "ezreal - dashing": {
   "name": "Ezreal - Dashing",
@@ -4090,7 +4127,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -4105,7 +4142,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind",
     "Chaos"
@@ -4121,7 +4158,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Chaos"
    ]
@@ -4196,7 +4233,7 @@
    "might": 7,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Body"
    ]
@@ -4385,19 +4422,26 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cd9d798b496fdce133c5b0106d636a230b6e7ebe-744x1039.png?accountingTag=RB"
  },
  "fiora": {
-  "name": "Fiora - Victorious",
-  "text": "While I'm [Mighty], I have [Deflect], [Ganking], and [Shield]. (I'm Mighty while I have 5+ :rb_might:.)",
+  "name": "Fiora - Grand Duelist",
+  "text": "When one of your units becomes [Mighty], you may exhaust me to channel 1 rune exhausted. (A unit is Mighty while it has 5+ :rb_might:.)",
   "stats": {
-   "energy": 4,
-   "might": 4,
+   "energy": null,
+   "might": null,
    "power": null,
-   "type": "Unit",
+   "type": "Legend",
    "rarity": "Rare",
    "domain": [
+    "Body",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/24d4d1997e6a5b145412e402fc69399d590ecda0-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/37064aa79c13316b5dd28f0a2b054821a43f6650-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Fiora - Grand Duelist",
+   "Fiora - Peerless",
+   "Fiora - Victorious",
+   "Fiora - Worthy"
+  ]
  },
  "fiora - grand duelist": {
   "name": "Fiora - Grand Duelist",
@@ -4407,7 +4451,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Body",
     "Order"
@@ -4423,7 +4467,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Body"
    ]
@@ -4453,7 +4497,7 @@
    "might": 3,
    "power": null,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Order"
    ]
@@ -4860,7 +4904,7 @@
    "might": 3,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Mind"
    ]
@@ -4899,18 +4943,18 @@
  },
  "fury rune": {
   "name": "Fury Rune",
-  "text": "",
+  "text": "[NO TEXT]",
   "stats": {
    "energy": null,
    "might": null,
    "power": null,
    "type": "Rune",
-   "rarity": "Showcase",
+   "rarity": "Common",
    "domain": [
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/09da06c69d07d4e72dde703737ef167472c715af-1488x2078.png"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f95ed6ba0c4d4d357c45bf5bdb1a8e540af1f85f-744x1039.png?accountingTag=RB"
  },
  "galio": {
   "name": "Galio - Indefatigable",
@@ -5000,7 +5044,12 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cbf2c12d69a86566e4cda07050b2d4495e40187e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cbf2c12d69a86566e4cda07050b2d4495e40187e-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Garen - Commander",
+   "Garen - Might of Demacia",
+   "Garen - Rugged"
+  ]
  },
  "garen - commander": {
   "name": "Garen - Commander",
@@ -5071,7 +5120,7 @@
    "might": 2,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Fury"
    ]
@@ -5372,7 +5421,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Mind"
    ]
@@ -5492,7 +5541,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Chaos"
    ]
@@ -5553,7 +5602,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -5568,7 +5617,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -5947,7 +5996,7 @@
    "might": 2,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Mind"
    ]
@@ -6097,13 +6146,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/656ef2d1724b818e9e737ec5dcce923de067a316-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/656ef2d1724b818e9e737ec5dcce923de067a316-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Irelia - Blade Dancer",
+   "Irelia - Fervent",
+   "Irelia - Graceful"
+  ]
  },
  "irelia - blade dancer": {
   "name": "Irelia - Blade Dancer",
@@ -6113,7 +6167,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Chaos"
@@ -6129,7 +6183,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Calm"
    ]
@@ -6239,7 +6293,12 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/72462350a7842b6b81c022ac255ae0e82f3559fd-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/72462350a7842b6b81c022ac255ae0e82f3559fd-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Ivern - Friend to All",
+   "Ivern - Green Father",
+   "Ivern - Nurturer"
+  ]
  },
  "ivern - friend to all": {
   "name": "Ivern - Friend to All",
@@ -6370,7 +6429,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Body"
@@ -6386,7 +6445,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
@@ -6409,19 +6468,24 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e63ab3370a6e4ce4baddfba12ab92468f6cc9541-744x1039.png?accountingTag=RB"
  },
  "jayce": {
-  "name": "Jayce - Man of Progress",
-  "text": "When you play me, you may kill a friendly gear. If you do, you may play a gear with Energy cost no more than :rb_energy_7: from hand this turn, ignoring its Energy cost.",
+  "name": "Jayce - Defender of Tomorrow",
+  "text": "[Empower] :rb_energy_2::rb_rune_rainbow::rb_rune_rainbow: (:rb_energy_2::rb_rune_rainbow::rb_rune_rainbow:: Empower me. Use only if not Empowered.):rb_energy_1:, :rb_exhaust:: Ready a gear.[Empowered][>] :rb_energy_1:, :rb_exhaust:: Ready 2 gear.",
   "stats": {
-   "energy": 4,
-   "might": 4,
+   "energy": null,
+   "might": null,
    "power": null,
-   "type": "Unit",
-   "rarity": "Promo",
+   "type": "Legend",
+   "rarity": "Rare",
    "domain": [
-    "Mind"
+    "Mind",
+    "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/be6d6a608c5bee9d2012e24d9e6f6f1d1977a37a-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/670b7efd367a42beba11c18fb59e240a7c574a57-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Jayce - Defender of Tomorrow",
+   "Jayce - Man of Progress"
+  ]
  },
  "jayce - defender of tomorrow": {
   "name": "Jayce - Defender of Tomorrow",
@@ -6447,7 +6511,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -6528,7 +6592,12 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/47f10693258104e9373396165e335014bf5783a2-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/47f10693258104e9373396165e335014bf5783a2-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Jhin - Meticulous Killer",
+   "Jhin - Murderous Artist",
+   "Jhin - Virtuoso"
+  ]
  },
  "jhin - meticulous killer": {
   "name": "Jhin - Meticulous Killer",
@@ -6577,19 +6646,25 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/47f10693258104e9373396165e335014bf5783a2-744x1039.png?accountingTag=RB"
  },
  "jinx": {
-  "name": "Jinx - Rebel",
-  "text": "When you discard one or more cards, ready me and give me +1 :rb_might: this turn.",
+  "name": "Jinx - Loose Cannon",
+  "text": "At start of your Beginning Phase, draw 1 if you have one or fewer cards in your hand.",
   "stats": {
-   "energy": 5,
-   "might": 5,
-   "power": 1,
-   "type": "Unit",
-   "rarity": "Promo",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
+   "rarity": "Rare",
    "domain": [
+    "Fury",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a7fe105f40df66525be51bd18e25506945a7b027-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f57c14381b126e9f5a7b5bc4913151cb24c14fc3-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Jinx - Demolitionist",
+   "Jinx - Loose Cannon",
+   "Jinx - Rebel"
+  ]
  },
  "jinx - demolitionist": {
   "name": "Jinx - Demolitionist",
@@ -6599,7 +6674,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury"
    ]
@@ -6614,13 +6689,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/30bed82f66ce9e4eae260d029d92c9d8cb1588ab-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f57c14381b126e9f5a7b5bc4913151cb24c14fc3-744x1039.png?accountingTag=RB"
  },
  "jinx - rebel": {
   "name": "Jinx - Rebel",
@@ -6630,7 +6705,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Chaos"
    ]
@@ -6675,13 +6750,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ae8e68af43400f61f7391c0a6ee339fd718a7540-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a576472c7bb00f475882ac814e1d8f9be233b402-744x1040.png?accountingTag=RB",
+  "ambiguous": [
+   "Kai'Sa - Daughter of the Void",
+   "Kai'Sa - Evolutionary",
+   "Kai'Sa - Survivor"
+  ]
  },
  "kai'sa - daughter of the void": {
   "name": "Kai'Sa - Daughter of the Void",
@@ -6691,13 +6771,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ae8e68af43400f61f7391c0a6ee339fd718a7540-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a576472c7bb00f475882ac814e1d8f9be233b402-744x1040.png?accountingTag=RB"
  },
  "kai'sa - evolutionary": {
   "name": "Kai'Sa - Evolutionary",
@@ -6707,7 +6787,7 @@
    "might": 6,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -6722,7 +6802,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Fury"
    ]
@@ -6757,7 +6837,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aca8664b334f2fa40cc7bae2811dd4e1b4f06388-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2e2c1cb4016543e3288da2dac3ecc3faf8a98927-744x1039.png?accountingTag=RB"
  },
  "karma - channeler": {
   "name": "Karma - Channeler",
@@ -6772,7 +6852,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aca8664b334f2fa40cc7bae2811dd4e1b4f06388-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2e2c1cb4016543e3288da2dac3ecc3faf8a98927-744x1039.png?accountingTag=RB"
  },
  "karthus": {
   "name": "Karthus - Eternal",
@@ -6983,7 +7063,12 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b1e7f8762aba8ecf571eb0c83bba8874703dc8be-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b1e7f8762aba8ecf571eb0c83bba8874703dc8be-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Kha'Zix - Evolving Hunter",
+   "Kha'Zix - Mutating Horror",
+   "Kha'Zix - Voidreaver"
+  ]
  },
  "kha'zix - evolving hunter": {
   "name": "Kha'Zix - Evolving Hunter",
@@ -7280,7 +7365,7 @@
    "might": 3,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Order"
    ]
@@ -7301,7 +7386,12 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/78a3153e914b2124cdc918f3134a8087b342caf7-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/78a3153e914b2124cdc918f3134a8087b342caf7-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "LeBlanc - Deceiver",
+   "LeBlanc - Everywhere At Once",
+   "LeBlanc - Fragmented"
+  ]
  },
  "leblanc - deceiver": {
   "name": "LeBlanc - Deceiver",
@@ -7372,13 +7462,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b4dfd543b1cfcdefba4568fe78146e0d6e46add7-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ffe064e002d3b9a366748eb85102a769b2545835-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Lee Sin - Ascetic",
+   "Lee Sin - Blind Monk",
+   "Lee Sin - Centered"
+  ]
  },
  "lee sin - ascetic": {
   "name": "Lee Sin - Ascetic",
@@ -7388,12 +7483,12 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d34a98faacd3f7d32afd6fad99c806f202aa9dad-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/70734e8833bfbbdb2736407c449f418553e3cf7c-744x1039.png?accountingTag=RB"
  },
  "lee sin - blind monk": {
   "name": "Lee Sin - Blind Monk",
@@ -7403,13 +7498,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b4dfd543b1cfcdefba4568fe78146e0d6e46add7-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ffe064e002d3b9a366748eb85102a769b2545835-744x1039.png?accountingTag=RB"
  },
  "lee sin - centered": {
   "name": "Lee Sin - Centered",
@@ -7419,7 +7514,7 @@
    "might": 6,
    "power": null,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Body"
    ]
@@ -7472,19 +7567,25 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aedece01c7792c689050460db1670e6b9b15b61f-744x1039.png?accountingTag=RB"
  },
  "leona": {
-  "name": "Leona - Determined",
-  "text": "[Shield] (+1 :rb_might: while I'm a defender.)When I attack, stun an enemy unit here. (It doesn't deal combat damage this turn.)",
+  "name": "Leona - Radiant Dawn",
+  "text": "When you stun one or more enemy units, buff a friendly unit. (If it doesn't have a buff, it gets a +1 :rb_might: buff.)",
   "stats": {
-   "energy": 4,
-   "might": 4,
-   "power": 1,
-   "type": "Unit",
-   "rarity": "Showcase",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
+   "rarity": "Rare",
    "domain": [
+    "Calm",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1ed0250f1d3bbbbde49b3ce1fc2e744e4da64baa-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/822b8bc7987a47498550708b18ef166b121fd620-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Leona - Determined",
+   "Leona - Radiant Dawn",
+   "Leona - Zealot"
+  ]
  },
  "leona - determined": {
   "name": "Leona - Determined",
@@ -7494,7 +7595,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Order"
    ]
@@ -7509,13 +7610,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bd526a0f9177aaa9ec575add7d02e72b46520070-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/822b8bc7987a47498550708b18ef166b121fd620-744x1039.png?accountingTag=RB"
  },
  "leona - zealot": {
   "name": "Leona - Zealot",
@@ -7571,12 +7672,17 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/daa5fe15e0a1c14c8dbb8f858d8a6d444ea6096e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/daa5fe15e0a1c14c8dbb8f858d8a6d444ea6096e-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Lillia - Bashful Bloom",
+   "Lillia - Fae Fawn",
+   "Lillia - Protector of Dreams"
+  ]
  },
  "lillia - bashful bloom": {
   "name": "Lillia - Bashful Bloom",
@@ -7617,7 +7723,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Calm"
    ]
@@ -7708,7 +7814,7 @@
    "might": 3,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Order"
    ]
@@ -7738,13 +7844,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/450cfb71b8890904d48b37a24bbdc78f8d849614-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/450cfb71b8890904d48b37a24bbdc78f8d849614-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Lucian - Gunslinger",
+   "Lucian - Merciless",
+   "Lucian - Purifier"
+  ]
  },
  "lucian - gunslinger": {
   "name": "Lucian - Gunslinger",
@@ -7784,7 +7895,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Body"
@@ -7800,7 +7911,7 @@
    "might": null,
    "power": null,
    "type": "Spell",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Chaos"
    ]
@@ -7809,7 +7920,7 @@
  },
  "lux - crownguard": {
   "name": "Lux - Crownguard",
-  "text": ":rb_exhaust:: [Reaction] — [Add] :rb_energy_2:. Use only to play spells. (Abilities that add resources can't be reacted to.)",
+  "text": ":rb_exhaust:: [Reaction] — [Add] :rb_energy_2:. Spend this Energy only to play spells.",
   "stats": {
    "energy": 4,
    "might": 2,
@@ -7820,7 +7931,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17d0793ad495727e67bb1c94ae0e11cd4705870f-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9778ec229e052268ea66213ca2dbf60612b2862-744x1039.png?accountingTag=RB"
  },
  "lux - illuminated": {
   "name": "Lux - Illuminated",
@@ -8095,20 +8206,27 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/75b7ba57a83af496b26d9fe7e8521f9a851bf464-744x1039.png?accountingTag=RB"
  },
  "master yi": {
-  "name": "Master Yi - Wuju Bladesman",
-  "text": "While a friendly unit defends alone, it gets +2 :rb_might:.",
+  "name": "Master Yi - Meditative",
+  "text": "While you have 8+ runes, I have +4 :rb_might:.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 5,
+   "might": 4,
+   "power": 1,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Calm",
-    "Body"
+    "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8231ced23eaf22ca3bf62ec8cb86b83a3e222da6-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5508566c8f05f09492148faa803332a731095eb7-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Master Yi - Honed",
+   "Master Yi - Meditative",
+   "Master Yi - Tempered",
+   "Master Yi - Unstoppable",
+   "Master Yi - Wuju Bladesman",
+   "Master Yi - Wuju Master"
+  ]
  },
  "master yi - honed": {
   "name": "Master Yi - Honed",
@@ -8341,18 +8459,18 @@
  },
  "mind rune": {
   "name": "Mind Rune",
-  "text": "",
+  "text": "[NO TEXT]",
   "stats": {
    "energy": null,
    "might": null,
    "power": null,
    "type": "Rune",
-   "rarity": "Showcase",
+   "rarity": "Common",
    "domain": [
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ecf8c8632c728520b51cd4bc79036677e96ebdfd-1488x2078.png"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/33df1c56c6e76f9cb783c19161f16fcdbdc20f98-744x1039.png?accountingTag=RB"
  },
  "mindsplitter": {
   "name": "Mindsplitter",
@@ -8431,19 +8549,25 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fb2e82cca7aa93c857ed1fe54de7344016779520-744x1039.png?accountingTag=RB"
  },
  "miss fortune": {
-  "name": "Miss Fortune - Captain",
-  "text": "[Accelerate] (You may pay :rb_energy_1::rb_rune_body: as an additional cost to have me enter ready.)[Ganking] (I can move from battlefield to battlefield.)The first time I move each turn, you may ready something else that's exhausted.",
+  "name": "Miss Fortune - Bounty Hunter",
+  "text": ":rb_exhaust:: Give a unit [Ganking] this turn. (It can move from battlefield to battlefield.)",
   "stats": {
-   "energy": 5,
-   "might": 5,
-   "power": 1,
-   "type": "Unit",
-   "rarity": "Showcase",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
+   "rarity": "Rare",
    "domain": [
-    "Body"
+    "Body",
+    "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a7a0dfa952259993fa0d8998a820585ff4f81c6-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cc11261fcdbf0851525030bd9e835b718efad3bc-744x1040.png?accountingTag=RB",
+  "ambiguous": [
+   "Miss Fortune - Bounty Hunter",
+   "Miss Fortune - Buccaneer",
+   "Miss Fortune - Captain"
+  ]
  },
  "miss fortune - bounty hunter": {
   "name": "Miss Fortune - Bounty Hunter",
@@ -8453,13 +8577,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Body",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/37153cce7f58b2fceb28ea9ff91deb0411f849e2-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cc11261fcdbf0851525030bd9e835b718efad3bc-744x1040.png?accountingTag=RB"
  },
  "miss fortune - buccaneer": {
   "name": "Miss Fortune - Buccaneer",
@@ -8469,12 +8593,12 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8fde2eeb516af55b24467569aa982037f5b67b89-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e6ff9ad3d6e2b96ff76cda4c7bc75415c1cdcced-744x1039.png?accountingTag=RB"
  },
  "miss fortune - captain": {
   "name": "Miss Fortune - Captain",
@@ -8484,7 +8608,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Body"
    ]
@@ -8499,7 +8623,7 @@
    "might": 1,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Chaos"
    ]
@@ -8650,7 +8774,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Calm"
    ]
@@ -8710,7 +8834,7 @@
    "might": 1,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Calm"
    ]
@@ -8719,7 +8843,7 @@
  },
  "mystic poro": {
   "name": "Mystic Poro",
-  "text": "[Vision] (When you play me, look at the top card of your Main Deck. You may recycle it.)",
+  "text": "[Vision]",
   "stats": {
    "energy": 2,
    "might": 2,
@@ -8730,7 +8854,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/11af57d045768e886d05e1c0933b0d57cb1e459d-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2fdb5e1ff9aae4137910fa59065b69ef17144752-744x1039.png?accountingTag=RB"
  },
  "mystic reversal": {
   "name": "Mystic Reversal",
@@ -8877,7 +9001,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Calm"
    ]
@@ -9203,18 +9327,18 @@
  },
  "order rune": {
   "name": "Order Rune",
-  "text": "",
+  "text": "[NO TEXT]",
   "stats": {
    "energy": null,
    "might": null,
    "power": null,
    "type": "Rune",
-   "rarity": "Showcase",
+   "rarity": "Common",
    "domain": [
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0e4904221c3bbbfcfde1734bc414dbe97c67e295-1488x2078.png"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/71e7d71ebadb81ccad7ca4cb8b3fb85d2f5fd4bf-744x1039.png?accountingTag=RB"
  },
  "ornn": {
   "name": "Ornn - Fire Below the Mountain",
@@ -9224,13 +9348,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ed58d654034d545e54c85d836f3a6552772dd75b-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ed58d654034d545e54c85d836f3a6552772dd75b-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Ornn - Blacksmith",
+   "Ornn - Fire Below the Mountain",
+   "Ornn - Forge God"
+  ]
  },
  "ornn - blacksmith": {
   "name": "Ornn - Blacksmith",
@@ -9240,7 +9369,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Calm"
    ]
@@ -9255,7 +9384,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Mind"
@@ -9676,12 +9805,17 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1a75c5322b2179e772af83b1fd16fed864c5bf24-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1a75c5322b2179e772af83b1fd16fed864c5bf24-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Poppy - Defender of the Meek",
+   "Poppy - Keeper of the Hammer",
+   "Poppy - Paragon"
+  ]
  },
  "poppy - defender of the meek": {
   "name": "Poppy - Defender of the Meek",
@@ -9691,7 +9825,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Order"
    ]
@@ -9887,7 +10021,7 @@
    "might": null,
    "power": 1,
    "type": "Spell",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Mind"
    ]
@@ -10014,7 +10148,12 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b4095d98aff998fda5a08d4c32e97a2a66ccf1e6-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b4095d98aff998fda5a08d4c32e97a2a66ccf1e6-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Pyke - Bloodharbor Ripper",
+   "Pyke - Dockside Butcher",
+   "Pyke - Returned"
+  ]
  },
  "pyke - bloodharbor ripper": {
   "name": "Pyke - Bloodharbor Ripper",
@@ -10432,13 +10571,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2db78549c30d8f9012af797fe075c4dc2355ec5d-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2db78549c30d8f9012af797fe075c4dc2355ec5d-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Rek'Sai - Breacher",
+   "Rek'Sai - Swarm Queen",
+   "Rek'sai - Void Burrower"
+  ]
  },
  "rek'sai - breacher": {
   "name": "Rek'Sai - Breacher",
@@ -10448,7 +10592,7 @@
    "might": 3,
    "power": null,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Fury"
    ]
@@ -10478,7 +10622,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Order"
@@ -10555,13 +10699,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4bd289c281ad64229061ff909abf88c12a574833-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4bd289c281ad64229061ff909abf88c12a574833-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Renata Glasc - Chem-Baroness",
+   "Renata Glasc - Industrialist",
+   "Renata Glasc - Mastermind"
+  ]
  },
  "renata glasc - chem-baroness": {
   "name": "Renata Glasc - Chem-Baroness",
@@ -10571,7 +10720,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind",
     "Order"
@@ -10587,7 +10736,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Order"
    ]
@@ -10602,7 +10751,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Mind"
    ]
@@ -10679,12 +10828,18 @@
    "might": 6,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1f16f5b1f980106057606a2faa3cce64fa4850e7-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1f16f5b1f980106057606a2faa3cce64fa4850e7-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Rengar - Pouncing",
+   "Rengar - Pridestalker",
+   "Rengar - Trophy Hunter",
+   "Rengar - Unseen"
+  ]
  },
  "rengar - pouncing": {
   "name": "Rengar - Pouncing",
@@ -10725,7 +10880,7 @@
    "might": 6,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Body"
    ]
@@ -11102,13 +11257,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f311115e4c527ce82010596ce462d4050a9201b2-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f311115e4c527ce82010596ce462d4050a9201b2-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Rumble - Hotheaded",
+   "Rumble - Mechanized Menace",
+   "Rumble - Scrapper"
+  ]
  },
  "rumble - hotheaded": {
   "name": "Rumble - Hotheaded",
@@ -11118,7 +11278,7 @@
    "might": 4,
    "power": null,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury"
    ]
@@ -11133,7 +11293,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Mind"
@@ -11149,7 +11309,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Mind"
    ]
@@ -11359,7 +11519,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Fury"
    ]
@@ -11449,7 +11609,7 @@
    "might": 2,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Body"
    ]
@@ -11469,7 +11629,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dd8433e77e46ca77aaf0be35d1774218d9a2f037-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9263b8f36725a4cec320c1049608824ae72f6237-744x1039.png?accountingTag=RB"
  },
  "seal of focus": {
   "name": "Seal of Focus",
@@ -11484,7 +11644,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/288c300c4e4cb10ecfe6c3cbb543d0636b306852-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8b6bb0da7d3b37dad51148b7914e7d2b840b6482-744x1039.png?accountingTag=RB"
  },
  "seal of insight": {
   "name": "Seal of Insight",
@@ -11499,7 +11659,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9ee0dc0221f83d569e0f458374e40f7238f306c2-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/eb4559c507f09cabc3735973a1b20d83688d2f9d-744x1039.png?accountingTag=RB"
  },
  "seal of rage": {
   "name": "Seal of Rage",
@@ -11514,7 +11674,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fbdd14adb40b0ca46b89f476a356fa21413d812e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/669d4dd94cf2d88ad58333c13a98cca2014e71aa-744x1039.png?accountingTag=RB"
  },
  "seal of strength": {
   "name": "Seal of Strength",
@@ -11529,7 +11689,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/415644b2798348e3d7198ec900cc40aaa4eb8bdf-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dd5c24995d5c6d327b5101da3d6426f1a75a49ef-744x1039.png?accountingTag=RB"
  },
  "seal of unity": {
   "name": "Seal of Unity",
@@ -11544,7 +11704,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e6fbd41d69bc0d235ea7993d2e9fa74e75e17dff-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/228dbde67ec37f9a0b28f81e40fce5a8fa7af56b-744x1039.png?accountingTag=RB"
  },
  "seat of power": {
   "name": "Seat of Power",
@@ -11599,7 +11759,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Fury"
    ]
@@ -11607,19 +11767,25 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9498c8146745124fc45a7b55184854a9c9da21f5-744x1039.png?accountingTag=RB"
  },
  "sett": {
-  "name": "Sett - Brawler",
-  "text": "When I'm played and when I conquer, buff me. (If I don't have a buff, I get a +1 :rb_might: buff.)Spend my buff: Give me +4 :rb_might: this turn.",
+  "name": "Sett - The Boss",
+  "text": "When a buffed unit you control would die, you may pay :rb_rune_rainbow: and exhaust me to spend its buff and recall it exhausted instead. (Send it to base. This isn't a move.)When you conquer, ready me.",
   "stats": {
-   "energy": 5,
-   "might": 4,
-   "power": 1,
-   "type": "Unit",
-   "rarity": "Showcase",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
+   "rarity": "Rare",
    "domain": [
-    "Body"
+    "Body",
+    "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/26e65c15e8a1ce1a9cd60d96345c7916e67e00ac-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b132becb843b2cf418cb110ead64758f49f51554-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Sett - Brawler",
+   "Sett - Kingpin",
+   "Sett - The Boss"
+  ]
  },
  "sett - brawler": {
   "name": "Sett - Brawler",
@@ -11629,12 +11795,12 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/26e65c15e8a1ce1a9cd60d96345c7916e67e00ac-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ea35315d12a86cff8e37fa716c92dc76d9edceb8-744x1039.png?accountingTag=RB"
  },
  "sett - kingpin": {
   "name": "Sett - Kingpin",
@@ -11659,13 +11825,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Body",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6e8efcd343dfd37d9d108243a86c2a5a6412f698-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b132becb843b2cf418cb110ead64758f49f51554-744x1039.png?accountingTag=RB"
  },
  "sett, brawler": {
   "name": "Sett, Brawler",
@@ -11895,19 +12061,24 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f2aa213fe1e54d0d6f1507c7ed8829c8ba2bc610-744x1039.png?accountingTag=RB"
  },
  "shen": {
-  "name": "Shen - Kinkou",
-  "text": "[Reaction] (Play any time, even before spells and abilities resolve, including to a battlefield you control.)[Shield 2] (+2 :rb_might: while I'm a defender.)[Tank] (I must be assigned combat damage first.)",
+  "name": "Shen - Eye of Twilight",
+  "text": "[Action][>] :rb_exhaust:: Give a friendly unit [Tank] this turn. (It must be assigned combat damage first.)",
   "stats": {
-   "energy": 3,
-   "might": 3,
-   "power": 1,
-   "type": "Unit",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
    "rarity": "Rare",
    "domain": [
+    "Calm",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/25f3a9fa33201278ebf475b2d02dae8c0c0cb20c-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/54388a3124b7e1f0331e5970f952778db5f24500-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Shen - Eye of Twilight",
+   "Shen - Kinkou"
+  ]
  },
  "shen - eye of twilight": {
   "name": "Shen - Eye of Twilight",
@@ -12131,7 +12302,7 @@
    "might": 1,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Chaos"
    ]
@@ -12178,13 +12349,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Body",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fd060882c32a8deac04aea4241c6ab7b97236a05-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fd060882c32a8deac04aea4241c6ab7b97236a05-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Sivir - Ambitious",
+   "Sivir - Battle Mistress",
+   "Sivir - Mercenary"
+  ]
  },
  "sivir - ambitious": {
   "name": "Sivir - Ambitious",
@@ -12194,7 +12370,7 @@
    "might": 7,
    "power": 3,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Body"
    ]
@@ -12209,7 +12385,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Body",
     "Chaos"
@@ -12225,7 +12401,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Chaos"
    ]
@@ -12480,7 +12656,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Order"
    ]
@@ -12495,7 +12671,7 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Order"
    ]
@@ -12540,7 +12716,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Calm"
    ]
@@ -12902,7 +13078,7 @@
    "might": null,
    "power": null,
    "type": "Spell",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Body"
    ]
@@ -12992,7 +13168,7 @@
    "might": 3,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Calm"
    ]
@@ -13174,7 +13350,7 @@
    "might": null,
    "power": 1,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Calm"
    ]
@@ -13369,12 +13545,17 @@
    "might": 1,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ca8a2e11dd78dd09ad1c9ad3a23e5699254b947e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ca8a2e11dd78dd09ad1c9ad3a23e5699254b947e-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Teemo - Scout",
+   "Teemo - Strategist",
+   "Teemo - Swift Scout"
+  ]
  },
  "teemo - scout": {
   "name": "Teemo - Scout",
@@ -13384,7 +13565,7 @@
    "might": 1,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Chaos"
    ]
@@ -13399,12 +13580,12 @@
    "might": 2,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0709ab02b75d9acc8f3c4037ec3a4140323150d8-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e31f0ea037604aa531d84c1d56d26f255210b7c-744x1039.png?accountingTag=RB"
  },
  "teemo - swift scout": {
   "name": "Teemo - Swift Scout",
@@ -13414,7 +13595,7 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind",
     "Chaos"
@@ -13535,7 +13716,7 @@
    "might": null,
    "power": null,
    "type": "Battlefield",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Colorless"
    ]
@@ -13897,7 +14078,7 @@
    "might": 1,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Chaos"
    ]
@@ -14182,7 +14363,7 @@
    "might": 5,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Order"
    ]
@@ -14257,7 +14438,7 @@
    "might": null,
    "power": 1,
    "type": "Spell",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Order"
    ]
@@ -14287,7 +14468,7 @@
    "might": 2,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Uncommon",
    "domain": [
     "Order"
    ]
@@ -14332,7 +14513,7 @@
    "might": null,
    "power": null,
    "type": "Spell",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Fury"
    ]
@@ -14472,7 +14653,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b38a22e6f4bfaa8589f32754a7466fe5214e81b5-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/75f9eac062e43105ee602b6050fe230fb8d2dce5-744x1039.png?accountingTag=RB"
  },
  "vayne - hunter": {
   "name": "Vayne - Hunter",
@@ -14487,7 +14668,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b38a22e6f4bfaa8589f32754a7466fe5214e81b5-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/75f9eac062e43105ee602b6050fe230fb8d2dce5-744x1039.png?accountingTag=RB"
  },
  "veiled temple": {
   "name": "Veiled Temple",
@@ -14597,18 +14778,18 @@
  },
  "vi - destructive": {
   "name": "Vi - Destructive",
-  "text": "[Ganking]Recycle 1 from your trash: Give me +1 :rb_might: this turn.",
+  "text": "[Ganking] (I can move from battlefield to battlefield.)Recycle 1 from your trash: Give me +1 :rb_might: this turn.",
   "stats": {
    "energy": 2,
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dff596efc7413bfdd9cc8e667c46bd4228447de5-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7ab52254ac49b8853fc7ae65b03aaee3f8c5994a-744x1039.png?accountingTag=RB"
  },
  "vi - hotheaded": {
   "name": "Vi - Hotheaded",
@@ -14687,19 +14868,25 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/99845de971eb165c7a6bb424050cd9a29b45b548-744x1039.png?accountingTag=RB"
  },
  "viktor": {
-  "name": "Viktor - Leader",
-  "text": "When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit token into your base.",
+  "name": "Viktor - Herald of the Arcane",
+  "text": ":rb_energy_1:, :rb_exhaust:: Play a 1 :rb_might: Recruit unit token.",
   "stats": {
-   "energy": 4,
-   "might": 4,
-   "power": 1,
-   "type": "Unit",
-   "rarity": "Promo",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
+   "rarity": "Rare",
    "domain": [
+    "Mind",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ab390d6d074c3f07abba000cc166faa1796ec464-744x1039.png"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/913236dabf1e4f71650bbba46870fff8163e2eff-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Viktor - Herald of the Arcane",
+   "Viktor - Innovator",
+   "Viktor - Leader"
+  ]
  },
  "viktor - herald of the arcane": {
   "name": "Viktor - Herald of the Arcane",
@@ -14709,13 +14896,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Mind",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e345a5fc347e6a5835f2afa33492058fdbfcb169-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/913236dabf1e4f71650bbba46870fff8163e2eff-744x1039.png?accountingTag=RB"
  },
  "viktor - innovator": {
   "name": "Viktor - Innovator",
@@ -14725,7 +14912,7 @@
    "might": 3,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -14740,12 +14927,12 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Epic",
    "domain": [
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ab390d6d074c3f07abba000cc166faa1796ec464-744x1039.png"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ab390d6d074c3f07abba000cc166faa1796ec464-744x1039.png?accountingTag=RB"
  },
  "viktor, innovator": {
   "name": "Viktor, Innovator",
@@ -14892,13 +15079,18 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d5a629ce373a6add09bfacc4b584e509c6332334-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f1842ef373434db3e8109d8959832f9d184866c3-744x1040.png?accountingTag=RB",
+  "ambiguous": [
+   "Volibear - Furious",
+   "Volibear - Imposing",
+   "Volibear - Relentless Storm"
+  ]
  },
  "volibear - furious": {
   "name": "Volibear - Furious",
@@ -14908,7 +15100,7 @@
    "might": 9,
    "power": 2,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Fury"
    ]
@@ -14923,7 +15115,7 @@
    "might": 10,
    "power": 2,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Body"
    ]
@@ -14938,13 +15130,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Fury",
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d5a629ce373a6add09bfacc4b584e509c6332334-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f1842ef373434db3e8109d8959832f9d184866c3-744x1040.png?accountingTag=RB"
  },
  "voracious gromp": {
   "name": "Voracious Gromp",
@@ -14954,7 +15146,7 @@
    "might": 5,
    "power": null,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Common",
    "domain": [
     "Body"
    ]
@@ -15029,7 +15221,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Body"
    ]
@@ -15044,7 +15236,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Body"
    ]
@@ -15239,7 +15431,7 @@
    "might": null,
    "power": null,
    "type": "Gear",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -15337,19 +15529,25 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ec694ac53a49fd4419434cb144daaaf0f38da574-744x1039.png?accountingTag=RB"
  },
  "yasuo": {
-  "name": "Yasuo - Windrider",
-  "text": "[Ganking] (I can move from battlefield to battlefield.)The third time I move in a turn, you score 1 point.",
+  "name": "Yasuo - Unforgiven",
+  "text": ":rb_energy_2:, :rb_exhaust:: Move a friendly unit to or from its base.",
   "stats": {
-   "energy": 5,
-   "might": 4,
-   "power": 1,
-   "type": "Unit",
-   "rarity": "Showcase",
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
+   "rarity": "Rare",
    "domain": [
+    "Calm",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/35f7ca6802af48585af55d23cf7675a8922d8535-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/68e4d3230b785738ae9d86f780f7f5607ef11807-744x1040.png?accountingTag=RB",
+  "ambiguous": [
+   "Yasuo - Remorseful",
+   "Yasuo - Unforgiven",
+   "Yasuo - Windrider"
+  ]
  },
  "yasuo - remorseful": {
   "name": "Yasuo - Remorseful",
@@ -15359,7 +15557,7 @@
    "might": 6,
    "power": 2,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
@@ -15374,13 +15572,13 @@
    "might": null,
    "power": null,
    "type": "Legend",
-   "rarity": "Showcase",
+   "rarity": "Rare",
    "domain": [
     "Calm",
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a06599a299b15175984c1e38d27a3be21258fbe-1488x2078.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/68e4d3230b785738ae9d86f780f7f5607ef11807-744x1040.png?accountingTag=RB"
  },
  "yasuo - windrider": {
   "name": "Yasuo - Windrider",
@@ -15390,12 +15588,12 @@
    "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Showcase",
+   "rarity": "Epic",
    "domain": [
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/35f7ca6802af48585af55d23cf7675a8922d8535-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/40575a59f02c431223ef484edabdf7bd8cb28381-744x1039.png?accountingTag=RB"
  },
  "yeti brawler": {
   "name": "Yeti Brawler",
@@ -15420,7 +15618,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Body"
    ]
@@ -15435,7 +15633,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Body"
    ]
@@ -15497,7 +15695,7 @@
    "might": 1,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
@@ -15512,7 +15710,7 @@
    "might": 1,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Calm"
    ]
@@ -15664,7 +15862,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]
@@ -15679,7 +15877,7 @@
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Promo",
+   "rarity": "Rare",
    "domain": [
     "Mind"
    ]

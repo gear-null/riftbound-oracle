@@ -21,7 +21,9 @@ terms into the query diluted it.
 The failure is structural, not a tuning problem:
 
 - **65%** of real questions name a card.
-- **~4%** of card names appear anywhere in rule text.
+- Of 860 card base names, **109 (12.7%)** appear anywhere in rule text — and nearly all of
+  those are incidental collisions with ordinary words (`Block`, `Cull`, `Shadow`), not the
+  rules discussing a card. No rule names a card as a card.
 
 Players ask in **card** vocabulary ("does Windsinger target across battlefields?").
 The rules are written in **rules** vocabulary. Searching a rulebook for a card name

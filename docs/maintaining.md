@@ -13,7 +13,7 @@ npm install && npm run build
 npm run oracle process -- --only=rules   # refetch the Rules Hub  (network)
 npm run oracle extract                   # rulebook PDFs -> markdown
 npm run oracle process -- --only=cards   # refetch card sets      (network)
-npm run oracle skill-data                # rebuild data/cards.json
+npm run oracle skill-data                # rebuild data/cards.json  (network)
 
 cd .claude/skills/rules-report/lib
 python3 rules_cli.py build               # re-parse -> data/rules.json, index, rulebook

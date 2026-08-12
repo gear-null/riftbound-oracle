@@ -81,7 +81,7 @@ Type-specific fields:
 3. `npm run oracle process` — processes all entries from the manifest
 4. `npm run oracle process -- --only=rules` — filter by category or output path
 5. `npm run oracle extract` — turns downloaded rulebook PDFs into markdown in `output/`
-6. `npm run oracle card-index` — optional; fetches card artwork URLs for report rendering
+6. `npm run oracle skill-data` — rebuilds the skill's vendored card data (needs network)
 7. `npm run oracle vault-sync` — optional; mirrors `output/` into an Obsidian wiki's `raw/`
 8. Answer questions via the `rules-report` skill (see `.claude/skills/rules-report/SKILL.md`)
 

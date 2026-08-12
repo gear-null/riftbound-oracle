@@ -133,7 +133,10 @@ class CardBridge:
     def card_terms(self, card):
         """Rules vocabulary implied by a card: its keywords and its effect words."""
         body = self._clean(card["text"])
-        kws = [k.strip().lower() for k in re.findall(r"\[([A-Za-z][A-Za-z ]{2,20})\]", body)]
+        # Digits belong in the class: [Assault 2] and [Shield 3] never matched
+        # a letters-only pattern, which also made the next line — stripping a
+        # trailing number — dead code. 69 cards lost 84 glossary links to this.
+        kws = [k.strip().lower() for k in re.findall(r"\[([A-Za-z][A-Za-z0-9 ]{2,20})\]", body)]
         kws = [re.sub(r"\s+\d+$", "", k) for k in kws]
         rules = []
         terms = []
@@ -143,6 +146,7 @@ class CardBridge:
                 rules.append(self.term_to_rule[k])
         return {"name": card["name"], "image": card.get("image"),
                 "stats": card.get("stats") or {},
+                "ambiguous": card.get("ambiguous") or [],
                 "inexact": card.get("inexact", False),
                 "asked_as": card.get("asked_as", card["name"]),
                 "keywords": list(dict.fromkeys(terms)),

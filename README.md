@@ -15,7 +15,9 @@ Before the report is written, a deterministic verifier proves that every cited r
 exists and that every quote appears verbatim. **A citation that fails cannot reach you.**
 
 Runs entirely on your machine, on whatever agent you already use. Install by copying one
-folder — no build, no network, no API key.
+folder — no build step, no API key, and no network needed to install or to answer. (Card
+artwork in a report loads from Riot's CDN; offline it shows a placeholder and everything
+else still works.)
 
 ![A Riftbound Oracle report](docs/images/report.png)
 
@@ -64,10 +66,9 @@ answer, verifies it, and opens the report. **You never run a command yourself.**
 comparison, in 7,774 community-written answers to real questions, **29% of rule
 citations point at an ID that doesn't exist.**
 
-**It refuses.** Probed with five adversarial traps — a card that doesn't exist, a real
-card lacking the behaviour asked about, an invented keyword, a stale rule number, and a
-genuine gap in the rules — it produced **zero fabrications**. When the rules don't
-settle something, it says `UNSETTLED` and names the gap.
+**It refuses.** When the rules don't settle something, it says `UNSETTLED` and names the
+gap rather than reaching for a plausible answer. Abstention is held to the same standard
+as assertion: a claim that the rules are silent has to show what it searched.
 
 **Confidence is a floor, not an average.** Nine solid claims plus one inference makes an
 inferred answer, and the report says so. You always know the weakest step.
@@ -114,4 +115,4 @@ to render. That is the intended behaviour.
 | [Content and licensing](docs/content-and-licensing.md) | What's committed, and what is deliberately not |
 
 Riftbound is a trademark of Riot Games. This project is **unofficial and not endorsed by
-Riot**. No card artwork is redistributed.
+Riot**. No card artwork ships in the corpus — reports load it from Riot's CDN.

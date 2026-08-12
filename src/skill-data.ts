@@ -34,6 +34,24 @@ export interface SkillCard {
   text: string;
   stats: CardStats;
   image?: string;
+  /**
+   * Set when a bare base name is shared by genuinely DIFFERENT cards — "Ahri"
+   * covers Alluring, Inquisitive and Nine-Tailed Fox. Lists every full name so
+   * the caller can refuse to guess instead of binding to whichever printing
+   * the API happened to return first.
+   */
+  ambiguous?: string[];
+}
+
+/**
+ * Print treatments Riftcodex reports in the rarity field. They are not
+ * rarities, and a reprint carrying one would otherwise win the base-name slot
+ * and display "Promo" where the card's actual rarity belongs.
+ */
+const PRINT_TREATMENTS = new Set(["promo", "showcase"]);
+
+function isTreatment(rarity: string | null): boolean {
+  return !!rarity && PRINT_TREATMENTS.has(rarity.toLowerCase());
 }
 
 /** Keyed by lowercased lookup name; see `keysFor`. */
@@ -90,9 +108,25 @@ export function cardStats(card: RiftcodexCard): CardStats {
   };
 }
 
-/** Fold fetched cards into the lookup index, first printing of a name winning. */
+/**
+ * Fold fetched cards into the lookup index.
+ *
+ * Two things must not be decided by fetch order:
+ *
+ * A reprint carrying a print treatment ("Promo", "Showcase") must not win the
+ * slot and report that as the card's rarity — 126 of 954 cards did.
+ *
+ * A base name shared by genuinely different cards ("Ahri" covers three) must
+ * not bind to one of them silently. `card_bridge.find_cards` refuses near-miss
+ * matches precisely because returning a DIFFERENT card is worse than returning
+ * nothing; an ambiguous alias reached the same outcome through the one path
+ * that bypassed that guard, and now prints the wrong card's stats as fact.
+ */
 export function buildCardIndex(cards: RiftcodexCard[]): CardIndex {
   const index: CardIndex = {};
+  // Full display names seen per key, so a collision is detectable.
+  const namesFor = new Map<string, Set<string>>();
+
   for (const card of cards) {
     const display = card.name.replace(/\s*\(.*?\)\s*$/, "").trim();
     const entry: SkillCard = { name: display, text: cardText(card), stats: cardStats(card) };
@@ -100,15 +134,27 @@ export function buildCardIndex(cards: RiftcodexCard[]): CardIndex {
     if (image) entry.image = image;
 
     for (const key of keysFor(card.name)) {
+      if (!namesFor.has(key)) namesFor.set(key, new Set());
+      namesFor.get(key)!.add(display);
+
       const existing = index[key];
-      // A reprint may be the copy that carries artwork; take the image even
-      // when keeping the earlier text, rather than losing it to ordering.
-      if (existing) {
-        if (!existing.image && entry.image) existing.image = entry.image;
+      if (!existing) {
+        index[key] = { ...entry };
         continue;
       }
-      index[key] = { ...entry };
+      // A reprint may be the copy that carries artwork; take the image even
+      // when keeping the earlier text, rather than losing it to ordering.
+      if (!existing.image && entry.image) existing.image = entry.image;
+      // Prefer a real rarity over a print treatment, whichever arrived first.
+      if (existing.name === display
+          && isTreatment(existing.stats.rarity) && !isTreatment(entry.stats.rarity)) {
+        existing.stats = entry.stats;
+      }
     }
+  }
+
+  for (const [key, names] of namesFor) {
+    if (names.size > 1) index[key].ambiguous = [...names].sort();
   }
   return index;
 }

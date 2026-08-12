@@ -182,6 +182,14 @@ def cmd_card(args):
         print(f"no exact match; did you mean: {', '.join(b.cards[k]['name'] for k in near)}")
         return
     for c in hits:
+        # A bare name shared by different cards is the same hazard as a
+        # near-miss: answering about one arbitrary printing is worse than
+        # asking which was meant.
+        if c.get("ambiguous"):
+            print(f"!!! '{name}' MATCHES {len(c['ambiguous'])} DIFFERENT CARDS.")
+            for full in c["ambiguous"]:
+                print(f"      {full}")
+            print("    Ask again with the full name. Showing the first only:")
         if c.get("inexact"):
             print(f"!!! NO CARD NAMED '{c['asked_as']}' EXISTS.")
             print(f"    Closest name match is '{c['name']}', which is a DIFFERENT card.")
