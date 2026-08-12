@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="riftbound-oracle.png" alt="Riftbound Oracle" width="100%" />
+</p>
+
 # Riftbound Oracle
 
 Answer Riftbound TCG rules questions with **citations you can actually check**.
