@@ -110,10 +110,11 @@ def cmd_section(args):
     # cross-reference like "see rule 463" leads somewhere instead of nowhere.
     contents = idx.topic_contents(head)
     if contents:
-        print(f"\n  -- {head['id']} is a chapter heading; it contains --\n")
+        print(f"\n  -- {head['id']} is a chapter heading; it continues with --\n")
         for r in contents:
             print(f"     {r['id']}. {r['text']}")
-        print(f"\n  -- `section <id>` any of the above for its rules --")
+        print("\n  -- document order, not strict containment; "
+              "`section <id>` any of the above --")
 
 
 def cmd_grep(args):
@@ -124,6 +125,7 @@ def cmd_grep(args):
     below the cut — the one wrong answer this system most needs to avoid.
     """
     from retrieve import Retriever
+    ensure_index()
     limit = 12
     if "-n" in args:
         i = args.index("-n"); limit = int(args[i + 1]); args = args[:i] + args[i + 2:]
@@ -169,6 +171,24 @@ def cmd_card(args):
         print(f"  keywords : {', '.join(c['keywords']) or '(none printed)'}")
         print(f"  -> rules : {', '.join(c['rule_sections']) or '(no keyword maps to a rule section)'}")
         print()
+
+
+def ensure_index():
+    """Build the FTS index if absent, from the vendored rules.json.
+
+    rules.db is a build artifact and gitignored, so it never travels with a
+    copied skill — which left `grep`, one of the six documented tools, dead on
+    every fresh install. Worse, the traceback pointed at `build`, which needs
+    the source markdown a copied skill does not have.
+
+    The index derives entirely from data/rules.json, so it can be rebuilt
+    offline with nothing else present.
+    """
+    if os.path.exists(RULES_DB):
+        return
+    print("  building the search index (first run)...")
+    subprocess.run([sys.executable, os.path.join(HERE, "retrieve.py"), "build"],
+                   check=True, cwd=HERE)
 
 
 def cmd_rulebook(args):
@@ -260,10 +280,19 @@ def cmd_selftest(args):
 
 
 def cmd_build(args):
+    """Re-parse the source markdown into rules.json, then rebuild everything
+    derived from it.
+
+    The rulebook is rebuilt here on purpose: report citations link to
+    `rules.html#CR-<id>`, and a rules update renumbers ids. Leaving the old
+    HTML in place pointed every link at an anchor that had moved or vanished —
+    silently, since a missing fragment just lands at the top of the page.
+    """
     subprocess.run([sys.executable, os.path.join(HERE, "parse_rules.py"),
                     "--json", RULES_JSON], check=True, cwd=HERE)
     subprocess.run([sys.executable, os.path.join(HERE, "retrieve.py"), "build"],
                    check=True, cwd=HERE)
+    cmd_rulebook([])
 
 
 COMMANDS = {"rule": cmd_rule, "section": cmd_section, "grep": cmd_grep,
@@ -276,8 +305,18 @@ def main():
     if len(sys.argv) < 2 or sys.argv[1] not in COMMANDS:
         print(__doc__)
         sys.exit(0 if len(sys.argv) < 2 else 2)
+
+    # Resolve file arguments against the caller's cwd BEFORE chdir. Without
+    # this, `report heron-answer.json` run from a project root silently opened
+    # lib/heron-answer.json — a shipped sample — and printed "6/6 verified"
+    # for an answer the user never wrote. Silent substitution is the same
+    # failure this codebase refuses for near-miss card names.
+    args = []
+    for a in sys.argv[2:]:
+        args.append(os.path.abspath(a) if a.endswith(".json") and os.path.exists(a) else a)
+
     os.chdir(HERE)
-    COMMANDS[sys.argv[1]](sys.argv[2:])
+    COMMANDS[sys.argv[1]](args)
 
 
 if __name__ == "__main__":

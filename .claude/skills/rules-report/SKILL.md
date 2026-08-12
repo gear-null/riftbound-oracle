@@ -25,6 +25,16 @@ Never answer a rules question from memory. Rule numbers were renumbered in the
 2026-07-16 update (Movement 440→445, Scoring 462-467→467-472); anything you recall may
 name a rule that has since moved.
 
+## Before you start
+
+**Requires Python 3.10+.** Stock macOS ships 3.9, which cannot parse this code
+(`bool | None` in a dataclass) and fails most commands with a `TypeError`. If
+`python3 --version` is below 3.10, use a newer interpreter.
+
+Everything the tools need ships inside this folder. You never need to run
+`build` — that is a maintainer command needing source material a normal install
+does not have.
+
 ## Tools
 
 Run from `lib/`: `python3 rules_cli.py <cmd>`
@@ -35,7 +45,6 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 | `rule <id>...` | A rule **with its ancestor spine, children, examples and cross-refs**. `829.1.b.1` or `TR:601.1.c.1` |
 | `section <id>` | A whole numbered section in document order. A bare heading also prints the sibling sections holding its rules |
 | `grep <fts query>` [`-n N`] | Lexical search over rule text. SQLite FTS5 syntax: `"burn" NOT "burn out"`, `banish*`, `sideboard AND size`. Capped at 12; raise it with `-n 50` |
-| `build` | Rebuild the rule index from the corpus. Run this first on a fresh clone |
 | `selftest` | Regression harness; run after every rules update |
 | `report <answer.json>` | **How you finish.** Verify + render + open, in one step |
 | `verify <answer.json>` | The citation gate alone. Exit 1 if anything fails |

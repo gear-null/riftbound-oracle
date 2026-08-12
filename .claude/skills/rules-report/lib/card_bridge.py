@@ -24,9 +24,21 @@ from corpus import load_cards, rules_json
 # (:rb_might:, 543 occurrences) carry meaning too and must be translated, not dropped.
 SHORTCODE = {
     "rb_might": "might", "rb_energy": "energy", "rb_power": "power",
-    "rb_rune_rainbow": "power any domain", "rb_exhaust": "exhaust",
+    "rb_rune_rainbow": "[A]", "rb_exhaust": "[E]",
     "rb_recycle": "recycle", "rb_trash": "trash",
 }
+
+# Domain runes and numbered energy, rendered as the shorthand the rules use so
+# the card panel agrees with the rule text quoted beside it and the symbol
+# legend can gloss both. Unmapped codes used to be replaced with a space, which
+# deleted the cost outright: Blighted Battleaxe read "[Equip] ( : Attach ...)"
+# with its price gone, and Astral Heron lost the 2 Energy while the note on the
+# same page quoted the errata as "costs [2][A][A] less".
+DOMAIN_RUNE = {
+    "rb_rune_fury": "[R]", "rb_rune_calm": "[G]", "rb_rune_mind": "[B]",
+    "rb_rune_body": "[O]", "rb_rune_chaos": "[P]", "rb_rune_order": "[Y]",
+}
+SHORTCODE.update(DOMAIN_RUNE)
 
 
 class CardBridge:
@@ -83,7 +95,19 @@ class CardBridge:
         (a two-rune cost is `:rb_rune_rainbow::rb_rune_rainbow:`) and without
         padding they fused into "power any domainpower any domain".
         """
-        text = re.sub(r":([a-z_0-9]+):", lambda m: f" {SHORTCODE.get(m.group(1), ' ')} ", text)
+        def sub(m):
+            code = m.group(1)
+            if code in SHORTCODE:
+                return f" {SHORTCODE[code]} "
+            # ":rb_energy_2:" -> "[2]", the same shorthand the rules print.
+            n = re.fullmatch(r"rb_energy_(\d+)", code)
+            if n:
+                return f" [{n.group(1)}] "
+            # Anything unrecognised keeps its name rather than vanishing; a
+            # visible oddity is recoverable, a deleted cost is not.
+            return f" [{code}] "
+
+        text = re.sub(r":([a-z_0-9]+):", sub, text)
         return re.sub(r"[ \t]{2,}", " ", text)
 
     def card_terms(self, card):

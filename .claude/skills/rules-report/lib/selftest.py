@@ -331,6 +331,10 @@ def topic_blocks(idx):
     check("a chapter heading lists its sub-headings",
           [r["id"] for r in contents] == ["464", "465", "466", "467"],
           ", ".join(r["id"] for r in contents) or "empty")
+    # Skipping body sections to reach more sub-headings was tried; it let 463
+    # run past its four steps into Layers and Modes of Play.
+    check("a chapter listing does not run past its own topic",
+          all(r["id"] < "473" for r in contents), ", ".join(r["id"] for r in contents))
 
     # TR:600 ran past its own formats into chapter 700 before this was bounded.
     formats = idx.get("600", "TR")

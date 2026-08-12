@@ -79,6 +79,23 @@ describe("cardText", () => {
     expect(text).not.toContain("**Power:**");
   });
 
+  it("decodes HTML entities the API serves escaped", () => {
+    // Riftcodex escapes text.plain, so the keyword marker [>] arrives as
+    // "[&gt;]". Going API -> cards.json skipped normalize(), which used to
+    // decode it — the literal entity then printed in reports and hid the ">"
+    // row from the symbol legend.
+    const text = cardText(
+      card({
+        name: "Legion Unit",
+        text: { rich: "", plain: "[Legion][&gt;] Deal 1 damage &amp; draw &quot;a card&quot;", flavour: null },
+      })
+    );
+    expect(text).toContain("[Legion][>]");
+    expect(text).toContain('& draw "a card"');
+    expect(text).not.toContain("&gt;");
+    expect(text).not.toContain("&amp;");
+  });
+
   it("survives a card with no printed text", () => {
     expect(cardText(card({ name: "Vanilla" }))).toContain("**Type:** Unit");
   });

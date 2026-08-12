@@ -157,18 +157,25 @@ class RuleIndex:
         tournament rules for 600. Listing the sub-headings gives them
         somewhere to go.
 
-        Stops at the first body section, and at the next CHAPTER heading —
-        without the latter, TR:600 "Competition Formats" ran past its own
-        formats into 700 "Enforcement and Penalties", listing another
-        chapter's contents as its own.
+        Returns the headings that FOLLOW it, up to the next chapter — document
+        order, not proven containment. Riot's numbering carries no chapter end
+        marker, so any stronger claim is wrong somewhere: 649 "Conceding" comes
+        after 484 "Sanctioned Modes" without being one. Callers should present
+        this as "continues with", and the honest framing is what makes the
+        heuristic safe.
+
+        Stops at the first body section and at the next chapter. Skipping body
+        sections instead was tried and is worse: it let "463. The Steps of
+        Combat" run past its four steps into Layers and Modes of Play, to buy
+        one extra entry under "100. Game Concepts". The two chapters anything
+        actually cross-references — 463 and 600 — are exactly the ones the
+        conservative rule gets right.
         """
         if not self.is_topic_heading(rule) or self.topic_block(rule):
             return []
         contents = []
         for r in self._following_tops(rule):
-            if not self._looks_like_heading(r):
-                break
-            if self._is_chapter(r):
+            if not self._looks_like_heading(r) or self._is_chapter(r):
                 break
             contents.append(r)
         return contents

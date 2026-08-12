@@ -48,11 +48,27 @@ def _check(c, idx, where, problems):
     rid = c["rule"].split(":", 1)[-1]
     doc = c["rule"].split(":", 1)[0] if ":" in c["rule"] else None
     res = verify_citation(idx, rid, c.get("quote"), doc=doc)
+
+    # An unprefixed id resolves in whichever document holds it — 790 ids exist
+    # only in TR. Stamping those "CR" put Tournament Rules text in front of a
+    # judge labelled Core Rules, with a copy-cite button that said so and a
+    # rulebook link to an anchor that does not exist. RuleIndex.get was fixed
+    # never to cross documents; `doc or "CR"` reintroduced the same
+    # mis-attribution one layer up, so take the doc from the resolved rule.
+    resolved = idx.get(res.cite_as or rid, doc)
+    actual_doc = doc or (resolved["doc"] if resolved else None)
+    if actual_doc is None:
+        actual_doc = "CR"
+    elif doc is None and actual_doc != "CR":
+        problems.append(
+            f'{where}: citation {rid} has no document prefix and exists only in '
+            f'{actual_doc} — write it as {actual_doc}:{rid}')
+    doc = actual_doc
     # `checked`, not `ok`: a cite with no quote passes `ok` vacuously.
     c["verified"] = res.checked
     if res.ok and not res.checked:
         problems.append(f"{where}: citation {rid} has no quote — the verbatim check never ran")
-    c["cite_as"] = f'{doc or "CR"}:{res.cite_as}'
+    c["cite_as"] = f'{doc}:{res.cite_as}'
     c["narrowed"] = res.narrowed_to
     c["problems"] = res.problems
     if not res.ok:
@@ -189,11 +205,23 @@ def holding_html(h, notes_by_id):
     the link existed, but its destination was invisible until clicked.
     """
     line, spans = h["line"], h.get("spans", [])
-    out, cur = [], 0
-    for sp in spans:
-        i = line.find(sp["text"], cur)
+
+    # Walk the line in DOCUMENT order, not the order the model happened to list
+    # spans in. A monotonic cursor silently dropped any span written out of
+    # order: viktor-answer.json lists "Zero Recruits" third though it opens the
+    # line, so the literal answer to the question rendered as unmarked prose —
+    # no link, no superscript, and it was the crux and the weakest link.
+    placed, cur = [], 0
+    for sp in sorted(spans, key=lambda s: line.find(s.get("text", ""))):
+        text = sp.get("text", "")
+        i = line.find(text, cur) if text else -1
         if i < 0:
-            continue  # invariant violated; fall through to plain text
+            continue  # not a substring, or overlaps one already placed
+        placed.append((i, sp))
+        cur = i + len(text)
+
+    out, cur = [], 0
+    for i, sp in placed:
         out.append(esc(line[cur:i]))
         cls = "sp-grounded" if sp["basis"] == "grounded" else "sp-inferred"
         # The glyph still separates basis at a glance, for a reader who is not
@@ -331,7 +359,10 @@ def resolve_cards(ans):
         # card whose art we hold, which reads as a missing image rather than as
         # a stale answer file.
         supplied = entry if isinstance(entry, dict) else {}
-        name = str(supplied.get("name") or entry)
+        name = str(supplied.get("name") or (entry if not isinstance(entry, dict) else ""))
+        if not name:
+            out.append({"name": "(unnamed card entry)", "unresolved": True})
+            continue
 
         card = bridge.cards.get(name.lower()) if bridge else None
         if card:
@@ -340,6 +371,11 @@ def resolve_cards(ans):
             resolved.update({k: v for k, v in supplied.items() if v})
             out.append(resolved)
         elif supplied:
+            # An object for a card that does not exist is still a nonexistent
+            # card. Passing it through rendered an invented card as real,
+            # which is precisely what find_cards refuses to do for names.
+            supplied = dict(supplied)
+            supplied["unresolved"] = True
             out.append(supplied)
         else:
             out.append({"name": name, "unresolved": True})
@@ -530,9 +566,23 @@ ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
  white-space:nowrap}}
 .sym-rule:hover{{text-decoration:underline}}
 .legend-note{{font-size:.78rem;color:var(--dim);margin:.55rem 0 0;font-style:italic}}
+.rb-overlay{{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);
+ display:flex;align-items:center;justify-content:center;padding:2vh 2vw}}
+.rb-overlay[hidden]{{display:none}}
+.rb-panel{{background:var(--bg);border:1px solid var(--line);border-radius:8px;
+ width:min(60rem,96vw);height:min(88vh,60rem);display:flex;flex-direction:column;
+ overflow:hidden;box-shadow:0 1.5rem 3rem rgba(0,0,0,.4)}}
+.rb-bar{{display:flex;align-items:center;gap:.8rem;padding:.55rem .8rem;
+ border-bottom:1px solid var(--line);background:var(--card)}}
+.rb-title{{font:600 .82rem ui-sans-serif,system-ui;flex:1;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.rb-pop{{font:.72rem ui-sans-serif,system-ui;color:var(--accent);text-decoration:none;white-space:nowrap}}
+.rb-close{{font-size:1.3rem;line-height:1;background:none;border:0;color:var(--dim);
+ cursor:pointer;padding:0 .2rem}}
+.rb-frame{{flex:1;width:100%;border:0;background:var(--bg)}}
 @media(max-width:700px){{.hline{{font-size:1.05rem}}
  .legend{{grid-template-columns:auto 1fr}} .sym-rule{{grid-column:2}}}}
-@media print{{.cite{{break-inside:avoid}} .copy,.rulebook-link{{display:none}} body{{background:#fff}}}}
+@media print{{.cite{{break-inside:avoid}} .copy,.rulebook-link{{display:none}} .rb-overlay{{display:none !important}} body{{background:#fff}}}}
 </style></head><body><div class="wrap">
 
 <header>
@@ -552,17 +602,31 @@ ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
   </div>
 </div>
 
+{cards_html(ans)}
+
 <h2>Reasoning</h2>
 {"".join(note_blocks)}
 
 {f'<h2>The argument against, and why it loses</h2>{counter}' if counter else ""}
 {f'<h2>Considered and rejected</h2><ul class="plain">{rejected}</ul>' if rejected else ""}
-{cards_html(ans)}
 {f'<h2>The rules do not settle</h2><ul class="plain">{openq}</ul>' if openq else ""}
 {f'<h2>Verification problems</h2><ul class="plain">{problems}</ul>' if problems else ""}
 <!--LEGEND-->
 
-</div><script>
+</div>
+
+<div id="rb-overlay" class="rb-overlay" hidden>
+  <div class="rb-panel" role="dialog" aria-modal="true" aria-label="Rulebook">
+    <div class="rb-bar">
+      <span class="rb-title" id="rb-title">Rulebook</span>
+      <a class="rb-pop" id="rb-pop" href="{RULEBOOK}" target="_blank" rel="noopener">open full page &#8599;</a>
+      <button class="rb-close" id="rb-close" aria-label="Close">&times;</button>
+    </div>
+    <iframe class="rb-frame" id="rb-frame" title="Rulebook"></iframe>
+  </div>
+</div>
+
+<script>
 // file:// has no clipboard API in Chrome — execCommand fallback is mandatory.
 document.addEventListener('click', function(e){{
   var b = e.target.closest('.copy'); if(!b) return;
@@ -585,6 +649,41 @@ window.addEventListener('beforeprint', function(){{
 window.addEventListener('afterprint', function(){{
   document.querySelectorAll('details').forEach(function(d){{d.open=d.dataset.wasOpen==='1';}});
 }});
+
+// Reading a cited rule should not cost you your place in the argument, so the
+// rulebook opens OVER the report. An iframe, not fetch: file:// forbids XHR
+// between local files, while an iframe loads and honours the #fragment
+// natively. Nothing scripts INTO the frame — cross-origin rules forbid it for
+// file:// and we do not need it.
+(function(){{
+  var ov=document.getElementById('rb-overlay'), fr=document.getElementById('rb-frame'),
+      ttl=document.getElementById('rb-title'), pop=document.getElementById('rb-pop'), last=null;
+  function open(href, label){{
+    last=document.activeElement; ttl.textContent=label||'Rulebook'; pop.href=href;
+    fr.src=href;                 // reassigning src re-navigates, so a second
+    ov.hidden=false;             // citation scrolls to ITS rule, not the first
+    document.body.style.overflow='hidden';
+    document.getElementById('rb-close').focus();
+  }}
+  function close(){{
+    ov.hidden=true; fr.src='about:blank';
+    document.body.style.overflow='';
+    if(last && last.focus) last.focus();
+  }}
+  document.addEventListener('click', function(e){{
+    var a=e.target.closest('a.rulebook-link, a.anc-link, a.card-rule, a.sym-rule');
+    if(a){{
+      // Modified and middle clicks keep their normal meaning; the href is real.
+      if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;
+      e.preventDefault();
+      var href=a.getAttribute('href'), m=/#([A-Z]{{2}})-(.+)$/.exec(href);
+      open(href, m ? m[1]+' '+decodeURIComponent(m[2]) : 'Rulebook');
+      return;
+    }}
+    if(e.target.closest('#rb-close') || e.target===ov) close();
+  }});
+  document.addEventListener('keydown', function(e){{ if(e.key==='Escape' && !ov.hidden) close(); }});
+}})();
 </script></body></html>'''
 
     # The legend reflects what is actually on the page, so it is computed from

@@ -15,6 +15,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fetchSets, fetchCardsBySet, type RiftcodexCard } from "./riftcodex.js";
+import { decodeEntities } from "./normalize.js";
 
 export const SKILL_DATA_DIR = ".claude/skills/rules-report/data";
 
@@ -50,6 +51,13 @@ export function keysFor(displayName: string): string[] {
  * `:rb_energy_1:` shortcodes, which is precisely what the bridge maps onto
  * glossary rule sections (805-829). Substituting a prettier rendering would
  * silently sever the card→rules link that makes card questions answerable.
+ *
+ * Entities must be decoded here. Riftcodex serves `text.plain` HTML-escaped,
+ * so the keyword marker [>] arrives as `[&gt;]` — 93 occurrences across the
+ * card pool. The markdown path ran this through `normalize()`, which decoded
+ * them; going straight from the API to cards.json skipped that, which printed
+ * a literal `[&gt;]` in reports and hid the `>` row from the symbol legend,
+ * whose token scan saw four characters instead of one.
  */
 export function cardText(card: RiftcodexCard): string {
   const stats: string[] = [];
@@ -66,7 +74,7 @@ export function cardText(card: RiftcodexCard): string {
   const parts = [stats.join(" | ")];
   const body = card.text?.plain?.trim();
   if (body) parts.push(body);
-  return parts.filter(Boolean).join("\n\n");
+  return decodeEntities(parts.filter(Boolean).join("\n\n"));
 }
 
 /** Fold fetched cards into the lookup index, first printing of a name winning. */
