@@ -53,7 +53,7 @@ Confirm it works:
 
 ```bash
 cd .claude/skills/rules-report/lib
-python3 rules_cli.py selftest        # 45 checks
+python3 rules_cli.py selftest        # regression harness; prints its own count
 python3 rules_cli.py card "Astral Heron"
 ```
 
@@ -186,7 +186,7 @@ npm run oracle skill-data                # rebuild data/cards.json
 cd .claude/skills/rules-report/lib
 python3 rules_cli.py build               # re-parse -> data/rules.json
 python3 rules_cli.py rulebook            # re-render -> data/rules.html
-python3 rules_cli.py selftest            # 45 checks
+python3 rules_cli.py selftest            # regression harness
 ```
 
 `data/rules.json` is committed on purpose: a rules update then arrives as a **reviewable diff of

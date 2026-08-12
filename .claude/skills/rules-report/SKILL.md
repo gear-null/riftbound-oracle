@@ -33,10 +33,10 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 |---|---|
 | `card <name>` | Exact card lookup → printed text, its `[Keywords]`, and the rule sections those map to |
 | `rule <id>...` | A rule **with its ancestor spine, children, examples and cross-refs**. `829.1.b.1` or `TR:601.1.c.1` |
-| `section <id>` | A whole numbered section in document order |
-| `grep <fts query>` | Lexical search over rule text. SQLite FTS5 syntax: `"burn" NOT "burn out"`, `banish*`, `sideboard AND size` |
+| `section <id>` | A whole numbered section in document order. A bare heading also prints the sibling sections holding its rules |
+| `grep <fts query>` [`-n N`] | Lexical search over rule text. SQLite FTS5 syntax: `"burn" NOT "burn out"`, `banish*`, `sideboard AND size`. Capped at 12; raise it with `-n 50` |
 | `build` | Rebuild the rule index from the corpus. Run this first on a fresh clone |
-| `selftest` | 45-check regression harness; run after every rules update |
+| `selftest` | Regression harness; run after every rules update |
 | `report <answer.json>` | **How you finish.** Verify + render + open, in one step |
 | `verify <answer.json>` | The citation gate alone. Exit 1 if anything fails |
 | `render <answer.json> [out]` | Render alone; prefer `report` |
@@ -125,6 +125,20 @@ Rules the renderer enforces, so write to them:
   whole answer structural, and the report says so.
 - If any citation fails verification the disposition is **forced to UNSETTLED**. You
   cannot outrun the verifier — fix the citation instead.
+
+## Two ways to wrongly conclude the rules are silent
+
+Both look identical to a careless reader: an empty result. Neither is silence.
+
+**A heading's rules can be its siblings, not its children.** Riot writes some topics as
+`467. Scoring` followed by sections 468-472 — so 467 has an empty subtree even though five
+sections of rules sit directly under it, and `194.1.a` cheerfully says "see rule 467. Scoring".
+`section` prints the sibling block for you, but if you reach such a heading another way, keep
+reading forward instead of concluding nothing is there.
+
+**`grep` is capped at 12 hits.** It tells you when it truncated. It ranks by lexical overlap, so
+it is a way to *locate* rules, never evidence that a rule does not exist. Before writing a `gap`
+note, navigate by section number — the rules use vocabulary players do not.
 
 ## Distinguish "the rules are silent" from "our data is incomplete"
 

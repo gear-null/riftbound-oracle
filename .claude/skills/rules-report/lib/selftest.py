@@ -16,9 +16,11 @@ sys.path.insert(0, HERE)
 
 FAILS = []
 NOTES = []
+RAN = [0]
 
 
 def check(name, ok, detail=""):
+    RAN[0] += 1
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}{'  — ' + detail if detail else ''}")
     if not ok:
         FAILS.append(name)
@@ -287,6 +289,63 @@ def card_rendering():
     check("no cards field renders nothing", resolve_cards({}) == [])
 
 
+def topic_blocks(idx):
+    """A cross-reference must never look like "the rules say nothing".
+
+    "see rule 467. Scoring" lands on a bare heading whose rules are SIBLINGS
+    (468-472), not children. An agent that reads the empty subtree as silence
+    reaches the worst wrong answer this system can produce.
+    """
+    print("\n=== topic blocks (heading -> sibling rules) ===")
+    scoring = idx.get("467", "CR")
+    check("467 Scoring is recognised as a bare heading", bool(scoring) and idx.is_topic_heading(scoring))
+    block = idx.topic_block(scoring) if scoring else []
+    ids = [r["id"] for r in block]
+    check("its block resolves to the sibling rules", ids == ["468", "469", "470", "471", "472"],
+          ", ".join(ids) or "empty")
+
+    # The block must stop at the next heading, not run to the end of the doc.
+    check("the block stops at the next heading", len(ids) < 12, f"{len(ids)} sections")
+
+    # An ordinary section with children must be left completely alone.
+    flow = idx.get("829", "CR")
+    check("a section with children is not treated as a heading",
+          bool(flow) and not idx.is_topic_heading(flow))
+    check("a section with children has no topic block", idx.topic_block(flow) == [])
+
+    # A one-line rule that merely lacks children is not a heading either.
+    body = next((r for r in idx.rules.values()
+                 if r["doc"] == "CR" and r.get("depth") == 1
+                 and r["text"].strip().endswith(".")
+                 and not any(x.get("parent") == r["id"] and x["doc"] == "CR"
+                             for x in idx.rules.values())), None)
+    check("a childless one-line RULE is not treated as a heading",
+          body is not None and not idx.is_topic_heading(body),
+          f'{body["id"] if body else "?"}')
+
+    # Chapter headings hold sub-headings, not rules. 316.7.e and 348.1 both
+    # say "see rule 463", and two tournament rules say "see 600" — so these
+    # are reachable cross-reference targets, not hypotheticals.
+    combat = idx.get("463", "CR")
+    contents = idx.topic_contents(combat) if combat else []
+    check("a chapter heading lists its sub-headings",
+          [r["id"] for r in contents] == ["464", "465", "466", "467"],
+          ", ".join(r["id"] for r in contents) or "empty")
+
+    # TR:600 ran past its own formats into chapter 700 before this was bounded.
+    formats = idx.get("600", "TR")
+    fc = [r["id"] for r in (idx.topic_contents(formats) if formats else [])]
+    check("a contents listing stops at the next chapter",
+          fc == ["601", "602", "603", "604"], ", ".join(fc) or "empty")
+
+    # The invariant that matters: no heading is a dead end.
+    dead = [f'{d}:{r["id"]}' for d in ("CR", "TR")
+            for r in idx._top_sections(d)
+            if idx.is_topic_heading(r)
+            and not idx.topic_block(r) and not idx.topic_contents(r)]
+    check("no heading resolves to nothing at all", not dead, ", ".join(dead[:4]))
+
+
 def symbols_and_notes():
     """The legend is derived from the rules, so it must survive a renumber."""
     print("\n=== symbol legend + note references ===")
@@ -346,12 +405,15 @@ def main():
     rulebook_and_links()
     card_rendering()
     symbols_and_notes()
+    topic_blocks(idx)
 
     print()
     if FAILS:
-        print(f"FAILED {len(FAILS)}: {', '.join(FAILS)}")
+        print(f"FAILED {len(FAILS)} of {RAN[0]}: {', '.join(FAILS)}")
         sys.exit(1)
-    print("all checks passed — safe to answer against this corpus")
+    # The count is printed rather than documented. Hardcoding it in the README
+    # meant it silently drifted every time a check was added.
+    print(f"all {RAN[0]} checks passed — safe to answer against this corpus")
     sys.exit(0)
 
 

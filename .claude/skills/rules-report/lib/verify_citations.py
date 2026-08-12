@@ -79,6 +79,104 @@ class RuleIndex:
             r = self.get(p, r["doc"]) if p else None
         return list(reversed(chain))
 
+    # --- topic blocks -----------------------------------------------------
+    #
+    # Riot writes some topics as a bare heading followed by SIBLING sections
+    # rather than children:
+    #
+    #     467. Scoring                      <- heading, no children
+    #     468. Scoring is the act of ...    <- the actual rules, as siblings
+    #     469. A player Scores in one of two ways:
+    #
+    # Rules 315.2.b.2 and 194.1.a both say "see rule 467. Scoring", so anyone
+    # following that cross-reference lands on one word and an empty subtree.
+    # That reads as "the rules are silent here", which is the most dangerous
+    # wrong conclusion this system can reach. `topic_block` finds where the
+    # content actually lives.
+
+    @staticmethod
+    def _looks_like_heading(rule):
+        """A title, not a sentence: 'Scoring', 'Golden Rule', 'Setup'.
+
+        Measured over the corpus this splits the 180 childless top-level
+        sections into 80 headings and 100 genuine one-line rules.
+        """
+        text = rule["text"].strip()
+        return not text.endswith((".", ":", ";")) and len(text) < 60
+
+    def _top_sections(self, doc):
+        def key(r):
+            return [(0, int(s), "") if s.isdigit() else (1, 0, s)
+                    for s in r["id"].split(".")]
+        return sorted(
+            (r for r in self.rules.values()
+             if r["doc"] == doc and r.get("depth") == 1),
+            key=key,
+        )
+
+    def is_topic_heading(self, rule):
+        """A heading whose content lives in the sections that follow it."""
+        if rule.get("depth") != 1 or not self._looks_like_heading(rule):
+            return False
+        return not any(
+            r.get("parent") == rule["id"] and r["doc"] == rule["doc"]
+            for r in self.rules.values()
+        )
+
+    def _following_tops(self, rule):
+        tops = self._top_sections(rule["doc"])
+        for i, r in enumerate(tops):
+            if r["id"] == rule["id"]:
+                return tops[i + 1:]
+        return []
+
+    def topic_block(self, rule):
+        """The sections a bare heading is really pointing at.
+
+        Everything following it in document order, up to the next heading.
+        Returns [] for anything that is not a childless heading, so a caller
+        can read an empty result as "ordinary section, nothing extra".
+        """
+        if not self.is_topic_heading(rule):
+            return []
+        block = []
+        for r in self._following_tops(rule):
+            if self._looks_like_heading(r):
+                break
+            block.append(r)
+        return block
+
+    def topic_contents(self, rule):
+        """Sub-headings under a CHAPTER heading — one immediately followed by
+        another heading rather than by rules.
+
+        Two levels exist: "463. The Steps of Combat" contains "464. Step 1:
+        The Combat Showdown Step", which contains the actual rules. So
+        `topic_block` finds nothing for 463 and the reader is back to an empty
+        result — and 316.7.e and 348.1 both say "see rule 463", as do two
+        tournament rules for 600. Listing the sub-headings gives them
+        somewhere to go.
+
+        Stops at the first body section, and at the next CHAPTER heading —
+        without the latter, TR:600 "Competition Formats" ran past its own
+        formats into 700 "Enforcement and Penalties", listing another
+        chapter's contents as its own.
+        """
+        if not self.is_topic_heading(rule) or self.topic_block(rule):
+            return []
+        contents = []
+        for r in self._following_tops(rule):
+            if not self._looks_like_heading(r):
+                break
+            if self._is_chapter(r):
+                break
+            contents.append(r)
+        return contents
+
+    def _is_chapter(self, rule):
+        """A heading whose contents are further headings, not rules."""
+        return self.is_topic_heading(rule) and not self.topic_block(rule)
+
 
 @dataclass
 class CitationCheck:

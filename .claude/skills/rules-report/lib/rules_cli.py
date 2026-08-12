@@ -63,31 +63,80 @@ def cmd_rule(args):
         print()
 
 
+def _idkey(rule_id):
+    return [(0, int(s), "") if s.isdigit() else (1, 0, s) for s in rule_id.split(".")]
+
+
 def cmd_section(args):
+    """A whole numbered section, in document order.
+
+    Some topics are written as a bare heading whose rules are SIBLING sections
+    ("467. Scoring", then 468-472), so asking for the heading alone returns one
+    word. Where that happens the following block is printed too — otherwise a
+    cross-reference like "see rule 467. Scoring" looks like a dead end, and an
+    empty result reads as "the rules are silent on this".
+    """
     idx = _idx()
     doc, sec = (args[0].split(":", 1) if ":" in args[0] else ("CR", args[0]))
     rows = [r for r in idx.rules.values() if r["doc"] == doc and r["section"] == sec]
     if not rows:
         print(f"no section {doc}:{sec}")
         return
-    def key(r):
-        out = []
-        for s in r["id"].split("."):
-            out.append((0, int(s), "") if s.isdigit() else (1, 0, s))
-        return out
-    for r in sorted(rows, key=key):
+
+    def show(r):
         print(f"{'  ' * (r['depth'] - 1)}{r['id']}. {r['text']}")
+
+    ordered = sorted(rows, key=lambda r: _idkey(r["id"]))
+    for r in ordered:
+        show(r)
+
+    head = ordered[0]
+    block = idx.topic_block(head)
+    if block:
+        print(f"\n  -- {head['id']} is a heading; its rules are sections "
+              f"{block[0]['id']}-{block[-1]['id']} --\n")
+        for r in block:
+            show(r)
+            kids = sorted(
+                (x for x in idx.rules.values()
+                 if x["doc"] == doc and x["id"].startswith(r["id"] + ".")),
+                key=lambda x: _idkey(x["id"]),
+            )
+            for k in kids:
+                show(k)
+        return
+
+    # A chapter heading holds sub-headings rather than rules. List them, so a
+    # cross-reference like "see rule 463" leads somewhere instead of nowhere.
+    contents = idx.topic_contents(head)
+    if contents:
+        print(f"\n  -- {head['id']} is a chapter heading; it contains --\n")
+        for r in contents:
+            print(f"     {r['id']}. {r['text']}")
+        print(f"\n  -- `section <id>` any of the above for its rules --")
 
 
 def cmd_grep(args):
-    """Lexical search the agent drives itself. Not a retrieval pipeline."""
+    """Lexical search the agent drives itself. Not a retrieval pipeline.
+
+    Capped, and now says so. A silent cap invites reading "12 hits" as "all
+    the hits", and from there concluding the rules are silent on whatever fell
+    below the cut — the one wrong answer this system most needs to avoid.
+    """
     from retrieve import Retriever
     limit = 12
     if "-n" in args:
         i = args.index("-n"); limit = int(args[i + 1]); args = args[:i] + args[i + 2:]
     r = Retriever(RULES_DB)
-    for h in r.search(" ".join(args), limit):
+    # One more than asked for, purely to detect truncation.
+    hits = r.search(" ".join(args), limit + 1)
+    for h in hits[:limit]:
         print(f"{h['uid']:18} [{h['section']}. {h['section_title'][:22]:24}] {h['text'][:110]}")
+    if not hits:
+        print("  no matches — try another term, or navigate by section number")
+    elif len(hits) > limit:
+        print(f"\n  -- showing {limit}; more matches exist. `-n {limit * 4}` for more. --")
+        print("  -- ranked by lexical overlap: good for locating, never proof of absence. --")
 
 
 def cmd_card(args):
