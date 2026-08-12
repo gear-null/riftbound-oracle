@@ -9,6 +9,26 @@ a release exists because Riot changed the rules, not because the code moved.
 This project follows [Semantic Versioning](https://semver.org/) and
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.1] — 2026-08-12
+
+### Corpus
+
+- **All 27 equipment cards now carry the effect they grant once attached.** Riftcodex serves
+  only the `[Equip]` clause for these; the granted ability and its `+N Might` badge are
+  printed in a band at the foot of the card and reach no API field. All 27 are now
+  transcribed from the artwork into `manifests/card-overlays.yaml`, with the source image
+  recorded for each.
+- No cards remain flagged as incomplete.
+
+### Fixed
+
+- An untranscribed equipment card now **fails** the selftest rather than emitting a note. The
+  previous release shipped 25 of them: their text was accurate and carried a visible "printed
+  text incomplete" warning, but a reader asking what Boneshiver grants got a caveat instead of
+  an answer.
+
+[1.0.1]: https://github.com/gear-null/riftbound-oracle/releases/tag/v1.0.1
+
 ## [1.0.0] — 2026-08-12
 
 First packaged release. The skill installs by unzipping one folder — no Node, no build step,

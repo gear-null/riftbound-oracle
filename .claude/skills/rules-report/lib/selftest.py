@@ -366,10 +366,15 @@ def card_rendering():
     # API's text is short. The gap must stay VISIBLE: a flagged card is honest,
     # a silently short one invites "the card has no such ability".
     incomplete = sorted({v["name"] for v in cards.values() if v.get("incomplete")})
-    note(f"{len(incomplete)} card(s) await transcription into "
-         f"manifests/card-overlays.yaml: {', '.join(incomplete[:5])}"
-         + (" ..." if len(incomplete) > 5 else "") if incomplete
-         else "no cards await transcription")
+    # Every equipment card the API truncates must be covered by a transcription.
+    # A gap here is not a crash, it is a card whose granted effect a reader
+    # cannot see — so it fails rather than merely noting.
+    check("no card is missing text the API does not carry", not incomplete,
+          f"{len(incomplete)} await transcription: {', '.join(incomplete[:4])}")
+
+    equipped = [v for v in cards.values() if "Grants +" in v.get("text", "")]
+    check("equipment carries its granted Might", len(equipped) > 20,
+          f"{len({v['name'] for v in equipped})} cards")
     check("every flagged card explains what is missing",
           all(isinstance(v.get("incomplete"), str) and v["incomplete"]
               for v in cards.values() if v.get("incomplete")))

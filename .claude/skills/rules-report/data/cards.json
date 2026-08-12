@@ -1305,7 +1305,7 @@
  },
  "blade of the ruined king": {
   "name": "Blade of the Ruined King",
-  "text": "[Equip] — :rb_rune_order:, Kill a friendly unit (Pay the cost: Attach this to a unit you control.)",
+  "text": "[Equip] — :rb_rune_order:, Kill a friendly unit (Pay the cost: Attach this to a unit you control.) Grants +4 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -1316,7 +1316,6 @@
     "Order"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/26ab126258a15afd380c313e973f7469808ce55f-744x1039.png?accountingTag=RB"
  },
  "blade twirler": {
@@ -1592,7 +1591,7 @@
  },
  "boneshiver": {
   "name": "Boneshiver",
-  "text": "[Equip] :rb_energy_1::rb_rune_body: (:rb_energy_1::rb_rune_body:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_energy_1::rb_rune_body: (:rb_energy_1::rb_rune_body:: Attach this to a unit you control.) When I conquer, channel 1 rune exhausted. Grants +2 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -1603,12 +1602,11 @@
     "Body"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c3e4d8c3f3975a7429428ac90e5ebcffa1f8e5a9-744x1039.png?accountingTag=RB"
  },
  "boots of swiftness": {
   "name": "Boots of Swiftness",
-  "text": "[Equip] :rb_rune_chaos: (:rb_rune_chaos:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_chaos: (:rb_rune_chaos:: Attach this to a unit you control.) [Ganking] (I can move from battlefield to battlefield.) Grants +2 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -1619,7 +1617,6 @@
     "Chaos"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a8a8e977f7427227adac69b5d2db07f643d0df09-744x1039.png?accountingTag=RB"
  },
  "bottled constellation": {
@@ -1699,7 +1696,7 @@
  },
  "brutalizer": {
   "name": "Brutalizer",
-  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.) If this was attached to me this turn, I have an additional +2 [M]. Grants +1 Might.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -1710,7 +1707,6 @@
     "Calm"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3a0de7eec3de501f79f33c09b43c7fe42721d10d-744x1039.png?accountingTag=RB"
  },
  "brynhir thundersong": {
@@ -2529,7 +2525,7 @@
  },
  "cull": {
   "name": "Cull",
-  "text": "[Equip] :rb_rune_chaos: (:rb_rune_chaos:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_chaos: (:rb_rune_chaos:: Attach this to a unit you control.) When I conquer, play a Gold gear token exhausted. Grants +1 Might.",
   "stats": {
    "energy": 1,
    "might": null,
@@ -2540,7 +2536,6 @@
     "Chaos"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/885ee56a4153b4f9fd064e9d24c9d55400e1291f-744x1039.png?accountingTag=RB"
  },
  "cull the weak": {
@@ -3305,7 +3300,7 @@
  },
  "doran's blade": {
   "name": "Doran's Blade",
-  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.) Grants +2 Might.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -3316,12 +3311,11 @@
     "Body"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/53fc0c307c83871c9755a496764ef7d6aa11f510-744x1039.png?accountingTag=RB"
  },
  "doran's ring": {
   "name": "Doran's Ring",
-  "text": "[Equip] :rb_rune_chaos: (:rb_rune_chaos:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_chaos: (:rb_rune_chaos:: Attach this to a unit you control.) When I conquer, discard 1, then draw 1. Grants +1 Might.",
   "stats": {
    "energy": 1,
    "might": null,
@@ -3332,12 +3326,11 @@
     "Chaos"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/054df5a11967b768430a2f763e1b5d4dbbac3b50-744x1039.png?accountingTag=RB"
  },
  "doran's shield": {
   "name": "Doran's Shield",
-  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.) [Tank] (I must be assigned combat damage first.) Grants +1 Might.",
   "stats": {
    "energy": 1,
    "might": null,
@@ -3348,7 +3341,6 @@
     "Calm"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/49a24d4c6d770ed233c4a69bf8d87385bfc997d8-744x1039.png?accountingTag=RB"
  },
  "double trouble": {
@@ -4067,7 +4059,7 @@
  },
  "experimental hexplate": {
   "name": "Experimental Hexplate",
-  "text": "[Equip] :rb_rune_mind: (:rb_rune_mind:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_mind: (:rb_rune_mind:: Attach this to a unit you control.) I am a Mech. Grants +1 Might.",
   "stats": {
    "energy": 1,
    "might": null,
@@ -4078,12 +4070,11 @@
     "Mind"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/940a5e9796d4ac10a238d9b2612545c04bd9a570-744x1039.png?accountingTag=RB"
  },
  "eye of the herald": {
   "name": "Eye of the Herald",
-  "text": "[Equip] :rb_rune_order: (:rb_rune_order:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_order: (:rb_rune_order:: Attach this to a unit you control.) When I move, play a 1 [M] Recruit unit token here. Grants +0 Might.",
   "stats": {
    "energy": 1,
    "might": null,
@@ -4094,7 +4085,6 @@
     "Order"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fc3e26e0e4ff94de360f1163c41641daf81c1900-744x1039.png?accountingTag=RB"
  },
  "eye of twilight": {
@@ -5339,7 +5329,7 @@
  },
  "guardian angel": {
   "name": "Guardian Angel",
-  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.) If I would die, kill Guardian Angel instead. Heal me, exhaust me, and recall me. Grants +1 Might.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -5350,7 +5340,6 @@
     "Calm"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d09a797345659a1853d6d12910cf3c634990ea0c-744x1039.png?accountingTag=RB"
  },
  "guardian of the passage": {
@@ -5507,7 +5496,7 @@
  },
  "hand hammer": {
   "name": "Hand Hammer",
-  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.) I have +2 [M] while I'm at a battlefield with exactly one other unit you control. Grants +1 Might.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -5518,7 +5507,6 @@
     "Calm"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/524fedb9116db0eb62380c03e0853c342c53daeb-744x1039.png?accountingTag=RB"
  },
  "hard bargain": {
@@ -5734,7 +5722,7 @@
  },
  "hexdrinker": {
   "name": "Hexdrinker",
-  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.) [Deflect] (Opponents must pay [A] to choose me with a spell or ability.) Grants +1 Might.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -5745,7 +5733,6 @@
     "Body"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e7fdd555cbf9ef8c4ff8bd3ba38d187842de563d-744x1039.png?accountingTag=RB"
  },
  "hextech anomaly": {
@@ -5795,7 +5782,7 @@
  },
  "hextech gauntlets": {
   "name": "Hextech Gauntlets",
-  "text": "[Equip] :rb_energy_3::rb_rune_rainbow:. This ability's Energy cost is reduced by the Might of the unit you choose. (Pay the cost: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_energy_3::rb_rune_rainbow:. This ability's Energy cost is reduced by the Might of the unit you choose. (Pay the cost: Attach this to a unit you control.) When I conquer, if you assigned 3 or more excess damage, draw 1. Grants +3 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -5807,7 +5794,6 @@
     "Order"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/22755fc744a79fbdcce0ceadfe20d6d0a2b8624a-744x1039.png?accountingTag=RB"
  },
  "hextech ray": {
@@ -5935,7 +5921,7 @@
  },
  "hunter's machete": {
   "name": "Hunter's Machete",
-  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.) [Hunt] (When I conquer or hold, gain 1 XP.) Grants +2 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -5946,7 +5932,6 @@
     "Body"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/374fd9220c204810c2b1abd48217b4d233362753-744x1039.png?accountingTag=RB"
  },
  "hwei": {
@@ -7333,7 +7318,7 @@
  },
  "last rites": {
   "name": "Last Rites",
-  "text": "[Equip] — :rb_rune_chaos:, Recycle 2 cards from your trash (Pay the cost: Attach this to a unit you control.)",
+  "text": "[Equip] — :rb_rune_chaos:, Recycle 2 cards from your trash (Pay the cost: Attach this to a unit you control.) When I conquer or hold, you may play a unit from your trash. (You still pay its costs.) Grants +2 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -7344,7 +7329,6 @@
     "Chaos"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6cfab85030bff454262794e4fa12f11b5dc45a74-744x1039.png?accountingTag=RB"
  },
  "last stand": {
@@ -9577,7 +9561,7 @@
  },
  "pendulum blade": {
   "name": "Pendulum Blade",
-  "text": "[Equip] :rb_rune_fury: (:rb_rune_fury:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_fury: (:rb_rune_fury:: Attach this to a unit you control.) When I move to a battlefield, give me +2 [M] this turn. Grants +1 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -9588,7 +9572,6 @@
     "Fury"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/857a5cee28f403454b1825dd112c07e9ac06b8a4-744x1039.png?accountingTag=RB"
  },
  "perched grimwyrm": {
@@ -10540,7 +10523,7 @@
  },
  "recurve bow": {
   "name": "Recurve Bow",
-  "text": "[Equip] :rb_rune_fury: (:rb_rune_fury:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_fury: (:rb_rune_fury:: Attach this to a unit you control.) When I attack or defend, deal 2 to an enemy unit here. Grants +0 Might.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -10551,7 +10534,6 @@
     "Fury"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/763604237b4b59df5df98f61528be2233b850dd5-744x1039.png?accountingTag=RB"
  },
  "red brambleback": {
@@ -11402,7 +11384,7 @@
  },
  "sacred shears": {
   "name": "Sacred Shears",
-  "text": "[Equip] :rb_rune_order: (:rb_rune_order:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_order: (:rb_rune_order:: Attach this to a unit you control.) [Deathknell] — Draw 1. (When I die, get the effect.) Grants +1 Might.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -11413,7 +11395,6 @@
     "Order"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/af1069aef68d413127dfa84e4e96b8d66a8720ca-744x1039.png?accountingTag=RB"
  },
  "sacrifice": {
@@ -11779,7 +11760,7 @@
  },
  "serrated dirk": {
   "name": "Serrated Dirk",
-  "text": "[Equip] :rb_rune_fury: (:rb_rune_fury:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_fury: (:rb_rune_fury:: Attach this to a unit you control.) [Assault 2] (+2 [M] while I'm an attacker.) Grants +0 Might.",
   "stats": {
    "energy": 1,
    "might": null,
@@ -11790,7 +11771,6 @@
     "Fury"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9498c8146745124fc45a7b55184854a9c9da21f5-744x1039.png?accountingTag=RB"
  },
  "sett": {
@@ -12466,7 +12446,7 @@
  },
  "skyfall of areion": {
   "name": "Skyfall of Areion",
-  "text": "[Equip] :rb_energy_1::rb_rune_fury: (:rb_energy_1::rb_rune_fury:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_energy_1::rb_rune_fury: (:rb_energy_1::rb_rune_fury:: Attach this to a unit you control.) My hold effects are also conquer effects, and vice versa. Grants +2 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -12477,7 +12457,6 @@
     "Fury"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bea8390beb651502413cf644319c8ca6a8db1102-744x1039.png?accountingTag=RB"
  },
  "skyward strike": {
@@ -12737,7 +12716,7 @@
  },
  "soul sword": {
   "name": "Soul Sword",
-  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.) [Level 3] I have an additional +1 [M]. (While you have 3+ XP, get the effect.) Grants +1 Might.",
   "stats": {
    "energy": 1,
    "might": null,
@@ -12748,7 +12727,6 @@
     "Calm"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/519361230cb8554cdf0f5dd795e115ffbb5bb932-744x1039.png?accountingTag=RB"
  },
  "soul's reflection": {
@@ -14194,7 +14172,7 @@
  },
  "trinity force": {
   "name": "Trinity Force",
-  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.) When I hold, score 1 point. Grants +2 Might.",
   "stats": {
    "energy": 4,
    "might": null,
@@ -14205,7 +14183,6 @@
     "Body"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e8b64985389e5792afc2a2fe0dc23ae7590d7709-744x1039.png?accountingTag=RB"
  },
  "trove golem": {
@@ -15233,7 +15210,7 @@
  },
  "warmog's armor": {
   "name": "Warmog's Armor",
-  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_body: (:rb_rune_body:: Attach this to a unit you control.) When I conquer, buff me. (If I don't have a buff, I get a +1 [M] buff.) Grants +1 Might.",
   "stats": {
    "energy": 1,
    "might": null,
@@ -15244,7 +15221,6 @@
     "Body"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0d680867670dd75a66a632cd6f044a7f7e39b42b-744x1039.png?accountingTag=RB"
  },
  "warwick": {
@@ -15459,7 +15435,7 @@
  },
  "world atlas": {
   "name": "World Atlas",
-  "text": "[Equip] :rb_rune_mind: (:rb_rune_mind:: Attach this to a unit you control.)",
+  "text": "[Equip] :rb_rune_mind: (:rb_rune_mind:: Attach this to a unit you control.) When I hold, play two Gold gear tokens exhausted. Grants +2 Might.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -15470,7 +15446,6 @@
     "Mind"
    ]
   },
-  "incomplete": "the ability this gear grants once attached is not in the source data",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7b8d96e128c19c5ff368119a60759cffa644e942-744x1039.png?accountingTag=RB"
  },
  "wraith of echoes": {
