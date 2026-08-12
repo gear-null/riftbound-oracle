@@ -41,6 +41,22 @@ DOMAIN_RUNE = {
 SHORTCODE.update(DOMAIN_RUNE)
 
 
+def _clip(text, limit=300):
+    """Trim long card text at a word boundary and SAY that it was trimmed.
+
+    A hard slice at 300 ended one card mid-sentence with no marker, so the
+    panel read as the card's complete text when it was not. Silent truncation
+    presented as complete is the failure this project exists to avoid.
+    """
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    space = cut.rfind(" ")
+    if space > limit * 0.6:
+        cut = cut[:space]
+    return cut.rstrip(" ,;:") + " …"
+
+
 class CardBridge:
     def __init__(self, rules_path=None):
         # Keyed by lowercased name AND by the pre-subtitle base name, so both
@@ -131,7 +147,7 @@ class CardBridge:
                 "asked_as": card.get("asked_as", card["name"]),
                 "keywords": list(dict.fromkeys(terms)),
                 "rule_sections": list(dict.fromkeys(rules)),
-                "text": re.sub(r"\s+", " ", body).strip()[:300]}
+                "text": _clip(re.sub(r"\s+", " ", body).strip())}
 
     def plan(self, question):
         """Translate a card-vocabulary question into a rules-vocabulary query."""

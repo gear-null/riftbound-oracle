@@ -301,12 +301,94 @@ def card_rendering():
         chips = stats_html(vi["stats"])
         check("stats render as chips, not prose", 'class="chip"' in chips and "**" not in chips)
 
+    # A cost printed on a card must survive into the rendered panel. Unmapped
+    # shortcodes were once replaced with a space, deleting the price outright.
+    from card_bridge import CardBridge
+    bridge = CardBridge()
+    costed = [c for c in bridge.cards.values() if re.search(r":rb_(energy|rune)", c.get("text", ""))]
+    lost = [c["name"] for c in costed
+            if not re.search(r"\[[0-9A-Z]\]", bridge.card_terms(c)["text"])]
+    check("no card loses its printed cost in rendering", not lost,
+          f"{len(costed)} costed cards, {len(lost)} lost: {lost[:2]}")
+
+    # Every card must render without crashing, whatever its shape.
+    crashed = []
+    for c in bridge.cards.values():
+        try:
+            stats_html(bridge.card_terms(c).get("stats"))
+        except Exception as exc:
+            crashed.append(f'{c["name"]}: {exc}')
+    check("every card in the pool renders", not crashed, "; ".join(crashed[:2]))
+
+    # Long card text must ANNOUNCE that it was cut. A hard slice ended one card
+    # mid-sentence with no marker, reading as the card's complete text.
+    from card_bridge import _clip
+    check("short card text is left alone", _clip("abc", 300) == "abc")
+    clipped = _clip("word " * 100, 60)
+    check("long card text is marked as truncated", clipped.endswith(" …"), repr(clipped[-14:]))
+    check("truncation cuts at a word boundary", "  " not in clipped and len(clipped) <= 62)
+
     # `s or ""` blanked a legitimate zero; 7 cards cost 0 Energy.
     check("a zero stat is not blanked", esc(0) == "0")
     zero = [c for c in cards.values() if (c.get("stats") or {}).get("energy") == 0]
     if zero:
         check("a 0-Energy card still shows its cost",
               "0</b>" in stats_html(zero[0]["stats"]), zero[0]["name"])
+
+
+def attribution_and_spans(idx):
+    """Two blocker regressions that would both fail SILENTLY, looking correct."""
+    print("\n=== document attribution + holding spans ===")
+    import copy
+    from render_report import verify_answer, render, note_number
+
+    base = json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8"))
+
+    # 790 ids exist only in TR. A bare id was stamped "CR", so Tournament Rules
+    # text reached the reader labelled Core Rules with a green verified badge.
+    a = copy.deepcopy(base)
+    a["notes"][0]["cites"] = [{
+        "rule": "104.1",
+        "quote": "vs. Core Rules: In some cases, information in this document may contradict",
+    }]
+    r = verify_answer(a, idx)
+    cite = r["notes"][0]["cites"][0]
+    check("a TR-only bare id is labelled TR, not CR", cite["cite_as"].startswith("TR:"),
+          cite["cite_as"])
+    check("a missing document prefix is reported, so the report will not render",
+          any("104.1" in p and "TR" in p for p in r["_problems"]),
+          "; ".join(r["_problems"])[:70] or "no problem raised")
+
+    # A monotonic cursor dropped any span listed before an earlier one, which
+    # silently stripped viktor's crux from the holding line.
+    a = copy.deepcopy(base)
+    line = a["holding"]["line"]
+    spans = a["holding"].get("spans", [])
+    if len(spans) >= 2:
+        reordered = sorted(spans, key=lambda s: -line.find(s["text"]))
+        a["holding"]["spans"] = reordered
+        html = render(verify_answer(a, idx), idx)
+        check("every span renders even when listed out of document order",
+              html.count('class="noteref"') >= len(spans),
+              f'{html.count(chr(34) + "noteref" + chr(34))} refs for {len(spans)} spans')
+        for sp in spans:
+            if sp["text"] not in html:
+                check(f'span "{sp["text"][:22]}" survives reordering', False)
+                break
+        else:
+            check("no span text is lost when reordered", True)
+
+    # The shipped samples are the fixtures most likely to regress unnoticed.
+    for sample in ("viktor-answer.json", "heron-answer.json"):
+        path = os.path.join(HERE, sample)
+        if not os.path.exists(path):
+            continue
+        ans = verify_answer(json.load(open(path, encoding="utf-8")), idx)
+        html = render(ans, idx)
+        n = len(ans["holding"].get("spans", []))
+        check(f"{sample}: all {n} holding spans render",
+              html.count('class="noteref"') >= n,
+              f'{html.count(chr(34) + "noteref" + chr(34))} refs')
 
 
 def topic_blocks(idx):
@@ -430,6 +512,7 @@ def main():
     card_rendering()
     symbols_and_notes()
     topic_blocks(idx)
+    attribution_and_spans(idx)
 
     print()
     if FAILS:
