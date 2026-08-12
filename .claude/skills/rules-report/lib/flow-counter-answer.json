@@ -1,0 +1,92 @@
+{
+  "question": "I play Death Mark from my trash for its Flow cost. My opponent counters it with Defy. Death Mark's Flow cost is [1][A][A], which is more Power than Defy allows — can Defy even target it? And if it resolves, does Death Mark go to my trash (so I could Flow it again) or is it banished?",
+  "reframe": "two questions: does Defy's cost restriction read Death Mark's base cost or the Flow cost actually paid, and does Counter's \"placed in the trash\" or Flow's delayed banish win when a Flow spell is cleared from the chain?",
+  "corpus": { "CR": "2026-07-16", "TR": "2026-07-16", "generated": "2026-08-12" },
+  "holding": {
+    "disposition": "YES",
+    "line": "Yes, Defy can counter it — cost restrictions read the base cost, not the Flow cost you paid — and Death Mark is then banished rather than trashed, so you cannot Flow it a second time.",
+    "spans": [
+      { "text": "Defy can counter it", "basis": "grounded", "note": "n1" },
+      { "text": "cost restrictions read the base cost, not the Flow cost you paid", "basis": "grounded", "note": "n2" },
+      { "text": "banished rather than trashed", "basis": "structural", "note": "n4" },
+      { "text": "you cannot Flow it a second time", "basis": "structural", "note": "n5" }
+    ]
+  },
+  "notes": [
+    {
+      "id": "n1",
+      "basis": "grounded",
+      "claim": "Defy's restriction is measured against Death Mark's printed cost of 2 Energy and 1 Power, which is within both limits.",
+      "detail": "Defy counters \"a spell that costs no more than [4] and no more than [A]\". Death Mark is printed at 2 Energy / 1 Power. Its Flow cost of [1][A][A] is louder but irrelevant — see n2.",
+      "cites": [
+        {
+          "rule": "CR:206.1",
+          "quote": "Effects that need to determine an ability’s cost for any purpose use its base cost, ignoring any alterations to that base cost unless otherwise specified."
+        }
+      ]
+    },
+    {
+      "id": "n2",
+      "basis": "grounded",
+      "claim": "A Flow cost is an alternate cost, so it is an alteration rather than the spell's cost.",
+      "detail": "This is the crux of the first half: read the Flow cost instead and Death Mark's 2 Power exceeds Defy's [A] limit, making the counter illegal.",
+      "cites": [
+        {
+          "rule": "CR:829.1.c.1",
+          "quote": "The cost is an alternate cost that replaces the base cost of the spell to be paid during finalization."
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "basis": "grounded",
+      "claim": "Countering clears the spell from the chain and would put it in the trash.",
+      "cites": [
+        { "rule": "CR:425.1.a", "quote": "A card or ability that is Countered does nothing and is cleared from the chain." },
+        { "rule": "CR:425.1.a.1", "quote": "Cards that are cleared from the chain in this way are placed in the trash." }
+      ]
+    },
+    {
+      "id": "n4",
+      "basis": "structural",
+      "claim": "Flow's banish is a delayed replacement effect, so it replaces that trip to the trash.",
+      "detail": "Death Mark became a finalized chain item when it was played, and Counter — not Death Mark's own execution — is what removes it. Both conditions in 829.1.b.1 are met, so \"banish it instead\" replaces 425.1.a.1's trash placement. No single rule states the outcome for a countered Flow spell; it follows from the replacement applying to this exact departure.",
+      "crux": true,
+      "if_false": "If the banish only applied to a spell that resolves, a countered Death Mark would sit in the trash and could be Flowed again on a later turn. The first half of the answer is unaffected either way.",
+      "cites": [
+        {
+          "rule": "CR:829.1.b.1",
+          "quote": "If the spell would leave the chain after becoming a finalized chain item, and leaving the chain wasn’t instructed by its own execution, banish it instead."
+        }
+      ]
+    },
+    {
+      "id": "n5",
+      "basis": "structural",
+      "claim": "A banished Death Mark is out of reach of Flow, which only ever plays from the trash.",
+      "cites": [
+        {
+          "rule": "CR:829.1.b",
+          "quote": "It is functionally short for “You may play this from your trash for its flow cost. Then banish it.”"
+        }
+      ]
+    }
+  ],
+  "counterargument": [
+    {
+      "reading": "The banish is part of \"Then banish it\" in Flow's own wording, so it only happens after the spell successfully resolves. A countered spell never resolves, so it just goes to the trash like any other countered card.",
+      "why_it_loses": "829.1.b.1 exists precisely to say that this is not sequencing but a delayed replacement, and it is written around the spell leaving the chain rather than around it resolving. Being countered is a departure from the chain that Death Mark's own execution did not instruct, which is the case the rule describes.",
+      "cites": [
+        {
+          "rule": "CR:829.1.b.1",
+          "quote": "Banishing the spell in this way is a delayed replacement effect."
+        }
+      ]
+    }
+  ],
+  "considered_rejected": [
+    { "rule": "CR:425.1.c", "why": "Confirms the Flow cost is not refunded, but says nothing about where the card ends up." }
+  ],
+  "open_questions": [],
+  "cards": ["Death Mark", "Defy"]
+}

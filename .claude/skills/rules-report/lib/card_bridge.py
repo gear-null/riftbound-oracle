@@ -41,6 +41,22 @@ DOMAIN_RUNE = {
 SHORTCODE.update(DOMAIN_RUNE)
 
 
+def _clip(text, limit=300):
+    """Trim long card text at a word boundary and SAY that it was trimmed.
+
+    A hard slice at 300 ended one card mid-sentence with no marker, so the
+    panel read as the card's complete text when it was not. Silent truncation
+    presented as complete is the failure this project exists to avoid.
+    """
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    space = cut.rfind(" ")
+    if space > limit * 0.6:
+        cut = cut[:space]
+    return cut.rstrip(" ,;:") + " …"
+
+
 class CardBridge:
     def __init__(self, rules_path=None):
         # Keyed by lowercased name AND by the pre-subtitle base name, so both
@@ -108,12 +124,19 @@ class CardBridge:
             return f" [{code}] "
 
         text = re.sub(r":([a-z_0-9]+):", sub, text)
-        return re.sub(r"[ \t]{2,}", " ", text)
+        text = re.sub(r"[ \t]{2,}", " ", text)
+        # Padding the shortcodes leaves gaps against neighbouring punctuation:
+        # "[2] [R] : Double" and "( [1] [R] :". Close them back up.
+        text = re.sub(r"\s+([:.,)])", r"\1", text)
+        return re.sub(r"([(\[])\s+", r"\1", text).strip()
 
     def card_terms(self, card):
         """Rules vocabulary implied by a card: its keywords and its effect words."""
         body = self._clean(card["text"])
-        kws = [k.strip().lower() for k in re.findall(r"\[([A-Za-z][A-Za-z ]{2,20})\]", body)]
+        # Digits belong in the class: [Assault 2] and [Shield 3] never matched
+        # a letters-only pattern, which also made the next line — stripping a
+        # trailing number — dead code. 69 cards lost 84 glossary links to this.
+        kws = [k.strip().lower() for k in re.findall(r"\[([A-Za-z][A-Za-z0-9 ]{2,20})\]", body)]
         kws = [re.sub(r"\s+\d+$", "", k) for k in kws]
         rules = []
         terms = []
@@ -122,11 +145,13 @@ class CardBridge:
             if k in self.term_to_rule:
                 rules.append(self.term_to_rule[k])
         return {"name": card["name"], "image": card.get("image"),
+                "stats": card.get("stats") or {},
+                "ambiguous": card.get("ambiguous") or [],
                 "inexact": card.get("inexact", False),
                 "asked_as": card.get("asked_as", card["name"]),
                 "keywords": list(dict.fromkeys(terms)),
                 "rule_sections": list(dict.fromkeys(rules)),
-                "text": re.sub(r"\s+", " ", body).strip()[:300]}
+                "text": _clip(re.sub(r"\s+", " ", body).strip())}
 
     def plan(self, question):
         """Translate a card-vocabulary question into a rules-vocabulary query."""

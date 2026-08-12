@@ -258,6 +258,30 @@ def rulebook_and_links():
         check("every report link resolves in the rulebook", targets <= ids,
               ", ".join(sorted(targets - ids)[:3]))
 
+    # The overlay is delegated off one literal selector list, and titles itself
+    # by regex-matching the href against render_rulebook.anchor()'s format. Both
+    # are undeclared contracts with the renderer: rename a link class while
+    # restyling and the overlay silently stops intercepting, so the reader gets
+    # navigated out of the report instead of the panel.
+    if os.path.exists(src):
+        emitted = set(re.findall(r'<a class="([^"]+)"[^>]*href="\.\./data/rules\.html', html))
+        # rb-pop is the panel's own "open full page" link; it is meant to escape
+        # the overlay, so it is deliberately not intercepted.
+        emitted.discard("rb-pop")
+        sel = re.search(r"closest\('((?:[^']*rulebook-link[^']*))'\)", html)
+        listed = {re.sub(r"^a\.", "", s.strip()) for s in sel.group(1).split(",")} if sel else set()
+        check("the overlay intercepts every class the renderer links with",
+              bool(listed) and emitted <= listed,
+              f"emitted {sorted(emitted)} vs handled {sorted(listed)}")
+
+        # The panel title parses the anchor; a format change silently degrades
+        # every panel to the generic "Rulebook".
+        from render_rulebook import anchor
+        pat = re.search(r"/#\(\[A-Z\]\{2\}\)-\(\.\+\)\$/", html)
+        check("the overlay title regex still matches the anchor format",
+              bool(pat) and bool(re.match(r"^[A-Z]{2}-.+$", anchor("CR", "471.1.b.1"))),
+              anchor("CR", "471.1.b.1"))
+
     if not os.path.exists(rulebook_html_path()):
         note("data/rules.html not built yet; run `rules_cli.py rulebook`")
 
@@ -287,6 +311,199 @@ def card_rendering():
           len(missing) == 1 and missing[0].get("unresolved"))
 
     check("no cards field renders nothing", resolve_cards({}) == [])
+
+    # Stats travelled as markdown once and printed with the asterisks showing.
+    from render_report import stats_html, esc
+    # `cardStats` always returns a fully-shaped dict, so truthiness proves
+    # nothing: an upstream field rename yields all-null stats for every card and
+    # a green suite. Assert VALUES against measured floors instead.
+    def n_with(key):
+        return sum(1 for c in cards.values() if (c.get("stats") or {}).get(key) is not None)
+    check("most cards carry an energy value", n_with("energy") > 700, f'{n_with("energy")}/{len(cards)}')
+    check("every card carries a type", n_with("type") == len(cards), f'{n_with("type")}/{len(cards)}')
+    check("every card carries a domain",
+          sum(1 for c in cards.values() if (c.get("stats") or {}).get("domain")) > 900)
+    check("might and power are populated where they apply",
+          n_with("might") > 400 and n_with("power") > 300,
+          f'might={n_with("might")} power={n_with("power")}')
+    check("no card text contains markdown bold",
+          not any("**" in c.get("text", "") for c in cards.values()))
+
+    vi = cards.get("vi - hotheaded")
+    if vi:
+        chips = stats_html(vi["stats"])
+        check("stats render as chips, not prose", 'class="chip"' in chips and "**" not in chips)
+
+    # Answer JSON may supply a card object, so stats are untrusted input.
+    for shape in ("4 Energy", ["a"], 7, None, {"domain": "Fury"}, {"energy": True}):
+        try:
+            html = stats_html(shape)
+        except Exception as exc:
+            check(f"stats_html survives {shape!r}", False, repr(exc)); break
+    else:
+        check("stats_html survives hostile shapes", True)
+    check("a string domain is one chip, not one per letter",
+          stats_html({"domain": "Fury"}).count("chip-d") == 1)
+    check("a boolean is not rendered as a stat value",
+          "Energy" not in stats_html({"energy": True}))
+
+    # Data invariants that a regeneration must not quietly break. Regenerating
+    # used to churn 27 entries and rebind 5 base names to different cards,
+    # because the fold depended on API page order.
+    treatments = [v["name"] for v in cards.values()
+                  if str((v.get("stats") or {}).get("rarity", "")).lower()
+                  in ("promo", "showcase")]
+    check("no card reports a print treatment as its rarity", not treatments,
+          f"{len(treatments)}: {treatments[:2]}")
+
+    ambiguous = {k: v for k, v in cards.items() if v.get("ambiguous")}
+    check("base names shared by different cards are flagged", len(ambiguous) > 0,
+          f"{len(ambiguous)} flagged (e.g. {sorted(ambiguous)[:3]})")
+    check("every flagged alias lists at least two full names",
+          all(len(v["ambiguous"]) > 1 for v in ambiguous.values()))
+
+    # A cost printed on a card must survive into the rendered panel. Unmapped
+    # shortcodes were once replaced with a space, deleting the price outright.
+    from card_bridge import CardBridge
+    bridge = CardBridge()
+    costed = [c for c in bridge.cards.values() if re.search(r":rb_(energy|rune)", c.get("text", ""))]
+    lost = [c["name"] for c in costed
+            if not re.search(r"\[[0-9A-Z]\]", bridge.card_terms(c)["text"])]
+    check("no card loses its printed cost in rendering", not lost,
+          f"{len(costed)} costed cards, {len(lost)} lost: {lost[:2]}")
+
+    # Every card must render without crashing, whatever its shape.
+    crashed = []
+    for c in bridge.cards.values():
+        try:
+            stats_html(bridge.card_terms(c).get("stats"))
+        except Exception as exc:
+            crashed.append(f'{c["name"]}: {exc}')
+    check("every card in the pool renders", not crashed, "; ".join(crashed[:2]))
+
+    # Long card text must ANNOUNCE that it was cut. A hard slice ended one card
+    # mid-sentence with no marker, reading as the card's complete text.
+    from card_bridge import _clip
+    check("short card text is left alone", _clip("abc", 300) == "abc")
+    clipped = _clip("word " * 100, 60)
+    check("long card text is marked as truncated", clipped.endswith(" …"), repr(clipped[-14:]))
+    check("truncation cuts at a word boundary", "  " not in clipped and len(clipped) <= 62)
+
+    # `s or ""` blanked a legitimate zero; 7 cards cost 0 Energy.
+    check("a zero stat is not blanked", esc(0) == "0")
+    zero = [c for c in cards.values() if (c.get("stats") or {}).get("energy") == 0]
+    if zero:
+        check("a 0-Energy card still shows its cost",
+              "0</b>" in stats_html(zero[0]["stats"]), zero[0]["name"])
+
+
+def render_gate():
+    """The one thing between a failed verification and a pretty report.
+
+    `cmd_render` shells straight into render_report.py without calling
+    verify_answer, so main()'s gate is the whole safety property on that path —
+    and it was exercised by nobody. Deleting those five lines was a green-suite
+    change that would ship a green badge over a fabricated citation.
+    """
+    print("\n=== render gate (end-to-end) ===")
+    import tempfile
+    base = json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8"))
+    base["notes"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+
+    with tempfile.TemporaryDirectory() as d:
+        src = os.path.join(d, "ghost.json")
+        out = os.path.join(d, "out.html")
+        json.dump(base, open(src, "w", encoding="utf-8"))
+
+        r = subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out],
+                           capture_output=True, text=True, cwd=HERE)
+        check("a fabricated citation exits non-zero", r.returncode != 0, f"rc={r.returncode}")
+        check("and writes no report at all", not os.path.exists(out))
+
+        r = subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out,
+                            "--force"], capture_output=True, text=True, cwd=HERE)
+        forced = os.path.exists(out) and open(out, encoding="utf-8").read()
+        check("--force renders but marks the citation failed",
+              bool(forced) and 'class="stamp bad"' in forced)
+        check("--force still forces the verdict to UNSETTLED",
+              bool(forced) and "UNSETTLED" in forced)
+
+
+def attribution_and_spans(idx):
+    """Two blocker regressions that would both fail SILENTLY, looking correct."""
+    print("\n=== document attribution + holding spans ===")
+    import copy
+    from render_report import verify_answer, render, note_number
+
+    base = json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8"))
+
+    # 790 ids exist only in TR. A bare id was stamped "CR", so Tournament Rules
+    # text reached the reader labelled Core Rules with a green verified badge.
+    a = copy.deepcopy(base)
+    a["notes"][0]["cites"] = [{
+        "rule": "104.1",
+        "quote": "vs. Core Rules: In some cases, information in this document may contradict",
+    }]
+    r = verify_answer(a, idx)
+    cite = r["notes"][0]["cites"][0]
+    check("a TR-only bare id is labelled TR, not CR", cite["cite_as"].startswith("TR:"),
+          cite["cite_as"])
+    check("a missing document prefix is reported, so the report will not render",
+          any("104.1" in p and "TR" in p for p in r["_problems"]),
+          "; ".join(r["_problems"])[:70] or "no problem raised")
+
+    # A monotonic cursor dropped any span listed before an earlier one, which
+    # silently stripped viktor's crux from the holding line.
+    a = copy.deepcopy(base)
+    line = a["holding"]["line"]
+    spans = a["holding"].get("spans", [])
+    if len(spans) >= 2:
+        reordered = sorted(spans, key=lambda s: -line.find(s["text"]))
+        a["holding"]["spans"] = reordered
+        html = render(verify_answer(a, idx), idx)
+        check("every span renders even when listed out of document order",
+              html.count('class="noteref"') >= len(spans),
+              f'{html.count(chr(34) + "noteref" + chr(34))} refs for {len(spans)} spans')
+        for sp in spans:
+            if sp["text"] not in html:
+                check(f'span "{sp["text"][:22]}" survives reordering', False)
+                break
+        else:
+            check("no span text is lost when reordered", True)
+
+    # Overlapping spans cannot both be placed, so one used to disappear from
+    # the rendered line while verification reported no problem at all.
+    a = copy.deepcopy(base)
+    line = a["holding"]["line"]
+    if a["holding"].get("spans"):
+        outer = a["holding"]["spans"][0]["text"]
+        # A slice from the middle of an existing span is genuinely nested and
+        # unique in the line, unlike a bare word that may recur earlier.
+        inner = outer[6:len(outer) - 6]
+        if len(inner) > 8 and line.count(inner) == 1:
+            a["holding"]["spans"] = a["holding"]["spans"] + [
+                {"text": inner, "basis": "inferred", "note": a["notes"][0]["id"]}]
+            r = verify_answer(a, idx)
+            check("overlapping holding spans fail verification",
+                  any("overlaps" in p for p in r["_problems"]),
+                  "; ".join(r["_problems"])[:70] or "no problem raised")
+            # and the invariant behind it: what verifies clean must fully render
+            clean = verify_answer(copy.deepcopy(base), idx)
+            n = len(clean["holding"]["spans"])
+            check("a clean answer renders every one of its spans",
+                  render(clean, idx).count('class="noteref"') >= n, f"{n} spans")
+
+    # The shipped samples are the fixtures most likely to regress unnoticed.
+    for sample in ("viktor-answer.json", "heron-answer.json"):
+        path = os.path.join(HERE, sample)
+        if not os.path.exists(path):
+            continue
+        ans = verify_answer(json.load(open(path, encoding="utf-8")), idx)
+        html = render(ans, idx)
+        n = len(ans["holding"].get("spans", []))
+        check(f"{sample}: all {n} holding spans render",
+              html.count('class="noteref"') >= n,
+              f'{html.count(chr(34) + "noteref" + chr(34))} refs')
 
 
 def topic_blocks(idx):
@@ -410,6 +627,8 @@ def main():
     card_rendering()
     symbols_and_notes()
     topic_blocks(idx)
+    attribution_and_spans(idx)
+    render_gate()
 
     print()
     if FAILS:

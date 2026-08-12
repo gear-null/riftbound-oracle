@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { buildCardIndex, buildSkillData, cardText, keysFor } from "../skill-data.js";
+import { buildCardIndex, buildSkillData, cardStats, cardText, keysFor } from "../skill-data.js";
 import type { RiftcodexCard } from "../riftcodex.js";
 
 function card(over: Partial<RiftcodexCard> & { name: string }): RiftcodexCard {
@@ -64,19 +64,26 @@ describe("cardText", () => {
     expect(text).toContain(":rb_energy_1:");
   });
 
-  it("emits the stats line the bridge expects", () => {
-    const text = cardText(
-      card({
-        name: "Astral Heron",
-        attributes: { energy: 7, might: 7, power: null },
-        classification: { type: "Unit", supertype: null, rarity: "Epic", domain: ["Calm"] },
-      })
-    );
-    expect(text).toContain("**Energy:** 7");
-    expect(text).toContain("**Might:** 7");
-    expect(text).toContain("**Type:** Unit");
-    expect(text).toContain("**Domain:** Calm");
-    expect(text).not.toContain("**Power:**");
+  it("carries no markdown — stats are structured, not glued on as prose", () => {
+    // They used to ship as "**Energy:** 7 | **Might:** 7 | ...", which then
+    // rendered literally in reports because nothing downstream parses markdown.
+    const c = card({
+      name: "Astral Heron",
+      attributes: { energy: 7, might: 7, power: null },
+      classification: { type: "Unit", supertype: null, rarity: "Epic", domain: ["Calm"] },
+      text: { rich: "", plain: "When you play your first card each turn...", flavour: null },
+    });
+    expect(cardText(c)).not.toContain("**");
+    expect(cardText(c)).toBe("When you play your first card each turn...");
+    expect(cardStats(c)).toEqual({
+      energy: 7, might: 7, power: null, type: "Unit", rarity: "Epic", domain: ["Calm"],
+    });
+  });
+
+  it("keeps a zero cost as 0, not null", () => {
+    // 7 cards genuinely cost 0 Energy; a falsy-check would erase their cost.
+    const s = cardStats(card({ name: "Called Shot", attributes: { energy: 0, might: null, power: null } }));
+    expect(s.energy).toBe(0);
   });
 
   it("decodes HTML entities the API serves escaped", () => {
@@ -96,8 +103,12 @@ describe("cardText", () => {
     expect(text).not.toContain("&amp;");
   });
 
-  it("survives a card with no printed text", () => {
-    expect(cardText(card({ name: "Vanilla" }))).toContain("**Type:** Unit");
+  it("returns empty text for a vanilla card, with its stats intact", () => {
+    // A card with no rules text has no text — the stats are not a substitute
+    // for it, which is exactly why they no longer live in the same string.
+    const c = card({ name: "Vanilla", attributes: { energy: 2, might: 3, power: null } });
+    expect(cardText(c)).toBe("");
+    expect(cardStats(c).might).toBe(3);
   });
 });
 
@@ -124,6 +135,44 @@ describe("buildCardIndex", () => {
     const index = buildCardIndex([card({ name: "Viktor - Machine Herald" })]);
     expect(index["viktor"].name).toBe("Viktor - Machine Herald");
     expect(index["viktor - machine herald"]).toBeDefined();
+  });
+
+  it("is deterministic regardless of the order cards arrive in", () => {
+    // The API paginates without a guaranteed sort, so "first printing wins"
+    // was decided by fetch order: two consecutive real runs differed in 27
+    // entries, 5 binding a base name to a genuinely different card.
+    const pool = [
+      card({ name: "Ahri - Alluring", set: { set_id: "OGN", label: "O" }, collector_number: 12 }),
+      card({ name: "Ahri - Inquisitive", set: { set_id: "VEN", label: "V" }, collector_number: 3 }),
+      card({ name: "Ahri - Nine-Tailed Fox", set: { set_id: "OGN", label: "O" }, collector_number: 4 }),
+    ] as never[];
+    const forward = JSON.stringify(buildCardIndex(pool));
+    const reversed = JSON.stringify(buildCardIndex([...pool].reverse()));
+    expect(reversed).toBe(forward);
+    // and the winner is the stable one: OGN #4 sorts before OGN #12
+    expect(buildCardIndex(pool)["ahri"].name).toBe("Ahri - Nine-Tailed Fox");
+  });
+
+  it("flags a base name shared by genuinely different cards", () => {
+    // Silently answering about one arbitrary printing is the failure the whole
+    // card path exists to prevent.
+    const index = buildCardIndex([
+      card({ name: "Ahri - Alluring" }),
+      card({ name: "Ahri - Inquisitive" }),
+    ] as never[]);
+    expect(index["ahri"].ambiguous).toEqual(["Ahri - Alluring", "Ahri - Inquisitive"]);
+    // an unambiguous name carries no flag at all
+    expect(buildCardIndex([card({ name: "Astral Heron" })])["astral heron"].ambiguous)
+      .toBeUndefined();
+  });
+
+  it("prefers a real rarity over a print treatment", () => {
+    // 126 of 954 cards showed "Promo"/"Showcase" where their rarity belongs.
+    const index = buildCardIndex([
+      card({ name: "Doran's Blade", classification: { type: "Gear", supertype: null, rarity: "Promo", domain: [] }, set: { set_id: "AAA", label: "a" }, collector_number: 1 }),
+      card({ name: "Doran's Blade", classification: { type: "Gear", supertype: null, rarity: "Common", domain: [] }, set: { set_id: "BBB", label: "b" }, collector_number: 2 }),
+    ] as never[]);
+    expect(index["doran's blade"].stats.rarity).toBe("Common");
   });
 
   it("omits the image key entirely when there is no artwork", () => {

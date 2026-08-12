@@ -41,7 +41,13 @@ RANK = {"grounded": 3, "structural": 2, "inferred": 2, "gap": 1}
 
 
 def esc(s):
-    return html.escape(s or "", quote=True)
+    """Escape for HTML, accepting whatever the answer JSON happens to hold.
+
+    `s or ""` was wrong twice over: it raised on a non-string (card stats are
+    numbers now) and it blanked a legitimate zero, so a 0-Energy card would
+    have rendered with no cost at all.
+    """
+    return html.escape("" if s is None else str(s), quote=True)
 
 
 def _check(c, idx, where, problems):
@@ -101,6 +107,22 @@ def _check_holding(ans, idx):
         if text not in line:
             problems.append(f'holding span "{text[:40]}" is not a substring of holding.line')
             continue
+        # Overlapping spans cannot both be placed, so the renderer drops one —
+        # silently, with no link and no superscript. That is the same failure as
+        # the out-of-order crux bug, so it must fail verification rather than
+        # render a claim that looks like unmarked prose.
+        start = line.find(text)
+        end = start + len(text)
+        for other in spans:
+            o = other.get("text", "")
+            if other is sp or not o or o not in line:
+                continue
+            os_, oe = line.find(o), line.find(o) + len(o)
+            if os_ < end and start < oe and (os_, oe) != (start, end):
+                problems.append(
+                    f'holding span "{text[:30]}" overlaps "{o[:30]}" — '
+                    "only one can render; make the spans disjoint")
+                break
         covered += len(text)
 
         note = by_id.get(sp.get("note"))
@@ -382,6 +404,36 @@ def resolve_cards(ans):
     return out
 
 
+def stats_html(stats):
+    """Numbers and classifications as a row of chips.
+
+    These arrived as a markdown string once — `**Energy:** 4 | **Might:** 3` —
+    and rendered with the asterisks showing, because nothing here parses
+    markdown. They are structured now, so presentation is a layout decision.
+    """
+    # An answer file may supply a card object, so this is untrusted input like
+    # everything else here. A crash means no report at all, and iterating a
+    # string domain produced one chip per LETTER — four "classifications"
+    # reading F, u, r, y.
+    if not isinstance(stats, dict):
+        return ""
+    chips = []
+    for key, label in (("energy", "Energy"), ("might", "Might"), ("power", "Power")):
+        v = stats.get(key)
+        if isinstance(v, bool) or v is None:
+            continue
+        chips.append(f'<span class="chip"><b>{esc(v)}</b> {esc(label)}</span>')
+    for key in ("type", "rarity"):
+        v = stats.get(key)
+        if v and isinstance(v, str):
+            chips.append(f'<span class="chip chip-q">{esc(v)}</span>')
+    dom = stats.get("domain")
+    for d in ([dom] if isinstance(dom, str) else (dom or [])):
+        if isinstance(d, str) and d:
+            chips.append(f'<span class="chip chip-d">{esc(d)}</span>')
+    return f'<span class="card-stats">{"".join(chips)}</span>' if chips else ""
+
+
 def cards_html(ans):
     """Card artwork beside printed text, for every card the answer names.
 
@@ -401,9 +453,15 @@ def cards_html(ans):
                 "<span>no card by this name</span></div>"
             )
         elif img:
+            # Artwork lives on Riot's CDN, so an offline reader has a URL that
+            # cannot load. Without a handler the <img> collapsed to a ~26px
+            # strip of alt text; the documented "labelled placeholder" only
+            # ever appeared when the URL was absent entirely.
             art = (
                 f'<img class="card-art" src="{esc(img)}" alt="{esc(c["name"])} card artwork"'
-                ' loading="lazy" referrerpolicy="no-referrer">'
+                ' loading="lazy" referrerpolicy="no-referrer"'
+                ' onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),'
+                '{className:\'card-art card-art--none\',textContent:\'artwork offline\'}))">'
             )
         else:
             art = (
@@ -420,9 +478,11 @@ def cards_html(ans):
         secs = f'<span class="card-rules">governed by {secs}</span>' if secs else ""
 
         out.append(
-            '<figure class="card">' + art + '<figcaption><b>'
-            + esc(c["name"]) + '</b><span class="card-text">'
-            + esc(c.get("text", "")) + "</span>" + secs + "</figcaption></figure>"
+            '<figure class="card">' + art + '<figcaption>'
+            + f'<b class="card-name">{esc(c["name"])}</b>'
+            + stats_html(c.get("stats"))
+            + f'<span class="card-text">{esc(c.get("text", ""))}</span>'
+            + secs + "</figcaption></figure>"
         )
     return '<h2>Cards referenced</h2><div class="cards">' + "".join(out) + "</div>"
 
@@ -556,6 +616,13 @@ h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform
 .card-art--none{{aspect-ratio:744/1039;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;color:var(--dim);font-size:.78rem;text-align:center;border-bottom:1px solid var(--line)}}
 .card-art--none span{{font-size:.7rem;opacity:.85}}
 .card figcaption{{padding:.6rem .7rem;font-size:.82rem;display:flex;flex-direction:column;gap:.3rem}}
+.card-name{{font-size:.9rem}}
+.card-stats{{display:flex;flex-wrap:wrap;gap:.25rem;margin:.15rem 0 .1rem}}
+.chip{{font:.68rem ui-sans-serif,system-ui;background:var(--bg);border:1px solid var(--line);
+ border-radius:3px;padding:.16em .42em;color:var(--dim);white-space:nowrap}}
+.chip b{{color:var(--fg);font-weight:650}}
+.chip-q{{font-variant:small-caps;letter-spacing:.02em}}
+.chip-d{{border-color:var(--accent);color:var(--accent)}}
 .card-text{{color:var(--dim);font-size:.76rem;line-height:1.45}}
 ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
 .noteref{{color:var(--accent);text-decoration:none;font-family:ui-sans-serif,system-ui;

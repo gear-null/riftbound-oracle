@@ -19,10 +19,39 @@ import { decodeEntities } from "./normalize.js";
 
 export const SKILL_DATA_DIR = ".claude/skills/rules-report/data";
 
+export interface CardStats {
+  energy: number | null;
+  might: number | null;
+  power: number | null;
+  type: string | null;
+  rarity: string | null;
+  domain: string[];
+}
+
 export interface SkillCard {
   name: string;
+  /** Printed rules text only. Stats live in `stats`, not glued on as markdown. */
   text: string;
+  stats: CardStats;
   image?: string;
+  /**
+   * Set when a bare base name is shared by genuinely DIFFERENT cards — "Ahri"
+   * covers Alluring, Inquisitive and Nine-Tailed Fox. Lists every full name so
+   * the caller can refuse to guess instead of binding to whichever printing
+   * the API happened to return first.
+   */
+  ambiguous?: string[];
+}
+
+/**
+ * Print treatments Riftcodex reports in the rarity field. They are not
+ * rarities, and a reprint carrying one would otherwise win the base-name slot
+ * and display "Promo" where the card's actual rarity belongs.
+ */
+const PRINT_TREATMENTS = new Set(["promo", "showcase"]);
+
+function isTreatment(rarity: string | null): boolean {
+  return !!rarity && PRINT_TREATMENTS.has(rarity.toLowerCase());
 }
 
 /** Keyed by lowercased lookup name; see `keysFor`. */
@@ -44,58 +73,105 @@ export function keysFor(displayName: string): string[] {
 }
 
 /**
- * Printed text in the shape `card_bridge.py` already parses: the stats line
- * followed by the card's plain text.
+ * The card's printed rules text, and nothing else.
  *
- * `text.plain` is deliberate — it keeps the `[Keyword]` brackets and
- * `:rb_energy_1:` shortcodes, which is precisely what the bridge maps onto
- * glossary rule sections (805-829). Substituting a prettier rendering would
- * silently sever the card→rules link that makes card questions answerable.
+ * Stats used to be glued on as a markdown line — `**Energy:** 4 | **Might:**
+ * 3 | ...` — which then rendered literally in reports, asterisks and all,
+ * because nothing downstream parses markdown. They are structured fields now
+ * (see `cardStats`) and the presentation layer decides how to show them.
  *
- * Entities must be decoded here. Riftcodex serves `text.plain` HTML-escaped,
- * so the keyword marker [>] arrives as `[&gt;]` — 93 occurrences across the
- * card pool. The markdown path ran this through `normalize()`, which decoded
- * them; going straight from the API to cards.json skipped that, which printed
- * a literal `[&gt;]` in reports and hid the `>` row from the symbol legend,
- * whose token scan saw four characters instead of one.
+ * `text.plain` is deliberate: it keeps the `[Keyword]` brackets and
+ * `:rb_energy_1:` shortcodes, which is exactly what `card_bridge.py` maps onto
+ * glossary rule sections (805-829). A prettier rendering here would silently
+ * sever the card→rules link that makes card questions answerable.
+ *
+ * Entities must be decoded. Riftcodex serves `text.plain` HTML-escaped, so the
+ * keyword marker [>] arrives as `[&gt;]` — 93 occurrences across the pool. The
+ * old markdown path ran normalize(), which decoded them; reading the API
+ * directly skipped that, printing a literal `[&gt;]` and hiding the `>` row
+ * from the symbol legend, whose token scan saw four characters instead of one.
  */
 export function cardText(card: RiftcodexCard): string {
-  const stats: string[] = [];
-  const { energy, might, power } = card.attributes ?? {};
-  if (energy != null) stats.push(`**Energy:** ${energy}`);
-  if (might != null) stats.push(`**Might:** ${might}`);
-  if (power != null) stats.push(`**Power:** ${power}`);
-  if (card.classification?.type) stats.push(`**Type:** ${card.classification.type}`);
-  if (card.classification?.rarity) stats.push(`**Rarity:** ${card.classification.rarity}`);
-  if (card.classification?.domain?.length) {
-    stats.push(`**Domain:** ${card.classification.domain.join(", ")}`);
-  }
-
-  const parts = [stats.join(" | ")];
-  const body = card.text?.plain?.trim();
-  if (body) parts.push(body);
-  return decodeEntities(parts.filter(Boolean).join("\n\n"));
+  return decodeEntities((card.text?.plain ?? "").trim());
 }
 
-/** Fold fetched cards into the lookup index, first printing of a name winning. */
+/** The numbers and classifications, kept as data rather than prose. */
+export function cardStats(card: RiftcodexCard): CardStats {
+  const { energy = null, might = null, power = null } = card.attributes ?? {};
+  return {
+    energy,
+    might,
+    power,
+    type: card.classification?.type ?? null,
+    rarity: card.classification?.rarity ?? null,
+    domain: card.classification?.domain ?? [],
+  };
+}
+
+/**
+ * Fold fetched cards into the lookup index.
+ *
+ * Two things must not be decided by fetch order:
+ *
+ * A reprint carrying a print treatment ("Promo", "Showcase") must not win the
+ * slot and report that as the card's rarity — 126 of 954 cards did.
+ *
+ * A base name shared by genuinely different cards ("Ahri" covers three) must
+ * not bind to one of them silently. `card_bridge.find_cards` refuses near-miss
+ * matches precisely because returning a DIFFERENT card is worse than returning
+ * nothing; an ambiguous alias reached the same outcome through the one path
+ * that bypassed that guard, and now prints the wrong card's stats as fact.
+ */
 export function buildCardIndex(cards: RiftcodexCard[]): CardIndex {
   const index: CardIndex = {};
-  for (const card of cards) {
+  // Full display names seen per key, so a collision is detectable.
+  const namesFor = new Map<string, Set<string>>();
+
+  // Fold in a STABLE order. The API paginates without a guaranteed sort, so
+  // "first printing wins" was decided by whatever order the fetch happened to
+  // return: two consecutive runs of `oracle skill-data` differed in 27 entries,
+  // 5 of which bound a base name to a genuinely different card ("ahri" landed
+  // on Nine-Tailed Fox one run and Alluring the next). That churn also destroys
+  // the reason the data is committed at all — a regeneration is supposed to
+  // produce a reviewable diff, not noise.
+  const ordered = [...cards].sort((a, b) => {
+    const setA = a.set?.set_id ?? "";
+    const setB = b.set?.set_id ?? "";
+    if (setA !== setB) return setA < setB ? -1 : 1;
+    const nA = a.collector_number ?? 0;
+    const nB = b.collector_number ?? 0;
+    if (nA !== nB) return nA - nB;
+    return (a.riftbound_id ?? a.id ?? "") < (b.riftbound_id ?? b.id ?? "") ? -1 : 1;
+  });
+
+  for (const card of ordered) {
     const display = card.name.replace(/\s*\(.*?\)\s*$/, "").trim();
-    const entry: SkillCard = { name: display, text: cardText(card) };
+    const entry: SkillCard = { name: display, text: cardText(card), stats: cardStats(card) };
     const image = card.media?.image_url;
     if (image) entry.image = image;
 
     for (const key of keysFor(card.name)) {
+      if (!namesFor.has(key)) namesFor.set(key, new Set());
+      namesFor.get(key)!.add(display);
+
       const existing = index[key];
-      // A reprint may be the copy that carries artwork; take the image even
-      // when keeping the earlier text, rather than losing it to ordering.
-      if (existing) {
-        if (!existing.image && entry.image) existing.image = entry.image;
+      if (!existing) {
+        index[key] = { ...entry };
         continue;
       }
-      index[key] = { ...entry };
+      // A reprint may be the copy that carries artwork; take the image even
+      // when keeping the earlier text, rather than losing it to ordering.
+      if (!existing.image && entry.image) existing.image = entry.image;
+      // Prefer a real rarity over a print treatment, whichever arrived first.
+      if (existing.name === display
+          && isTreatment(existing.stats.rarity) && !isTreatment(entry.stats.rarity)) {
+        existing.stats = entry.stats;
+      }
     }
+  }
+
+  for (const [key, names] of namesFor) {
+    if (names.size > 1) index[key].ambiguous = [...names].sort();
   }
   return index;
 }

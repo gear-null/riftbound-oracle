@@ -141,6 +141,26 @@ def cmd_grep(args):
         print("  -- ranked by lexical overlap: good for locating, never proof of absence. --")
 
 
+def format_stats(stats):
+    """A readable one-liner from the structured stats.
+
+    These used to travel as markdown ("**Energy:** 4 | ...") and print with the
+    asterisks intact, because nothing downstream renders markdown.
+    """
+    if not stats:
+        return ""
+    bits = []
+    for key, label in (("energy", "Energy"), ("might", "Might"), ("power", "Power")):
+        if stats.get(key) is not None:
+            bits.append(f"{stats[key]} {label}")
+    for key in ("type", "rarity"):
+        if stats.get(key):
+            bits.append(str(stats[key]))
+    if stats.get("domain"):
+        bits.append("/".join(stats["domain"]))
+    return " · ".join(bits)
+
+
 def cmd_card(args):
     """Exact card lookup — the direction where vocabulary matching actually works."""
     from card_bridge import CardBridge
@@ -162,11 +182,22 @@ def cmd_card(args):
         print(f"no exact match; did you mean: {', '.join(b.cards[k]['name'] for k in near)}")
         return
     for c in hits:
+        # A bare name shared by different cards is the same hazard as a
+        # near-miss: answering about one arbitrary printing is worse than
+        # asking which was meant.
+        if c.get("ambiguous"):
+            print(f"!!! '{name}' MATCHES {len(c['ambiguous'])} DIFFERENT CARDS.")
+            for full in c["ambiguous"]:
+                print(f"      {full}")
+            print("    Ask again with the full name. Showing the first only:")
         if c.get("inexact"):
             print(f"!!! NO CARD NAMED '{c['asked_as']}' EXISTS.")
             print(f"    Closest name match is '{c['name']}', which is a DIFFERENT card.")
             print(f"    Do not reason about '{c['asked_as']}' from this text.")
         print(f"=== {c['name']} ===")
+        line = format_stats(c.get("stats"))
+        if line:
+            print(f"  {line}")
         print(f"  {c['text']}")
         print(f"  keywords : {', '.join(c['keywords']) or '(none printed)'}")
         print(f"  -> rules : {', '.join(c['rule_sections']) or '(no keyword maps to a rule section)'}")
