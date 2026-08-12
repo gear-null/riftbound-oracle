@@ -3,6 +3,7 @@ import * as p from "@clack/prompts";
 import color from "picocolors";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve, basename } from "node:path";
+import { execFileSync } from "node:child_process";
 import { processSource } from "./processors/index.js";
 import { processUrl } from "./processors/url.js";
 import { processRulesHub } from "./processors/rules-hub.js";
@@ -41,6 +42,9 @@ async function main() {
     case "extract":
       await handleExtract();
       break;
+    case "changelog":
+      await handleChangelog();
+      break;
     case "package":
       await handlePackage();
       break;
@@ -74,6 +78,7 @@ ${color.bold("Commands:")}
   ${color.cyan("skill-data")}         Rebuild the skill's vendored card data (needs network)
   ${color.cyan("gear-gaps")}          Collect artwork + a YAML stub for cards the API can't supply
   ${color.cyan("package")}            Build the distributable skill archive into dist/
+  ${color.cyan("changelog")}          Draft the next changelog entry from git + the corpus
   ${color.cyan("vault-sync")}         Mirror output/ into an Obsidian wiki's raw/ folder
   ${color.cyan("status")}             Show manifest status
   ${color.cyan("help")}               Show this help message
@@ -312,6 +317,67 @@ async function handleExtract() {
  * does not carry. Downloads the artwork and writes a pre-filled stub; the
  * human supplies only what the image shows. No parsing, no model.
  */
+/**
+ * Draft the next changelog entry. Prints rather than writes: it is a draft to
+ * edit into CHANGELOG.md, because a generated changelog nobody reads is how
+ * "various fixes" happens.
+ */
+async function handleChangelog() {
+  const { commitsSince, previousTag, corpusDiff, renderEntry } = await import("./changelog.js");
+  const { describeSkill } = await import("./package.js");
+  const { SKILL_SRC } = await import("./package.js");
+
+  const prev = previousTag();
+  const commits = commitsSince(prev);
+  const version = JSON.parse(readFileSync(resolve("package.json"), "utf-8")).version as string;
+  const m = describeSkill(resolve(SKILL_SRC), version);
+
+  // Compare against the corpus the previous release shipped, read from its tag
+  // rather than remembered.
+  let before;
+  if (prev) {
+    try {
+      const raw = execFileSync(
+        "git", ["show", `${prev}:.claude/skills/rules-report/data/cards.json`],
+        { encoding: "utf-8", maxBuffer: 64 * 1024 * 1024 }
+      );
+      const cards = JSON.parse(raw) as Record<string, { name: string; errata?: string; incomplete?: string }>;
+      const seen = new Map(Object.values(cards).map((c) => [c.name, c]));
+      const rules = JSON.parse(
+        execFileSync("git", ["show", `${prev}:.claude/skills/rules-report/data/rules.json`],
+          { encoding: "utf-8", maxBuffer: 64 * 1024 * 1024 })
+      ) as Array<{ version: string }>;
+      before = {
+        rules_version: rules[0]?.version ?? "unknown",
+        rules: rules.length,
+        cards: seen.size,
+        errata_applied: [...seen.values()].filter((c) => c.errata).length,
+        cards_awaiting_transcription: [...seen.values()].filter((c) => c.incomplete).length,
+      };
+    } catch {
+      // Previous tag predates the vendored corpus; report absolutes instead.
+    }
+  }
+
+  const now = {
+    rules_version: m.rules_version,
+    rules: m.rules,
+    cards: m.cards,
+    errata_applied: 0,
+    cards_awaiting_transcription: m.cards_awaiting_transcription,
+  };
+  const cards = JSON.parse(
+    readFileSync(resolve(`${SKILL_DATA_DIR}/cards.json`), "utf-8")
+  ) as Record<string, { name: string; errata?: string }>;
+  now.errata_applied = new Set(
+    Object.values(cards).filter((c) => c.errata).map((c) => c.name)
+  ).size;
+
+  const date = new Date().toISOString().slice(0, 10);
+  p.log.info(`${commits.length} commit(s) since ${prev ?? "the beginning"}`);
+  p.log.message(renderEntry(version, date, commits, corpusDiff(now, before)));
+}
+
 /** Build the archive a release attaches and a non-building agent installs. */
 async function handlePackage() {
   const { packageSkill } = await import("./package.js");

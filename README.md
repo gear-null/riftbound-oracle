@@ -25,21 +25,40 @@ else still works.)
 
 ## Install
 
+Download the latest release and unzip it into your project:
+
 ```bash
-git clone https://github.com/gear-null/riftbound-oracle /tmp/riftbound-oracle
 mkdir -p .claude/skills
-cp -R /tmp/riftbound-oracle/.claude/skills/rules-report .claude/skills/
+curl -L -o skill.zip https://github.com/gear-null/riftbound-oracle/releases/latest/download/riftbound-rules-report-v1.0.0.zip
+unzip skill.zip -d .claude/skills/ && rm skill.zip
 ```
 
-That's it. **Requires Python 3.9+** and an agent that can run shell commands and read
-files (Claude Code, or anything with equivalent tool access).
+Or grab the zip from [Releases](https://github.com/gear-null/riftbound-oracle/releases/latest)
+and upload it wherever your agent takes skills.
 
-Check it works:
+**Requires Python 3.9+** — the interpreter macOS already ships. No Node, no build step, no
+network, no API key. Check it works:
 
 ```bash
-cd .claude/skills/rules-report/lib
-python3 rules_cli.py selftest
+cd .claude/skills/rules-report/lib && python3 rules_cli.py selftest
 ```
+
+It should end `all N checks passed`. If it doesn't, the corpus is not trustworthy yet — say
+so rather than asking questions against it.
+
+<details>
+<summary>Verifying the download</summary>
+
+Each release ships a `.sha256` beside the archive, and the build is byte-reproducible — the
+same corpus always produces the same checksum.
+
+```bash
+shasum -a 256 -c riftbound-rules-report-v1.0.0.zip.sha256
+```
+
+`SKILL-VERSION.json` inside the archive records the rules version and card counts it was built
+from, so you can tell whether your copy predates a Riot update.
+</details>
 
 ## Ask it something
 
@@ -92,27 +111,18 @@ which rule is the tightest one that says it — are enforced by code, not by the
 good intentions. If an agent produces an answer whose citations fail, the report refuses
 to render. That is the intended behaviour.
 
-### The tools your agent uses
-
-| command | what it does |
-|---|---|
-| `rules_cli.py card <name>` | Exact card lookup → printed text, stats, keywords, mapped rule sections |
-| `rules_cli.py rule <id>` | A rule **with its ancestor spine**, children, examples, cross-refs |
-| `rules_cli.py section <id>` | A whole numbered section in document order |
-| `rules_cli.py grep <query>` | Lexical search (SQLite FTS5 syntax) |
-| `rules_cli.py report <json>` | **Verify + render + open.** How an answer is finished |
-| `rules_cli.py selftest` | Regression harness; run after every rules update |
-
----
-
 ## Documentation
 
 | | |
 |---|---|
 | [How to read a report](docs/report-anatomy.md) | What the grades, superscripts and legend mean |
-| [Maintaining the skill](docs/maintaining.md) | Refreshing the corpus after a Riot update |
 | [Decision records](docs/README.md#decision-records) | Why it's built this way, and what was measured |
 | [Content and licensing](docs/content-and-licensing.md) | What's committed, and what is deliberately not |
+| [Changelog](CHANGELOG.md) | What changed in each release |
+
+**Maintaining or contributing?** Everything about building the corpus, cutting a release and
+the invariants to preserve lives in [`docs/`](docs/README.md) — none of it is needed to use
+the skill.
 
 Riftbound is a trademark of Riot Games. This project is **unofficial and not endorsed by
 Riot**. No card artwork ships in the corpus — reports load it from Riot's CDN.

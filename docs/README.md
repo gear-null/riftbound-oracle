@@ -1,14 +1,20 @@
 # Documentation
 
-Reference material and the reasoning behind the design. For installing and using the
-skill, see the [main README](../README.md).
+**Maintainer and contributor documentation.** None of this is needed to use the skill — for
+installing and asking questions, see the [main README](../README.md).
 
-## Guides
+## Working on it
+
+| | |
+|---|---|
+| [Maintaining the skill](maintaining.md) | Refreshing the corpus after a Riot update, cutting a release, the invariants to preserve |
+| [Releasing and the changelog](releasing.md) | How versions, changelog entries and release artifacts are produced |
+
+## Reference
 
 | | |
 |---|---|
 | [How to read a report](report-anatomy.md) | Basis, weakest link, crux, citations, the symbol legend |
-| [Maintaining the skill](maintaining.md) | Rules updates, repository layout, invariants to preserve |
 | [Content and licensing](content-and-licensing.md) | What is committed, artwork policy, crawling etiquette |
 
 ## Decision records
