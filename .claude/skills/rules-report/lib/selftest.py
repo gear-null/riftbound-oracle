@@ -301,6 +301,21 @@ def card_rendering():
         chips = stats_html(vi["stats"])
         check("stats render as chips, not prose", 'class="chip"' in chips and "**" not in chips)
 
+    # Data invariants that a regeneration must not quietly break. Regenerating
+    # used to churn 27 entries and rebind 5 base names to different cards,
+    # because the fold depended on API page order.
+    treatments = [v["name"] for v in cards.values()
+                  if str((v.get("stats") or {}).get("rarity", "")).lower()
+                  in ("promo", "showcase")]
+    check("no card reports a print treatment as its rarity", not treatments,
+          f"{len(treatments)}: {treatments[:2]}")
+
+    ambiguous = {k: v for k, v in cards.items() if v.get("ambiguous")}
+    check("base names shared by different cards are flagged", len(ambiguous) > 0,
+          f"{len(ambiguous)} flagged (e.g. {sorted(ambiguous)[:3]})")
+    check("every flagged alias lists at least two full names",
+          all(len(v["ambiguous"]) > 1 for v in ambiguous.values()))
+
     # A cost printed on a card must survive into the rendered panel. Unmapped
     # shortcodes were once replaced with a space, deleting the price outright.
     from card_bridge import CardBridge

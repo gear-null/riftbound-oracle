@@ -137,6 +137,44 @@ describe("buildCardIndex", () => {
     expect(index["viktor - machine herald"]).toBeDefined();
   });
 
+  it("is deterministic regardless of the order cards arrive in", () => {
+    // The API paginates without a guaranteed sort, so "first printing wins"
+    // was decided by fetch order: two consecutive real runs differed in 27
+    // entries, 5 binding a base name to a genuinely different card.
+    const pool = [
+      card({ name: "Ahri - Alluring", set: { set_id: "OGN", label: "O" }, collector_number: 12 }),
+      card({ name: "Ahri - Inquisitive", set: { set_id: "VEN", label: "V" }, collector_number: 3 }),
+      card({ name: "Ahri - Nine-Tailed Fox", set: { set_id: "OGN", label: "O" }, collector_number: 4 }),
+    ] as never[];
+    const forward = JSON.stringify(buildCardIndex(pool));
+    const reversed = JSON.stringify(buildCardIndex([...pool].reverse()));
+    expect(reversed).toBe(forward);
+    // and the winner is the stable one: OGN #4 sorts before OGN #12
+    expect(buildCardIndex(pool)["ahri"].name).toBe("Ahri - Nine-Tailed Fox");
+  });
+
+  it("flags a base name shared by genuinely different cards", () => {
+    // Silently answering about one arbitrary printing is the failure the whole
+    // card path exists to prevent.
+    const index = buildCardIndex([
+      card({ name: "Ahri - Alluring" }),
+      card({ name: "Ahri - Inquisitive" }),
+    ] as never[]);
+    expect(index["ahri"].ambiguous).toEqual(["Ahri - Alluring", "Ahri - Inquisitive"]);
+    // an unambiguous name carries no flag at all
+    expect(buildCardIndex([card({ name: "Astral Heron" })])["astral heron"].ambiguous)
+      .toBeUndefined();
+  });
+
+  it("prefers a real rarity over a print treatment", () => {
+    // 126 of 954 cards showed "Promo"/"Showcase" where their rarity belongs.
+    const index = buildCardIndex([
+      card({ name: "Doran's Blade", classification: { type: "Gear", supertype: null, rarity: "Promo", domain: [] }, set: { set_id: "AAA", label: "a" }, collector_number: 1 }),
+      card({ name: "Doran's Blade", classification: { type: "Gear", supertype: null, rarity: "Common", domain: [] }, set: { set_id: "BBB", label: "b" }, collector_number: 2 }),
+    ] as never[]);
+    expect(index["doran's blade"].stats.rarity).toBe("Common");
+  });
+
   it("omits the image key entirely when there is no artwork", () => {
     const index = buildCardIndex([card({ name: "Artless Card" })]);
     expect("image" in index["artless card"]).toBe(false);

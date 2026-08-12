@@ -106,20 +106,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4c4ab0c838854ccd5d5399a045835876450287e8-744x1039.png?accountingTag=RB"
  },
  "ahri": {
-  "name": "Ahri - Nine-Tailed Fox",
-  "text": "When an enemy unit attacks a battlefield you control, give it -1 :rb_might: this turn, to a minimum of 1 :rb_might:.",
+  "name": "Ahri - Alluring",
+  "text": "When I hold, you score 1 point.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 5,
+   "might": 4,
+   "power": 1,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Calm",
-    "Mind"
+    "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fbce641f5e4d8cdf2956e8ead5884b6cd3ccd90d-744x1040.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fabbcc2f83f397cf07299236a702db05a151053b-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Ahri - Alluring",
    "Ahri - Inquisitive",
@@ -139,7 +138,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/933f5d58cc0e27d017982306b9ae0f581c9c8d27-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fabbcc2f83f397cf07299236a702db05a151053b-744x1039.png?accountingTag=RB"
  },
  "ahri - inquisitive": {
   "name": "Ahri - Inquisitive",
@@ -154,7 +153,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d4c332e90c97e5e70b996598cd4a0f731b77fdef-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cfa28e1abcac1db780d11e82985e13ee5978290d-744x1039.png?accountingTag=RB"
  },
  "ahri - nine-tailed fox": {
   "name": "Ahri - Nine-Tailed Fox",
@@ -189,7 +188,7 @@
  },
  "akali": {
   "name": "Akali - Rogue Assassin",
-  "text": "[Empower] :rb_energy_3::rb_rune_rainbow:[Action][>] :rb_exhaust:: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.",
+  "text": "[Empower] :rb_energy_3::rb_rune_rainbow: (:rb_energy_3::rb_rune_rainbow:: Empower this. Use only if not Empowered.)[Action][>] :rb_exhaust:: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.",
   "stats": {
    "energy": null,
    "might": null,
@@ -201,11 +200,11 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7b0ec31df147b40bbb83c40644252b48a7619593-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0d53b477ed43fb9bbed84858443a606b2b51a2b5-744x1039.png?accountingTag=RB"
  },
  "akali - rogue assassin": {
   "name": "Akali - Rogue Assassin",
-  "text": "[Empower] :rb_energy_3::rb_rune_rainbow:[Action][>] :rb_exhaust:: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.",
+  "text": "[Empower] :rb_energy_3::rb_rune_rainbow: (:rb_energy_3::rb_rune_rainbow:: Empower this. Use only if not Empowered.)[Action][>] :rb_exhaust:: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.",
   "stats": {
    "energy": null,
    "might": null,
@@ -217,11 +216,11 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7b0ec31df147b40bbb83c40644252b48a7619593-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0d53b477ed43fb9bbed84858443a606b2b51a2b5-744x1039.png?accountingTag=RB"
  },
  "akali, deadly weapon": {
   "name": "Akali, Deadly Weapon",
-  "text": "[Empower] :rb_energy_2::rb_rune_fury:When I move, you may deal 1 to a unit at a battlefield I moved to or from. If I'm [Empowered], deal 2 instead.[Empowered][>] I have +1 :rb_might:..",
+  "text": "[Empower] :rb_energy_2::rb_rune_fury: (:rb_energy_2::rb_rune_fury:: Empower me. Use only if not Empowered.)When I move, you may deal 1 to a unit at a battlefield I moved to or from. If I'm [Empowered], deal 2 instead.[Empowered][>] I have +1 :rb_might:.",
   "stats": {
    "energy": 3,
    "might": 3,
@@ -232,7 +231,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/92d8ad4bc4724da89f32348f290600f632f24e9e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/564e5f35ae39b6604290e83f39ffb61c2b2b9175-744x1039.png?accountingTag=RB"
  },
  "akali, silent": {
   "name": "Akali, Silent",
@@ -402,7 +401,7 @@
  },
  "ambessa": {
   "name": "Ambessa - Matriarch of War",
-  "text": "When you empower something else, empower me.Disempower me, :rb_rune_rainbow:, :rb_exhaust:: Ready a unit.",
+  "text": "When you empower something else, empower me. (I become Empowered if I'm not already.)Disempower me, :rb_rune_rainbow:, :rb_exhaust:: Ready a unit.",
   "stats": {
    "energy": null,
    "might": null,
@@ -414,11 +413,11 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2d6c1bd7992ddd20fe524587274ed6f9a249e42c-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/49e81916d7ae72b24de845223e1798652d26e789-744x1039.png?accountingTag=RB"
  },
  "ambessa - matriarch of war": {
   "name": "Ambessa - Matriarch of War",
-  "text": "When you empower something else, empower me.Disempower me, :rb_rune_rainbow:, :rb_exhaust:: Ready a unit.",
+  "text": "When you empower something else, empower me. (I become Empowered if I'm not already.)Disempower me, :rb_rune_rainbow:, :rb_exhaust:: Ready a unit.",
   "stats": {
    "energy": null,
    "might": null,
@@ -430,11 +429,11 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2d6c1bd7992ddd20fe524587274ed6f9a249e42c-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/49e81916d7ae72b24de845223e1798652d26e789-744x1039.png?accountingTag=RB"
  },
  "ambessa, respected and feared": {
   "name": "Ambessa, Respected and Feared",
-  "text": "[Empower] :rb_energy_1::rb_rune_order::rb_rune_order:[Empowered][>] I have [Assault 2].[Empowered][>] When I attack, kill an enemy unit here with less Might than me.",
+  "text": "[Empower] :rb_energy_1::rb_rune_order::rb_rune_order: (:rb_energy_1::rb_rune_order::rb_rune_order:: Empower me. Use only if not Empowered.)[Empowered][>] I have [Assault 2]. (+2 :rb_might: while I'm an attacker.)[Empowered][>] When I attack, kill an enemy unit here with less Might than me.",
   "stats": {
    "energy": 5,
    "might": 5,
@@ -445,7 +444,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17552788c608d9cb044c0a9bf7076d462548875b-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/687c273217cd94067be9625a7f85b61d108a6293-744x1039.png?accountingTag=RB"
  },
  "ambessa, the wolf": {
   "name": "Ambessa, The Wolf",
@@ -553,19 +552,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ca1a56035333e31b3a04d67ee9131bb4d533e5db-744x1039.png?accountingTag=RB"
  },
  "annie": {
-  "name": "Annie - Stubborn",
-  "text": "When you play me, return a spell from your trash to your hand.",
+  "name": "Annie - Fiery",
+  "text": "Your spells and abilities deal 1 Bonus Damage. (Each instance of damage the spell deals is increased by 1.)",
   "stats": {
-   "energy": 4,
-   "might": 3,
+   "energy": 5,
+   "might": 4,
    "power": 1,
    "type": "Unit",
-   "rarity": "Rare",
+   "rarity": "Epic",
    "domain": [
-    "Chaos"
+    "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/44eb968cf0c54e75970588b69eef5c5f5ccc9b24-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/532d75dc36a16eb5954253a77366fcceac7aec62-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Annie - Dark Child",
    "Annie - Fiery",
@@ -631,7 +630,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/58bb3f7a73a8aa38159cc63439e0483ca2574157-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/df9ccbba2501059e5781a44434745a1f0e33ecae-744x1039.png?accountingTag=RB"
  },
  "aphelios - exalted": {
   "name": "Aphelios - Exalted",
@@ -646,7 +645,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/58bb3f7a73a8aa38159cc63439e0483ca2574157-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/df9ccbba2501059e5781a44434745a1f0e33ecae-744x1039.png?accountingTag=RB"
  },
  "applied researchers": {
   "name": "Applied Researchers",
@@ -985,7 +984,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/62c75543213df186d3f05236fda6abe8992c948e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/088970936fc800bd2c4b36636734e16c83e1c8f9-744x1039.png?accountingTag=RB"
  },
  "b.f. sword": {
   "name": "B.F. Sword",
@@ -1150,7 +1149,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1b7d48edee47c3eec4e5b554e47359a395777c70-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/edfefb81b8821f548a234d8e6d54fd072d7dc22c-744x1039.png?accountingTag=RB"
  },
  "bard - mercurial": {
   "name": "Bard - Mercurial",
@@ -1165,11 +1164,11 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1b7d48edee47c3eec4e5b554e47359a395777c70-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/edfefb81b8821f548a234d8e6d54fd072d7dc22c-744x1039.png?accountingTag=RB"
  },
  "baron nashor": {
   "name": "Baron Nashor",
-  "text": "As you play me, add the Baron Pit battlefield token to the board if it's not there already. If you do, I enter there.I can't be chosen by enemy spells and abilities.Other friendly units have +2 :rb_might:.",
+  "text": "As you play me, add the Baron Pit battlefield token to the board if it's not there already. If you do, I enter there. (It has \"Units can move here from anywhere.\")I can't be chosen by enemy spells and abilities.Other friendly units have +2 :rb_might:.",
   "stats": {
    "energy": 10,
    "might": 12,
@@ -1180,7 +1179,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7e8d207a8057b97f9059ea6025a16e59229dc54d-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59946969e8d21869c3ffe801a3ffbdd8165a873f-744x1039.png?accountingTag=RB"
  },
  "battering ram": {
   "name": "Battering Ram",
@@ -1544,7 +1543,7 @@
  },
  "body rune": {
   "name": "Body Rune",
-  "text": "[NO TEXT]",
+  "text": "",
   "stats": {
    "energy": null,
    "might": null,
@@ -1555,7 +1554,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3313c73c5b31daa482073bfefbf4d2255a89d7d0-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3b3c3c07626d6180457c849047e0228dc0d19539-744x1039.png?accountingTag=RB"
  },
  "bonds of strength": {
   "name": "Bonds of Strength",
@@ -1797,7 +1796,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f5db9db00111d8225e17c3a03d0111b471e74999-744x1040.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7620595b36b40a0c3d05c4c5469b016d1c18c6f2-744x1039.png?accountingTag=RB"
  },
  "caitlyn": {
   "name": "Caitlyn - Patrolling",
@@ -1876,7 +1875,7 @@
  },
  "calm rune": {
   "name": "Calm Rune",
-  "text": "[NO TEXT]",
+  "text": "",
   "stats": {
    "energy": null,
    "might": null,
@@ -1887,7 +1886,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9b70aa1b334728a3e8beeea0c9154a2d0f79b1eb-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0a0e8c3d16c2595e2f8efcc2b1466226539b506c-744x1039.png?accountingTag=RB"
  },
  "cannon barrage": {
   "name": "Cannon Barrage",
@@ -2041,7 +2040,7 @@
  },
  "chaos rune": {
   "name": "Chaos Rune",
-  "text": "[NO TEXT]",
+  "text": "",
   "stats": {
    "energy": null,
    "might": null,
@@ -2052,7 +2051,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3861fc566891a70c21cf3d3075adec716deb7080-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/daf23b0deaa5e1a5a5d310b59e9ad25d1bd70363-744x1039.png?accountingTag=RB"
  },
  "charm": {
   "name": "Charm",
@@ -2690,20 +2689,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/41dee7ec46124c261352595cfbd8a6d38d32b947-744x1039.png?accountingTag=RB"
  },
  "darius": {
-  "name": "Darius - Hand of Noxus",
-  "text": ":rb_exhaust:: [Reaction], [Legion] — [Add] :rb_energy_1:. (Abilities that add resources can't be reacted to. Get the effect if you've played a card this turn.)",
+  "name": "Darius - Trifarian",
+  "text": "When you play your second card in a turn, give me +2 :rb_might: this turn and ready me.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 5,
+   "might": 5,
+   "power": 1,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Fury",
-    "Order"
+    "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5b9a904048b7fb936377844ec2d31564b7fedf81-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bf7a4900fd2296972c1305a4707c23860bb0522e-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Darius - Executioner",
    "Darius - Hand of Noxus",
@@ -2723,7 +2721,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/46fc840c17925406d22703b82ad02f5eb2ab62cf-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7b71cf13a07074a6eccbe88ae6c74133d989cb68-744x1039.png?accountingTag=RB"
  },
  "darius - hand of noxus": {
   "name": "Darius - Hand of Noxus",
@@ -2754,7 +2752,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/df878ecc25160bb7e53b254a609ec243e133e8f1-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bf7a4900fd2296972c1305a4707c23860bb0522e-744x1039.png?accountingTag=RB"
  },
  "dauntless vanguard": {
   "name": "Dauntless Vanguard",
@@ -2971,7 +2969,7 @@
  },
  "defender of tomorrow": {
   "name": "Defender of Tomorrow",
-  "text": "[Empower] :rb_energy_2::rb_rune_rainbow::rb_rune_rainbow::rb_energy_1:, :rb_exhaust:: Ready a gear.[Empowered][>] :rb_energy_1:, :rb_exhaust:: Ready 2 gear.",
+  "text": "[Empower] :rb_energy_2::rb_rune_rainbow::rb_rune_rainbow: (:rb_energy_2::rb_rune_rainbow::rb_rune_rainbow:: Empower me. Use only if not Empowered.):rb_energy_1:, :rb_exhaust:: Ready a gear.[Empowered][>] :rb_energy_1:, :rb_exhaust:: Ready 2 gear.",
   "stats": {
    "energy": null,
    "might": null,
@@ -2983,7 +2981,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f527eb9b02ce62d808ec82e12ac28af5a6bd75fb-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/670b7efd367a42beba11c18fb59e240a7c574a57-744x1039.png?accountingTag=RB"
  },
  "defiant dance": {
   "name": "Defiant Dance",
@@ -3078,7 +3076,7 @@
  },
  "diana": {
   "name": "Diana - Lunari",
-  "text": "When a showdown begins here, you may pay :rb_energy_1:. If you do, [Predict], then reveal the top card of your Main Deck. If it's a spell, draw it.",
+  "text": "When a showdown begins here, you may pay :rb_energy_1:. If you do, [Predict], then reveal the top card of your Main Deck. If it's a spell, draw it. (To Predict, look at the top card of your Main Deck. You may recycle it.)",
   "stats": {
    "energy": 3,
    "might": 3,
@@ -3089,7 +3087,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f538c2659c02af20a173503784989e39a0c291f6-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3e284397713abb21d2c8d9b85202ab65d21689e9-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Diana - Lunari",
    "Diana - No Longer Human",
@@ -3098,7 +3096,7 @@
  },
  "diana - lunari": {
   "name": "Diana - Lunari",
-  "text": "When a showdown begins here, you may pay :rb_energy_1:. If you do, [Predict], then reveal the top card of your Main Deck. If it's a spell, draw it.",
+  "text": "When a showdown begins here, you may pay :rb_energy_1:. If you do, [Predict], then reveal the top card of your Main Deck. If it's a spell, draw it. (To Predict, look at the top card of your Main Deck. You may recycle it.)",
   "stats": {
    "energy": 3,
    "might": 3,
@@ -3109,11 +3107,11 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f538c2659c02af20a173503784989e39a0c291f6-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3e284397713abb21d2c8d9b85202ab65d21689e9-744x1039.png?accountingTag=RB"
  },
  "diana - no longer human": {
   "name": "Diana - No Longer Human",
-  "text": "[Ambush]When you play a spell, give me +2 :rb_might: this turn.",
+  "text": "[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)When you play a spell, give me +2 :rb_might: this turn.",
   "stats": {
    "energy": 4,
    "might": 3,
@@ -3124,11 +3122,11 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d9082f75895c8645e05c0a38edc1b1c83c508d84-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/37b015a64b6bc15e856c2d78e275b10e64db1de4-744x1039.png?accountingTag=RB"
  },
  "diana - scorn of the moon": {
   "name": "Diana - Scorn of the Moon",
-  "text": "[Reaction][>] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns.",
+  "text": "[Reaction][>] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns. (Abilities that add resources can't be reacted to.)",
   "stats": {
    "energy": null,
    "might": null,
@@ -3140,7 +3138,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9782a99fcb36b09adc5d97cdc29595682f26220d-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b00d922d62daca19190e13149fe3cf725c900330-744x1039.png?accountingTag=RB"
  },
  "diana, no longer human": {
   "name": "Diana, No Longer Human",
@@ -3505,20 +3503,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3153c05a8c3fb4d8f945a95fad54ea25e087ad47-744x1039.png?accountingTag=RB"
  },
  "draven": {
-  "name": "Draven - Glorious Executioner",
-  "text": "When you win a combat, draw 1. (You win if only your units remain after combat.)",
+  "name": "Draven - Showboat",
+  "text": "My Might is increased by your points.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 5,
+   "might": 3,
+   "power": 1,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Fury",
-    "Chaos"
+    "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b01b2d0454ceeffdc106c4c64a390b275ebf390b-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7600d6cea66e8146ea2202f72cb9035cb44608a3-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Draven - Audacious",
    "Draven - Glorious Executioner",
@@ -3539,7 +3536,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2b2c2a20cd22c8799b211dd4d7f95c95a8be33ea-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8247622cbe90eadada8d0660ea31d146b1207a87-744x1039.png?accountingTag=RB"
  },
  "draven - glorious executioner": {
   "name": "Draven - Glorious Executioner",
@@ -3825,7 +3822,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/42d3ce7a0917d57fd9e5809f4d8b66ef40f52d1a-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fcf578e447d4e2785c8b25f3c39928b98e7b44ca-744x1039.png?accountingTag=RB"
  },
  "ember monk": {
   "name": "Ember Monk",
@@ -4132,7 +4129,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/83da64e39d838d2fee68c319c03fbff0d4c7035f-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3e040f7b7ca16009a2558674a911b8cc93122ba3-744x1039.png?accountingTag=RB"
  },
  "ezreal - prodigal explorer": {
   "name": "Ezreal - Prodigal Explorer",
@@ -4163,7 +4160,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b371832f41cd8b15cd4f29828081dd030c48d7ac-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b48d6242ceb84c3eae7109317d51efaf1e56c9c3-744x1039.png?accountingTag=RB"
  },
  "ezreal, prodigy": {
   "name": "Ezreal, Prodigy",
@@ -4422,20 +4419,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cd9d798b496fdce133c5b0106d636a230b6e7ebe-744x1039.png?accountingTag=RB"
  },
  "fiora": {
-  "name": "Fiora - Grand Duelist",
-  "text": "When one of your units becomes [Mighty], you may exhaust me to channel 1 rune exhausted. (A unit is Mighty while it has 5+ :rb_might:.)",
+  "name": "Fiora - Victorious",
+  "text": "While I'm [Mighty], I have [Deflect], [Ganking], and [Shield]. (I'm Mighty while I have 5+ :rb_might:.)",
   "stats": {
-   "energy": null,
-   "might": null,
+   "energy": 4,
+   "might": 4,
    "power": null,
-   "type": "Legend",
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Body",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/37064aa79c13316b5dd28f0a2b054821a43f6650-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/24d4d1997e6a5b145412e402fc69399d590ecda0-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Fiora - Grand Duelist",
    "Fiora - Peerless",
@@ -4472,7 +4468,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9081906c24455218d9fef8c0faa04ecc85dc462c-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3fb80fed6fb916f47b7cebd5b31a970f1d0d562a-744x1039.png?accountingTag=RB"
  },
  "fiora - victorious": {
   "name": "Fiora - Victorious",
@@ -4502,7 +4498,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e38428b921717edf676bd7f9628fc61b1355814c-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7339e76b7796242a15e97cfddbe04c32d5a05063-744x1039.png?accountingTag=RB"
  },
  "firestorm": {
   "name": "Firestorm",
@@ -4943,7 +4939,7 @@
  },
  "fury rune": {
   "name": "Fury Rune",
-  "text": "[NO TEXT]",
+  "text": "",
   "stats": {
    "energy": null,
    "might": null,
@@ -4954,7 +4950,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f95ed6ba0c4d4d357c45bf5bdb1a8e540af1f85f-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/12bcd0cde5d9ff4640e82945001e9fef863530f1-744x1039.png"
  },
  "galio": {
   "name": "Galio - Indefatigable",
@@ -5032,19 +5028,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0497a44ab302ea055b6f1f0d00a36c8023ed2344-1039x744.png?accountingTag=RB"
  },
  "garen": {
-  "name": "Garen - Commander",
-  "text": "Other friendly units have +1 :rb_might: here.",
+  "name": "Garen - Rugged",
+  "text": "[Assault 2], [Shield 2] (+2 :rb_might: while I'm an attacker or defender.)",
   "stats": {
    "energy": 6,
    "might": 5,
    "power": 1,
    "type": "Unit",
-   "rarity": "Epic",
+   "rarity": "Rare",
    "domain": [
-    "Order"
+    "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cbf2c12d69a86566e4cda07050b2d4495e40187e-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/67c22dc29a7a28dabe0f169a7848c25bef1fbda4-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Garen - Commander",
    "Garen - Might of Demacia",
@@ -6188,7 +6184,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e064a9017b5d6bf0e18c4452acfca4ed8c279657-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fe05fa55781f8036f8bfc9c10bba94326a0c8cc9-744x1039.png?accountingTag=RB"
  },
  "irelia - graceful": {
   "name": "Irelia - Graceful",
@@ -6281,19 +6277,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8d85a05075f95b63832ed7aa15620041eacb49d3-744x1039.png?accountingTag=RB"
  },
  "ivern": {
-  "name": "Ivern - Friend to All",
-  "text": "As you play me, choose Bird, Cat, Dog, or Poro. I gain that tag.When I conquer or hold, score 1 point if your units have all of the following tags among them — Bird, Cat, Dog, and Poro.",
+  "name": "Ivern - Nurturer",
+  "text": "When you play me or when I hold, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest. Then if you revealed a Bird, Cat, Dog, or Poro, do this: [Buff] a friendly unit. (Give it a +1 :rb_might: buff if it doesn't have one.)",
   "stats": {
-   "energy": 6,
-   "might": 6,
-   "power": null,
+   "energy": 5,
+   "might": 4,
+   "power": 1,
    "type": "Unit",
-   "rarity": "Epic",
+   "rarity": "Rare",
    "domain": [
-    "Order"
+    "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/72462350a7842b6b81c022ac255ae0e82f3559fd-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a72b08dd57422d3441df88eb61c000cdb4ac688a-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Ivern - Friend to All",
    "Ivern - Green Father",
@@ -6313,11 +6309,11 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/72462350a7842b6b81c022ac255ae0e82f3559fd-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e450956e0561ddca36558d095b71d3b60dff8b03-744x1039.png?accountingTag=RB"
  },
  "ivern - green father": {
   "name": "Ivern - Green Father",
-  "text": "When you conquer or hold, you may exhaust me to replace that battlefield with a Brush battlefield token.",
+  "text": "When you conquer or hold, you may exhaust me to replace that battlefield with a Brush battlefield token. (Bird, Cat, Dog, Poro, and Ivern units have +1 :rb_might: in Brush. It can be swapped back when scored.)",
   "stats": {
    "energy": null,
    "might": null,
@@ -6329,7 +6325,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/76283fb4384cf39408489f35d00827e0d5b1f9bb-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a2ca02d26c1e95db03690729bd31113bda7e4140-744x1039.png?accountingTag=RB"
  },
  "ivern - nurturer": {
   "name": "Ivern - Nurturer",
@@ -6450,7 +6446,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1d2eae793e415c5f53d7b11c335b5f0ed08c2086-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3d425589c74dbff818fa09db134fdd8bb7136420-744x1039.png?accountingTag=RB"
  },
  "jax - unrelenting": {
   "name": "Jax - Unrelenting",
@@ -6468,20 +6464,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e63ab3370a6e4ce4baddfba12ab92468f6cc9541-744x1039.png?accountingTag=RB"
  },
  "jayce": {
-  "name": "Jayce - Defender of Tomorrow",
-  "text": "[Empower] :rb_energy_2::rb_rune_rainbow::rb_rune_rainbow: (:rb_energy_2::rb_rune_rainbow::rb_rune_rainbow:: Empower me. Use only if not Empowered.):rb_energy_1:, :rb_exhaust:: Ready a gear.[Empowered][>] :rb_energy_1:, :rb_exhaust:: Ready 2 gear.",
+  "name": "Jayce - Man of Progress",
+  "text": "When you play me, you may kill a friendly gear. If you do, you may play a gear with Energy cost no more than :rb_energy_7: from hand this turn, ignoring its Energy cost.",
   "stats": {
-   "energy": null,
-   "might": null,
+   "energy": 4,
+   "might": 4,
    "power": null,
-   "type": "Legend",
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Mind",
-    "Body"
+    "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/670b7efd367a42beba11c18fb59e240a7c574a57-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/be6d6a608c5bee9d2012e24d9e6f6f1d1977a37a-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Jayce - Defender of Tomorrow",
    "Jayce - Man of Progress"
@@ -6535,7 +6530,7 @@
  },
  "jayce, hammer in hand": {
   "name": "Jayce, Hammer in Hand",
-  "text": "When I become ready, choose one to give me this turn —[Assault 2][Deflect 2][Ganking]",
+  "text": "When I become ready, choose one to give me this turn —[Assault 2] (+2 :rb_might: while I'm an attacker.)[Deflect 2] (Opponents must pay :rb_rune_rainbow::rb_rune_rainbow: to choose me with a spell or ability.)[Ganking] (I can move from battlefield to battlefield.)",
   "stats": {
    "energy": 4,
    "might": 5,
@@ -6546,7 +6541,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/69539dc4cfa14f1cfe9dc8b49c67344eca176a32-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2dcecc0aab2b62e48388177cc27d220fd70b8a78-744x1039.png?accountingTag=RB"
  },
  "jayce, man of progress": {
   "name": "Jayce, Man of Progress",
@@ -6579,44 +6574,8 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/775bea14038165fd9feb15c796ed84aa00a032e1-744x1039.png?accountingTag=RB"
  },
  "jhin": {
-  "name": "Jhin - Virtuoso",
-  "text": "When you play a spell, if you spent :rb_energy_4: or more, you may banish it. Then, if there are four spells banished with me, put each in its trash, channel 4 runes, and draw 1.",
-  "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
-   "domain": [
-    "Fury",
-    "Mind"
-   ]
-  },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/47f10693258104e9373396165e335014bf5783a2-744x1039.png?accountingTag=RB",
-  "ambiguous": [
-   "Jhin - Meticulous Killer",
-   "Jhin - Murderous Artist",
-   "Jhin - Virtuoso"
-  ]
- },
- "jhin - meticulous killer": {
-  "name": "Jhin - Meticulous Killer",
-  "text": "[Vision]If you've spent :rb_energy_4: or more to play a spell this turn, you may play me for :rb_rune_mind:.",
-  "stats": {
-   "energy": 4,
-   "might": 4,
-   "power": null,
-   "type": "Unit",
-   "rarity": "Epic",
-   "domain": [
-    "Mind"
-   ]
-  },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/992e0a23ba7ad3fe88410f023bb1311195e1863a-744x1039.png?accountingTag=RB"
- },
- "jhin - murderous artist": {
   "name": "Jhin - Murderous Artist",
-  "text": "[Deflect][Ganking]When I move, [Add] :rb_energy_1::rb_rune_rainbow:.",
+  "text": "[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)[Ganking] (I can move from battlefield to battlefield.)When I move, [Add] :rb_energy_1::rb_rune_rainbow:. (Abilities that add resources can't be reacted to.)",
   "stats": {
    "energy": 4,
    "might": 4,
@@ -6627,7 +6586,42 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0e67164270e12b8d91905e977a314c7248a343e9-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8da724a842cf61cb24c3c02dd99adc93a9222e06-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Jhin - Meticulous Killer",
+   "Jhin - Murderous Artist",
+   "Jhin - Virtuoso"
+  ]
+ },
+ "jhin - meticulous killer": {
+  "name": "Jhin - Meticulous Killer",
+  "text": "[Vision] (When you play me, look at the top card of your Main Deck. You may recycle it.)If you've spent :rb_energy_4: or more to play a spell this turn, you may play me for :rb_rune_mind:.",
+  "stats": {
+   "energy": 4,
+   "might": 4,
+   "power": null,
+   "type": "Unit",
+   "rarity": "Epic",
+   "domain": [
+    "Mind"
+   ]
+  },
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/88fb6023ee9bd90fef3f36995ca27615dcd669f7-744x1039.png?accountingTag=RB"
+ },
+ "jhin - murderous artist": {
+  "name": "Jhin - Murderous Artist",
+  "text": "[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)[Ganking] (I can move from battlefield to battlefield.)When I move, [Add] :rb_energy_1::rb_rune_rainbow:. (Abilities that add resources can't be reacted to.)",
+  "stats": {
+   "energy": 4,
+   "might": 4,
+   "power": 1,
+   "type": "Unit",
+   "rarity": "Rare",
+   "domain": [
+    "Fury"
+   ]
+  },
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8da724a842cf61cb24c3c02dd99adc93a9222e06-744x1039.png?accountingTag=RB"
  },
  "jhin - virtuoso": {
   "name": "Jhin - Virtuoso",
@@ -6643,23 +6637,22 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/47f10693258104e9373396165e335014bf5783a2-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d1e6947cf43a19488a2c31f71a4887aa0423a966-744x1039.png?accountingTag=RB"
  },
  "jinx": {
-  "name": "Jinx - Loose Cannon",
-  "text": "At start of your Beginning Phase, draw 1 if you have one or fewer cards in your hand.",
+  "name": "Jinx - Demolitionist",
+  "text": "[Accelerate] (You may pay :rb_energy_1::rb_rune_fury: as an additional cost to have me enter ready.)[Assault 2] (+2 :rb_might: while I'm an attacker.)When you play me, discard 2.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 3,
+   "might": 4,
+   "power": 1,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Fury",
-    "Chaos"
+    "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f57c14381b126e9f5a7b5bc4913151cb24c14fc3-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d6cac988aa7798945e550eba6841d3993868c4a4-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Jinx - Demolitionist",
    "Jinx - Loose Cannon",
@@ -6679,7 +6672,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/60ff1aec7ecb1b11ff89fdb620c6182897a8b402-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d6cac988aa7798945e550eba6841d3993868c4a4-744x1039.png?accountingTag=RB"
  },
  "jinx - loose cannon": {
   "name": "Jinx - Loose Cannon",
@@ -6743,20 +6736,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/733c32b1fccc7e2983cbb3586358152f90a6df04-744x1039.png?accountingTag=RB"
  },
  "kai'sa": {
-  "name": "Kai'Sa - Daughter of the Void",
-  "text": ":rb_exhaust:: [Reaction] — [Add] :rb_rune_rainbow:. Use only to play spells. (Abilities that add resources can't be reacted to.)",
+  "name": "Kai'Sa - Survivor",
+  "text": "[Accelerate] (You may pay :rb_energy_1::rb_rune_fury: as an additional cost to have me enter ready.)When I conquer, draw 1.",
   "stats": {
-   "energy": null,
-   "might": null,
+   "energy": 4,
+   "might": 4,
    "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
+   "type": "Unit",
+   "rarity": "Epic",
    "domain": [
-    "Fury",
-    "Mind"
+    "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a576472c7bb00f475882ac814e1d8f9be233b402-744x1040.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3d942c02ad4e96a36dba14d663c5105bb6614500-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Kai'Sa - Daughter of the Void",
    "Kai'Sa - Evolutionary",
@@ -6792,7 +6784,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2c8c9619d4afd081de548b511000f7c4b849ec1e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fc4ee60eaedd5c56a9222fd07482b6a86b11baa4-744x1039.png?accountingTag=RB"
  },
  "kai'sa - survivor": {
   "name": "Kai'Sa - Survivor",
@@ -6807,7 +6799,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ad69bde670ce218adee1d2a618a7295d2fb7bd4c-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3d942c02ad4e96a36dba14d663c5105bb6614500-744x1039.png?accountingTag=RB"
  },
  "kai'sa, survivor": {
   "name": "Kai'Sa, Survivor",
@@ -6837,7 +6829,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2e2c1cb4016543e3288da2dac3ecc3faf8a98927-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aca8664b334f2fa40cc7bae2811dd4e1b4f06388-744x1039.png?accountingTag=RB"
  },
  "karma - channeler": {
   "name": "Karma - Channeler",
@@ -6852,7 +6844,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2e2c1cb4016543e3288da2dac3ecc3faf8a98927-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aca8664b334f2fa40cc7bae2811dd4e1b4f06388-744x1039.png?accountingTag=RB"
  },
  "karthus": {
   "name": "Karthus - Eternal",
@@ -6931,7 +6923,7 @@
  },
  "kayle, justified": {
   "name": "Kayle, Justified",
-  "text": "[Empower] :rb_energy_3: (:rb_energy_3:: Empower me.)I can be [Empowered] up to three times.I have +2 :rb_might: for each time I’m [Empowered].While I'm [Empowered] three times, I have [Deflect 3] and [Ganking].",
+  "text": "[Empower] :rb_energy_3: (:rb_energy_3:: Empower me.)I can be [Empowered] up to three times.I have +2 :rb_might: for each time I'm [Empowered].While I'm [Empowered] three times, I have [Deflect 3] and [Ganking].",
   "stats": {
    "energy": 3,
    "might": 3,
@@ -6942,7 +6934,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0fec986bfca86382c61770575ed20e1799b6b830-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8ae883f96bb3a5e20d8002ec49cace430aaf2b88-744x1039.png?accountingTag=RB"
  },
  "kayn": {
   "name": "Kayn - Unleashed",
@@ -7051,28 +7043,8 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2f27c99f3df2940940dddd65105e5e42bbeeab3d-744x1039.png?accountingTag=RB"
  },
  "kha'zix": {
-  "name": "Kha'Zix - Mutating Horror",
-  "text": "[Ambush]When I attack or defend, if an enemy unit is alone here, give me +2 :rb_might: this turn and gain 2 XP.",
-  "stats": {
-   "energy": 4,
-   "might": 4,
-   "power": 1,
-   "type": "Unit",
-   "rarity": "Rare",
-   "domain": [
-    "Chaos"
-   ]
-  },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b1e7f8762aba8ecf571eb0c83bba8874703dc8be-744x1039.png?accountingTag=RB",
-  "ambiguous": [
-   "Kha'Zix - Evolving Hunter",
-   "Kha'Zix - Mutating Horror",
-   "Kha'Zix - Voidreaver"
-  ]
- },
- "kha'zix - evolving hunter": {
   "name": "Kha'Zix - Evolving Hunter",
-  "text": "[Hunt]When I attack, you may spend 3 XP to deal damage equal to my Might to an enemy unit here.",
+  "text": "[Hunt] (When I conquer or hold, gain 1 XP.)When I attack, you may spend 3 XP to deal damage equal to my Might to an enemy unit here.",
   "stats": {
    "energy": 5,
    "might": 5,
@@ -7083,11 +7055,31 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6998b6c309c93d549284638ff0a3e20c75691978-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ac07031af5b35881d781b7a7d7b78c59a0fb2cd4-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Kha'Zix - Evolving Hunter",
+   "Kha'Zix - Mutating Horror",
+   "Kha'Zix - Voidreaver"
+  ]
+ },
+ "kha'zix - evolving hunter": {
+  "name": "Kha'Zix - Evolving Hunter",
+  "text": "[Hunt] (When I conquer or hold, gain 1 XP.)When I attack, you may spend 3 XP to deal damage equal to my Might to an enemy unit here.",
+  "stats": {
+   "energy": 5,
+   "might": 5,
+   "power": 1,
+   "type": "Unit",
+   "rarity": "Epic",
+   "domain": [
+    "Body"
+   ]
+  },
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ac07031af5b35881d781b7a7d7b78c59a0fb2cd4-744x1039.png?accountingTag=RB"
  },
  "kha'zix - mutating horror": {
   "name": "Kha'Zix - Mutating Horror",
-  "text": "[Ambush]When I attack or defend, if an enemy unit is alone here, give me +2 :rb_might: this turn and gain 2 XP.",
+  "text": "[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)When I attack or defend, if an enemy unit is alone here, give me +2 :rb_might: this turn and gain 2 XP.",
   "stats": {
    "energy": 4,
    "might": 4,
@@ -7098,7 +7090,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b1e7f8762aba8ecf571eb0c83bba8874703dc8be-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8306abc5ffce45add8c75c2e215162b2d1aed320-744x1039.png?accountingTag=RB"
  },
  "kha'zix - voidreaver": {
   "name": "Kha'Zix - Voidreaver",
@@ -7114,7 +7106,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ffed0102adcae6fe01d173042487ea85ebe899bc-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a5db0b3340a189de1cf9d8174b11eb583f19ea28-744x1039.png?accountingTag=RB"
  },
  "kha'zix, evolving hunter": {
   "name": "Kha'Zix, Evolving Hunter",
@@ -7373,20 +7365,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7b3410a1d9ee175c4853453798bcd5f09d2e217c-744x1039.png?accountingTag=RB"
  },
  "leblanc": {
-  "name": "LeBlanc - Deceiver",
-  "text": "When you conquer or hold, you may discard 1 and exhaust me to play a ready Reflection unit token there. It becomes a copy of another unit there. Give it [Temporary].",
+  "name": "LeBlanc - Everywhere At Once",
+  "text": "[Backline] (I must be assigned combat damage last.)Your [Temporary] effects at my battlefield don't trigger.",
   "stats": {
-   "energy": null,
-   "might": null,
+   "energy": 4,
+   "might": 4,
    "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
+   "type": "Unit",
+   "rarity": "Epic",
    "domain": [
-    "Mind",
-    "Order"
+    "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/78a3153e914b2124cdc918f3134a8087b342caf7-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0389576206b1e750a0852c6ff46efd2646d47da-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "LeBlanc - Deceiver",
    "LeBlanc - Everywhere At Once",
@@ -7407,7 +7398,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/78a3153e914b2124cdc918f3134a8087b342caf7-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c17d29602d61d6702372fec4db44c6fb2a29e8a2-744x1039.png?accountingTag=RB"
  },
  "leblanc - everywhere at once": {
   "name": "LeBlanc - Everywhere At Once",
@@ -7426,7 +7417,7 @@
  },
  "leblanc - fragmented": {
   "name": "LeBlanc - Fragmented",
-  "text": "[Assault][Deathknell][>] Draw 1. If it's your Beginning Phase, draw 2 instead.",
+  "text": "[Assault] (+1 :rb_might: while I'm an attacker.)[Deathknell][>] Draw 1. If it's your Beginning Phase, draw 2 instead. (When I die, get the effect.)",
   "stats": {
    "energy": 3,
    "might": 3,
@@ -7437,7 +7428,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d18932d3dddd203c6f68f30279f3886ec2e7130a-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ee9f8d7a65e57c1d907edd4e5df2a3ea6966bff9-744x1039.png?accountingTag=RB"
  },
  "lecturing yordle": {
   "name": "Lecturing Yordle",
@@ -7455,20 +7446,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/62e22370dac35c18de21efbfce9c86ca821e9105-744x1039.png?accountingTag=RB"
  },
  "lee sin": {
-  "name": "Lee Sin - Blind Monk",
-  "text": ":rb_energy_1:, :rb_exhaust:: Buff a friendly unit. (If it doesn't have a buff, it gets a +1 :rb_might: buff.)",
+  "name": "Lee Sin - Ascetic",
+  "text": "[Shield] (+1 :rb_might: while I'm a defender.):rb_exhaust:: Buff me. (I get a +1 :rb_might: buff.)I can have any number of buffs.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
+   "energy": 5,
+   "might": 5,
+   "power": 1,
+   "type": "Unit",
+   "rarity": "Epic",
    "domain": [
-    "Calm",
-    "Body"
+    "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ffe064e002d3b9a366748eb85102a769b2545835-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/70734e8833bfbbdb2736407c449f418553e3cf7c-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Lee Sin - Ascetic",
    "Lee Sin - Blind Monk",
@@ -7519,7 +7509,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/68d9364d3138e06a25724a0aaae0b7226472cd68-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/eca1aec1304de9c237751eb0aeed620b9ad0408e-744x1039.png?accountingTag=RB"
  },
  "legion marauder": {
   "name": "Legion Marauder",
@@ -7567,20 +7557,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aedece01c7792c689050460db1670e6b9b15b61f-744x1039.png?accountingTag=RB"
  },
  "leona": {
-  "name": "Leona - Radiant Dawn",
-  "text": "When you stun one or more enemy units, buff a friendly unit. (If it doesn't have a buff, it gets a +1 :rb_might: buff.)",
+  "name": "Leona - Zealot",
+  "text": "If an opponent's score is within 3 points of the Victory Score, I enter ready.Stunned enemy units here have -8 :rb_might:, to a minimum of 1 :rb_might:.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
+   "energy": 6,
+   "might": 6,
+   "power": 1,
+   "type": "Unit",
+   "rarity": "Epic",
    "domain": [
-    "Calm",
-    "Order"
+    "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/822b8bc7987a47498550708b18ef166b121fd620-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3bd1e924bec41b0f733fc8b93dc8918ce5a53ba4-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Leona - Determined",
    "Leona - Radiant Dawn",
@@ -7600,7 +7589,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1ed0250f1d3bbbbde49b3ce1fc2e744e4da64baa-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/39a1e121031cfb4bdb009b071ed5d70411966cd9-744x1039.png?accountingTag=RB"
  },
  "leona - radiant dawn": {
   "name": "Leona - Radiant Dawn",
@@ -7698,11 +7687,11 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5099aa2938091dfcc54277877e320a7f83aeeec1-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7e1554365120c5042947aef8bcac48a07445e9f3-744x1039.png?accountingTag=RB"
  },
  "lillia - fae fawn": {
   "name": "Lillia - Fae Fawn",
-  "text": "[Accelerate]When I move from a location, play a 3 :rb_might: Sprite unit token with [Temporary] there.",
+  "text": "[Accelerate] (You may pay :rb_energy_1::rb_rune_mind: as an additional cost to have me enter ready.)When I move from a location, play a 3 :rb_might: Sprite unit token with [Temporary] there. (Kill it at the start of its controller's Beginning Phase, before scoring.)",
   "stats": {
    "energy": 3,
    "might": 3,
@@ -7713,7 +7702,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b06072002316a5b86f11750bbe21e9dfb94be08d-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/65d0af5361b335a7e65c7aa03a099fc0de3431e6-744x1039.png?accountingTag=RB"
  },
  "lillia - protector of dreams": {
   "name": "Lillia - Protector of Dreams",
@@ -7920,7 +7909,7 @@
  },
  "lux - crownguard": {
   "name": "Lux - Crownguard",
-  "text": ":rb_exhaust:: [Reaction] — [Add] :rb_energy_2:. Spend this Energy only to play spells.",
+  "text": ":rb_exhaust:: [Reaction] — [Add] :rb_energy_2:. Use only to play spells. (Abilities that add resources can't be reacted to.)",
   "stats": {
    "energy": 4,
    "might": 2,
@@ -7931,7 +7920,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9778ec229e052268ea66213ca2dbf60612b2862-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17d0793ad495727e67bb1c94ae0e11cd4705870f-744x1039.png?accountingTag=RB"
  },
  "lux - illuminated": {
   "name": "Lux - Illuminated",
@@ -8191,7 +8180,7 @@
  },
  "master of shadows": {
   "name": "Master of Shadows",
-  "text": "When you banish a card you own, empower me.[Action][>] Disempower me, :rb_exhaust:: Discard 1, then draw 1.",
+  "text": "When you banish a card you own, empower me. (I become Empowered if I'm not already.)[Action][>] Disempower me, :rb_exhaust:: Discard 1, then draw 1.",
   "stats": {
    "energy": null,
    "might": null,
@@ -8203,7 +8192,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/75b7ba57a83af496b26d9fe7e8521f9a851bf464-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aa316eb1b01c8d036eaba84b03909027fe69f6e2-744x1039.png?accountingTag=RB"
  },
  "master yi": {
   "name": "Master Yi - Meditative",
@@ -8260,7 +8249,7 @@
  },
  "master yi - tempered": {
   "name": "Master Yi - Tempered",
-  "text": "[Hunt 2][Level 6][>] I have [Deflect] and [Ganking].",
+  "text": "[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 6][>] I have [Deflect] and [Ganking]. (While you have 6+ XP, opponents must pay :rb_rune_rainbow: to choose me with a spell or ability and I can move from battlefield to battlefield.)",
   "stats": {
    "energy": 4,
    "might": 4,
@@ -8271,11 +8260,11 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1adb032501aac0070ea1bb0ca31c4efa11cd31a3-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a21feb3555825392fdb98f868840db3827ad0389-744x1039.png?accountingTag=RB"
  },
  "master yi - unstoppable": {
   "name": "Master Yi - Unstoppable",
-  "text": "[Level 3][>] I cost :rb_energy_2::rb_rune_calm: less.[Level 6][>] I cost :rb_energy_4::rb_rune_calm::rb_rune_calm: less instead.[Level 11][>] I cost :rb_energy_6::rb_rune_calm::rb_rune_calm::rb_rune_calm: less instead.[Level 16][>] I can't be chosen by enemy spells and abilities.",
+  "text": "[Level 3][>] I cost :rb_energy_2::rb_rune_calm: less. (While you have 3+ XP, get the effect.)[Level 6][>] I cost :rb_energy_4::rb_rune_calm::rb_rune_calm: less instead.[Level 11][>] I cost :rb_energy_6::rb_rune_calm::rb_rune_calm::rb_rune_calm: less instead.[Level 16][>] I can't be chosen by enemy spells and abilities.",
   "stats": {
    "energy": 12,
    "might": 12,
@@ -8286,7 +8275,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb53c3b70820fca73540223addbe5369b5267e15-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8a6d46d701eebaff0850a5b7400816517006d7e9-744x1039.png?accountingTag=RB"
  },
  "master yi - wuju bladesman": {
   "name": "Master Yi - Wuju Bladesman",
@@ -8306,7 +8295,7 @@
  },
  "master yi - wuju master": {
   "name": "Master Yi - Wuju Master",
-  "text": "[Level 6][>] Your units have +1 :rb_might:.[Level 11][>] Your units enter ready.",
+  "text": "[Level 6][>] Your units have +1 :rb_might:. (While you have 6+ XP, get the effect.)[Level 11][>] Your units enter ready.",
   "stats": {
    "energy": null,
    "might": null,
@@ -8318,7 +8307,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ebc612b2bf6003be8019930e059f0ac119997bc8-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ed9af55066593b4ee738b9529b847f2f738078e0-744x1039.png?accountingTag=RB"
  },
  "matriarch of war": {
   "name": "Matriarch of War",
@@ -8383,7 +8372,7 @@
  },
  "mel - soul's reflection": {
   "name": "Mel - Soul's Reflection",
-  "text": "When you empower something else, empower me.Disempower me, :rb_exhaust:: Give a unit at a battlefield -2 :rb_might: this turn.",
+  "text": "When you empower something else, empower me. (I become Empowered if I'm not already.)Disempower me, :rb_exhaust:: Give a unit at a battlefield -2 :rb_might: this turn.",
   "stats": {
    "energy": null,
    "might": null,
@@ -8395,7 +8384,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f56cf2a3755318e1dc6afd01736f2a4d759cd4a1-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2e9e60b3f161b41219c40ef0426049634fb7ba1a-744x1039.png?accountingTag=RB"
  },
  "mel, defiant soul": {
   "name": "Mel, Defiant Soul",
@@ -8414,7 +8403,7 @@
  },
  "mel, newly awakened": {
   "name": "Mel, Newly Awakened",
-  "text": "When you play me, draw 1.[Empower] :rb_energy_3:[Empowered][>] Your spells and abilities can't be countered. If a spell or ability you control would give -:rb_might: to a unit it chooses, it gives an additional -1 :rb_might:.",
+  "text": "When you play me, draw 1.[Empower] :rb_energy_3: (:rb_energy_3:: Empower me. Use only if not Empowered.)[Empowered][>] Your spells and abilities can't be countered. If a spell or ability you control would give -:rb_might: to a unit it chooses, it gives an additional -1 :rb_might:.",
   "stats": {
    "energy": 4,
    "might": 4,
@@ -8425,7 +8414,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2781dd135b5f42527df3bacee59ccee8684236fa-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7d794234d8efef9ad647046d1e2cd3736441899f-744x1039.png?accountingTag=RB"
  },
  "mesmerize": {
   "name": "Mesmerize",
@@ -8459,7 +8448,7 @@
  },
  "mind rune": {
   "name": "Mind Rune",
-  "text": "[NO TEXT]",
+  "text": "",
   "stats": {
    "energy": null,
    "might": null,
@@ -8470,7 +8459,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/33df1c56c6e76f9cb783c19161f16fcdbdc20f98-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f99aa4874baaebd2e81798c8a3aa01c5900f6d30-744x1039.png"
  },
  "mindsplitter": {
   "name": "Mindsplitter",
@@ -8549,20 +8538,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fb2e82cca7aa93c857ed1fe54de7344016779520-744x1039.png?accountingTag=RB"
  },
  "miss fortune": {
-  "name": "Miss Fortune - Bounty Hunter",
-  "text": ":rb_exhaust:: Give a unit [Ganking] this turn. (It can move from battlefield to battlefield.)",
+  "name": "Miss Fortune - Captain",
+  "text": "[Accelerate] (You may pay :rb_energy_1::rb_rune_body: as an additional cost to have me enter ready.)[Ganking] (I can move from battlefield to battlefield.)The first time I move each turn, you may ready something else that's exhausted.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
+   "energy": 5,
+   "might": 5,
+   "power": 1,
+   "type": "Unit",
+   "rarity": "Epic",
    "domain": [
-    "Body",
-    "Chaos"
+    "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cc11261fcdbf0851525030bd9e835b718efad3bc-744x1040.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3c7b219245cd6c6ee835974dd74771bc605289de-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Miss Fortune - Bounty Hunter",
    "Miss Fortune - Buccaneer",
@@ -8613,7 +8601,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a7a0dfa952259993fa0d8998a820585ff4f81c6-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3c7b219245cd6c6ee835974dd74771bc605289de-744x1039.png?accountingTag=RB"
  },
  "mister root": {
   "name": "Mister Root",
@@ -8843,7 +8831,7 @@
  },
  "mystic poro": {
   "name": "Mystic Poro",
-  "text": "[Vision]",
+  "text": "[Vision] (When you play me, look at the top card of your Main Deck. You may recycle it.)",
   "stats": {
    "energy": 2,
    "might": 2,
@@ -8854,7 +8842,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2fdb5e1ff9aae4137910fa59065b69ef17144752-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/11af57d045768e886d05e1c0933b0d57cb1e459d-744x1039.png?accountingTag=RB"
  },
  "mystic reversal": {
   "name": "Mystic Reversal",
@@ -8950,7 +8938,7 @@
  },
  "nasus, ascended": {
   "name": "Nasus, Ascended",
-  "text": "[Deflect 2][Empower] :rb_energy_8:[Empowered][>] When I conquer, you score 1 point.",
+  "text": "[Deflect 2] (Opponents must pay :rb_rune_rainbow::rb_rune_rainbow: to choose me with a spell or ability.)[Empower] :rb_energy_8: (:rb_energy_8:: Empower me. Use only if not Empowered.)[Empowered][>] When I conquer, you score 1 point.",
   "stats": {
    "energy": 8,
    "might": 8,
@@ -8961,7 +8949,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/014103b536a1c5aa2397f0952323375ac9b73d60-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4d9e9cc17be6aebf33ee1db42b515ad87ba8ee8c-744x1039.png?accountingTag=RB"
  },
  "nasus, guardian of knowledge": {
   "name": "Nasus, Guardian of Knowledge",
@@ -8976,7 +8964,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c6bfe2146a52c3d8dd0230904435369ff29bac0e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aa96dbb8b4d72db7e47a72ce652ad542f55bf31d-744x1039.png?accountingTag=RB"
  },
  "navori fighting pit": {
   "name": "Navori Fighting Pit",
@@ -9327,7 +9315,7 @@
  },
  "order rune": {
   "name": "Order Rune",
-  "text": "[NO TEXT]",
+  "text": "",
   "stats": {
    "energy": null,
    "might": null,
@@ -9338,7 +9326,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/71e7d71ebadb81ccad7ca4cb8b3fb85d2f5fd4bf-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/35ec6fdd2124324bb7052cba31c8c44f2e98f3ae-744x1039.png"
  },
  "ornn": {
   "name": "Ornn - Fire Below the Mountain",
@@ -9374,7 +9362,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e0621bba6475425d93191677b2b120c07a8efe20-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/77b48a28f48f26714f4bcf860379945a2d7186aa-744x1039.png?accountingTag=RB"
  },
  "ornn - fire below the mountain": {
   "name": "Ornn - Fire Below the Mountain",
@@ -9850,7 +9838,7 @@
  },
  "poppy - paragon": {
   "name": "Poppy - Paragon",
-  "text": "[Deflect]When you play me, if an opponent's score is within 3 points of the Victory Score, ready me and gain 3 XP.",
+  "text": "[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)When you play me, if an opponent's score is within 3 points of the Victory Score, ready me and gain 3 XP.",
   "stats": {
    "energy": 5,
    "might": 5,
@@ -9861,7 +9849,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c0efda4bdfea473f7b9f3fb4ba482990795283a4-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ef8a8434e1a4c4262dd97213741a4b126cb1449b-744x1039.png?accountingTag=RB"
  },
  "poro herder": {
   "name": "Poro Herder",
@@ -10135,45 +10123,8 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/03b9a8e704e0f09b686d89d4c2d79f100f212b0f-744x1039.png?accountingTag=RB"
  },
  "pyke": {
-  "name": "Pyke - Bloodharbor Ripper",
-  "text": ":rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted.",
-  "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
-   "domain": [
-    "Fury",
-    "Chaos"
-   ]
-  },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b4095d98aff998fda5a08d4c32e97a2a66ccf1e6-744x1039.png?accountingTag=RB",
-  "ambiguous": [
-   "Pyke - Bloodharbor Ripper",
-   "Pyke - Dockside Butcher",
-   "Pyke - Returned"
-  ]
- },
- "pyke - bloodharbor ripper": {
-  "name": "Pyke - Bloodharbor Ripper",
-  "text": ":rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted.",
-  "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
-   "domain": [
-    "Fury",
-    "Chaos"
-   ]
-  },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b4095d98aff998fda5a08d4c32e97a2a66ccf1e6-744x1039.png?accountingTag=RB"
- },
- "pyke - dockside butcher": {
   "name": "Pyke - Dockside Butcher",
-  "text": "[Hidden][Ganking]You may pay :rb_rune_fury: as an additional cost to play me.When you play me, if you paid the additional cost, ready me and give me +2 :rb_might: this turn.",
+  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Ganking] (I can move from battlefield to battlefield.)You may pay :rb_rune_fury: as an additional cost to play me.When you play me, if you paid the additional cost, ready me and give me +2 :rb_might: this turn.",
   "stats": {
    "energy": 3,
    "might": 2,
@@ -10184,7 +10135,43 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/583f1c15c1bdc47c9d4ebb41a210c182262c8ee9-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e0ce05148d7368070bcc8c0a43f66ece0834653a-744x1039.png?accountingTag=RB",
+  "ambiguous": [
+   "Pyke - Bloodharbor Ripper",
+   "Pyke - Dockside Butcher",
+   "Pyke - Returned"
+  ]
+ },
+ "pyke - bloodharbor ripper": {
+  "name": "Pyke - Bloodharbor Ripper",
+  "text": ":rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted. (It has \"[Reaction][>] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.\")",
+  "stats": {
+   "energy": null,
+   "might": null,
+   "power": null,
+   "type": "Legend",
+   "rarity": "Rare",
+   "domain": [
+    "Fury",
+    "Chaos"
+   ]
+  },
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8ca1bfde8d898a11a6abc73bbab8fc7092b0dcb4-744x1039.png?accountingTag=RB"
+ },
+ "pyke - dockside butcher": {
+  "name": "Pyke - Dockside Butcher",
+  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Ganking] (I can move from battlefield to battlefield.)You may pay :rb_rune_fury: as an additional cost to play me.When you play me, if you paid the additional cost, ready me and give me +2 :rb_might: this turn.",
+  "stats": {
+   "energy": 3,
+   "might": 2,
+   "power": null,
+   "type": "Unit",
+   "rarity": "Epic",
+   "domain": [
+    "Fury"
+   ]
+  },
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e0ce05148d7368070bcc8c0a43f66ece0834653a-744x1039.png?accountingTag=RB"
  },
  "pyke - returned": {
   "name": "Pyke - Returned",
@@ -10535,7 +10522,7 @@
  },
  "red brambleback": {
   "name": "Red Brambleback",
-  "text": "[Accelerate]Your conquer effects for conquering here trigger an additional time.When I conquer, [Buff] a friendly unit.",
+  "text": "[Accelerate] (You may pay :rb_energy_1::rb_rune_fury: as an additional cost to have me enter ready.)Your conquer effects for conquering here trigger an additional time.When I conquer, [Buff] a friendly unit. (Give it a +1 :rb_might: buff if it doesn't have one.)",
   "stats": {
    "energy": 4,
    "might": 4,
@@ -10546,7 +10533,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/69d4208b748074b68f775cdfa8f1d2ba20ece8ae-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/14e9d009985f6a0d8ab63416aee7570ede42c657-744x1039.png?accountingTag=RB"
  },
  "reinforce": {
   "name": "Reinforce",
@@ -10597,7 +10584,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8ef898e761ab44c43cb1cba11109a02d9cb5ce10-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/999e2d25ea32da971e7b99b6e75558286c17949e-744x1039.png?accountingTag=RB"
  },
  "rek'sai - swarm queen": {
   "name": "Rek'Sai - Swarm Queen",
@@ -10741,7 +10728,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/358df43d50a3fc018a6e092acd5fbb3031e0033d-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/edacb8a82d840f2fe46233de9157319a1dc6361a-744x1039.png?accountingTag=RB"
  },
  "renata glasc - mastermind": {
   "name": "Renata Glasc - Mastermind",
@@ -10756,7 +10743,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b2b269d8ec274f3869ba42982f5710b160c4c43f-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/be8f7e08562c076e8947aafc3ecd202051d17c02-744x1039.png?accountingTag=RB"
  },
  "renekton": {
   "name": "Renekton - Butcher of the Sands",
@@ -10772,7 +10759,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f5db9db00111d8225e17c3a03d0111b471e74999-744x1040.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7620595b36b40a0c3d05c4c5469b016d1c18c6f2-744x1039.png?accountingTag=RB"
  },
  "renekton - butcher of the sands": {
   "name": "Renekton - Butcher of the Sands",
@@ -10788,11 +10775,11 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f5db9db00111d8225e17c3a03d0111b471e74999-744x1040.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7620595b36b40a0c3d05c4c5469b016d1c18c6f2-744x1039.png?accountingTag=RB"
  },
  "renekton, brute": {
   "name": "Renekton, Brute",
-  "text": ":rb_energy_1:: Give me +1 :rb_might: this turn.When my Might becomes 10 or more, empower me.[Empowered][>] I have [Ganking] and [Deflect].",
+  "text": ":rb_energy_1:: Give me +1 :rb_might: this turn.When my Might becomes 10 or more, empower me. (I become Empowered if I'm not already.)[Empowered][>] I have [Deflect] and [Ganking]. (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability. I can move from battlefield to battlefield.)",
   "stats": {
    "energy": 5,
    "might": 4,
@@ -10803,11 +10790,11 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/49ebe990f1d3631e3c18fc37323c49f49bf159fa-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0b4340e30e46f1784b31b9a110903825b7428a94-744x1039.png?accountingTag=RB"
  },
  "renekton, rage fueled": {
   "name": "Renekton, Rage Fueled",
-  "text": "[Accelerate]When I attack, if you control 4 or fewer runes, deal 2 to all enemy units here.",
+  "text": "[Accelerate] (You may pay :rb_energy_1::rb_rune_fury: as an additional cost to have me enter ready.)When I attack, if you control 4 or fewer runes, deal 2 to all enemy units here.",
   "stats": {
    "energy": 6,
    "might": 6,
@@ -10818,7 +10805,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cf5a7294a9ebd2d5a8727078efbfd2cf84f12e3e-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2f6eb3e8328048ad52617c8639ecbe2c287efa36-744x1039.png?accountingTag=RB"
  },
  "rengar": {
   "name": "Rengar - Trophy Hunter",
@@ -10870,7 +10857,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1f80a016015ebc77bd3d23ce471e364d70698279-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b3d3085f62aee993b9f5b80d4659a88439da83be-744x1039.png?accountingTag=RB"
  },
  "rengar - trophy hunter": {
   "name": "Rengar - Trophy Hunter",
@@ -10889,7 +10876,7 @@
  },
  "rengar - unseen": {
   "name": "Rengar - Unseen",
-  "text": "[Accelerate][Assault 2][Deflect][Ganking]",
+  "text": "[Accelerate] (You may pay :rb_energy_1::rb_rune_fury: as an additional cost to have me enter ready.)[Assault 2] (+2 :rb_might: while I'm an attacker.)[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)[Ganking] (I can move from battlefield to battlefield.)",
   "stats": {
    "energy": 4,
    "might": 4,
@@ -10900,7 +10887,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cdab60d27d6d920f19ebed000b13dc25a439848c-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/80c7d1c62301dd6e3ced910156f3fdeb8d34a621-744x1039.png?accountingTag=RB"
  },
  "rengar, trophy hunter": {
   "name": "Rengar, Trophy Hunter",
@@ -11283,7 +11270,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dfeef09dacae683e39013902d77b3398fdcd5db8-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e211311ecb1475e87d3d94eba4a6774b4e900091-744x1039.png?accountingTag=RB"
  },
  "rumble - mechanized menace": {
   "name": "Rumble - Mechanized Menace",
@@ -11314,7 +11301,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1acbb906fba20f4e5d60f7a82566ca9a19e1a6ea-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6528aa0656cac59ff7299bc8bdac371238038080-744x1039.png?accountingTag=RB"
  },
  "rune prison": {
   "name": "Rune Prison",
@@ -11629,7 +11616,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9263b8f36725a4cec320c1049608824ae72f6237-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dd8433e77e46ca77aaf0be35d1774218d9a2f037-744x1039.png?accountingTag=RB"
  },
  "seal of focus": {
   "name": "Seal of Focus",
@@ -11644,7 +11631,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8b6bb0da7d3b37dad51148b7914e7d2b840b6482-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/288c300c4e4cb10ecfe6c3cbb543d0636b306852-744x1039.png?accountingTag=RB"
  },
  "seal of insight": {
   "name": "Seal of Insight",
@@ -11659,7 +11646,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/eb4559c507f09cabc3735973a1b20d83688d2f9d-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9ee0dc0221f83d569e0f458374e40f7238f306c2-744x1039.png?accountingTag=RB"
  },
  "seal of rage": {
   "name": "Seal of Rage",
@@ -11674,7 +11661,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/669d4dd94cf2d88ad58333c13a98cca2014e71aa-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fbdd14adb40b0ca46b89f476a356fa21413d812e-744x1039.png?accountingTag=RB"
  },
  "seal of strength": {
   "name": "Seal of Strength",
@@ -11689,7 +11676,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dd5c24995d5c6d327b5101da3d6426f1a75a49ef-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/415644b2798348e3d7198ec900cc40aaa4eb8bdf-744x1039.png?accountingTag=RB"
  },
  "seal of unity": {
   "name": "Seal of Unity",
@@ -11704,7 +11691,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/228dbde67ec37f9a0b28f81e40fce5a8fa7af56b-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e6fbd41d69bc0d235ea7993d2e9fa74e75e17dff-744x1039.png?accountingTag=RB"
  },
  "seat of power": {
   "name": "Seat of Power",
@@ -11767,20 +11754,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9498c8146745124fc45a7b55184854a9c9da21f5-744x1039.png?accountingTag=RB"
  },
  "sett": {
-  "name": "Sett - The Boss",
-  "text": "When a buffed unit you control would die, you may pay :rb_rune_rainbow: and exhaust me to spend its buff and recall it exhausted instead. (Send it to base. This isn't a move.)When you conquer, ready me.",
+  "name": "Sett - Brawler",
+  "text": "When I'm played and when I conquer, buff me. (If I don't have a buff, I get a +1 :rb_might: buff.)Spend my buff: Give me +4 :rb_might: this turn.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
+   "energy": 5,
+   "might": 4,
+   "power": 1,
+   "type": "Unit",
+   "rarity": "Epic",
    "domain": [
-    "Body",
-    "Order"
+    "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b132becb843b2cf418cb110ead64758f49f51554-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/00ddd4d478f2e49e18a60ed67f4d1452041b7da3-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Sett - Brawler",
    "Sett - Kingpin",
@@ -11800,7 +11786,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ea35315d12a86cff8e37fa716c92dc76d9edceb8-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/00ddd4d478f2e49e18a60ed67f4d1452041b7da3-744x1039.png?accountingTag=RB"
  },
  "sett - kingpin": {
   "name": "Sett - Kingpin",
@@ -12061,20 +12047,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f2aa213fe1e54d0d6f1507c7ed8829c8ba2bc610-744x1039.png?accountingTag=RB"
  },
  "shen": {
-  "name": "Shen - Eye of Twilight",
-  "text": "[Action][>] :rb_exhaust:: Give a friendly unit [Tank] this turn. (It must be assigned combat damage first.)",
+  "name": "Shen - Kinkou",
+  "text": "[Reaction] (Play any time, even before spells and abilities resolve, including to a battlefield you control.)[Shield 2] (+2 :rb_might: while I'm a defender.)[Tank] (I must be assigned combat damage first.)",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 3,
+   "might": 3,
+   "power": 1,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Calm",
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/54388a3124b7e1f0331e5970f952778db5f24500-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/25f3a9fa33201278ebf475b2d02dae8c0c0cb20c-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Shen - Eye of Twilight",
    "Shen - Kinkou"
@@ -12375,7 +12360,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/484adbe28bafadf0ac37d7787c916013bd106793-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bd3f242c9ca59cfc2d7dc5b146877c66bb310bb7-744x1039.png?accountingTag=RB"
  },
  "sivir - battle mistress": {
   "name": "Sivir - Battle Mistress",
@@ -12406,7 +12391,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6c0eeb81da597528625d458cb4c560298b5bea50-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb07b4adc6e301fae973ab13156028390facbad2-744x1039.png?accountingTag=RB"
  },
  "sky cruiser": {
   "name": "Sky Cruiser",
@@ -12661,7 +12646,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fc329097625a1f98a564134945950bd3bd3610a3-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/91fd5050b8caded842ce22c1e473f237cd991efd-744x1039.png?accountingTag=RB"
  },
  "soraka - wanderer": {
   "name": "Soraka - Wanderer",
@@ -12676,7 +12661,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fc329097625a1f98a564134945950bd3bd3610a3-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/91fd5050b8caded842ce22c1e473f237cd991efd-744x1039.png?accountingTag=RB"
  },
  "soul harvest": {
   "name": "Soul Harvest",
@@ -13538,19 +13523,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/65f69ca9a1087deb12e91fb6fdee7b6efd0c088f-744x1039.png?accountingTag=RB"
  },
  "teemo": {
-  "name": "Teemo - Scout",
-  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When you play me, give me +3 :rb_might: this turn.",
+  "name": "Teemo - Strategist",
+  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.",
   "stats": {
    "energy": 2,
-   "might": 1,
-   "power": null,
+   "might": 2,
+   "power": 1,
    "type": "Unit",
-   "rarity": "Rare",
+   "rarity": "Epic",
    "domain": [
-    "Chaos"
+    "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ca8a2e11dd78dd09ad1c9ad3a23e5699254b947e-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b05f31bf744972983f61a9f5801b4ffd68fb9ebf-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Teemo - Scout",
    "Teemo - Strategist",
@@ -13585,7 +13570,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e31f0ea037604aa531d84c1d56d26f255210b7c-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b05f31bf744972983f61a9f5801b4ffd68fb9ebf-744x1039.png?accountingTag=RB"
  },
  "teemo - swift scout": {
   "name": "Teemo - Swift Scout",
@@ -14653,7 +14638,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/75f9eac062e43105ee602b6050fe230fb8d2dce5-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b38a22e6f4bfaa8589f32754a7466fe5214e81b5-744x1039.png?accountingTag=RB"
  },
  "vayne - hunter": {
   "name": "Vayne - Hunter",
@@ -14668,7 +14653,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/75f9eac062e43105ee602b6050fe230fb8d2dce5-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b38a22e6f4bfaa8589f32754a7466fe5214e81b5-744x1039.png?accountingTag=RB"
  },
  "veiled temple": {
   "name": "Veiled Temple",
@@ -14717,7 +14702,7 @@
  },
  "vex - apathetic": {
   "name": "Vex - Apathetic",
-  "text": "[Deflect]When an opponent plays a unit while I'm at a battlefield, [Stun] it. They can't move it this turn.",
+  "text": "[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)When an opponent plays a unit while I'm at a battlefield, [Stun] it. They can't move it this turn. (It doesn't deal combat damage this turn.)",
   "stats": {
    "energy": 4,
    "might": 4,
@@ -14728,7 +14713,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9dd2a50fcfe6258ef934bdcf73b2fdb19d18ea94-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7f13b0216c5d805400bb64cf26cd119acfc6c5ca-744x1039.png?accountingTag=RB"
  },
  "vex - cheerless": {
   "name": "Vex - Cheerless",
@@ -14759,11 +14744,11 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/748c7cb9574c8805d7fdbaba0f2471af06cceae3-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/653e9b8fc4989bba59aa7ade4e0c33ffd5596e5a-744x1039.png?accountingTag=RB"
  },
  "vex - mocking": {
   "name": "Vex - Mocking",
-  "text": "[Shield][Tank]When you [Stun] an enemy unit at a battlefield, you may move me to that battlefield.",
+  "text": "[Shield] (+1 :rb_might: while I'm a defender.)[Tank] (I must be assigned combat damage first.)When you [Stun] an enemy unit at a battlefield, you may move me to that battlefield.",
   "stats": {
    "energy": 5,
    "might": 5,
@@ -14774,7 +14759,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9594ce4be31689c364a43954a541c4391fe0d4f3-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ed2c20de6ceb7ff23f62ccb28a49fd305c5b15b7-744x1039.png?accountingTag=RB"
  },
  "vi - destructive": {
   "name": "Vi - Destructive",
@@ -14835,7 +14820,7 @@
     "Order"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0febae9c611339d9ed65c7ebe43237b5ec42c9a3-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b52fca3d644599008c4b1a67ffd359a9f9c4d8d7-744x1039.png?accountingTag=RB"
  },
  "vi, destructive": {
   "name": "Vi, Destructive",
@@ -14868,20 +14853,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/99845de971eb165c7a6bb424050cd9a29b45b548-744x1039.png?accountingTag=RB"
  },
  "viktor": {
-  "name": "Viktor - Herald of the Arcane",
-  "text": ":rb_energy_1:, :rb_exhaust:: Play a 1 :rb_might: Recruit unit token.",
+  "name": "Viktor - Innovator",
+  "text": "When you play a card on an opponent's turn, play a 1 :rb_might: Recruit unit token in your base.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 4,
+   "might": 3,
+   "power": 1,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Mind",
-    "Order"
+    "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/913236dabf1e4f71650bbba46870fff8163e2eff-744x1039.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/35be0b10f13611b4f5d828f2a79001036ab57ba1-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Viktor - Herald of the Arcane",
    "Viktor - Innovator",
@@ -14917,7 +14901,7 @@
     "Mind"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/12dfa6b38edc9b23f216c0a1828474f7506d49c0-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/35be0b10f13611b4f5d828f2a79001036ab57ba1-744x1039.png?accountingTag=RB"
  },
  "viktor - leader": {
   "name": "Viktor - Leader",
@@ -14951,7 +14935,7 @@
  },
  "vilemaw": {
   "name": "Vilemaw",
-  "text": "[Ambush]Enemy units here with less Might than me don't deal combat damage.When I hold, draw 1.",
+  "text": "[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)Enemy units here with less Might than me don't deal combat damage.When I hold, draw 1.",
   "stats": {
    "energy": 8,
    "might": 8,
@@ -14962,7 +14946,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/229efda03d93b27741b8f9e86e1151b5c2a5095f-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb6dde0284f9ef84cbc9c0f07d2e7aac2fe6f919-744x1039.png?accountingTag=RB"
  },
  "vilemaw's lair": {
   "name": "Vilemaw's Lair",
@@ -15072,20 +15056,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5b64b63c6be58ff3c33c7fb3c2dcb168d64e287e-744x1039.png?accountingTag=RB"
  },
  "volibear": {
-  "name": "Volibear - Relentless Storm",
-  "text": "When you play a [Mighty] unit, you may exhaust me to channel 1 rune exhausted. (A unit is Mighty while it has 5+ :rb_might:.)",
+  "name": "Volibear - Furious",
+  "text": "[Deflect 2] (Opponents must pay :rb_rune_rainbow::rb_rune_rainbow: to choose me with a spell or ability.)When I attack, deal 5 damage split among any number of enemy units here.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
-   "rarity": "Rare",
+   "energy": 10,
+   "might": 9,
+   "power": 2,
+   "type": "Unit",
+   "rarity": "Epic",
    "domain": [
-    "Fury",
-    "Body"
+    "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f1842ef373434db3e8109d8959832f9d184866c3-744x1040.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c9165d49b8caae9a856433cd5151e8b368eb80b5-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Volibear - Furious",
    "Volibear - Imposing",
@@ -15105,7 +15088,7 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/744d1b950ae7ef1e6e5b244538a6afb9802e5e3d-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c9165d49b8caae9a856433cd5151e8b368eb80b5-744x1039.png?accountingTag=RB"
  },
  "volibear - imposing": {
   "name": "Volibear - Imposing",
@@ -15120,7 +15103,7 @@
     "Body"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/faceb90b6a46e79eadba43871b8cffe1ec5037a7-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bcb15f95f4a72f8b070a3b1cd54e6482fe1a4b3e-744x1039.png?accountingTag=RB"
  },
  "volibear - relentless storm": {
   "name": "Volibear - Relentless Storm",
@@ -15529,20 +15512,19 @@
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ec694ac53a49fd4419434cb144daaaf0f38da574-744x1039.png?accountingTag=RB"
  },
  "yasuo": {
-  "name": "Yasuo - Unforgiven",
-  "text": ":rb_energy_2:, :rb_exhaust:: Move a friendly unit to or from its base.",
+  "name": "Yasuo - Remorseful",
+  "text": "When I attack, deal damage equal to my Might to an enemy unit here.",
   "stats": {
-   "energy": null,
-   "might": null,
-   "power": null,
-   "type": "Legend",
+   "energy": 6,
+   "might": 6,
+   "power": 2,
+   "type": "Unit",
    "rarity": "Rare",
    "domain": [
-    "Calm",
-    "Chaos"
+    "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/68e4d3230b785738ae9d86f780f7f5607ef11807-744x1040.png?accountingTag=RB",
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1643a6c93626884c93363557e1a483642bda6c45-744x1039.png?accountingTag=RB",
   "ambiguous": [
    "Yasuo - Remorseful",
    "Yasuo - Unforgiven",
@@ -15562,7 +15544,7 @@
     "Calm"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3f2cff3ff3b146c8bfe11594e37e9d8109884273-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1643a6c93626884c93363557e1a483642bda6c45-744x1039.png?accountingTag=RB"
  },
  "yasuo - unforgiven": {
   "name": "Yasuo - Unforgiven",
@@ -15593,7 +15575,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/40575a59f02c431223ef484edabdf7bd8cb28381-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f5ba378ce4dad16d17e001814e091d5f484f2681-744x1039.png?accountingTag=RB"
  },
  "yeti brawler": {
   "name": "Yeti Brawler",
@@ -15657,7 +15639,7 @@
  },
  "yordle, kennen": {
   "name": "Yordle, Kennen - Heart of the Tempest",
-  "text": "When you play a card from anywhere other than your hand, empower me.[Action][>] Disempower me, :rb_exhaust:: Give a unit [Assault 2] this turn.",
+  "text": "When you play a card from anywhere other than your hand, empower me.[Action][>] Disempower me, :rb_exhaust:: Give a unit [Assault 2] this turn. (+2 :rb_might: while it's an attacker.)",
   "stats": {
    "energy": null,
    "might": null,
@@ -15669,11 +15651,11 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f208ffb2ee76827cd4c608bcc8e1bcb9380bfa31-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0eab83392b310417d2630d50a3bfee3dd02b31c4-744x1039.png?accountingTag=RB"
  },
  "yordle, kennen - heart of the tempest": {
   "name": "Yordle, Kennen - Heart of the Tempest",
-  "text": "When you play a card from anywhere other than your hand, empower me.[Action][>] Disempower me, :rb_exhaust:: Give a unit [Assault 2] this turn.",
+  "text": "When you play a card from anywhere other than your hand, empower me.[Action][>] Disempower me, :rb_exhaust:: Give a unit [Assault 2] this turn. (+2 :rb_might: while it's an attacker.)",
   "stats": {
    "energy": null,
    "might": null,
@@ -15685,7 +15667,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f208ffb2ee76827cd4c608bcc8e1bcb9380bfa31-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0eab83392b310417d2630d50a3bfee3dd02b31c4-744x1039.png?accountingTag=RB"
  },
  "yuumi": {
   "name": "Yuumi - Magical Cat",
@@ -15764,7 +15746,7 @@
  },
  "zed - master of shadows": {
   "name": "Zed - Master of Shadows",
-  "text": "When you banish a card you own, empower me.[Action][>] Disempower me, :rb_exhaust:: Discard 1, then draw 1.",
+  "text": "When you banish a card you own, empower me. (I become Empowered if I'm not already.)[Action][>] Disempower me, :rb_exhaust:: Discard 1, then draw 1.",
   "stats": {
    "energy": null,
    "might": null,
@@ -15776,11 +15758,11 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/75b7ba57a83af496b26d9fe7e8521f9a851bf464-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aa316eb1b01c8d036eaba84b03909027fe69f6e2-744x1039.png?accountingTag=RB"
  },
  "zed, from the shadows": {
   "name": "Zed, From the Shadows",
-  "text": "You may discard 1 as an additional cost to play me.When you play me, if you paid the additional cost, play a 0 :rb_might: Shadow Clone unit token.",
+  "text": "You may discard 1 as an additional cost to play me.When you play me, if you paid the additional cost, play a 0 :rb_might: Shadow Clone unit token. (It has \"When I attack, you may banish a unit from your trash. If you do, give me [Assault 4] this turn.\")",
   "stats": {
    "energy": 4,
    "might": 4,
@@ -15791,11 +15773,11 @@
     "Fury"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5d665b28073066442b35f7b6aed98c83fca23631-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/06793f17adbd827e468db40d644eb273a3932c7e-744x1039.png?accountingTag=RB"
  },
  "zed, without a sound": {
   "name": "Zed, Without a Sound",
-  "text": "When I conquer, play a 0 :rb_might: Shadow Clone unit token to your base.[Action][>] :rb_energy_1::rb_rune_chaos:: Move me and a Shadow Clone you control to each other's locations.",
+  "text": "When I conquer, play a 0 :rb_might: Shadow Clone unit token to your base. (It has \"When I attack, you may banish a unit from your trash. If you do, give me [Assault 4] this turn.\")[Action][>] :rb_energy_1::rb_rune_chaos:: Move me and a Shadow Clone you control to each other's locations.",
   "stats": {
    "energy": 5,
    "might": 5,
@@ -15806,7 +15788,7 @@
     "Chaos"
    ]
   },
-  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a9828930a4b5ab7aa98d8199f00e1fde59fd20e3-744x1039.png?accountingTag=RB"
+  "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/be97ca6a33e25b85a04ec1b3a163b31f141776cf-744x1039.png?accountingTag=RB"
  },
  "zenith blade": {
   "name": "Zenith Blade",

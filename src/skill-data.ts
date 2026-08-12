@@ -127,7 +127,24 @@ export function buildCardIndex(cards: RiftcodexCard[]): CardIndex {
   // Full display names seen per key, so a collision is detectable.
   const namesFor = new Map<string, Set<string>>();
 
-  for (const card of cards) {
+  // Fold in a STABLE order. The API paginates without a guaranteed sort, so
+  // "first printing wins" was decided by whatever order the fetch happened to
+  // return: two consecutive runs of `oracle skill-data` differed in 27 entries,
+  // 5 of which bound a base name to a genuinely different card ("ahri" landed
+  // on Nine-Tailed Fox one run and Alluring the next). That churn also destroys
+  // the reason the data is committed at all — a regeneration is supposed to
+  // produce a reviewable diff, not noise.
+  const ordered = [...cards].sort((a, b) => {
+    const setA = a.set?.set_id ?? "";
+    const setB = b.set?.set_id ?? "";
+    if (setA !== setB) return setA < setB ? -1 : 1;
+    const nA = a.collector_number ?? 0;
+    const nB = b.collector_number ?? 0;
+    if (nA !== nB) return nA - nB;
+    return (a.riftbound_id ?? a.id ?? "") < (b.riftbound_id ?? b.id ?? "") ? -1 : 1;
+  });
+
+  for (const card of ordered) {
     const display = card.name.replace(/\s*\(.*?\)\s*$/, "").trim();
     const entry: SkillCard = { name: display, text: cardText(card), stats: cardStats(card) };
     const image = card.media?.image_url;
