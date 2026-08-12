@@ -49,6 +49,26 @@ stay flagged rather than silently short, and are named on every run and by the s
 Verify against the image before adding an entry. A wrong transcription is worse than a
 flagged gap: the gap is honest, the transcription is not.
 
+## Packaging a release
+
+```bash
+npm run oracle package        # -> dist/riftbound-rules-report-v<version>.zip + .sha256
+```
+
+The archive is **byte-reproducible**: every entry is stamped with a fixed timestamp, so
+building the same corpus twice gives the same checksum. A rebuild that changes nothing is
+visibly a no-op, and a release checksum means something.
+
+It carries `SKILL-VERSION.json` recording the rules version, rule and card counts, the commit
+it was built from, and how many cards still await transcription — so a downloaded skill,
+cut off from this repository, can still be dated against a rules update.
+
+`dist/` is gitignored. The archive is distributed by attaching it to a GitHub release, not by
+committing it.
+
+Install from the archive: unzip it into `.claude/skills/`, or upload the zip wherever your
+agent takes skills. It needs Python 3.9+ and nothing else.
+
 ## Read the diff
 
 `data/rules.json` is committed precisely so an update is reviewable. The 2026-07-16

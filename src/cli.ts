@@ -41,6 +41,9 @@ async function main() {
     case "extract":
       await handleExtract();
       break;
+    case "package":
+      await handlePackage();
+      break;
     case "gear-gaps":
       await handleGearGaps();
       break;
@@ -70,6 +73,7 @@ ${color.bold("Commands:")}
   ${color.cyan("extract")}            Extract downloaded rulebook PDFs to markdown
   ${color.cyan("skill-data")}         Rebuild the skill's vendored card data (needs network)
   ${color.cyan("gear-gaps")}          Collect artwork + a YAML stub for cards the API can't supply
+  ${color.cyan("package")}            Build the distributable skill archive into dist/
   ${color.cyan("vault-sync")}         Mirror output/ into an Obsidian wiki's raw/ folder
   ${color.cyan("status")}             Show manifest status
   ${color.cyan("help")}               Show this help message
@@ -308,6 +312,32 @@ async function handleExtract() {
  * does not carry. Downloads the artwork and writes a pre-filled stub; the
  * human supplies only what the image shows. No parsing, no model.
  */
+/** Build the archive a release attaches and a non-building agent installs. */
+async function handlePackage() {
+  const { packageSkill } = await import("./package.js");
+  const s = p.spinner();
+  s.start("Packaging the skill");
+  try {
+    const r = packageSkill();
+    s.stop(`${Math.round(r.bytes / 1024)}KB → ${color.cyan(r.archive)}`);
+    p.log.info(
+      `rules ${r.manifest.rules_version} · ${r.manifest.rules} rules · ` +
+        `${r.manifest.cards} cards · commit ${r.manifest.commit}`
+    );
+    if (r.manifest.cards_awaiting_transcription) {
+      p.log.warning(
+        `${r.manifest.cards_awaiting_transcription} card(s) still awaiting transcription ` +
+          `(${color.cyan("oracle gear-gaps")})`
+      );
+    }
+    p.log.message(`sha256  ${r.sha256}`);
+  } catch (err) {
+    s.error("Packaging failed");
+    p.log.error(String(err instanceof Error ? err.message : err));
+    process.exitCode = 1;
+  }
+}
+
 async function handleGearGaps() {
   const { findGaps, collectGaps, loadOverlays } = await import("./gear-gaps.js");
   const index = JSON.parse(
