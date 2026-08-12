@@ -9,7 +9,7 @@ is a real regression, not a hypothetical.
 
 Exit 0 = safe to answer questions against this corpus.
 """
-import json, os, subprocess, sys
+import json, os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -39,7 +39,14 @@ def parser_fidelity():
     """
     print("\n=== parser fidelity (fixtures) ===")
     import tempfile
-    from parse_rules import parse_doc
+    try:
+        from parse_rules import parse_doc
+    except SystemExit:
+        # A skill copied out of the source repo has no markdown to parse. The
+        # parser is only exercised when rebuilding, so this is a skip, not a
+        # failure — every other check still runs against the vendored corpus.
+        note("source corpus absent; parser checks skipped (rebuild-only path)")
+        return
 
     def run(body):
         with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False, encoding="utf-8") as fh:
@@ -80,7 +87,7 @@ def corpus_integrity():
     """The parser has fabricated rules and corrupted others before now."""
     print("\n=== corpus integrity ===")
     from verify_citations import RuleIndex
-    idx = RuleIndex(os.path.join(HERE, "rules.json"))
+    idx = RuleIndex()
     rules = list(idx.rules.values())
     # `> 3000` against an actual 3316 meant 300 rules could vanish silently.
     EXPECTED = 3316
@@ -213,12 +220,81 @@ def holding_invariants(idx):
           r["holding"]["disposition"] == "UNSETTLED", f'-> {r["holding"]["disposition"]}')
 
 
+def rulebook_and_links():
+    """The report's citation links must land on real anchors.
+
+    A citation that expands but cannot be followed was the gap this closes, so
+    the failure mode to guard is a link pointing at an anchor the rulebook does
+    not define — invisible until a reader clicks it.
+    """
+    print("\n=== rulebook anchors + report links ===")
+    import json as _json
+    from corpus import rules_json, rulebook_html_path
+    from render_rulebook import render_rulebook, anchor
+
+    rules = _json.load(open(rules_json(), encoding="utf-8"))
+    book = render_rulebook(rules, "test")
+    ids = set(re.findall(r'<section class="r[^"]*" id="([^"]+)"', book))
+    want = {anchor(r["doc"], r["id"]) for r in rules}
+    check("every rule gets an anchor", ids == want,
+          f"{len(ids)} anchors for {len(want)} rules")
+
+    internal = set(re.findall(r'href="#([^"]+)"', book))
+    check("no rulebook link points at a missing anchor", internal <= ids,
+          ", ".join(sorted(internal - ids)[:3]))
+
+    # A citation rendered by the report must resolve against that same scheme.
+    from render_report import verify_answer, render
+    from verify_citations import RuleIndex
+    idx = RuleIndex()
+    src = os.path.join(HERE, "demo-answer.json")
+    if os.path.exists(src):
+        ans = verify_answer(json.load(open(src, encoding="utf-8")), idx)
+        html = render(ans, idx)
+        targets = set(re.findall(r'href="\.\./data/rules\.html#([^"]+)"', html))
+        check("report emits rulebook links", bool(targets), f"{len(targets)} distinct")
+        check("every report link resolves in the rulebook", targets <= ids,
+              ", ".join(sorted(targets - ids)[:3]))
+
+    if not os.path.exists(rulebook_html_path()):
+        note("data/rules.html not built yet; run `rules_cli.py rulebook`")
+
+
+def card_rendering():
+    """Cards silently never rendered: the schema had no `cards` field at all."""
+    print("\n=== card resolution ===")
+    from render_report import resolve_cards
+    from corpus import load_cards
+
+    cards = load_cards()
+    if not cards:
+        note("data/cards.json missing; run `npm run oracle skill-data`")
+        return
+    check("card data is present", len(cards) > 100, f"{len(cards)} lookup names")
+
+    withart = sum(1 for c in cards.values() if c.get("image"))
+    check("cards carry artwork URLs", withart > 0, f"{withart}/{len(cards)}")
+
+    sample = next(iter(cards.values()))["name"]
+    got = resolve_cards({"cards": [sample]})
+    check("a named card resolves to text + artwork",
+          len(got) == 1 and got[0]["name"] == sample and not got[0].get("unresolved"))
+
+    missing = resolve_cards({"cards": ["Definitely Not A Real Card"]})
+    check("an unresolvable name is marked, not dropped",
+          len(missing) == 1 and missing[0].get("unresolved"))
+
+    check("no cards field renders nothing", resolve_cards({}) == [])
+
+
 def main():
     print("rules-report selftest")
     parser_fidelity()
     idx = corpus_integrity()
     verifier_regression(idx)
     holding_invariants(idx)
+    rulebook_and_links()
+    card_rendering()
 
     print()
     if FAILS:

@@ -16,6 +16,7 @@ import {
   type ManifestEntry,
 } from "./manifest.js";
 import { fetchSets, fetchCardsBySet, cardsToMarkdown, fetchSetLabel } from "./riftcodex.js";
+import { buildSkillData } from "./skill-data.js";
 import { normalize } from "./normalize.js";
 import { downloadPrintCards } from "./print.js";
 import { syncToVault, resolveVaultDir } from "./vault.js";
@@ -40,8 +41,8 @@ async function main() {
     case "extract":
       await handleExtract();
       break;
-    case "card-index":
-      await handleCardIndex();
+    case "skill-data":
+      await handleSkillData();
       break;
     case "vault-sync":
       await handleVaultSync();
@@ -64,7 +65,7 @@ ${color.bold("Commands:")}
   ${color.cyan("process --only=X")}   Process only entries matching category or output path
   ${color.cyan("print --set=X")}      Download card images for printing
   ${color.cyan("extract")}            Extract downloaded rulebook PDFs to markdown
-  ${color.cyan("card-index")}         Fetch card artwork URLs (needs network)
+  ${color.cyan("skill-data")}         Rebuild the skill's vendored card data (needs network)
   ${color.cyan("vault-sync")}         Mirror output/ into an Obsidian wiki's raw/ folder
   ${color.cyan("status")}             Show manifest status
   ${color.cyan("help")}               Show this help message
@@ -289,27 +290,29 @@ async function handleExtract() {
 }
 
 /**
- * Build a card-name → artwork-URL index for report rendering.
+ * Rebuild `.claude/skills/rules-report/data/cards.json`.
  *
- * Kept separate from `process` because it is purely presentational: the rules
- * answerer works without it, and a blocked network should not fail a run.
+ * This is the maintainer step that makes the skill portable: card text and
+ * artwork URLs are folded into one file that ships inside the skill, so a
+ * copied skill answers card questions with no repo, no network and no build.
+ *
+ * Failure is non-fatal. The committed cards.json stays valid, and rules-only
+ * questions never touched card data anyway.
  */
-async function handleCardIndex() {
+async function handleSkillData() {
   const s = p.spinner();
-  s.start("Fetching card artwork URLs");
+  s.start("Fetching card data for the skill");
   try {
-    const sets = await fetchSets();
-    const index: Record<string, string> = {};
-    for (const set of sets) {
-      s.message(`Fetching ${set.set_id}`);
-      for (const card of await fetchCardsBySet(set.set_id)) {
-        if (card.media?.image_url) index[card.name] = card.media.image_url;
-      }
+    const result = await buildSkillData({ onProgress: (m) => s.message(`Fetching ${m}`) });
+    s.stop(
+      `${result.cards} cards → ${result.keys} lookup names ` +
+        `(${result.withArt} with artwork) → ${color.cyan(result.outputPath)}`
+    );
+    if (result.withArt === 0) {
+      p.log.warning("No artwork URLs returned — reports will render placeholders");
     }
-    writeFileSync(resolve("output/card-index.json"), JSON.stringify(index, null, 1), "utf-8");
-    s.stop(`${Object.keys(index).length} card images → ${color.cyan("output/card-index.json")}`);
   } catch (err) {
-    s.error("Card index failed — reports will render without artwork");
+    s.error("skill-data failed — the committed cards.json is unchanged");
     p.log.error(String(err));
   }
 }

@@ -24,6 +24,11 @@ localStorage guarded, print handler opens <details>, dark mode via prefers-color
 """
 import html, json, sys
 from verify_citations import RuleIndex, verify_citation
+from render_rulebook import anchor as rulebook_anchor
+
+# Reports live in reports/, the rulebook in data/ — one copy, linked relatively,
+# so the pair keeps working offline and survives being moved or shared together.
+RULEBOOK = "../data/rules.html"
 
 BASIS = {
     "grounded":   ("●", "A rule states this in so many words"),
@@ -205,30 +210,91 @@ def cite_html(c, idx):
     probs = "".join(f'<div class="prob">{esc(p)}</div>' for p in c.get("problems", [])
                     if not p.startswith("cite narrowed"))
     full = f'{doc} {rid} ({"Core Rules" if doc == "CR" else "Tournament Rules"}, 2026-07-16): "{c.get("quote","")}"'
+    # Every ancestor row links to its own anchor, not just the cited rule: the
+    # useful move after reading a citation is usually "show me the parent".
+    anchored = "".join(
+        f'<li class="{"anc-target" if r["id"] == rid else ""}" style="--d:{r["depth"]}">'
+        f'<a class="anc-link" href="{RULEBOOK}#{esc(rulebook_anchor(doc, r["id"]))}">'
+        f'<code>{esc(r["id"])}</code></a> <span>{esc(r["text"])}</span></li>'
+        for r in chain
+    )
     return f'''<details class="cite">
 <summary><code>{esc(doc)} {esc(rid)}</code> <span class="stamp {scls}">{stamp}</span></summary>
 <div class="cite-body">
 {narrow}{probs}
-<ol class="ancestry">{rows}</ol>
-<button class="copy" data-cite="{esc(full)}">copy cite</button>
+<ol class="ancestry">{anchored}</ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="{RULEBOOK}#{esc(rulebook_anchor(doc, rid))}"
+     title="Open {esc(doc)} {esc(rid)} in the full rulebook">open in rulebook &rarr;</a>
+  <button class="copy" data-cite="{esc(full)}">copy cite</button>
+</div>
 </div></details>'''
 
 
-def cards_html(ans):
-    """Card artwork alongside printed text.
+def resolve_cards(ans):
+    """Turn the answer's `cards` list into renderable card records.
 
-    Images come from output/card-index.json (`npm run oracle card-index`). That
-    index is optional and network-dependent, so a missing image degrades to a
-    labelled placeholder rather than a broken <img>. Remote URLs are fine here —
-    these reports are local files, not sandboxed artifacts.
+    The agent supplies names — `"cards": ["Astral Heron"]` — and lookup happens
+    here against the skill's vendored card data. That split is deliberate: the
+    agent should not be inventing artwork URLs or retyping printed text, which
+    are exactly the things it would get subtly wrong.
+
+    A name that does not resolve is kept and marked, never dropped. Silently
+    omitting a card the answer discusses would leave the reader thinking the
+    card was never considered.
     """
-    cards = ans.get("cards") or []
+    names = ans.get("cards") or []
+    if not names:
+        return []
+
+    try:
+        from card_bridge import CardBridge
+        bridge = CardBridge()
+    except Exception:
+        bridge = None
+
+    out = []
+    for entry in names:
+        # Accept a bare name or an object. An object is still looked up and
+        # ENRICHED rather than passed through: a hand-written entry that
+        # predates the card data would otherwise render "no artwork" beside a
+        # card whose art we hold, which reads as a missing image rather than as
+        # a stale answer file.
+        supplied = entry if isinstance(entry, dict) else {}
+        name = str(supplied.get("name") or entry)
+
+        card = bridge.cards.get(name.lower()) if bridge else None
+        if card:
+            resolved = bridge.card_terms(card)
+            # Anything explicitly supplied wins; the lookup only fills gaps.
+            resolved.update({k: v for k, v in supplied.items() if v})
+            out.append(resolved)
+        elif supplied:
+            out.append(supplied)
+        else:
+            out.append({"name": name, "unresolved": True})
+    return out
+
+
+def cards_html(ans):
+    """Card artwork beside printed text, for every card the answer names.
+
+    Artwork is referenced by URL from Riot's CDN, never copied into the repo.
+    A missing image degrades to a labelled placeholder rather than a broken
+    <img>; remote URLs are fine because these reports are local files.
+    """
+    cards = resolve_cards(ans)
     if not cards:
         return ""
     out = []
     for c in cards:
         img = c.get("image")
-        if img:
+        if c.get("unresolved"):
+            art = (
+                '<div class="card-art card-art--none">not found'
+                "<span>no card by this name</span></div>"
+            )
+        elif img:
             art = (
                 f'<img class="card-art" src="{esc(img)}" alt="{esc(c["name"])} card artwork"'
                 ' loading="lazy" referrerpolicy="no-referrer">'
@@ -236,12 +302,21 @@ def cards_html(ans):
         else:
             art = (
                 '<div class="card-art card-art--none">no artwork'
-                '<span>run <code>oracle card-index</code></span></div>'
+                "<span>rebuild with <code>oracle skill-data</code></span></div>"
             )
+
+        # Keywords a card prints map onto glossary sections; linking them lets a
+        # reader jump from "[Equip]" straight to the rule defining Equip.
+        secs = "".join(
+            f'<a class="card-rule" href="{RULEBOOK}#{esc(rulebook_anchor("CR", s))}">{esc(s)}</a>'
+            for s in (c.get("rule_sections") or [])
+        )
+        secs = f'<span class="card-rules">governed by {secs}</span>' if secs else ""
+
         out.append(
             '<figure class="card">' + art + '<figcaption><b>'
             + esc(c["name"]) + '</b><span class="card-text">'
-            + esc(c.get("text", "")) + '</span></figcaption></figure>'
+            + esc(c.get("text", "")) + "</span>" + secs + "</figcaption></figure>"
         )
     return '<h2>Cards referenced</h2><div class="cards">' + "".join(out) + "</div>"
 
@@ -346,6 +421,15 @@ h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform
  border-left:2px solid var(--line);margin-left:.2rem}}
 .ancestry li.anc-target{{background:var(--mark);border-radius:3px}}
 .ancestry code{{color:var(--accent);margin-right:.45rem}}
+.card-rules{{display:block;margin-top:.35rem;font-size:.72rem;color:var(--dim)}}
+.card-rule{{color:var(--accent);text-decoration:none;margin-right:.35rem;
+ border-bottom:1px dotted var(--accent)}}
+.anc-link{{text-decoration:none}}
+.anc-link:hover code{{text-decoration:underline}}
+.cite-actions{{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}}
+.rulebook-link{{font-size:.75rem;color:var(--accent);text-decoration:none;
+ border:1px solid var(--line);border-radius:4px;padding:.35em .7em}}
+.rulebook-link:hover{{border-color:var(--accent)}}
 .narrowed{{font-size:.8rem;color:var(--inferred);margin:.5rem 0}}
 .prob{{font-size:.8rem;color:var(--gap);margin:.5rem 0}}
 .copy{{font:.75rem ui-sans-serif,system-ui;padding:.35em .7em;border:1px solid var(--line);
@@ -362,7 +446,7 @@ h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform
 .card-text{{color:var(--dim);font-size:.76rem;line-height:1.45}}
 ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
 @media(max-width:700px){{.hline{{font-size:1.05rem}}}}
-@media print{{.cite{{break-inside:avoid}} .copy{{display:none}} body{{background:#fff}}}}
+@media print{{.cite{{break-inside:avoid}} .copy,.rulebook-link{{display:none}} body{{background:#fff}}}}
 </style></head><body><div class="wrap">
 
 <header>

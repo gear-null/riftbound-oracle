@@ -2,10 +2,10 @@
 """`rules` — deterministic tools for answering Riftbound rules questions.
 
 Architecture note. This deliberately does NOT do semantic retrieval over the
-rules. That was measured and it failed: recall@10 of 32% over 620 real
-questions, because 65% of questions name a card and only ~4% of card names
-appear anywhere in rule text. Users ask in card vocabulary; the rules are
-written in rules vocabulary, and no amount of BM25 tuning bridges that.
+rules. That was built, measured at recall@10 of 32%, and rejected. The reason
+is structural: users ask in CARD vocabulary and the rules are written in RULES
+vocabulary, and card names essentially never appear in rule text — so no amount
+of BM25 tuning bridges the gap.
 
 Instead the agent NAVIGATES. These commands are the primitives it navigates
 with — each one exact, deterministic, and free of model judgement:
@@ -16,6 +16,7 @@ with — each one exact, deterministic, and free of model judgement:
     rules section <id>      a whole numbered section, in document order
     rules report <json>     verify + render + open — the ONLY way to finish an answer
     rules verify <json>     mechanical citation gate (report runs this for you)
+    rules rulebook          (re)generate the anchored HTML rulebook
     rules selftest          regression harness; run after every rules update
     rules render <json>     interactive HTML report
 
@@ -27,7 +28,8 @@ import json, os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-RULES_JSON = os.path.join(HERE, "rules.json")
+from corpus import rules_json as _rules_json
+RULES_JSON = _rules_json()
 RULES_DB = os.path.join(HERE, "rules.db")
 REPORTS = os.path.normpath(os.path.join(HERE, "..", "reports"))
 
@@ -120,6 +122,26 @@ def cmd_card(args):
         print()
 
 
+def cmd_rulebook(args):
+    """(Re)generate the anchored HTML rulebook that reports link into."""
+    from render_rulebook import main as build_rulebook
+    build_rulebook()
+
+
+def ensure_rulebook():
+    """Build the rulebook if it is missing, so a citation link is never dead.
+
+    Reports link to `../data/rules.html#CR-471.1.b.1`. If that file does not
+    exist the links resolve to nothing and the report looks broken through no
+    fault of the answer, so the first report generates it rather than leaving
+    the user to discover the gap by clicking.
+    """
+    from corpus import rulebook_html_path
+    if not os.path.exists(rulebook_html_path()):
+        print("  building the rulebook reports link into (first run)...")
+        cmd_rulebook([])
+
+
 def cmd_report(args):
     """Verify, render and open — one step, so an answer cannot be half-delivered.
 
@@ -142,6 +164,7 @@ def cmd_report(args):
             print(f"  ! {pb}")
         sys.exit(1)
 
+    ensure_rulebook()
     subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
     print(f"\nreport: {os.path.normpath(os.path.abspath(out))}")
     if "--no-open" not in args:
@@ -176,6 +199,7 @@ def cmd_verify(args):
 def cmd_render(args):
     src = args[0]
     out = args[1] if len(args) > 1 else "report.html"
+    ensure_rulebook()
     subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
 
 
@@ -195,7 +219,8 @@ def cmd_build(args):
 
 COMMANDS = {"rule": cmd_rule, "section": cmd_section, "grep": cmd_grep,
             "card": cmd_card, "verify": cmd_verify, "render": cmd_render,
-            "build": cmd_build, "selftest": cmd_selftest, "report": cmd_report}
+            "build": cmd_build, "selftest": cmd_selftest, "report": cmd_report,
+            "rulebook": cmd_rulebook}
 
 
 def main():

@@ -1,8 +1,3 @@
 # Build artifacts — regenerate with `python3 rules_cli.py build`
 rules.db
 __pycache__/
-
-# rules.json is deliberately NOT ignored. Checking it in means a rules update
-# produces a reviewable git diff of rule ids — which is how you notice that 440
-# stopped being Movement and became Burn, instead of finding out via a wrong
-# citation months later.

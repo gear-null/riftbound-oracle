@@ -1,0 +1,9 @@
+# Everything in here is deliberately COMMITTED. The skill is the product:
+# someone copies this folder and it answers questions offline, immediately,
+# with no clone and no build step. Ignoring any of it breaks that promise.
+#
+#   rules.json   the parsed rulebook. Committed so a rules update arrives as a
+#                reviewable diff of rule ids, rather than as a wrong citation
+#                discovered months later.
+#   cards.json   card text + artwork URLs (URLs only; no image is redistributed)
+#   rules.html   the anchored rulebook that report citations link into

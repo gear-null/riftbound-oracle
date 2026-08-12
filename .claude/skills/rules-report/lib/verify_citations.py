@@ -15,7 +15,7 @@ Checks, cheapest first:
 import json, re, sys, unicodedata
 from dataclasses import dataclass, field
 
-RULES_JSON = "rules.json"
+from corpus import rules_json as _rules_json_path
 
 
 def norm(s: str) -> str:
@@ -29,7 +29,8 @@ def norm(s: str) -> str:
 
 
 class RuleIndex:
-    def __init__(self, path=RULES_JSON):
+    def __init__(self, path=None):
+        path = path or _rules_json_path()
         self.rules = {}
         for r in json.load(open(path, encoding="utf-8")):
             self.rules[f'{r["doc"]}:{r["id"]}'] = r

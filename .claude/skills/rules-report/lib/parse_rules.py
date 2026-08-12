@@ -10,13 +10,24 @@ Run:  python3 parse_rules.py [--json out.json]
 import re, json, sys, os
 from collections import Counter
 
-from corpus import corpus_dir
-RAW = corpus_dir()
+from corpus import source_corpus_dir
 
-DOCS = [
-    ("CR", f"{RAW}/core-rules.md", "2026-07-16"),
-    ("TR", f"{RAW}/tournament-rules.md", "2026-07-16"),
-]
+RULES_VERSION = "2026-07-16"
+
+
+def docs():
+    """The source markdown to parse. Resolved lazily, and only by `build`.
+
+    This used to run at import time, which meant a skill copied out of the repo
+    could not even *import* this module — taking the whole selftest down with
+    it, though only two of its checks touch the parser. A standalone install
+    answers questions from the vendored data and never needs this path.
+    """
+    raw = source_corpus_dir()
+    return [
+        ("CR", f"{raw}/core-rules.md", RULES_VERSION),
+        ("TR", f"{raw}/tournament-rules.md", RULES_VERSION),
+    ]
 
 # A rule starts with a 3-digit section then optional .N / .a levels, then a dot.
 RULE_RE = re.compile(r"^(\d{3}(?:\.[0-9a-z]+)*)\.\s*(.*)$")
@@ -168,7 +179,7 @@ def sort_key(rule_id: str):
 
 def main():
     all_rules, stats, all_vetoed, disorder = {}, {}, [], []
-    for doc, path, version in DOCS:
+    for doc, path, version in docs():
         rules, order, titles, vetoed = parse_doc(doc, path, version)
         for rid, r in rules.items():
             all_rules[f"{doc}:{rid}"] = r

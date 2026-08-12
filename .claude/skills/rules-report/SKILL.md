@@ -36,7 +36,7 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 | `section <id>` | A whole numbered section in document order |
 | `grep <fts query>` | Lexical search over rule text. SQLite FTS5 syntax: `"burn" NOT "burn out"`, `banish*`, `sideboard AND size` |
 | `build` | Rebuild the rule index from the corpus. Run this first on a fresh clone |
-| `selftest` | 26-check regression harness; run after every rules update |
+| `selftest` | 35-check regression harness; run after every rules update |
 | `report <answer.json>` | **How you finish.** Verify + render + open, in one step |
 | `verify <answer.json>` | The citation gate alone. Exit 1 if anything fails |
 | `render <answer.json> [out]` | Render alone; prefer `report` |
@@ -102,9 +102,18 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
   "counterargument": [{"reading": "opposing reading at full strength",
                        "why_it_loses": "...", "cites": [...]}],
   "considered_rejected": [{"rule": "CR:370.3", "why": "one line"}],
-  "open_questions": ["..."]
+  "open_questions": ["..."],
+  "cards": ["Astral Heron"]
 }
 ```
+
+**`cards` is a list of names, nothing more.** Name every card the question or
+your answer discusses, spelled as `rules_cli.py card` resolved it. The renderer
+looks each one up in the skill's card data and renders its artwork, printed
+text and governing rule sections. Do not supply text or image URLs yourself —
+those are exactly the fields you would get subtly wrong, and the lookup is
+already exact. A name that does not resolve is shown as "not found" rather than
+dropped, so a typo is visible instead of silent.
 
 Rules the renderer enforces, so write to them:
 
