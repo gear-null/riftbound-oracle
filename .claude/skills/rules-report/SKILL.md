@@ -153,10 +153,14 @@ note, navigate by section number — the rules use vocabulary players do not.
 
 These are different findings and must not be reported as the same thing.
 
-Some cards' printed text is **incomplete upstream**. Blighted Battleaxe carries only
-`[Equip] :rb_energy_1::rb_rune_fury:` in the Riftcodex API, while the physical card also has an
-end-of-turn unattach-and-damage clause. Re-ingesting does not fix it — the gap is in the source
-data, not the pipeline.
+Some cards' printed text is **incomplete upstream**, and `card` tells you when: it prints
+`!!! PRINTED TEXT INCOMPLETE` and says what is missing. Equipment gear is the known case —
+the effect it grants once attached is printed in a band at the foot of the card, and reaches
+neither the API's text fields nor its attributes. Re-ingesting does not fix it; the gap is in
+the source data, not the pipeline.
+
+**Never conclude a card lacks an ability you cannot see in a flagged card's text.** Say the
+data is short and scope the answer to what you can verify.
 
 So when a card's printed text does not contain the behaviour asked about, say **which** of these is
 true:

@@ -12,12 +12,56 @@
  * copied skill silently lost card lookup entirely and every report rendered an
  * artwork placeholder.
  */
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { parse as parseYaml } from "yaml";
 import { fetchSets, fetchCardsBySet, type RiftcodexCard } from "./riftcodex.js";
 import { decodeEntities } from "./normalize.js";
 
 export const SKILL_DATA_DIR = ".claude/skills/rules-report/data";
+export const OVERLAY_PATH = "manifests/card-overlays.yaml";
+
+/** Hand-transcribed text the API does not carry. See the file's header. */
+export interface CardOverlay {
+  name: string;
+  source?: string;
+  granted_might?: number;
+  granted_text?: string;
+}
+
+export function loadOverlays(path = OVERLAY_PATH): Map<string, CardOverlay> {
+  let raw: string;
+  try {
+    raw = readFileSync(resolve(path), "utf-8");
+  } catch {
+    return new Map();   // optional: the pool is merely flagged without it
+  }
+  const parsed = parseYaml(raw) as { cards?: CardOverlay[] } | null;
+  return new Map((parsed?.cards ?? []).map((c) => [c.name.toLowerCase(), c]));
+}
+
+/**
+ * Fold a transcription into a card, and clear its `incomplete` flag.
+ *
+ * The granted Might is appended to the printed text rather than written into
+ * `stats.might`: on the card it is a bonus the gear confers on its holder, not
+ * the gear's own might, and putting it in the stats row would read as the
+ * latter.
+ */
+export function applyOverlay(entry: SkillCard, overlay?: CardOverlay): SkillCard {
+  if (!overlay) return entry;
+  const extra = [
+    overlay.granted_text?.trim(),
+    overlay.granted_might != null ? `Grants +${overlay.granted_might} Might.` : undefined,
+  ].filter(Boolean);
+  if (!extra.length) return entry;
+  const merged: SkillCard = {
+    ...entry,
+    text: [entry.text, ...extra].filter(Boolean).join(" "),
+  };
+  delete merged.incomplete;
+  return merged;
+}
 
 export interface CardStats {
   energy: number | null;
@@ -34,6 +78,16 @@ export interface SkillCard {
   text: string;
   stats: CardStats;
   image?: string;
+  /**
+   * Set when the upstream API is known to be missing part of the card's
+   * printed text, so nothing downstream presents `text` as complete.
+   *
+   * Equipment gear is the known case: the API returns only the [Equip] clause
+   * and omits the ability the gear grants once attached — the part anyone
+   * would actually ask about. It is absent from `text.plain`, `text.rich` and
+   * `media.accessibility_text` alike, so no field choice recovers it.
+   */
+  incomplete?: string;
   /**
    * Set when a bare base name is shared by genuinely DIFFERENT cards — "Ahri"
    * covers Alluring, Inquisitive and Nine-Tailed Fox. Lists every full name so
@@ -95,6 +149,24 @@ export function cardText(card: RiftcodexCard): string {
   return decodeEntities((card.text?.plain ?? "").trim());
 }
 
+/**
+ * Does the API's text omit part of this card's printed text?
+ *
+ * Detected structurally, not by guessing: Riftcodex tags equipment gear
+ * `Equipment`, and for exactly those cards `text.plain` stops after the
+ * [Equip] clause. Measured over the pool, the tag and the truncation agree —
+ * 27 of 107 gear cards, and no non-Equipment card affected. Returns the reason
+ * to show a reader, or undefined when the text is whole.
+ */
+export function missingText(card: RiftcodexCard, text: string): string | undefined {
+  if (!card.tags?.includes("Equipment")) return undefined;
+  // Strip the [Equip] clause and its reminder parenthetical; if that is the
+  // whole of the printed text, the granted ability never arrived.
+  const rest = text.replace(/\[Equip\][^(]*(\([^)]*\))?/, "").trim();
+  if (rest) return undefined;
+  return "the ability this gear grants once attached is not in the source data";
+}
+
 /** The numbers and classifications, kept as data rather than prose. */
 export function cardStats(card: RiftcodexCard): CardStats {
   const { energy = null, might = null, power = null } = card.attributes ?? {};
@@ -122,7 +194,10 @@ export function cardStats(card: RiftcodexCard): CardStats {
  * nothing; an ambiguous alias reached the same outcome through the one path
  * that bypassed that guard, and now prints the wrong card's stats as fact.
  */
-export function buildCardIndex(cards: RiftcodexCard[]): CardIndex {
+export function buildCardIndex(
+  cards: RiftcodexCard[],
+  overlays: Map<string, CardOverlay> = new Map()
+): CardIndex {
   const index: CardIndex = {};
   // Full display names seen per key, so a collision is detectable.
   const namesFor = new Map<string, Set<string>>();
@@ -146,7 +221,11 @@ export function buildCardIndex(cards: RiftcodexCard[]): CardIndex {
 
   for (const card of ordered) {
     const display = card.name.replace(/\s*\(.*?\)\s*$/, "").trim();
-    const entry: SkillCard = { name: display, text: cardText(card), stats: cardStats(card) };
+    const body = cardText(card);
+    let entry: SkillCard = { name: display, text: body, stats: cardStats(card) };
+    const gap = missingText(card, body);
+    if (gap) entry.incomplete = gap;
+    entry = applyOverlay(entry, overlays.get(display.toLowerCase()));
     const image = card.media?.image_url;
     if (image) entry.image = image;
 
@@ -197,7 +276,11 @@ export async function buildSkillData(opts: BuildSkillDataOptions = {}) {
     all.push(...(await listCards(set.set_id)));
   }
 
-  const index = buildCardIndex(all);
+  const overlays = loadOverlays();
+  const index = buildCardIndex(all, overlays);
+  const stillMissing = new Set(
+    Object.values(index).filter((c) => c.incomplete).map((c) => c.name)
+  );
   const withArt = Object.values(index).filter((c) => c.image).length;
 
   mkdirSync(dirname(outputPath), { recursive: true });
@@ -206,5 +289,12 @@ export async function buildSkillData(opts: BuildSkillDataOptions = {}) {
   const sorted = Object.fromEntries(Object.entries(index).sort(([a], [b]) => a.localeCompare(b)));
   writeFileSync(outputPath, JSON.stringify(sorted, null, 1), "utf-8");
 
-  return { outputPath, cards: all.length, keys: Object.keys(index).length, withArt };
+  return {
+    outputPath,
+    cards: all.length,
+    keys: Object.keys(index).length,
+    withArt,
+    overlaid: overlays.size,
+    stillMissing: [...stillMissing].sort(),
+  };
 }

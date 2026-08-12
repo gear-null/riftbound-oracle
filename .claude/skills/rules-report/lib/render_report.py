@@ -477,12 +477,20 @@ def cards_html(ans):
         )
         secs = f'<span class="card-rules">governed by {secs}</span>' if secs else ""
 
+        # The artwork sits directly beside this text. Where the source data is
+        # short, the two visibly disagree, so the panel has to say which one is
+        # incomplete rather than letting the reader assume the text is whole.
+        gap = ""
+        if c.get("incomplete"):
+            gap = (f'<span class="card-gap">Printed text incomplete — {esc(c["incomplete"])}. '
+                   "Read it from the card image.</span>")
+
         out.append(
             '<figure class="card">' + art + '<figcaption>'
             + f'<b class="card-name">{esc(c["name"])}</b>'
             + stats_html(c.get("stats"))
             + f'<span class="card-text">{esc(c.get("text", ""))}</span>'
-            + secs + "</figcaption></figure>"
+            + gap + secs + "</figcaption></figure>"
         )
     return '<h2>Cards referenced</h2><div class="cards">' + "".join(out) + "</div>"
 
@@ -624,6 +632,8 @@ h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform
 .chip-q{{font-variant:small-caps;letter-spacing:.02em}}
 .chip-d{{border-color:var(--accent);color:var(--accent)}}
 .card-text{{color:var(--dim);font-size:.76rem;line-height:1.45}}
+.card-gap{{display:block;margin-top:.4rem;padding:.4rem .5rem;border-radius:4px;
+ background:var(--mark);color:var(--fg);font-size:.72rem;line-height:1.4}}
 ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
 .noteref{{color:var(--accent);text-decoration:none;font-family:ui-sans-serif,system-ui;
  font-weight:700;font-size:.68em;padding-left:.15em}}

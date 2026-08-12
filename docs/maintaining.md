@@ -24,6 +24,31 @@ python3 rules_cli.py selftest            # must end "all N checks passed"
 They must move as a set: report citations link to `rules.html#CR-<id>`, and a rules
 update renumbers IDs.
 
+## Card text the API does not carry
+
+Equipment gear prints its granted effect — a "+N Might" badge, sometimes rules text — in a
+band at the foot of the card. None of it reaches the Riftcodex API: `text.plain`,
+`text.rich` and `media.accessibility_text` all stop after the `[Equip]` clause,
+`attributes.might` is null, the OpenAPI schema has no other field, and Riot's Sanity dataset
+is private. It exists only on the artwork. No alternative API was found.
+
+It is therefore transcribed once, by hand, into `manifests/card-overlays.yaml`, and folded in
+by `skill-data`. **The pipeline itself stays deterministic and model-free** — regeneration
+reads a committed file, so a clone or a CI run needs no LLM and no key.
+
+Filling it after a set release:
+
+```bash
+npm run oracle gear-gaps     # downloads the artwork + writes a pre-filled stub
+```
+
+Open the images in `gear-gaps/`, type the numbers into `overlay-stub.yaml`, move completed
+entries into `manifests/card-overlays.yaml`, re-run `skill-data`. Cards you have not covered
+stay flagged rather than silently short, and are named on every run and by the selftest.
+
+Verify against the image before adding an entry. A wrong transcription is worse than a
+flagged gap: the gap is honest, the transcription is not.
+
 ## Read the diff
 
 `data/rules.json` is committed precisely so an update is reviewable. The 2026-07-16

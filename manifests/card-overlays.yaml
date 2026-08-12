@@ -1,0 +1,32 @@
+# Card text the Riftcodex API does not carry.
+#
+# Equipment gear prints its granted effect in a band at the FOOT of the card —
+# a "+N Might" badge and, on some cards, rules text that applies while the gear
+# is attached. None of it reaches the API: `text.plain`, `text.rich` and
+# `media.accessibility_text` all stop after the [Equip] clause, and
+# `attributes.might` is null. It exists only on the artwork.
+#
+# So it is transcribed here, by hand, from the card image. Deliberately a
+# separate committed file rather than a patch to cards.json: cards.json is
+# regenerated wholesale from the API and any edit to it would be overwritten,
+# whereas this survives regeneration and shows up as a reviewable diff.
+#
+# `oracle skill-data` folds these in and clears the `incomplete` flag for the
+# cards covered here. Any equipment card NOT listed stays flagged, and the
+# selftest names it — so the remaining work is always visible rather than
+# silently missing. Adding a set adds flagged cards, not wrong ones.
+#
+# Verify against the card image before adding an entry. A wrong transcription
+# is worse than a flagged gap: the gap is honest, the transcription is not.
+
+cards:
+  - name: B.F. Sword
+    source: https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/97cd20e414c7282abb18cf7691eb1a5a2435af90-744x1039.png
+    granted_might: 3
+
+  - name: Blighted Battleaxe
+    source: https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b1ce87efc9a1a-744x1039.png
+    granted_might: 4
+    granted_text: >-
+      At the end of your turn, if I didn't conquer this turn, unattach this and
+      deal 4 to me.
