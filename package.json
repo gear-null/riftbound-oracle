@@ -2,7 +2,7 @@
   "name": "riftbound-oracle",
   "version": "1.0.0",
   "type": "module",
-  "description": "Crawl, process, and curate Riftbound TCG information into structured markdown for NotebookLM",
+  "description": "Riftbound TCG rules corpus + a citation-verified rules answerer",
   "bin": {
     "riftbound-oracle": "./dist/cli.js"
   },
@@ -16,7 +16,6 @@
   "dependencies": {
     "@clack/prompts": "^1.1.0",
     "dotenv": "^17.3.1",
-    "googleapis": "^148.0.0",
     "jsdom": "^29.0.1",
     "picocolors": "^1.1.0",
     "turndown": "^7.2.0",

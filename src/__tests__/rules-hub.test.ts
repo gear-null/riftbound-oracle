@@ -85,6 +85,45 @@ describe("collectHubLinks", () => {
     expect(links[0].text).toBe("April 2026 Tournament Rules Update & Changelog");
   });
 
+  it("treats the same article on both Riot hosts as one link", () => {
+    // Mid-migration the hub links some articles on the old and new domain at
+    // once; crawling both appended the article body to rules.md twice.
+    const html = `
+      <html><body>
+        <a href="https://riftbound.leagueoflegends.com/en-us/news/announcements/vendetta-errata-updates">Vendetta Errata</a>
+        <a href="https://playriftbound.com/en-us/news/announcements/vendetta-errata-updates">Vendetta Errata Updates</a>
+      </body></html>
+    `;
+    const dom = new JSDOM(html);
+    const links = collectHubLinks(dom.window.document, HUB_URL);
+    expect(links).toHaveLength(1);
+    expect(links[0].url).toBe(
+      "https://riftbound.leagueoflegends.com/en-us/news/announcements/vendetta-errata-updates"
+    );
+  });
+
+  it("treats trailing-slash variants of a path as one link", () => {
+    const html = `
+      <html><body>
+        <a href="/en-us/news/rules-and-releases/unleashed-errata-updates/">A</a>
+        <a href="/en-us/news/rules-and-releases/unleashed-errata-updates">B</a>
+      </body></html>
+    `;
+    const dom = new JSDOM(html);
+    expect(collectHubLinks(dom.window.document, HUB_URL)).toHaveLength(1);
+  });
+
+  it("keeps genuinely different articles on the same host", () => {
+    const html = `
+      <html><body>
+        <a href="https://playriftbound.com/en-us/news/announcements/vendetta-errata-updates">A</a>
+        <a href="https://playriftbound.com/en-us/news/announcements/core-rules-vendetta-patch-notes">B</a>
+      </body></html>
+    `;
+    const dom = new JSDOM(html);
+    expect(collectHubLinks(dom.window.document, HUB_URL)).toHaveLength(2);
+  });
+
   it("strips ISO timestamps from anchor text when no card-title is present", () => {
     const html = `
       <html><body>

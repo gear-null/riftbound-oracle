@@ -1,28 +1,14 @@
 ---
 category: cards
-generated: 2026-03-25
+generated: 2026-08-06
 generator: riftbound-oracle
 ---
 
 # Riftbound Promotional Cards — Complete Card List
 
-**Total cards:** 12
+**Total cards:** 13
 
-## Units (8)
-
-### Vi - Destructive
-
-**Energy:** 2 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Fury
-
-[Ganking] (I can move from battlefield to battlefield.)Recycle 1 from your trash: Give me +1 :rb_might: this turn.
-
-> *Everybody dies. Might as well go down swinging.*
-
-**Tags:** Vi, Piltover
-
-*Artist: Kudos Productions | Riftbound Promotional Cards #36*
-
----
+## Units (9)
 
 ### Ahri - Alluring (Launch Exclusive)
 
@@ -80,6 +66,20 @@ I enter ready.When I attack, kill all damaged enemy units here.
 
 ---
 
+### Vi - Destructive
+
+**Energy:** 2 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Fury
+
+[Ganking]Recycle 1 from your trash: Give me +1 :rb_might: this turn.
+
+> *Everybody dies. Might as well go down swinging.*
+
+**Tags:** Vi
+
+*Artist: Grafit Studio | Riftbound Promotional Cards #167*
+
+---
+
 ### Teemo - Scout
 
 **Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Chaos
@@ -105,6 +105,20 @@ When you discard one or more cards, ready me and give me +1 :rb_might: this turn
 **Tags:** Jinx, Zaun
 
 *Artist: Kudos Productions | Riftbound Promotional Cards #202*
+
+---
+
+### Viktor - Leader
+
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
+
+When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit token into your base.
+
+> *I am more than I ever was.*
+
+**Tags:** Viktor, Zaun
+
+*Artist: League Splash Team | Riftbound Promotional Cards #246*
 
 ---
 

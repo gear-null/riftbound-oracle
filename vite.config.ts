@@ -10,7 +10,7 @@ export default defineConfig({
       fileName: "cli",
     },
     rolldownOptions: {
-      external: [/^node:/, "googleapis", "dotenv", "dotenv/config", "jsdom", "fsevents"],
+      external: [/^node:/, "dotenv", "dotenv/config", "jsdom", "fsevents"],
       output: {
         banner: "#!/usr/bin/env node",
       },

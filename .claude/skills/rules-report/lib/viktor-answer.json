@@ -1,0 +1,134 @@
+{
+ "question": "Unchecked Power deals 12 damage to all units at battlefields. Player 2 has Viktor - Leader and two Vanguard Sergeants at a battlefield. How many Recruits does Player 2 play when Unchecked Power resolves?",
+ "reframe": "when a unit whose ability triggers on ANOTHER unit's death is itself killed in the same cleanup, does its condition still evaluate for those simultaneous deaths?",
+ "corpus": {
+  "CR": "2026-07-16",
+  "TR": "2026-07-16",
+  "generated": "2026-08-11"
+ },
+ "holding": {
+  "disposition": "NO",
+  "line": "Zero Recruits — all three units take lethal damage and are killed in the same cleanup task, and a permanent's triggered ability can only have its condition evaluated while it is on the Board.",
+  "spans": [
+   {
+    "text": "all three units take lethal damage and are killed in the same cleanup task",
+    "basis": "grounded",
+    "note": "n2"
+   },
+   {
+    "text": "can only have its condition evaluated while it is on the Board",
+    "basis": "grounded",
+    "note": "n4"
+   },
+   {
+    "text": "Zero Recruits",
+    "basis": "inferred",
+    "note": "n5"
+   }
+  ]
+ },
+ "notes": [
+  {
+   "id": "n1",
+   "claim": "12 damage is lethal to every unit involved: Viktor - Leader is 4 Might and each Vanguard Sergeant is 4 Might.",
+   "basis": "grounded",
+   "detail": "Unchecked Power reads \"Exhaust all friendly units, then deal 12 to ALL units at battlefields.\" Viktor - Leader: 4 Energy / 4 Might / 1 Power, Unit, Order, \"When another non-Recruit unit you control dies, play a 1 Might Recruit unit token into your base.\" Vanguard Sergeant: 4 Energy / 4 Might, Unit, Order, no printed ability, Tags Elite/Demacia — not a Recruit.",
+   "cites": [
+    {
+     "rule": "CR:142.4.a",
+     "quote": "Lethal Damage is the amount of marked Damage that will cause a unit to die in a cleanup."
+    }
+   ]
+  },
+  {
+   "id": "n2",
+   "claim": "All units with lethal damage are killed together in one cleanup task, so the three deaths are simultaneous.",
+   "basis": "grounded",
+   "cites": [
+    {
+     "rule": "CR:323.5",
+     "quote": "3b. All Units that have LethalDamage marked on themare killed and placed in their owners' Trash. See rule 142.4. For more information on lethal damage."
+    }
+   ]
+  },
+  {
+   "id": "n3",
+   "claim": "The cleanup gives an explicit head start only to abilities that trigger on the dying unit's OWN death — Viktor's triggers on another unit's death, so it is not covered.",
+   "basis": "grounded",
+   "cites": [
+    {
+     "rule": "CR:323.4",
+     "quote": "3a. All Units that have Lethal Damage marked on them and that have Deathknell or other abilities that trigger on their own death will trigger such abilities now, making note of their current location, attributes, and other information relevant to add the trigger as a Pending Item See rule 808 Deathknell for more information."
+    },
+    {
+     "rule": "CR:428.1.a.1.b",
+     "quote": "When a unit with a Deathknell or other ability that triggers on its own death is to be put in the Trash due to a Kill Instruction, it first has any such ability added to the chain as a Pending Item. Note the unit’s location, attributes, and other relevant information to process those abilities when finalized before completing this Kill Instruction."
+    }
+   ]
+  },
+  {
+   "id": "n4",
+   "claim": "A permanent's triggered ability can only have its condition evaluated while the permanent is on the Board.",
+   "basis": "grounded",
+   "cites": [
+    {
+     "rule": "CR:384.2",
+     "quote": "Triggered Abilities of Permanents are only able to have their Conditions evaluated while on the Board."
+    }
+   ]
+  },
+  {
+   "id": "n5",
+   "claim": "Because the rules grant simultaneity tolerance explicitly elsewhere and not here, Viktor's condition never evaluates and no Recruit is played.",
+   "basis": "structural",
+   "crux": true,
+   "if_false": "If a triggered ability could evaluate events simultaneous with its own source leaving the Board, Viktor would see both Sergeants die and Player 2 would play 2 Recruits — one per Sergeant, since 383.1.b's once-only rule applies to \"the Nth time\" abilities, not to this one.",
+   "detail": "No rule states this in one sentence. It follows from what the rules chose to say elsewhere: 370.4 explicitly extends replacement effects to events simultaneous with the object leaving its zone, and 323.4/428.1.a.1.b explicitly rescue abilities triggering on the unit's own death. Neither carve-out reaches an ability watching another unit die, and 384.2 otherwise requires presence on the Board.",
+   "rules_checked": [
+    "384",
+    "383",
+    "323",
+    "428",
+    "370",
+    "142",
+    "808"
+   ],
+   "cites": [
+    {
+     "rule": "CR:370.4",
+     "quote": "A Game Object can apply its Replacement Effects to any qualifying events that occur simultaneously with it leaving the zone that its Replacement Effect is active in."
+    }
+   ]
+  }
+ ],
+ "counterargument": [
+  {
+   "reading": "The three deaths happen at the same instant, so at the moment the Sergeants die Viktor has not yet been placed in the trash. He is still on the Board, 384.2 is satisfied, and he sees both deaths — 2 Recruits.",
+   "why_it_loses": "This is the serious reading and the text does not fully close it. What defeats it is the shape of the rules around it: the designers twice wrote an explicit rescue for exactly this timing problem — 370.4 for replacement effects, and 323.4/428.1.a.1.b for abilities triggering on the unit's own death, which even instruct you to note the dying unit's information before the kill completes. If a trigger watching another unit's death survived its own simultaneous removal, 323.4 would be the natural place to say so and it says only \"their own death\". Reading 384.2 to tolerate simultaneity would also make 370.4 redundant.",
+   "cites": [
+    {
+     "rule": "CR:384.2",
+     "quote": "Triggered Abilities of Permanents are only able to have their Conditions evaluated while on the Board."
+    },
+    {
+     "rule": "CR:323.4",
+     "quote": "3a. All Units that have Lethal Damage marked on them and that have Deathknell or other abilities that trigger on their own death will trigger such abilities now, making note of their current location, attributes, and other information relevant to add the trigger as a Pending Item See rule 808 Deathknell for more information."
+    }
+   ]
+  }
+ ],
+ "considered_rejected": [
+  {
+   "rule": "CR:383.1.b",
+   "why": "Limits an ability to one trigger when the condition is met multiple times simultaneously — but only for \"the [Nth] time\" abilities. Viktor's is a plain \"when\", so it would trigger per death if it triggered at all."
+  },
+  {
+   "rule": "CR:808.2.a",
+   "why": "Deathknell simultaneity. Viktor has no Deathknell; his trigger is on another unit's death, so 808 does not reach it."
+  }
+ ],
+ "open_questions": [
+  "No rule states directly whether a triggered ability evaluates conditions for events simultaneous with its own source leaving the Board. The answer here is read from the presence of explicit carve-outs elsewhere (370.4, 323.4, 428.1.a.1.b) rather than from a rule on point. A judge could reasonably rule 2 on the contrary reading.",
+  "If Viktor were NOT at a battlefield — Unchecked Power hits only units at battlefields — he would survive, evaluate normally, and play 2 Recruits."
+ ]
+}

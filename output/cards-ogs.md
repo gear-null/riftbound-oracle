@@ -1,6 +1,6 @@
 ---
 category: cards
-generated: 2026-03-25
+generated: 2026-08-06
 generator: riftbound-oracle
 ---
 
@@ -242,7 +242,7 @@ Deal 3 to all enemy units at a battlefield.
 
 **Energy:** 4 | **Type:** Spell | **Rarity:** Epic | **Domain:** Calm, Body
 
-[Reaction] (Play any time, even before spells and abilities resolve.)Choose a friendly unit. The next time it would die this turn, heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)
+[Reaction] (Play any time, even before spells and abilities resolve.)Choose a friendly unit. The next time it dies this turn, recall it exhausted instead. (Send it to base. This isn't a move.)
 
 **Tags:** Master Yi
 
@@ -280,7 +280,7 @@ Deal 3 to all enemy units at a battlefield.
 
 **Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Chaos
 
-At the end of your turn, ready up to 2 runes.
+At the end of your turn, ready 2 runes.
 
 **Tags:** Annie
 

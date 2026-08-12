@@ -1,5 +1,12 @@
-import { describe, it, expect } from "vitest";
-import { cardToMarkdown, cardsToMarkdown, type RiftcodexCard } from "../riftcodex.js";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import {
+  cardToMarkdown,
+  cardsToMarkdown,
+  resolveSetLabel,
+  fetchSetLabel,
+  resetSetIndexCache,
+  type RiftcodexCard,
+} from "../riftcodex.js";
 
 function makeCard(overrides: Partial<RiftcodexCard> = {}): RiftcodexCard {
   return {
@@ -52,6 +59,89 @@ describe("cardToMarkdown", () => {
   it("includes artist and set info", () => {
     const md = cardToMarkdown(makeCard());
     expect(md).toContain("*Artist: Test Artist | Origins #1*");
+  });
+});
+
+describe("resolveSetLabel", () => {
+  it("uses the label carried on the set's cards", () => {
+    const cards = [makeCard({ set: { set_id: "VEN", label: "Vendetta" } })];
+    expect(resolveSetLabel(cards, "VEN")).toBe("Vendetta");
+  });
+
+  it("falls back to the set id for an empty set", () => {
+    expect(resolveSetLabel([], "VEN")).toBe("VEN");
+  });
+
+  it("falls back to the set id when the label is blank", () => {
+    const cards = [makeCard({ set: { set_id: "VEN", label: "   " } })];
+    expect(resolveSetLabel(cards, "VEN")).toBe("VEN");
+  });
+
+  it("produces a titled heading rather than a bare set id", () => {
+    const cards = [makeCard({ set: { set_id: "SFD", label: "Spiritforged" } })];
+    const md = cardsToMarkdown(cards, resolveSetLabel(cards, "SFD"));
+    expect(md).toContain("# Spiritforged — Complete Card List");
+    expect(md).not.toContain("# SFD Set");
+  });
+});
+
+describe("fetchSetLabel", () => {
+  afterEach(() => {
+    resetSetIndexCache();
+    vi.unstubAllGlobals();
+  });
+
+  function stubSets(items: Array<{ set_id: string; name: string }>) {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => ({ items }),
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
+
+  it("prefers the canonical /sets name over the shorter card label", async () => {
+    stubSets([{ set_id: "OGS", name: "Origins: Proving Grounds" }]);
+    const cards = [makeCard({ set: { set_id: "OGS", label: "Proving Grounds" } })];
+    await expect(fetchSetLabel("OGS", cards)).resolves.toBe("Origins: Proving Grounds");
+  });
+
+  it("fetches /sets only once across multiple lookups", async () => {
+    const fetchMock = stubSets([
+      { set_id: "VEN", name: "Vendetta" },
+      { set_id: "UNL", name: "Unleashed" },
+    ]);
+    await fetchSetLabel("VEN");
+    await fetchSetLabel("UNL");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("degrades to the card label when /sets fails", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("ECONNRESET"); }));
+    const cards = [makeCard({ set: { set_id: "VEN", label: "Vendetta" } })];
+    await expect(fetchSetLabel("VEN", cards)).resolves.toBe("Vendetta");
+  });
+
+  it("degrades to the set id when /sets fails and no cards are available", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("ECONNRESET"); }));
+    await expect(fetchSetLabel("VEN")).resolves.toBe("VEN");
+  });
+
+  it("retries /sets on a later lookup after a failure", async () => {
+    const failing = vi.fn(async () => { throw new Error("ECONNRESET"); });
+    vi.stubGlobal("fetch", failing);
+    await fetchSetLabel("VEN");
+
+    stubSets([{ set_id: "VEN", name: "Vendetta" }]);
+    await expect(fetchSetLabel("VEN")).resolves.toBe("Vendetta");
+  });
+
+  it("falls back when /sets succeeds but omits the set", async () => {
+    stubSets([{ set_id: "OGN", name: "Origins" }]);
+    const cards = [makeCard({ set: { set_id: "VEN", label: "Vendetta" } })];
+    await expect(fetchSetLabel("VEN", cards)).resolves.toBe("Vendetta");
   });
 });
 

@@ -1,14 +1,14 @@
 ---
 category: cards
-generated: 2026-03-25
+generated: 2026-08-06
 generator: riftbound-oracle
 ---
 
 # Riftbound Organized Play Promotional Cards — Complete Card List
 
-**Total cards:** 107
+**Total cards:** 133
 
-## Units (39)
+## Units (58)
 
 ### Annie - Fiery
 
@@ -21,6 +21,20 @@ Your spells and abilities deal 1 Bonus Damage. (Each instance of damage the spel
 **Tags:** Annie, Noxus
 
 *Artist: Polar Engine Studio | Riftbound Organized Play Promotional Cards #1*
+
+---
+
+### Arena Kingpin
+
+**Energy:** 5 | **Might:** 3 | **Type:** Unit | **Rarity:** Promo | **Domain:** Fury
+
+I enter ready.:rb_exhaust:: Give a unit +3 :rb_might: this turn.
+
+> *Don't you dare suggest it's a hairpiece.*
+
+**Tags:** Yordle, Noxus
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #1*
 
 ---
 
@@ -47,6 +61,20 @@ While you have 8+ runes, I have +4 :rb_might:.
 **Tags:** Master Yi, Ionia
 
 *Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #4*
+
+---
+
+### Lux - Crownguard
+
+**Energy:** 4 | **Might:** 2 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
+
+:rb_exhaust:: [Reaction] — [Add] :rb_energy_2:. Spend this Energy only to play spells.
+
+> *I've been hiding my light long enough.*
+
+**Tags:** Lux
+
+*Artist: Envar Studio | Riftbound Organized Play Promotional Cards #6*
 
 ---
 
@@ -120,20 +148,6 @@ When you play me, return a spell from your trash to your hand.
 
 ---
 
-### Blast Corps Cadet
-
-**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Promo | **Domain:** Fury
-
-You may pay :rb_energy_1::rb_rune_fury: as an additional cost to play me.When you play me, if you paid the additional cost, deal 2 to a unit at a battlefield.
-
-> *The bigger the bangs, the less you have to aim.*
-
-**Tags:** Piltover
-
-*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #13*
-
----
-
 ### Garen - Commander
 
 **Energy:** 6 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
@@ -143,6 +157,20 @@ Other friendly units have +1 :rb_might: here.
 > *For Demacia!*
 
 **Tags:** Elite, Garen, Demacia
+
+*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #13*
+
+---
+
+### Blast Corps Cadet
+
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Promo | **Domain:** Fury
+
+You may pay :rb_energy_1::rb_rune_fury: as an additional cost to play me.When you play me, if you paid the additional cost, deal 2 to a unit at a battlefield.
+
+> *The bigger the bangs, the less you have to aim.*
+
+**Tags:** Piltover
 
 *Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #13*
 
@@ -162,17 +190,17 @@ Other friendly units have +1 :rb_might: here.
 
 ---
 
-### Lux - Crownguard
+### Scorchclaw
 
-**Energy:** 4 | **Might:** 2 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
+**Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Fury
 
-:rb_exhaust:: [Reaction] — [Add] :rb_energy_2:. Use only to play spells. (Abilities that add resources can't be reacted to.)
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][>] I have +1 :rb_might: and enter ready. (While you have 3+ XP, get the effect.)
 
-> *I've been hiding my light long enough.*
+> *Sit. Stay. Burn.*
 
-**Tags:** Lux, Demacia
+**Tags:** Dog, Noxus
 
-*Artist: Envar Studio | Riftbound Organized Play Promotional Cards #14*
+*Artist: 黯荧岛Dark Glow | Riftbound Organized Play Promotional Cards #16*
 
 ---
 
@@ -204,6 +232,20 @@ When I conquer after an attack, if you assigned 5 or more excess damage to enemy
 
 ---
 
+### Mutated Mouser
+
+**Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Calm
+
+[Shield 2] (+2 :rb_might: while I'm a defender.)[Tank] (I must be assigned combat damage first.)
+
+> *One of the few cats that can scratch its own belly.*
+
+**Tags:** Cat, Bilgewater
+
+*Artist: Caravan Studio | Riftbound Organized Play Promotional Cards #36*
+
+---
+
 ### Navori Scout
 
 **Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Promo | **Domain:** Calm
@@ -215,6 +257,20 @@ When I conquer after an attack, if you assigned 5 or more excess damage to enemy
 **Tags:** Yordle, Ionia
 
 *Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #37*
+
+---
+
+### Mosstomper
+
+**Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Calm
+
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][>] I have +1 :rb_might: and [Deflect]. (While you have 3+ XP, get the effect. Opponents must pay :rb_rune_rainbow: to choose a [Deflect] unit with a spell or ability.)
+
+> *Sometimes you gotta stomp some moss.*
+
+**Tags:** Dog, Ixtal
+
+*Artist: 黯荧岛Dark Glow | Riftbound Organized Play Promotional Cards #47*
 
 ---
 
@@ -260,6 +316,48 @@ While I'm attacking or defending alone, I have +2 :rb_might:.
 
 ---
 
+### Yuumi - Magical Cat
+
+**Energy:** 3 | **Might:** 1 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Calm
+
+When I attack or defend, give one of your other units here +3 :rb_might: and [Tank] this turn. (It must be assigned combat damage first.)
+
+> *Who's ready to risk our lives, defeat our foes, and maybe knock over some cups?*
+
+**Tags:** Fae, Cat, Bandle City, Yuumi
+
+*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #56*
+
+---
+
+### Lillia - Protector of Dreams
+
+**Energy:** 5 | **Might:** 4 | **Type:** Unit | **Rarity:** Promo | **Domain:** Calm
+
+When you play a token unit, give me +1 :rb_might: this turn.Your token units have [Tank]. (They must be assigned combat damage first.)
+
+> *Nothing cries louder than loneliness.*
+
+**Tags:** Fae, Lillia, Ionia
+
+*Artist: League Splash Team | Riftbound Organized Play Promotional Cards #58*
+
+---
+
+### Icevale Archer
+
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Promo | **Domain:** Mind
+
+When I attack, you may pay :rb_energy_1: to give a unit here -1 :rb_might: this turn.
+
+> *He doesn't bother to shout "Freeze!*
+
+**Tags:** Freljord
+
+*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #65*
+
+---
+
 ### Frostcoat Cub
 
 **Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Promo | **Domain:** Mind
@@ -286,6 +384,20 @@ You may pay :rb_rune_mind: as an additional cost to play me.When you play me, if
 
 ---
 
+### Gustwalker
+
+**Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Mind
+
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][>] I have +1 :rb_might: and [Ganking]. (While you have 3+ XP, get the effect. A [Ganking] unit can move from battlefield to battlefield.)
+
+> *An unconventional choice of pet.*
+
+**Tags:** Dog, Ionia
+
+*Artist: 黯荧岛Dark Glow | Riftbound Organized Play Promotional Cards #75*
+
+---
+
 ### Lee Sin - Ascetic
 
 **Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Calm
@@ -297,6 +409,20 @@ You may pay :rb_rune_mind: as an additional cost to play me.When you play me, if
 **Tags:** Lee Sin, Ionia
 
 *Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #78*
+
+---
+
+### Zilean - Time Mage
+
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Mind
+
+Once each turn, if you would play a token unit while I'm at a battlefield, you may play that token and an additional copy of it instead.
+
+> *I feel like I've done this before.*
+
+**Tags:** Icathia, Zilean
+
+*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #86*
 
 ---
 
@@ -314,6 +440,20 @@ When you play me, deal 6 to an enemy unit at a battlefield.
 
 ---
 
+### Dragonsoul Sage
+
+**Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Body
+
+[Reaction][>] :rb_exhaust:: [Add] :rb_energy_1:. (Abilities that add resources can't be reacted to.)
+
+> *The Dragon's secrets are not mine to share. I can only share the gifts that it has given me.*
+
+**Tags:** Ionia
+
+*Artist: Dao Trong Le | Riftbound Organized Play Promotional Cards #93*
+
+---
+
 ### Sea Monkey
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Promo | **Domain:** Body
@@ -325,6 +465,20 @@ You may pay :rb_energy_1: as an additional cost to play me.When you play me, if 
 **Tags:** Pirate, Bilgewater
 
 *Artist: Bubble Cat Studio | Riftbound Organized Play Promotional Cards #98*
+
+---
+
+### Voracious Gromp
+
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Promo | **Domain:** Body
+
+[Hunt 3] (When I conquer or hold, gain 3 XP.)
+
+> *Oh no! It's real! The Gromp is real!*
+
+**Tags:** Freljord
+
+*Artist: Polar Engine Studio | Riftbound Organized Play Promotional Cards #100*
 
 ---
 
@@ -360,11 +514,25 @@ When you play a spell, give me +1 :rb_might: this turn.
 
 **Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Body
 
-[Weaponmaster] (When you play me, you may [Equip] one of your Equipment to me for :rb_rune_rainbow: less, even if it's already attached.)When I conquer a battlefield that was uncontrolled, deal damage equal to my Might to an enemy unit in a base.
+[Weaponmaster] (When you play me, you may [Equip] one of your Equipment to me for :rb_rune_rainbow: less, even if it's already attached.)When I conquer an open battlefield, deal damage equal to my Might to an enemy unit in a base.
 
 **Tags:** Yone, Ionia, Demon
 
 *Artist: 蛋费鸡丁 | Riftbound Organized Play Promotional Cards #116*
+
+---
+
+### Mister Root
+
+**Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Chaos
+
+[Accelerate] (You may pay :rb_energy_1::rb_rune_chaos: as an additional cost to have me enter ready.)When I move to a battlefield, gain 2 XP.
+
+> *Dreams themselves can dream as well.*
+
+**Tags:** Fae, Ionia
+
+*Artist: Caravan Studio | Riftbound Organized Play Promotional Cards #127*
 
 ---
 
@@ -410,6 +578,20 @@ When I move from a battlefield, give me +2 :rb_might: this turn.
 
 ---
 
+### Sinister Poro
+
+**Energy:** 2 | **Might:** 1 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Chaos
+
+When I attack, you may pay :rb_energy_1: to move an enemy unit here to its base.
+
+> *Are you going to be the one to tell him he's not scary?*
+
+**Tags:** Poro, Shadow Isles
+
+*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #137*
+
+---
+
 ### Stormclaw Ursine
 
 **Energy:** 7 | **Might:** 6 | **Type:** Unit | **Rarity:** Promo | **Domain:** Body
@@ -438,6 +620,34 @@ When I move from a battlefield, give me +2 :rb_might: this turn.
 
 ---
 
+### Loyal Poro
+
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
+
+[Deathknell][>] If I didn't die alone, draw 1. (When I die, get the effect. I wasn't alone if there were other friendly units here.)
+
+> *A head full of bravery and not much else.*
+
+**Tags:** Poro, Freljord
+
+*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #156*
+
+---
+
+### Ultrasoft Poro
+
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
+
+:rb_exhaust:: Play two :rb_energy_1: :rb_might: Bird unit tokens with [Deflect]. Use this ability only while I'm at a battlefield. (Opponents must pay :rb_rune_rainbow: to choose a [Deflect] unit with a spell or ability.)
+
+> *How? Magic. And conditioner.*
+
+**Tags:** Poro, Freljord
+
+*Artist: Caravan Studio | Riftbound Organized Play Promotional Cards #160*
+
+---
+
 ### Unsung Hero
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
@@ -452,6 +662,34 @@ When I move from a battlefield, give me +2 :rb_might: this turn.
 
 ---
 
+### Ashe - Focused
+
+**Energy:** 5 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
+
+When you play me, choose an opponent. They reveal their hand. Choose a card revealed this way and banish it. When they hold, return it to their hand (even if I'm no longer on the board).
+
+> *No fate is written, except by us.*
+
+**Tags:** Freljord, Ashe
+
+*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #169*
+
+---
+
+### Jayce - Man of Progress
+
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Promo | **Domain:** Mind
+
+When you play me, you may kill a friendly gear. If you do, you may play a gear with Energy cost no more than :rb_energy_7: from hand this turn, ignoring its Energy cost.
+
+> *This is what the future looks like.*
+
+**Tags:** Jayce, Piltover
+
+*Artist: 莺之歌 | Riftbound Organized Play Promotional Cards #175*
+
+---
+
 ### Stealthy Pursuer
 
 **Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Chaos
@@ -463,6 +701,32 @@ When a friendly unit moves from my location, I may be moved with it.
 **Tags:** Shurima
 
 *Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #177*
+
+---
+
+### Poppy - Defender of the Meek
+
+**Energy:** 6 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Order
+
+You may spend 3 XP as an additional cost to play me. If you do, I cost :rb_energy_3: less.[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)[Tank] (I must be assigned combat damage first.)
+
+**Tags:** Yordle, Demacia, Poppy
+
+*Artist: Dao Trong Le | Riftbound Organized Play Promotional Cards #178*
+
+---
+
+### Rengar - Trophy Hunter
+
+**Energy:** 5 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Promo | **Domain:** Body
+
+[Ambush]I can be played to a battlefield where there are enemy units.
+
+> *Let's see what they're made of.*
+
+**Tags:** Cat, Rengar, Ixtal
+
+*Artist: 莺之歌 | Riftbound Organized Play Promotional Cards #179*
 
 ---
 
@@ -556,7 +820,9 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 
 **Type:** Rune | **Rarity:** Promo | **Domain:** Fury
 
-*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #7*
+[NO TEXT]
+
+*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #1*
 
 ---
 
@@ -564,7 +830,9 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 
 **Type:** Rune | **Rarity:** Promo | **Domain:** Calm
 
-*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #42*
+[NO TEXT]
+
+*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #2*
 
 ---
 
@@ -572,7 +840,9 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 
 **Type:** Rune | **Rarity:** Promo | **Domain:** Mind
 
-*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #89*
+[NO TEXT]
+
+*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #3*
 
 ---
 
@@ -580,7 +850,9 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 
 **Type:** Rune | **Rarity:** Promo | **Domain:** Body
 
-*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #126*
+[NO TEXT]
+
+*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #4*
 
 ---
 
@@ -588,7 +860,9 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 
 **Type:** Rune | **Rarity:** Promo | **Domain:** Chaos
 
-*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #166*
+[NO TEXT]
+
+*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #5*
 
 ---
 
@@ -596,11 +870,13 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 
 **Type:** Rune | **Rarity:** Promo | **Domain:** Order
 
-*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #214*
+[NO TEXT]
+
+*Artist: Greg Ghielmetti & Leah Chen | Riftbound Organized Play Promotional Cards #6*
 
 ---
 
-## Gears (8)
+## Gears (9)
 
 ### Serrated Dirk
 
@@ -623,6 +899,18 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 **Tags:** Equipment
 
 *Artist: 黯荧岛Dark Glow | Riftbound Organized Play Promotional Cards #33*
+
+---
+
+### Soul Sword
+
+**Energy:** 1 | **Type:** Gear | **Rarity:** Promo | **Domain:** Calm
+
+[Equip] :rb_rune_calm: (:rb_rune_calm:: Attach this to a unit you control.)
+
+**Tags:** Equipment
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #39*
 
 ---
 
@@ -700,25 +988,206 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 
 ---
 
-## Legends (44)
+## Spells (16)
 
-### Annie - Dark Child
+### Upstage Comedy
 
-**Type:** Legend | **Rarity:** Promo | **Domain:** Fury, Chaos
+**Energy:** 2 | **Type:** Spell | **Rarity:** Promo | **Domain:** Fury
 
-At the end of your turn, ready up to 2 runes.
+[Repeat] :rb_energy_2: (You may pay the additional cost to repeat this spell's effect.)Ready a unit.
 
-**Tags:** Annie
+> *Art is not always appreciated in its critic's lifetime.*
 
-*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #17*
+*Artist: 莺之歌 | Riftbound Organized Play Promotional Cards #9*
 
 ---
+
+### Flash
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Promo | **Domain:** Chaos
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Move up to 2 friendly units to base.
+
+> *It's not running away. It's strategic positioning.*
+
+*Artist: Sugar Free | Riftbound Organized Play Promotional Cards #11*
+
+---
+
+### Highlander
+
+**Energy:** 4 | **Type:** Spell | **Rarity:** Promo | **Domain:** Calm, Body
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Choose a friendly unit. The next time it dies this turn, recall it exhausted instead. (Send it to base. This isn't a move.)
+
+**Tags:** Master Yi
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #20*
+
+---
+
+### Final Spark
+
+**Energy:** 8 | **Type:** Spell | **Rarity:** Promo | **Domain:** Mind, Order
+
+[Action] (Play on your turn or in showdowns.)Deal 8 to a unit.
+
+**Tags:** Lux
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #22*
+
+---
+
+### Decisive Strike
+
+**Energy:** 5 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Body, Order
+
+[Action] (Play on your turn or in showdowns.)Give friendly units +2 :rb_might: this turn.
+
+**Tags:** Garen
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #24*
+
+---
+
+### Void Seeker
+
+**Energy:** 3 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Fury
+
+[Action] (Play on your turn or in showdowns.)Deal 4 to a unit at a battlefield. Draw 1.
+
+> *It's a good day for a hunt." -Kai'Sa*
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #24*
+
+---
+
+### Discipline
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Promo | **Domain:** Calm
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Give a unit +2 :rb_might: this turn. Draw 1.
+
+> *A blade is only as sharp as the one who wields it.*
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #58*
+
+---
+
+### Downstage Dramatics
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Promo | **Domain:** Mind
+
+[Reaction] (Play any time, even before spells and abilities resolve.)[Repeat] :rb_energy_2: (You may pay the additional cost to repeat this spell's effect.)Draw 1.
+
+> *A true artist reveres both canvas and brush.*
+
+*Artist: 莺之歌 | Riftbound Organized Play Promotional Cards #61*
+
+---
+
+### Production Surge
+
+**Energy:** 4 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Mind
+
+This costs :rb_energy_2: less if you control a Mech.Play a 3 :rb_might: Mech unit token to your base.Draw 1.
+
+> *When in doubt, make more mechs.*
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #76*
+
+---
+
+### Consult the Past
+
+**Energy:** 4 | **Type:** Spell | **Rarity:** Promo | **Domain:** Mind
+
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Reaction] (Play any time, even before spells and abilities resolve.)Draw 2.
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #83*
+
+---
+
+### Stare Down
+
+**Energy:** 2 | **Type:** Spell | **Rarity:** Promo | **Domain:** Body
+
+Choose a friendly unit and a battlefield. Move all enemy units at that battlefield with less Might than the chosen unit to their base. Gain 1 XP.
+
+> *The eyes have it.*
+
+*Artist: Polar Engine Studio | Riftbound Organized Play Promotional Cards #107*
+
+---
+
+### Lunar Boon
+
+**Energy:** 3 | **Type:** Spell | **Rarity:** Promo | **Domain:** Chaos
+
+[Reaction] (Play any time, even before spells and abilities resolve.)Discard 1, then draw 2.
+
+> *A new moon is rising."
+ - Diana*
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #125*
+
+---
+
+### Challenge
+
+**Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Body
+
+[Action] (Play on your turn or in showdowns.)Choose a friendly unit and an enemy unit. They deal damage equal to their Mights to each other.
+
+> *He started it when he hit me back!*
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #128*
+
+---
+
+### Undying Loyalty
+
+**Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Order
+
+This costs :rb_energy_2: less if you choose a Bird, Cat, Dog, or Poro.Play a unit with cost no more than :rb_energy_2: and no more than :rb_rune_rainbow: from your trash, ignoring its cost.
+
+> *We would call them all back, if we could.*
+
+*Artist: Max Grecke | Riftbound Organized Play Promotional Cards #168*
+
+---
+
+### Stacked Deck
+
+**Energy:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Chaos
+
+[Action] (Play on your turn or in showdowns.)Look at the top 3 cards of your Main Deck. Put 1 into your hand and recycle the rest.
+
+> *Just lucky, I guess.*
+
+*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #183*
+
+---
+
+### Vengeance
+
+**Energy:** 4 | **Power:** 2 | **Type:** Spell | **Rarity:** Promo | **Domain:** Order
+
+Kill a unit.
+
+> *A brief moment of turmoil -- then peace.*
+
+*Artist: Max Grecke | Riftbound Organized Play Promotional Cards #229*
+
+---
+
+## Legends (44)
 
 ### Annie - Dark Child (Metal)
 
 **Type:** Legend | **Rarity:** Promo | **Domain:** Fury, Chaos
 
-At the end of your turn, ready up to 2 runes.
+At the end of your turn, ready 2 runes.
 
 **Tags:** Annie
 
@@ -726,15 +1195,15 @@ At the end of your turn, ready up to 2 runes.
 
 ---
 
-### Master Yi - Wuju Bladesman
+### Annie - Dark Child
 
-**Type:** Legend | **Rarity:** Promo | **Domain:** Calm, Body
+**Type:** Legend | **Rarity:** Promo | **Domain:** Fury, Chaos
 
-While a friendly unit defends alone, it gets +2 :rb_might:.
+At the end of your turn, ready 2 runes.
 
-**Tags:** Master Yi
+**Tags:** Annie
 
-*Artist: Grafit Studio/Quy Ho | Riftbound Organized Play Promotional Cards #19*
+*Artist: Six More Vodka | Riftbound Organized Play Promotional Cards #17*
 
 ---
 
@@ -750,15 +1219,15 @@ While a friendly unit defends alone, it gets +2 :rb_might:.
 
 ---
 
-### Lux - Lady of Luminosity
+### Master Yi - Wuju Bladesman
 
-**Type:** Legend | **Rarity:** Promo | **Domain:** Mind, Order
+**Type:** Legend | **Rarity:** Promo | **Domain:** Calm, Body
 
-When you play a spell that costs :rb_energy_5: or more, draw 1.
+While a friendly unit defends alone, it gets +2 :rb_might:.
 
-**Tags:** Lux
+**Tags:** Master Yi
 
-*Artist: Grafit Studio/Maki Planas Mata | Riftbound Organized Play Promotional Cards #21*
+*Artist: Grafit Studio/Quy Ho | Riftbound Organized Play Promotional Cards #19*
 
 ---
 
@@ -774,7 +1243,19 @@ When you play a spell that costs :rb_energy_5: or more, draw 1.
 
 ---
 
-### Garen - Might of Demacia
+### Lux - Lady of Luminosity
+
+**Type:** Legend | **Rarity:** Promo | **Domain:** Mind, Order
+
+When you play a spell that costs :rb_energy_5: or more, draw 1.
+
+**Tags:** Lux
+
+*Artist: Grafit Studio/Maki Planas Mata | Riftbound Organized Play Promotional Cards #21*
+
+---
+
+### Garen - Might of Demacia (Metal)
 
 **Type:** Legend | **Rarity:** Promo | **Domain:** Body, Order
 
@@ -786,7 +1267,7 @@ When you conquer, if you have 4+ units at that battlefield, draw 2.
 
 ---
 
-### Garen - Might of Demacia (Metal)
+### Garen - Might of Demacia
 
 **Type:** Legend | **Rarity:** Promo | **Domain:** Body, Order
 
@@ -838,7 +1319,7 @@ When you win a combat, draw 1. (You win if only your units remain after combat.)
 
 **Type:** Legend | **Rarity:** Promo | **Domain:** Fury, Order
 
-When you conquer, you may exhaust me to reveal the top 2 cards of your Main Deck. You may banish one, then play it. Recycle the rest.
+When you conquer, you may exhaust me to reveal the top 2 cards of your Main Deck. You may play one. Then recycle the rest.
 
 **Tags:** Rek'Sai
 
@@ -1206,23 +1687,11 @@ You may pay :rb_energy_1: to hide a card with [Hidden] instead of :rb_rune_rainb
 
 ---
 
-### Sett - The Boss (Metal)
-
-**Type:** Legend | **Rarity:** Promo | **Domain:** Body, Order
-
-If a buffed unit you control would die, you may pay :rb_rune_rainbow:, exhaust me, and spend its buff to heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)When you conquer, ready me.
-
-**Tags:** Sett
-
-*Artist: Envar Studio | Riftbound Organized Play Promotional Cards #269*
-
----
-
 ### Sett - The Boss
 
 **Type:** Legend | **Rarity:** Promo | **Domain:** Body, Order
 
-If a buffed unit you control would die, you may pay :rb_rune_rainbow:, exhaust me, and spend its buff to heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)When you conquer, ready me.
+When a buffed unit you control would die, you may pay :rb_rune_rainbow: and exhaust me to spend its buff and recall it exhausted instead. (Send it to base. This isn't a move.)When you conquer, ready me.
 
 **Tags:** Sett
 
@@ -1230,122 +1699,14 @@ If a buffed unit you control would die, you may pay :rb_rune_rainbow:, exhaust m
 
 ---
 
-## Spells (10)
+### Sett - The Boss (Metal)
 
-### Highlander
+**Type:** Legend | **Rarity:** Promo | **Domain:** Body, Order
 
-**Energy:** 4 | **Type:** Spell | **Rarity:** Promo | **Domain:** Calm, Body
+When a buffed unit you control would die, you may pay :rb_rune_rainbow: and exhaust me to spend its buff and recall it exhausted instead. (Send it to base. This isn't a move.)When you conquer, ready me.
 
-[Reaction] (Play any time, even before spells and abilities resolve.)Choose a friendly unit. The next time it would die this turn, heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)
+**Tags:** Sett
 
-**Tags:** Master Yi
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #20*
-
----
-
-### Final Spark
-
-**Energy:** 8 | **Type:** Spell | **Rarity:** Promo | **Domain:** Mind, Order
-
-[Action] (Play on your turn or in showdowns.)Deal 8 to a unit.
-
-**Tags:** Lux
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #22*
-
----
-
-### Decisive Strike
-
-**Energy:** 5 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Body, Order
-
-[Action] (Play on your turn or in showdowns.)Give friendly units +2 :rb_might: this turn.
-
-**Tags:** Garen
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #24*
-
----
-
-### Void Seeker
-
-**Energy:** 3 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Fury
-
-[Action] (Play on your turn or in showdowns.)Deal 4 to a unit at a battlefield. Draw 1.
-
-> *It's a good day for a hunt." -Kai'Sa*
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #24*
-
----
-
-### Discipline
-
-**Energy:** 2 | **Type:** Spell | **Rarity:** Promo | **Domain:** Calm
-
-[Reaction] (Play any time, even before spells and abilities resolve.)Give a unit +2 :rb_might: this turn. Draw 1.
-
-> *A blade is only as sharp as the one who wields it.*
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #58*
-
----
-
-### Production Surge
-
-**Energy:** 4 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Mind
-
-This costs :rb_energy_2: less if you control a Mech.Play a 3 :rb_might: Mech unit token to your base.Draw 1.
-
-> *When in doubt, make more mechs.*
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #76*
-
----
-
-### Consult the Past
-
-**Energy:** 4 | **Type:** Spell | **Rarity:** Promo | **Domain:** Mind
-
-[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Reaction] (Play any time, even before spells and abilities resolve.)Draw 2.
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #83*
-
----
-
-### Challenge
-
-**Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Body
-
-[Action] (Play on your turn or in showdowns.)Choose a friendly unit and an enemy unit. They deal damage equal to their Mights to each other.
-
-> *He started it when he hit me back!*
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #128*
-
----
-
-### Stacked Deck
-
-**Energy:** 1 | **Type:** Spell | **Rarity:** Promo | **Domain:** Chaos
-
-[Action] (Play on your turn or in showdowns.)Look at the top 3 cards of your Main Deck. Put 1 into your hand and recycle the rest.
-
-> *Just lucky, I guess.*
-
-*Artist: Kudos Productions | Riftbound Organized Play Promotional Cards #183*
-
----
-
-### Vengeance
-
-**Energy:** 4 | **Power:** 2 | **Type:** Spell | **Rarity:** Promo | **Domain:** Order
-
-Kill a unit.
-
-> *A brief moment of turmoil -- then peace.*
-
-*Artist: Max Grecke | Riftbound Organized Play Promotional Cards #229*
+*Artist: Envar Studio | Riftbound Organized Play Promotional Cards #269*
 
 ---

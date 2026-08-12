@@ -1,6 +1,8 @@
 # Riftbound Oracle
 
-A processing pipeline that converts manually curated Riftbound TCG source material (cards, rules, tournament guidelines) into structured markdown, then syncs it to Google Drive for consumption by NotebookLM.
+A pipeline that turns Riftbound TCG source material (cards, rules, tournament
+guidelines) into a structured, addressable corpus, plus a Claude Code skill that
+answers rules questions against it with mechanically verified citations.
 
 ## Architecture
 
@@ -17,8 +19,9 @@ src/              → TypeScript pipeline
   ├── cli.ts              Main CLI entrypoint (clack-based)
   ├── riftcodex.ts        Riftcodex API client + card→markdown
   ├── manifest.ts         Read/write sources.yaml
-  ├── normalize.ts        Common markdown cleanup
-  ├── upload.ts           Google Drive sync, dedupe, cleanup
+  ├── normalize.ts        Common markdown cleanup + entity decoding
+  ├── print.ts            Downloads card images for proxy printing
+  ├── vault.ts            Optional Obsidian vault mirror
   └── processors/
       ├── index.ts        Router: file extension → processor
       ├── pdf.ts          Shells out to Python script (async with progress)
@@ -29,6 +32,10 @@ src/              → TypeScript pipeline
 
 scripts/
   └── pdf-extract.py      Python PDF→text via pdfplumber (reports page progress)
+
+.claude/skills/rules-report/
+  ├── SKILL.md            The procedure an LLM agent follows to answer a question
+  └── lib/                rules_cli.py + the deterministic verification tools
 ```
 
 ## Tech Stack
@@ -39,7 +46,6 @@ scripts/
 - **CLI:** @clack/prompts
 - **PDF extraction:** Python 3 + pdfplumber (called as subprocess)
 - **HTML→MD:** jsdom + turndown
-- **Upload:** googleapis (Google Drive API v3)
 - **Config format:** YAML (manifests)
 - **Testing:** vitest
 
@@ -64,33 +70,88 @@ Type-specific fields:
 - `pdf`/`html`/`json` entries have `path` (local file) and optional `url` (provenance)
 - `url` entries have `url` (fetched live during processing)
 - `rules-hub` entries have `url` (hub landing page); the processor auto-discovers
-  linked PDFs and persists their output paths back into a `pdfs: []` field on
-  the entry, which the uploader then picks up as separate NotebookLM sources
+  linked PDFs, downloads them into `output/`, and records the paths in a `pdfs: []`
+  field for traceability. `extract` and `vault-sync` pick PDFs up by scanning
+  `output/`, not by reading that field
 
 ## Workflow
 
 1. Edit `manifests/sources.yaml` to declare sources
 2. Place local files (PDFs, HTML) into `sources/` if needed
-3. `npm run oracle process` — processes all entries from manifest
-4. `npm run oracle process -- --only=tournament` — filter by category or output path
-5. `npm run oracle upload` — syncs `output/` to Google Drive folder
-6. `npm run oracle drive-status` — list every file the app can see in the folder
-7. `npm run oracle cleanup [--confirm]` — dry-run (or delete) orphans and duplicates
-8. NotebookLM reads from the Drive folder (configured once, manually)
+3. `npm run oracle process` — processes all entries from the manifest
+4. `npm run oracle process -- --only=rules` — filter by category or output path
+5. `npm run oracle extract` — turns downloaded rulebook PDFs into markdown in `output/`
+6. `npm run oracle card-index` — optional; fetches card artwork URLs for report rendering
+7. `npm run oracle vault-sync` — optional; mirrors `output/` into an Obsidian wiki's `raw/`
+8. Answer questions via the `rules-report` skill (see `.claude/skills/rules-report/SKILL.md`)
 
 ## Environment Variables
 
-- `GOOGLE_APPLICATION_CREDENTIALS` — path to Google service account key JSON
-- `DRIVE_FOLDER_ID` — Google Drive folder ID for upload target
 - `RIFTCODEX_API_URL` — Riftcodex API base URL (default: `https://api.riftcodex.com`)
+- `VAULT_RAW_DIR` — optional Obsidian wiki `raw/` folder for `vault-sync` (no default)
+- `RIFTBOUND_CORPUS` — optional override for where the rules-report skill reads the corpus
+  (defaults to this repo's `output/`)
+
+## Only Riot's documents are citable
+
+`rules.md`, `core-rules.pdf`, `tournament-rules.pdf` and the Riftcodex card data are the entire
+source set. There is no second tier — no community Q&A, no FAQ scrape, no forum archive.
+
+When the rules don't settle a question, the answer is `UNSETTLED` with the gap named. Not a
+confident answer sourced from somewhere weaker, and not an interaction recalled from elsewhere.
+
+This was tested rather than assumed. A 7,774-answer community Q&A corpus was crawled, measured
+and dropped: 0.06% of its answers mentioned Riot, 0.2% flagged a coming rules change, and 0.05%
+admitted the rules didn't settle the question — so it never did the job (relaying designer
+intent, marking gaps) that would justify a second tier, while answering confidently regardless.
+Of the 831 answers that cited a rule ID, 29% of those citations pointed at a rule that doesn't
+exist. It also propagated a concrete error into a draft of the wiki: a "take control" exception
+to banishment that `829.1.b` flatly contradicts.
+
+**Don't reintroduce one casually.** If a genuinely official source appears (a Riot FAQ archive, a
+judge digest), it needs the same treatment the rules get: verbatim text, addressable units, and
+per-entry provenance — retrieval surfaces a chunk without its file header, so a file-level
+"unofficial" banner does not travel with the text.
+
+## Obsidian wiki sync
+
+`vault-sync` mirrors `output/` into an LLM-maintained wiki's `raw/` source layer
+(that vault has its own `AGENTS.md` describing the ingest/query/lint model).
+Two properties make it safe to run often:
+
+- **PDFs are extracted to text**, not copied — the wiki cites readable source.
+- **Files compare with the `generated:` date stripped**, so re-rendering
+  unchanged source reports "unchanged" instead of rewriting every file. Real
+  drift stays visible instead of being buried in date churn.
+
+It only creates or updates, never deletes — `raw/` may hold curated sources
+this pipeline doesn't manage. Syncing is only half the job: changed sources
+still need an agent to ingest them into the wiki's `pages/`.
+
+## Card artwork is referenced, never redistributed
+
+`oracle card-index` writes `output/card-index.json` — a map of card name to the artwork URL on
+Riot's CDN. **That file is gitignored**: it is generated per-user, and shipping a curated index of
+Riot asset URLs is not this repo's business. No image binary is ever tracked (`print/` and
+`sources/**` are both ignored).
+
+The report renderer embeds `<img src="<riot cdn url>">`, so artwork is fetched from Riot at view
+time rather than copied here. When the index is absent — a fresh clone, or a blocked network — the
+renderer emits a labelled placeholder and the report is otherwise complete. **Never make artwork a
+hard dependency of rendering.**
+
+Rules text and card text ARE committed, deliberately: verifying quotes verbatim against a pinned
+corpus is the entire premise, and that is impossible if the corpus is not present.
 
 ## Key Decisions
 
-- **One markdown file per set/document**, not per card — NotebookLM has a 50-source limit (free tier)
+- **One markdown file per set/document**, not per card — keeps the corpus greppable and diffable
 - **sources/ is gitignored** (except READMEs) — raw PDFs/HTML are temporary; only processed markdown is tracked
 - **Manifest is checked in** — provides traceability and is the prescriptive config for processing
-- **Python is only used for PDF extraction** — everything else is TypeScript
-- **Google Drive is a mirror**, not the source of truth — never edit files in Drive directly
+- **Python is only used for PDF extraction and the rules-report skill** — the pipeline is TypeScript
+- **Card artwork is referenced by URL, never stored** — see above
+- **`rules.json` is committed on purpose** — a rules update then arrives as a reviewable diff of
+  rule ids rather than as a wrong citation discovered months later
 
 ## Updates are agent-driven, not scheduled
 
@@ -103,23 +164,23 @@ on demand by a human or agent — never on a cron or schedule**.
 Typical update flow:
 
 1. Human asks an agent (e.g. Claude Code): "update the Riftbound rules."
-2. Agent runs the right slice, e.g. `npm run oracle process --only=rules`.
+2. Agent runs the right slice, e.g. `npm run oracle process -- --only=rules`.
 3. On `ECONNRESET` / 403 / similar block, the agent asks the user to switch
    networks (mobile tether reliably works) or waits, rather than retrying
    blindly and deepening the block.
 4. Agent sanity-checks `output/rules.md` and any downloaded PDFs before
-   uploading (line counts, section headers, known noise absent).
-5. Agent runs `npm run oracle upload`, then `drive-status` / `cleanup` to
-   confirm Drive ended up clean.
-6. Agent reports which Drive files changed.
+   rebuilding the index (line counts, section headers, known noise absent).
+5. Agent runs `npm run oracle extract`, then rebuilds the rules index and runs
+   `rules_cli.py selftest`.
+6. Agent reports what changed in the corpus.
 
 This matches Riot's own release cadence (set or patch drops), so human-
 triggered updates stay below bot-detection thresholds in practice.
 
 **Do not** replace the processor's HTML/PDF parsers with LLM summarization.
-NotebookLM needs verbatim source text for citations — paraphrased or
-abstracted content will cause citations to drift from what's actually in
-Riot's published documents.
+The rules answerer verifies quotes verbatim against this corpus — paraphrased
+or abstracted content makes every citation fail, and worse, makes a citation
+that passes meaningless.
 
 ## Agentic Engineering Practices
 

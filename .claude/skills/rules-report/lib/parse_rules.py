@@ -1,0 +1,253 @@
+"""Spike: parse the official Riftbound rules into an addressable rule tree.
+
+The bet this validates: the rules are already a citable tree — every atomic
+claim has a canonical id like 471.1.b.1 — so we should retrieve and cite RULES,
+not text chunks. If parsing is reliable, mechanical citation verification
+becomes possible.
+
+Run:  python3 parse_rules.py [--json out.json]
+"""
+import re, json, sys, os
+from collections import Counter
+
+from corpus import corpus_dir
+RAW = corpus_dir()
+
+DOCS = [
+    ("CR", f"{RAW}/core-rules.md", "2026-07-16"),
+    ("TR", f"{RAW}/tournament-rules.md", "2026-07-16"),
+]
+
+# A rule starts with a 3-digit section then optional .N / .a levels, then a dot.
+RULE_RE = re.compile(r"^(\d{3}(?:\.[0-9a-z]+)*)\.\s*(.*)$")
+
+# A wrapped cross-reference looks exactly like a rule definition once the line
+# breaks. In tournament-rules.md line 710 ends "...during gameplay. See CR" and
+# 711 begins "128. Privacy for information types." — a naive scanner invents a
+# TR:128 that does not exist. The tell is the PREVIOUS line ending in a
+# reference cue, so veto a "definition" that follows one.
+REF_CUE_RE = re.compile(
+    r"\b(?:"
+    # A reference verb, optionally trailed by "also" / "rule(s)" / a doc code.
+    r"(?:see|per|refer to|described in|defined in|according to)"
+    r"(?:\s+also)?(?:\s+rules?)?(?:\s+(?:CR|TR))?"
+    # Or a preposition, but ONLY when it governs an explicit rule reference.
+    # Bare "in"/"to" must NOT veto: prose wraps on them constantly, and a
+    # false veto SWALLOWS a genuine rule into the previous one — causing the
+    # exact corruption this guard exists to prevent.
+    r"|(?:in|to|under|from)\s+(?:rules?|CR|TR)"
+    r")\s*$",
+    re.IGNORECASE,
+)
+# Running-header table rows carry section titles: "| 416. | Recycle |"
+HEADER_RE = re.compile(r"^\|\s*(\d{3})\.\s*\|\s*([^|]+?)\s*\|")
+EXAMPLE_RE = re.compile(r"^\s*Example:\s*(.*)$")
+# "See rule 416." / "See 416.1." / "See rule 107.5. Banishment"
+XREF_RE = re.compile(r"[Ss]ee\s+(?:rule\s+|section\s+)?(\d{3}(?:\.[0-9a-z]+)*)")
+
+
+def parent_of(rule_id: str):
+    parts = rule_id.split(".")
+    return ".".join(parts[:-1]) if len(parts) > 1 else None
+
+
+def parse_doc(doc, path, version):
+    lines = open(path, encoding="utf-8").read().split("\n")
+    section_titles, rules, order = {}, {}, []
+    cur = None            # current rule id
+    cur_example = None    # accumulating example lines
+    prev_content = ""     # last non-blank, non-table line — for the cue veto
+    vetoed = []           # wrapped cross-refs we refused to treat as rules
+
+    def flush_example():
+        nonlocal cur_example
+        if cur and cur_example:
+            text = " ".join(cur_example).strip()
+            if text:
+                rules[cur]["examples"].append(text)
+        cur_example = None
+
+    for n, raw_line in enumerate(lines, 1):
+        line = raw_line.rstrip()
+
+        # Running-header rows: harvest the section title, then drop.
+        h = HEADER_RE.match(line)
+        if h:
+            section_titles.setdefault(h.group(1), h.group(2).strip())
+            continue
+        if line.startswith("|"):
+            continue
+
+        if not line.strip():
+            # A blank line does NOT end an Example. The PDF breaks pages mid-
+            # example, and treating that as a terminator appended the example's
+            # tail to the RULE's text — 431.2.d picked up "randomizing it as
+            # normal, then chooses an opponent to gain 1 point…". An Example
+            # runs until the next rule definition or the next Example.
+            continue
+
+        m = RULE_RE.match(line)
+        if m and REF_CUE_RE.search(prev_content):
+            # A wrapped "See CR / 128. Privacy…" — continuation, not a definition.
+            vetoed.append((n, line[:70]))
+            if cur_example is not None:
+                cur_example.append(line.strip())
+            elif cur:
+                rules[cur]["text"] += " " + line.strip()
+            prev_content = line
+            continue
+
+        if m:
+            flush_example()
+            rid, text = m.group(1), m.group(2).strip()
+            # A REPEATED id is a wrapped cross-reference, never a second
+            # definition — "…conduct listed in" / "704. Engaging in…" is one
+            # sentence broken across a line. The cue heuristic alone cannot
+            # catch every phrasing, so this structural signature backs it up.
+            #
+            # Crucially the text belongs to the rule we are CURRENTLY reading,
+            # not to the earlier rule that owns the id. Appending it there
+            # corrupted TR:704 with a sentence from 705.3.b.
+            if rid in rules:
+                vetoed.append((n, line[:70]))
+                if cur_example is not None:
+                    cur_example.append(line.strip())
+                elif cur:
+                    rules[cur]["text"] += " " + line.strip()
+                prev_content = line
+                continue
+            rules[rid] = {
+                "id": rid,
+                "doc": doc,
+                "version": version,
+                "depth": rid.count(".") + 1,
+                "parent": parent_of(rid),
+                "section": rid.split(".")[0],
+                "text": text,
+                "examples": [],
+                "line_start": n,
+            }
+            order.append(rid)
+            cur = rid
+            prev_content = line
+            continue
+
+        ex = EXAMPLE_RE.match(line)
+        if ex:
+            flush_example()
+            cur_example = [ex.group(1)]
+            prev_content = line
+            continue
+
+        # Continuation of whatever we're inside.
+        if cur_example is not None:
+            cur_example.append(line.strip())
+        elif cur:
+            rules[cur]["text"] += " " + line.strip()
+        prev_content = line
+
+    flush_example()
+
+    for rid, r in rules.items():
+        r["text"] = re.sub(r"\s+", " ", r["text"]).strip()
+        r["section_title"] = section_titles.get(r["section"]) or (
+            rules.get(r["section"], {}).get("text", "")
+        )
+        # Cross-refs, excluding self-references.
+        r["see_also"] = sorted({x for x in XREF_RE.findall(r["text"]) if x != rid})
+    return rules, order, section_titles, vetoed
+
+
+def sort_key(rule_id: str):
+    """Document order: numeric segments numerically, letters after numbers."""
+    out = []
+    for seg in rule_id.split("."):
+        out.append((0, int(seg), "") if seg.isdigit() else (1, 0, seg))
+    return out
+
+
+def main():
+    all_rules, stats, all_vetoed, disorder = {}, {}, [], []
+    for doc, path, version in DOCS:
+        rules, order, titles, vetoed = parse_doc(doc, path, version)
+        for rid, r in rules.items():
+            all_rules[f"{doc}:{rid}"] = r
+        stats[doc] = dict(rules=len(rules), sections=len(titles), order=len(order))
+        all_vetoed += [(doc, *v) for v in vetoed]
+        # FIDELITY CHECK: rule ids must ascend in document order. A fabricated
+        # rule (a wrapped cross-reference read as a definition) lands wildly out
+        # of sequence. Orphan/xref checks are structurally blind to this — a
+        # fabricated depth-1 rule has no parent to orphan.
+        for prev, nxt in zip(order, order[1:]):
+            if sort_key(nxt) < sort_key(prev):
+                disorder.append((doc, prev, nxt))
+
+    rules_list = list(all_rules.values())
+    depths = Counter(r["depth"] for r in rules_list)
+    empty = [r for r in rules_list if not r["text"]]
+    orphans = [
+        r for r in rules_list
+        if r["parent"] and f'{r["doc"]}:{r["parent"]}' not in all_rules
+    ]
+    with_ex = sum(1 for r in rules_list if r["examples"])
+    with_xref = sum(1 for r in rules_list if r["see_also"])
+    broken_xref = []
+    for r in rules_list:
+        for x in r["see_also"]:
+            if f'{r["doc"]}:{x}' not in all_rules:
+                broken_xref.append((r["id"], x))
+    untitled = [r for r in rules_list if not r["section_title"]]
+
+    print("=== parse results ===")
+    for doc, s in stats.items():
+        print(f"  {doc}: {s['rules']} rules, {s['sections']} section titles")
+    print(f"  TOTAL: {len(rules_list)} rules")
+    print()
+    print("=== structure ===")
+    for d in sorted(depths):
+        print(f"  depth {d}: {depths[d]}")
+    print(f"  with examples:   {with_ex}")
+    print(f"  with cross-refs: {with_xref}")
+    print()
+    print("=== integrity (all should be ~0) ===")
+    print(f"  empty text:        {len(empty)}")
+    print(f"  orphaned parent:   {len(orphans)}")
+    print(f"  broken cross-refs: {len(broken_xref)}")
+    print(f"  missing section title: {len(untitled)}")
+    print(f"  OUT-OF-ORDER ids (fabrication signal): {len(disorder)}")
+    for doc, a, b in disorder[:5]:
+        print(f"    {doc}: {a} -> {b}")
+    print()
+    print(f"=== vetoed wrapped cross-references ({len(all_vetoed)}) ===")
+    for doc, ln, txt in all_vetoed:
+        print(f"  {doc} line {ln}: {txt}")
+    print("  (each would have become a fabricated rule under a naive scanner)")
+    for r in empty[:3]:
+        print(f"    empty: {r['doc']}:{r['id']}")
+    for r in orphans[:3]:
+        print(f"    orphan: {r['doc']}:{r['id']} -> parent {r['parent']}")
+    for a, b in broken_xref[:5]:
+        print(f"    xref: {a} -> {b} (not found)")
+
+    print()
+    print("=== spot check: 471.1.b.1 with ancestry ===")
+    key = "CR:471.1.b.1"
+    if key in all_rules:
+        chain, cur = [], all_rules[key]
+        while cur:
+            chain.append(cur)
+            p = cur["parent"]
+            cur = all_rules.get(f"CR:{p}") if p else None
+        for r in reversed(chain):
+            print(f"  [{r['id']}] {r['text'][:110]}")
+    else:
+        print("  MISSING — parser bug")
+
+    if "--json" in sys.argv:
+        out = sys.argv[sys.argv.index("--json") + 1]
+        json.dump(rules_list, open(out, "w", encoding="utf-8"), indent=1)
+        print(f"\nwrote {len(rules_list)} rules -> {out} ({os.path.getsize(out)//1024} KB)")
+
+
+if __name__ == "__main__":
+    main()

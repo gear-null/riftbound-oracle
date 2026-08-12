@@ -3,42 +3,47 @@ entries:
     set_id: OGN
     category: cards
     output: output/cards-ogn.md
-    processed: 2026-03-25
+    processed: 2026-08-06
   - type: riftcodex
     set_id: OGS
     category: cards
     output: output/cards-ogs.md
-    processed: 2026-03-25
+    processed: 2026-08-06
   - type: riftcodex
     set_id: OPP
     category: cards
     output: output/cards-opp.md
-    processed: 2026-03-25
+    processed: 2026-08-06
   - type: riftcodex
     set_id: SFD
     category: cards
     output: output/cards-sfd.md
-    processed: 2026-03-25
+    processed: 2026-08-06
   - type: riftcodex
     set_id: UNL
     category: cards
     output: output/cards-unl.md
-    processed: 2026-04-22
+    processed: 2026-08-06
+  - type: riftcodex
+    set_id: VEN
+    category: cards
+    output: output/cards-ven.md
+    processed: 2026-08-06
   - type: riftcodex
     set_id: JDG
     category: cards
     output: output/cards-jdg.md
-    processed: 2026-03-25
+    processed: 2026-08-06
   - type: riftcodex
     set_id: PR
     category: cards
     output: output/cards-pr.md
-    processed: 2026-03-25
+    processed: 2026-08-06
   - type: rules-hub
     url: https://riftbound.leagueoflegends.com/en-us/rules-hub/
     category: rules
     output: output/rules.md
-    processed: 2026-05-03
+    processed: 2026-08-09
     pdfs:
       - output/core-rules.pdf
       - output/tournament-rules.pdf

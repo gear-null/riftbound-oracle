@@ -2,6 +2,14 @@ node_modules/
 dist/
 print/
 
+# Card artwork is never redistributed. The index is a generated list of Riot
+# CDN URLs — each user builds their own with `npm run oracle card-index`.
+output/card-index.json
+
+# Belt-and-braces: a community Q&A corpus was evaluated and dropped, and the
+# crawler is gone. This keeps any leftover local copy from being committed.
+output/unofficial-riftjudge-rulings*.md
+
 # Raw source files (PDFs, HTML saves, API dumps) — not tracked
 sources/**
 !sources/*/
@@ -10,7 +18,7 @@ sources/**
 # Python
 __pycache__/
 *.pyc
-.venv/
+.venv
 
 # Environment
 .env

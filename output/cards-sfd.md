@@ -1,12 +1,12 @@
 ---
 category: cards
-generated: 2026-03-25
+generated: 2026-08-06
 generator: riftbound-oracle
 ---
 
 # Spiritforged — Complete Card List
 
-**Total cards:** 287
+**Total cards:** 288
 
 ## Spells (45)
 
@@ -26,7 +26,7 @@ generator: riftbound-oracle
 
 **Energy:** 1 | **Type:** Spell | **Rarity:** Common | **Domain:** Fury
 
-[Action] (Play on your turn or in showdowns.)[Repeat] :rb_energy_1: (You may pay the additional cost to repeat this spell's effect.)Give a unit [Assault 2] this turn. (+2 :rb_might: while it's an attacker.)
+[Action] (Play on your turn or in showdowns.)[Repeat] :rb_energy_1: (You may pay the additional cost to repeat this spell's effect.)Give a unit [Assault 2]. (+2 :rb_might: while it's an attacker.)
 
 *Artist: Rafael Zanchetin | Spiritforged #3*
 
@@ -380,7 +380,7 @@ Return all units and gear to their owners' hands.
 
 **Energy:** 2 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Order
 
-[Reaction] (Play any time, even before spells and abilities resolve.)Kill a friendly unit. If you do, give +:rb_might: equal to its Might to another friendly unit this turn.Draw 1.
+[Reaction] (Play any time, even before spells and abilities resolve.)Kill a friendly unit to give +:rb_might: equal to its Might to another friendly unit this turn. Draw 1.
 
 > *Death is my kindness." - Mordekaiser*
 
@@ -428,7 +428,7 @@ Return all units and gear to their owners' hands.
 
 **Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Epic | **Domain:** Fury, Body
 
-[Action] (Play on your turn or in showdowns.)Move a friendly unit. You may attach an Equipment with the same controller to it. This turn, that unit has &quot;When I conquer, you may move me to my base.&quot;
+[Action] (Play on your turn or in showdowns.)Move a friendly unit. You may attach an Equipment with the same controller to it. This turn, that unit has "When I conquer, you may move me to my base."
 
 **Tags:** Lucian
 
@@ -440,7 +440,7 @@ Return all units and gear to their owners' hands.
 
 **Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Epic | **Domain:** Fury, Order
 
-Reveal the top 2 cards of your Main Deck. You may banish one, then play it, reducing its cost by :rb_energy_2:. Draw any you didn't banish.
+Reveal the top 2 cards of your Main Deck. You may play one of them, reducing its cost by :rb_energy_2:. Draw any you did not play this way.
 
 **Tags:** Rek'Sai
 
@@ -480,7 +480,7 @@ Reveal the top 2 cards of your Main Deck. You may banish one, then play it, redu
 
 **Energy:** 6 | **Power:** 1 | **Type:** Spell | **Rarity:** Epic | **Domain:** Calm, Order
 
-Play a 2 :rb_might: Sand Soldier unit token for each Equipment you control. Then do this: Ready up to two of them.
+Play a 2 :rb_might: Sand Soldier unit token for each Equipment you control. Then ready two of them.
 
 > *The order is given!" - Azir*
 
@@ -730,7 +730,7 @@ When I win a combat, play a Gold gear token exhausted.When I attack or defend, y
 
 **Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
 
-[Tank] (I must be assigned combat damage first.)When I attack, you may play an Equipment with Energy cost no more than :rb_energy_2:, ignoring its cost. If you do, then do this: Attach it to me.
+[Tank] (I must be assigned combat damage first.)When I attack, you may play an Equipment with Energy cost no more than :rb_energy_2:, ignoring its cost, and attach it to me.
 
 > *Bones shatter and people lie, but I can always count on iron.*
 
@@ -1028,7 +1028,7 @@ When you attach an Equipment to me, choose one that hasn't been chosen this turn
 
 **Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
 
-[Reaction] (Play any time, even before spells and abilities resolve, including to a battlefield you control.)When you play me, heal your units here, then move up to one enemy unit from here to its base.
+[Reaction] (Play any time, even before spells and abilities resolve, including to a battlefield you control.)When you play me, heal your units here, then move an enemy unit from here to its base.
 
 > *Gale winds unleashed!*
 
@@ -1042,7 +1042,7 @@ When you attach an Equipment to me, choose one that hasn't been chosen this turn
 
 **Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
 
-[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)Your Equipment everywhere have [Quick-Draw]. (Each gains [Reaction]. When you play it, attach it to a unit you control.)
+[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)Each Equipment in your hand has [Quick-Draw]. (It gains [Reaction]. When you play it, attach it to a unit you control.)
 
 > *Fighting Words! My favorite kind.*
 
@@ -1056,7 +1056,7 @@ When you attach an Equipment to me, choose one that hasn't been chosen this turn
 
 **Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
 
-[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)Your Equipment everywhere have [Quick-Draw]. (Each gains [Reaction]. When you play it, attach it to a unit you control.)
+[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)Each Equipment in your hand has [Quick-Draw]. (It gains [Reaction]. When you play it, attach it to a unit you control.)
 
 > *Fighting Words! My favorite kind.*
 
@@ -1140,7 +1140,7 @@ When you play me or when I hold, look at the top 4 cards of your Main Deck. You 
 
 **Energy:** 7 | **Might:** 4 | **Power:** 2 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
 
-[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)While I'm at a battlefield, opponents can't gain points.
+[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)While I'm at a battlefield, opponents can't score points.
 
 > *I will stand for my country, my family, and nothing else.*
 
@@ -1358,18 +1358,6 @@ When you play me, you may kill a friendly gear. If you do, you may play a gear w
 
 ---
 
-### Ornn - Forge God (Alternate Art)
-
-**Energy:** 6 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
-
-[Deflect 2] (Opponents must pay :rb_rune_rainbow::rb_rune_rainbow: to choose me with a spell or ability.)[Weaponmaster] (When you play me, you may [Equip] one of your Equipment to me for :rb_rune_rainbow: less, even if it's already attached.)I have +1 :rb_might: for each friendly gear.
-
-**Tags:** Ornn, Freljord
-
-*Artist: League Splash Team | Spiritforged #85*
-
----
-
 ### Ornn - Forge God
 
 **Energy:** 6 | **Might:** 4 | **Type:** Unit | **Rarity:** Rare | **Domain:** Mind
@@ -1379,6 +1367,18 @@ When you play me, you may kill a friendly gear. If you do, you may play a gear w
 **Tags:** Ornn, Freljord
 
 *Artist: Will Gist | Spiritforged #85*
+
+---
+
+### Ornn - Forge God (Alternate Art)
+
+**Energy:** 6 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+
+[Deflect 2] (Opponents must pay :rb_rune_rainbow::rb_rune_rainbow: to choose me with a spell or ability.)[Weaponmaster] (When you play me, you may [Equip] one of your Equipment to me for :rb_rune_rainbow: less, even if it's already attached.)I have +1 :rb_might: for each friendly gear.
+
+**Tags:** Ornn, Freljord
+
+*Artist: League Splash Team | Spiritforged #85*
 
 ---
 
@@ -1410,20 +1410,6 @@ When you play me, you may kill a friendly gear. If you do, you may play a gear w
 
 ---
 
-### Rumble - Scrapper
-
-**Energy:** 5 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Mind
-
-Your Mechs have +1 :rb_might: (including me).When I hold, play a 3 :rb_might: Mech unit token to your base.
-
-> *Ever look up to a yordle?*
-
-**Tags:** Mech, Yordle, Rumble, Bandle City
-
-*Artist: Six More Vodka | Spiritforged #89*
-
----
-
 ### Rumble - Scrapper (Alternate Art)
 
 **Energy:** 5 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
@@ -1435,6 +1421,20 @@ Your Mechs have +1 :rb_might: (including me).When I hold, play a 3 :rb_might: Me
 **Tags:** Mech, Yordle, Rumble, Bandle City
 
 *Artist: League Splash Team | Spiritforged #89*
+
+---
+
+### Rumble - Scrapper
+
+**Energy:** 5 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Mind
+
+Your Mechs have +1 :rb_might: (including me).When I hold, play a 3 :rb_might: Mech unit token to your base.
+
+> *Ever look up to a yordle?*
+
+**Tags:** Mech, Yordle, Rumble, Bandle City
+
+*Artist: Six More Vodka | Spiritforged #89*
 
 ---
 
@@ -1636,7 +1636,7 @@ When I attack or defend one on one, double my Might this combat.
 
 **Energy:** 4 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
 
-[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)When I move to a battlefield, give another friendly unit my keywords and +:rb_might: equal to my Might this turn.
+[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)When I move to a battlefield, give a friendly unit my keywords and +:rb_might: equal to my Might this turn.
 
 > *Let's give "em a good show!.*
 
@@ -1678,7 +1678,7 @@ When I attack or defend one on one, double my Might this combat.
 
 **Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
 
-[Weaponmaster] (When you play me, you may [Equip] one of your Equipment to me for :rb_rune_rainbow: less, even if it's already attached.)When I conquer a battlefield that was uncontrolled, deal damage equal to my Might to an enemy unit in a base.
+[Weaponmaster] (When you play me, you may [Equip] one of your Equipment to me for :rb_rune_rainbow: less, even if it's already attached.)When I conquer an open battlefield, deal damage equal to my Might to an enemy unit in a base.
 
 **Tags:** Yone, Ionia, Demon
 
@@ -2166,7 +2166,7 @@ You may kill a friendly gear as an additional cost to play me.When you play me, 
 
 **Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Order
 
-When I attack, you may reveal the top 2 cards of your Main Deck. You may banish one, then play it. If it is a unit, you may play it here. Recycle the rest.
+When I attack, you may reveal the top 2 cards of your Main Deck. You may play one. Then recycle the rest. If the played card is a unit, you may play it here.
 
 > *KKRRKRKRRKKRKK!*
 
@@ -2180,7 +2180,7 @@ When I attack, you may reveal the top 2 cards of your Main Deck. You may banish 
 
 **Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
 
-When I attack, you may reveal the top 2 cards of your Main Deck. You may banish one, then play it. If it is a unit, you may play it here. Recycle the rest.
+When I attack, you may reveal the top 2 cards of your Main Deck. You may play one. Then recycle the rest. If the played card is a unit, you may play it here.
 
 > *KKRRKRKRRKKRKK!*
 
@@ -2274,20 +2274,6 @@ When you play me, give your other units +2 :rb_might: this turn.As I'm revealed 
 
 ---
 
-### Azir - Sovereign
-
-**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
-
-[Accelerate] (You may pay :rb_energy_1::rb_rune_order: as an additional cost to have me enter ready.)When I attack, you may move any number of your token units to this battlefield.
-
-> *You need not follow, but you must witness.*
-
-**Tags:** Bird, Azir, Shurima
-
-*Artist: Six More Vodka | Spiritforged #177*
-
----
-
 ### Azir - Sovereign (Alternate Art)
 
 **Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
@@ -2299,6 +2285,20 @@ When you play me, give your other units +2 :rb_might: this turn.As I'm revealed 
 **Tags:** Bird, Azir, Shurima
 
 *Artist: League Splash Team | Spiritforged #177*
+
+---
+
+### Azir - Sovereign
+
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
+
+[Accelerate] (You may pay :rb_energy_1::rb_rune_order: as an additional cost to have me enter ready.)When I attack, you may move any number of your token units to this battlefield.
+
+> *You need not follow, but you must witness.*
+
+**Tags:** Bird, Azir, Shurima
+
+*Artist: Six More Vodka | Spiritforged #177*
 
 ---
 
@@ -2372,7 +2372,7 @@ When a unit you control becomes [Mighty], you may pay :rb_rune_order: to ready i
 
 ---
 
-### Aphelios - Exalted (Overnumbered)
+### Aphelios - Exalted (Signature)
 
 **Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
 
@@ -2384,7 +2384,7 @@ When you attach an Equipment to me, choose one that hasn't been chosen this turn
 
 ---
 
-### Aphelios - Exalted (Signature)
+### Aphelios - Exalted (Overnumbered)
 
 **Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
 
@@ -2612,7 +2612,7 @@ When I'm played and when I conquer, buff me. (If I don't have a buff, I get a +1
 
 ---
 
-### Karma - Channeler (Overnumbered)
+### Karma - Channeler (Signature)
 
 **Energy:** 6 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
 
@@ -2626,7 +2626,7 @@ When I'm played and when I conquer, buff me. (If I don't have a buff, I get a +1
 
 ---
 
-### Karma - Channeler (Signature)
+### Karma - Channeler (Overnumbered)
 
 **Energy:** 6 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
 
@@ -2668,7 +2668,17 @@ I must be assigned combat damage last.If another unit you control here would die
 
 ---
 
-## Gears (48)
+## Gears (49)
+
+### Gold // Buff
+
+**Type:** Gear | **Rarity:** Common | **Domain:** Colorless
+
+Kill this, :rb_exhaust:: [Reaction] — [Add] :rb_rune_rainbow:. (Abilities that add resources can't be reacted to.)
+
+*Artist: Kudos Productions | Spiritforged #3*
+
+---
 
 ### Serrated Dirk
 
@@ -3032,7 +3042,7 @@ When you play a spell on an opponent's turn, you may exhaust me to play a Gold g
 
 **Energy:** 3 | **Type:** Gear | **Rarity:** Rare | **Domain:** Chaos
 
-[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When you play this from face down, attach it to a unit you control (here).[Equip] :rb_rune_chaos: (:rb_rune_chaos:: Attach this to a unit you control.)
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When you play this from face down, attach it to a unit you control here.[Equip] :rb_rune_chaos: (:rb_rune_chaos:: Attach this to a unit you control.)
 
 > *Every shadow an ally.*
 
@@ -3294,7 +3304,7 @@ When you win a combat, draw 1. (You win if only your units remain after combat.)
 
 **Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Order
 
-When you conquer, you may exhaust me to reveal the top 2 cards of your Main Deck. You may banish one, then play it. Recycle the rest.
+When you conquer, you may exhaust me to reveal the top 2 cards of your Main Deck. You may play one. Then recycle the rest.
 
 **Tags:** Rek'Sai
 
@@ -3438,7 +3448,7 @@ When you win a combat, draw 1. (You win if only your units remain after combat.)
 
 **Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Order
 
-When you conquer, you may exhaust me to reveal the top 2 cards of your Main Deck. You may play one. Then recycle the rest.
+When you conquer, you may exhaust me to reveal the top 2 cards of your Main Deck. You may banish one, then play it. Recycle the rest.
 
 **Tags:** Rek'Sai
 
@@ -3558,7 +3568,7 @@ When you conquer here, you may pay :rb_energy_1: and return a unit you control h
 
 **Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
 
-While you control this battlefield, friendly legends have &quot;:rb_exhaust:: Attach an Equipment you control to a unit you control.&quot;
+While you control this battlefield, friendly legends have ":rb_exhaust:: Attach an Equipment you control to a unit you control."
 
 *Artist: Dao Trong Le | Spiritforged #208*
 
@@ -3648,7 +3658,7 @@ Units can't be played here.
 
 **Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
 
-When you conquer here, draw 1 for each other battlefield you or allies control.
+When you conquer here, draw 1 for each other battlefield you or allies control..
 
 *Artist: Kudos Productions | Spiritforged #217*
 

@@ -85,12 +85,10 @@ async function downloadImage(url: string, dest: string): Promise<void> {
   await pipeline(Readable.fromWeb(body as any), createWriteStream(dest));
 }
 
-export async function downloadPrintCards(opts: PrintOptions): Promise<{
-  legends: number;
-  cards: number;
-  runes: number;
-  tokens: number;
-}> {
+/** One count per bucket — derived from CardBucket so the two can't drift apart. */
+export type PrintCounts = Record<CardBucket, number>;
+
+export async function downloadPrintCards(opts: PrintOptions): Promise<PrintCounts> {
   const { cards, outputDir, onProgress } = opts;
 
   // Filter to unique cards only

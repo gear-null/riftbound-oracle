@@ -53,12 +53,35 @@ function absoluteUrl(href: string | null, baseUrl: string): string | null {
   }
 }
 
+/**
+ * Key a hub link by its path rather than its full URL.
+ *
+ * Riot is migrating the Rules Hub from riftbound.leagueoflegends.com to
+ * playriftbound.com, and mid-migration the hub links some articles on BOTH
+ * hosts. Deduping by full URL let the same article through twice, which
+ * appended its whole body to rules.md twice (the Vendetta errata landed as
+ * both "Vendetta Errata" and "Vendetta Errata Updates", 162 identical lines).
+ *
+ * The slug is stable across the two hosts, so the path identifies the article.
+ * Trailing slashes are stripped because the hub is inconsistent about them.
+ * This assumes same-path means same-article, which holds because
+ * ARTICLE_PATH_PATTERN already restricts us to Riot's own rules/errata paths.
+ */
+function dedupeKey(url: string): string {
+  try {
+    return new URL(url).pathname.replace(/\/+$/, "").toLowerCase() || "/";
+  } catch {
+    return url.toLowerCase();
+  }
+}
+
 function dedupe(links: LinkInfo[]): LinkInfo[] {
   const seen = new Set<string>();
   const out: LinkInfo[] = [];
   for (const link of links) {
-    if (seen.has(link.url)) continue;
-    seen.add(link.url);
+    const key = dedupeKey(link.url);
+    if (seen.has(key)) continue;
+    seen.add(key);
     out.push(link);
   }
   return out;
@@ -138,7 +161,7 @@ export function extractArticleBody(html: string): string {
   const dom = new JSDOM(html);
   const doc = dom.window.document;
   const blade = doc.querySelector('[data-testid="ArticleRichTextBlade"]');
-  const root = (blade ?? doc.body) as Element;
+  const root = (blade ?? doc.body) as HTMLElement;
   stripNoise(root);
   return turndown.turndown(root).trim();
 }
@@ -222,7 +245,7 @@ export async function processRulesHub(
   const outputDir = dirname(resolve(opts.outputPath));
   const pdfOutputs: string[] = [];
 
-  // Download PDFs to sibling files; they'll be uploaded as separate NotebookLM sources.
+  // Download PDFs to sibling files; `oracle extract` turns them into markdown.
   for (let i = 0; i < pdfs.length; i++) {
     const pdf = pdfs[i];
     progress(`PDF ${i + 1}/${pdfs.length}: ${pdf.text}`);
@@ -247,7 +270,7 @@ export async function processRulesHub(
     sections.push("# Core Documents");
     sections.push("");
     sections.push(
-      "The canonical rules PDFs are uploaded as separate sources so NotebookLM can cite them with native PDF previews:"
+      "The canonical rules PDFs are downloaded alongside this file; run `oracle extract` to convert them to citable markdown:"
     );
     sections.push("");
     for (let i = 0; i < pdfs.length; i++) {
