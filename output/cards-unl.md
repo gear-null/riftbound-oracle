@@ -1,10 +1,10 @@
 ---
 category: cards
-generated: 2026-04-22
+generated: 2026-08-06
 generator: riftbound-oracle
 ---
 
-# UNL Set — Complete Card List
+# Unleashed — Complete Card List
 
 **Total cards:** 280
 
@@ -38,7 +38,7 @@ I enter ready.:rb_exhaust:: Give a unit +3 :rb_might: this turn.
 
 ---
 
-### Mischevious Marai
+### Mischievous Marai
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Fury
 
@@ -126,7 +126,7 @@ If you've spent :rb_energy_4: or more to play a spell this turn, I have +4 :rb_m
 
 **Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Fury
 
-[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][&gt;] I have +1 :rb_might: and enter ready. (While you have 3+ XP, get the effect.)
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][>] I have +1 :rb_might: and enter ready. (While you have 3+ XP, get the effect.)
 
 > *Sit. Stay. Burn.*
 
@@ -140,7 +140,7 @@ If you've spent :rb_energy_4: or more to play a spell this turn, I have +4 :rb_m
 
 **Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Fury
 
-When I conquer, if you assigned 3 or more excess damage, play two Gold gear tokens exhausted. (They have &quot;[Reaction][&gt;] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.&quot;)
+When I conquer, if you assigned 3 or more excess damage, play two Gold gear tokens exhausted. (They have "[Reaction][>] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.")
 
 > *If you love your job, it's hardly work.*
 
@@ -166,7 +166,7 @@ When I conquer, if you assigned 3 or more excess damage, play two Gold gear toke
 
 ### Jhin - Murderous Artist (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
 
 [Deflect][Ganking]When I move, [Add] :rb_energy_1::rb_rune_rainbow:.
 
@@ -208,7 +208,7 @@ When you hide a card, ready me.When you play a card from face down, deal 2 to an
 
 ### Rengar - Unseen (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
 
 [Accelerate][Assault 2][Deflect][Ganking]
 
@@ -236,7 +236,7 @@ When you hide a card, ready me.When you play a card from face down, deal 2 to an
 
 **Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Fury
 
-[Legion][&gt;] You may play me from your trash for :rb_energy_3::rb_rune_fury:. (Get the effect if you've played another card this turn.)
+[Legion][>] You may play me from your trash for :rb_energy_3::rb_rune_fury:. (Get the effect if you've played another card this turn.)
 
 > *Choose carefully your oath, lest duty bind you even in death.*
 
@@ -279,7 +279,7 @@ We are but ashes in his flame."
 
 ### Pyke - Dockside Butcher (Alternate Art)
 
-**Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
+**Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Epic | **Domain:** Fury
 
 [Hidden][Ganking]You may pay :rb_rune_fury: as an additional cost to play me.When you play me, if you paid the additional cost, ready me and give me +2 :rb_might: this turn.
 
@@ -287,7 +287,7 @@ We are but ashes in his flame."
 
 **Tags:** Pyke, Bilgewater
 
-*Artist: Six More Vodka | Unleashed #28*
+*Artist: League Splash Team | Unleashed #28*
 
 ---
 
@@ -307,7 +307,7 @@ We are but ashes in his flame."
 
 ### Red Brambleback (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Fury
 
 [Accelerate]Your conquer effects for conquering here trigger an additional time.When I conquer, [Buff] a friendly unit.
 
@@ -343,7 +343,7 @@ We are but ashes in his flame."
 
 ### Vi - Hotheaded (Alternate Art)
 
-**Energy:** 4 | **Might:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
+**Energy:** 4 | **Might:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Fury
 
 [Deflect]:rb_energy_2::rb_rune_fury:: Double my Might this turn.
 
@@ -431,7 +431,7 @@ If a friendly unit died during your Beginning Phase this turn, I enter ready.
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Calm
 
-[Hunt] (When I conquer or hold, gain 1 XP.)[Level 6][&gt;] When you play me, draw 1. (While you have 6+ XP, get the effect.)
+[Hunt] (When I conquer or hold, gain 1 XP.)[Level 6][>] When you play me, draw 1. (While you have 6+ XP, get the effect.)
 
 > *I've learned a great deal during my apprenticeship.
 Allow me to demonstrate.*
@@ -474,7 +474,7 @@ Allow me to demonstrate.*
 
 **Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Calm
 
-[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][&gt;] I have +1 :rb_might: and [Deflect]. (While you have 3+ XP, get the effect. Opponents must pay :rb_rune_rainbow: to choose a [Deflect] unit with a spell or ability.)
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][>] I have +1 :rb_might: and [Deflect]. (While you have 3+ XP, get the effect. Opponents must pay :rb_rune_rainbow: to choose a [Deflect] unit with a spell or ability.)
 
 > *Sometimes you gotta stomp some moss.*
 
@@ -526,7 +526,7 @@ When you play me or when I hold, look at the top 3 cards of your Main Deck. You 
 
 ### Ivern - Nurturer (Alternate Art)
 
-**Energy:** 5 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
+**Energy:** 5 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
 
 When you play me or when I hold, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest. Then if you revealed a Bird, Cat, Dog, or Poro, do this: [Buff] a friendly unit.
 
@@ -552,7 +552,7 @@ You may pay :rb_rune_calm: as an additional cost to play me.When you play me, if
 
 **Energy:** 2 | **Might:** 0 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
 
-(Units with 0 :rb_might: can conquer and hold.)When you play me, draw 1.[Deathknell][&gt;] Choose an opponent. They reveal their hand. You can look at their facedown cards this turn. Gain 1 XP. (When I die, get the effects.)
+(Units with 0 :rb_might: can conquer and hold.)When you play me, draw 1.[Deathknell][>] Choose an opponent. They reveal their hand. You can look at their facedown cards this turn. Gain 1 XP. (When I die, get the effects.)
 
 > *As harmless as it is delicious.*
 
@@ -564,7 +564,7 @@ You may pay :rb_rune_calm: as an additional cost to play me.When you play me, if
 
 ### Vex - Mocking (Alternate Art)
 
-**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
 
 [Shield][Tank]When you [Stun] an enemy unit at a battlefield, you may move me to that battlefield.
 
@@ -634,7 +634,7 @@ When you play a token unit, give me +1 :rb_might: this turn.Your token units hav
 
 ### Lillia - Protector of Dreams (Alternate Art)
 
-**Energy:** 5 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
+**Energy:** 5 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
 
 When you play a token unit, give me +1 :rb_might: this turn.Your token units have [Tank].
 
@@ -648,9 +648,9 @@ When you play a token unit, give me +1 :rb_might: this turn.Your token units hav
 
 ### Master Yi - Unstoppable (Alternate Art)
 
-**Energy:** 12 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
+**Energy:** 12 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
 
-[Level 3][&gt;] I cost :rb_energy_2::rb_rune_calm: less.[Level 6][&gt;] I cost :rb_energy_4::rb_rune_calm::rb_rune_calm: less instead.[Level 11][&gt;] I cost :rb_energy_6::rb_rune_calm::rb_rune_calm::rb_rune_calm: less instead.[Level 16][&gt;] I can't be chosen by enemy spells and abilities.
+[Level 3][>] I cost :rb_energy_2::rb_rune_calm: less.[Level 6][>] I cost :rb_energy_4::rb_rune_calm::rb_rune_calm: less instead.[Level 11][>] I cost :rb_energy_6::rb_rune_calm::rb_rune_calm::rb_rune_calm: less instead.[Level 16][>] I can't be chosen by enemy spells and abilities.
 
 > *A true master is an eternal student.*
 
@@ -664,7 +664,7 @@ When you play a token unit, give me +1 :rb_might: this turn.Your token units hav
 
 **Energy:** 12 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
 
-[Level 3][&gt;] I cost :rb_energy_2::rb_rune_calm: less. (While you have 3+ XP, get the effect.)[Level 6][&gt;] I cost :rb_energy_4::rb_rune_calm::rb_rune_calm: less instead.[Level 11][&gt;] I cost :rb_energy_6::rb_rune_calm::rb_rune_calm::rb_rune_calm: less instead.[Level 16][&gt;] I can't be chosen by enemy spells and abilities.
+[Level 3][>] I cost :rb_energy_2::rb_rune_calm: less. (While you have 3+ XP, get the effect.)[Level 6][>] I cost :rb_energy_4::rb_rune_calm::rb_rune_calm: less instead.[Level 11][>] I cost :rb_energy_6::rb_rune_calm::rb_rune_calm::rb_rune_calm: less instead.[Level 16][>] I can't be chosen by enemy spells and abilities.
 
 **Tags:** Master Yi, Ionia
 
@@ -674,7 +674,7 @@ When you play a token unit, give me +1 :rb_might: this turn.Your token units hav
 
 ### Vilemaw (Alternate Art)
 
-**Energy:** 8 | **Might:** 8 | **Power:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
+**Energy:** 8 | **Might:** 8 | **Power:** 2 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm
 
 [Ambush]Enemy units here with less Might than me don't deal combat damage.When I hold, draw 1.
 
@@ -704,7 +704,7 @@ When you play a token unit, give me +1 :rb_might: this turn.Your token units hav
 
 **Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Common | **Domain:** Mind
 
-[Deathknell][&gt;] [Predict 2]. (When I die, look at the top two cards of your Main Deck. Recycle any of them and put the rest back in any order.)
+[Deathknell][>] [Predict 2]. (When I die, look at the top two cards of your Main Deck. Recycle any of them and put the rest back in any order.)
 
 > *Truth rarely comes without sacrifice.*
 
@@ -746,7 +746,7 @@ When I attack, you may pay :rb_energy_1: to give a unit here -1 :rb_might: this 
 
 **Energy:** 6 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Mind
 
-[Deathknell][&gt;] Deal 4 to an enemy unit. (When I die, get the effect.)
+[Deathknell][>] Deal 4 to an enemy unit. (When I die, get the effect.)
 
 > *It's back, and worse than ever.*
 
@@ -788,7 +788,7 @@ When another friendly unit dies, give me +2 :rb_might: this turn.
 
 **Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Uncommon | **Domain:** Mind
 
-[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][&gt;] I have +1 :rb_might: and [Ganking]. (While you have 3+ XP, get the effect. A [Ganking] unit can move from battlefield to battlefield.)
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 3][>] I have +1 :rb_might: and [Ganking]. (While you have 3+ XP, get the effect. A [Ganking] unit can move from battlefield to battlefield.)
 
 > *An unconventional choice of pet.*
 
@@ -828,7 +828,7 @@ Your token units have +1 :rb_might:.
 
 ### Diana - Lunari (Alternate Art)
 
-**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Mind
 
 When a showdown begins here, you may pay :rb_energy_1:. If you do, [Predict], then reveal the top card of your Main Deck. If it's a spell, draw it.
 
@@ -880,7 +880,7 @@ When I move, draw 1, then discard 1. Then, do the following based on the discard
 
 ### Lillia - Fae Fawn (Alternate Art)
 
-**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Mind
 
 [Accelerate]When I move from a location, play a 3 :rb_might: Sprite unit token with [Temporary] there.
 
@@ -930,7 +930,7 @@ Once each turn, if you would play a token unit while I'm at a battlefield, you m
 
 ### Blue Sentinel (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Mind
 
 [Shield 2]Your hold effects for holding here trigger an additional time.When I hold, [Add] :rb_rune_rainbow: at the start of your next Main Phase.
 
@@ -952,7 +952,7 @@ Once each turn, if you would play a token unit while I'm at a battlefield, you m
 
 ### Jhin - Meticulous Killer (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Mind
 
 [Vision]If you've spent :rb_energy_4: or more to play a spell this turn, you may play me for :rb_rune_mind:.
 
@@ -994,7 +994,7 @@ Once each turn, if you would play a token unit while I'm at a battlefield, you m
 
 ### LeBlanc - Everywhere At Once (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Mind
 
 [Backline]Your [Temporary] effects at my battlefield don't trigger.
 
@@ -1024,7 +1024,7 @@ When you play me, gain 1 XP.
 
 **Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
 
-[Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1:. (Abilities that add resources can't be reacted to.)
+[Reaction][>] :rb_exhaust:: [Add] :rb_energy_1:. (Abilities that add resources can't be reacted to.)
 
 > *The Dragon's secrets are not mine to share. I can only share the gifts that it has given me.*
 
@@ -1038,7 +1038,7 @@ When you play me, gain 1 XP.
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
 
-[Hunt] (When I conquer or hold, gain 1 XP.)[Level 6][&gt;] I have +1 :rb_might:. (While you have 6+ XP, get the effect.)
+[Hunt] (When I conquer or hold, gain 1 XP.)[Level 6][>] I have +1 :rb_might:. (While you have 6+ XP, get the effect.)ambush
 
 > *He's a yordle of many facets.*
 
@@ -1066,7 +1066,7 @@ When you play me, draw 1 if your other units have total Might 5 or more.
 
 **Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
 
-[Level 11][&gt;] I have +4 :rb_might:. (While you have 11+ XP, get the effect.)
+[Level 11][>] I have +4 :rb_might:. (While you have 11+ XP, get the effect.)
 
 > *She has seen the world before. She will see that world again.*
 
@@ -1190,9 +1190,9 @@ When I move to a battlefield, you may move an enemy unit to that battlefield.
 
 ### Master Yi - Tempered (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
 
-[Hunt 2][Level 6][&gt;] I have [Deflect] and [Ganking].
+[Hunt 2][Level 6][>] I have [Deflect] and [Ganking].
 
 > *Watch, and learn.*
 
@@ -1206,7 +1206,7 @@ When I move to a battlefield, you may move an enemy unit to that battlefield.
 
 **Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
 
-[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 6][&gt;] I have [Deflect] and [Ganking]. (While you have 6+ XP, opponents must pay :rb_rune_rainbow: to choose me with a spell or ability and I can move from battlefield to battlefield.)
+[Hunt 2] (When I conquer or hold, gain 2 XP.)[Level 6][>] I have [Deflect] and [Ganking]. (While you have 6+ XP, opponents must pay :rb_rune_rainbow: to choose me with a spell or ability and I can move from battlefield to battlefield.)
 
 > *Watch, and learn.*
 
@@ -1246,7 +1246,7 @@ When I move to a battlefield, you may move an enemy unit to that battlefield.
 
 ### Poppy - Paragon (Alternate Art)
 
-**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
+**Energy:** 5 | **Might:** 5 | **Type:** Unit | **Rarity:** Rare | **Domain:** Body
 
 [Deflect]When you play me, if an opponent's score is within 3 points of the Victory Score, ready me and gain 3 XP.
 
@@ -1288,7 +1288,7 @@ When I move to a battlefield, you may move an enemy unit to that battlefield.
 
 ### Elder Dragon (Alternate Art)
 
-**Energy:** 12 | **Might:** 10 | **Power:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
+**Energy:** 12 | **Might:** 10 | **Power:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Body
 
 Any amount of your damage is enough to kill enemy units.When you play me, choose up to one enemy unit at each location. Deal 1 to them.
 
@@ -1316,7 +1316,7 @@ Any amount of your damage is enough to kill enemy units.When you play me, choose
 
 ### Kha'Zix - Evolving Hunter (Alternate Art)
 
-**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Body
 
 [Hunt]When I attack, you may spend 3 XP to deal damage equal to my Might to an enemy unit here.
 
@@ -1344,7 +1344,7 @@ Any amount of your damage is enough to kill enemy units.When you play me, choose
 
 ### Rengar - Trophy Hunter (Alternate Art)
 
-**Energy:** 5 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
+**Energy:** 5 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Body
 
 [Ambush]I can be played to a battlefield where there are enemy units.
 
@@ -1528,7 +1528,7 @@ When I attack, you may pay :rb_energy_1: to move an enemy unit here to its base.
 
 ### Kha'Zix - Mutating Horror (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
 
 [Ambush]When I attack or defend, if an enemy unit is alone here, give me +2 :rb_might: this turn and gain 2 XP.
 
@@ -1574,7 +1574,7 @@ I can't be readied.:rb_rune_chaos:: Move me to an occupied enemy battlefield if 
 
 **Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
 
-[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Backline] (I must be assigned combat damage last.)Once each turn, when an enemy unit dies while I'm at a battlefield, play a Gold gear token exhausted. (It has &quot;[Reaction][&gt;] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.&quot;)
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Backline] (I must be assigned combat damage last.)Once each turn, when an enemy unit dies while I'm at a battlefield, play a Gold gear token exhausted. (It has "[Reaction][>] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.")
 
 **Tags:** Pyke, Bilgewater
 
@@ -1584,7 +1584,7 @@ I can't be readied.:rb_rune_chaos:: Move me to an occupied enemy battlefield if 
 
 ### Pyke - Returned (Alternate Art)
 
-**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
 
 [Hidden][Backline]Once each turn, when an enemy unit dies while I'm at a battlefield, play a Gold gear token exhausted.
 
@@ -1610,7 +1610,7 @@ While I'm in a showdown, your spells have [Repeat] :rb_energy_2::rb_rune_chaos:.
 
 ### Baron Nashor (Alternate Art)
 
-**Energy:** 10 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 10 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Chaos
 
 As you play me, add the Baron Pit battlefield token to the board if it's not there already. If you do, I enter there.I can't be chosen by enemy spells and abilities.Other friendly units have +2 :rb_might:.
 
@@ -1624,7 +1624,7 @@ As you play me, add the Baron Pit battlefield token to the board if it's not the
 
 **Energy:** 10 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Chaos
 
-As you play me, add the Baron Pit battlefield token to the board if it's not there already. If you do, I enter there. (It has &quot;Units can move here from anywhere.&quot;)I can't be chosen by enemy spells and abilities.Other friendly units have +2 :rb_might:.
+As you play me, add the Baron Pit battlefield token to the board if it's not there already. If you do, I enter there. (It has "Units can move here from anywhere.")I can't be chosen by enemy spells and abilities.Other friendly units have +2 :rb_might:.
 
 **Tags:** The Void
 
@@ -1634,7 +1634,7 @@ As you play me, add the Baron Pit battlefield token to the board if it's not the
 
 ### Diana - No Longer Human (Alternate Art)
 
-**Energy:** 4 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 4 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Chaos
 
 [Ambush]When you play a spell, give me +2 :rb_might: this turn.
 
@@ -1662,7 +1662,7 @@ As you play me, add the Baron Pit battlefield token to the board if it's not the
 
 ### Vex - Apathetic (Alternate Art)
 
-**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 4 | **Might:** 4 | **Type:** Unit | **Rarity:** Epic | **Domain:** Chaos
 
 [Deflect]When an opponent plays a unit while I'm at a battlefield, [Stun] it. They can't move it this turn.
 
@@ -1692,7 +1692,7 @@ As you play me, add the Baron Pit battlefield token to the board if it's not the
 
 **Energy:** 4 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Order
 
-[Level 3][&gt;] I enter ready. (While you have 3+ XP, get the effect.)
+[Level 3][>] I enter ready. (While you have 3+ XP, get the effect.)
 
 > *Bandle Scout Rule 170: Everything makes you better at everything.*
 
@@ -1706,7 +1706,7 @@ As you play me, add the Baron Pit battlefield token to the board if it's not the
 
 **Energy:** 3 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Order
 
-[Assault] (+1 :rb_might: while I'm an attacker.)[Deathknell][&gt;] Channel 1 rune exhausted. (When I die, get the effect.)
+[Assault] (+1 :rb_might: while I'm an attacker.)[Deathknell][>] Channel 1 rune exhausted. (When I die, get the effect.)
 
 > *The beauty of the petals hides the sting of the thorns.*
 
@@ -1720,7 +1720,7 @@ As you play me, add the Baron Pit battlefield token to the board if it's not the
 
 **Energy:** 2 | **Might:** 1 | **Type:** Unit | **Rarity:** Common | **Domain:** Order
 
-[Deathknell][&gt;] Play a 1 :rb_might: Bird unit token with [Deflect] to your base. (When I die, get the effect. Opponents must pay :rb_rune_rainbow: to choose a [Deflect] unit with a spell or ability.)
+[Deathknell][>] Play a 1 :rb_might: Bird unit token with [Deflect] to your base. (When I die, get the effect. Opponents must pay :rb_rune_rainbow: to choose a [Deflect] unit with a spell or ability.)
 
 > *The automaton paused and stared in wonder. Amidst the detritus sat a single unbroken egg.*
 
@@ -1748,7 +1748,7 @@ I have +2 :rb_might: while I'm attacking with another unit.
 
 **Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Common | **Domain:** Order
 
-[Deathknell][&gt;] If I didn't die alone, draw 1. (When I die, get the effect. I wasn't alone if there were other friendly units here.)
+[Deathknell][>] If I didn't die alone, draw 1. (When I die, get the effect. I wasn't alone if there were other friendly units here.)
 
 > *A head full of bravery and not much else.*
 
@@ -1898,9 +1898,9 @@ You may kill a friendly unit as an additional cost to play me. If you do, I cost
 
 ### LeBlanc - Fragmented (Alternate Art)
 
-**Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+**Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Order
 
-[Assault][Deathknell][&gt;] Draw 1. If it's your Beginning Phase, draw 2 instead.
+[Assault][Deathknell][>] Draw 1. If it's your Beginning Phase, draw 2 instead.
 
 > *My greatest strength is that there are so many of us...*
 
@@ -1914,7 +1914,7 @@ You may kill a friendly unit as an additional cost to play me. If you do, I cost
 
 **Energy:** 3 | **Might:** 3 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Order
 
-[Assault] (+1 :rb_might: while I'm an attacker.)[Deathknell][&gt;] Draw 1. If it's your Beginning Phase, draw 2 instead. (When I die, get the effect.)
+[Assault] (+1 :rb_might: while I'm an attacker.)[Deathknell][>] Draw 1. If it's your Beginning Phase, draw 2 instead. (When I die, get the effect.)
 
 > *My greatest strength is that there are so many of us...*
 
@@ -1940,7 +1940,7 @@ You may kill a friendly unit as an additional cost to play me. If you do, I cost
 
 ### Vi - Peacekeeper (Alternate Art)
 
-**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+**Energy:** 5 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Order
 
 [Ambush]When I attack, [Stun] an enemy unit here.
 
@@ -1954,7 +1954,7 @@ You may kill a friendly unit as an additional cost to play me. If you do, I cost
 
 ### Ivern - Friend to All (Alternate Art)
 
-**Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+**Energy:** 6 | **Might:** 6 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
 
 As you play me, choose Bird, Cat, Dog, or Poro. I gain that tag.When I conquer or hold, score 1 point if your units have all of the following tags among them — Bird, Cat, Dog, and Poro.
 
@@ -1982,7 +1982,7 @@ As you play me, choose Bird, Cat, Dog, or Poro. I gain that tag.When I conquer o
 
 ### Poppy - Defender of the Meek (Alternate Art)
 
-**Energy:** 6 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+**Energy:** 6 | **Might:** 5 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
 
 You may spend 3 XP as an additional cost to play me. If you do, I cost :rb_energy_3: less.[Ambush][Tank]
 
@@ -2010,7 +2010,7 @@ You may spend 3 XP as an additional cost to play me. If you do, I cost :rb_energ
 
 **Energy:** 8 | **Might:** 7 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
 
-When I move to a battlefield, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest.[Deathknell][&gt;] Play a unit from your hand to your base, ignoring its Energy cost. (When I die, get the effect. You must still pay its Power cost.)
+When I move to a battlefield, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest.[Deathknell][>] Play a unit from your hand to your base, ignoring its Energy cost. (When I die, get the effect. You must still pay its Power cost.)
 
 **Tags:** The Void
 
@@ -2020,9 +2020,9 @@ When I move to a battlefield, look at the top 3 cards of your Main Deck. You may
 
 ### Rift Herald (Alternate Art)
 
-**Energy:** 8 | **Might:** 7 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+**Energy:** 8 | **Might:** 7 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Order
 
-When I move to a battlefield, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest.[Deathknell][&gt;] Play a unit from your hand to your base, ignoring its Energy cost.
+When I move to a battlefield, look at the top 3 cards of your Main Deck. You may reveal a unit from among them and draw it. Recycle the rest.[Deathknell][>] Play a unit from your hand to your base, ignoring its Energy cost.
 
 **Tags:** The Void
 
@@ -2034,7 +2034,7 @@ When I move to a battlefield, look at the top 3 cards of your Main Deck. You may
 
 **Energy:** 3 | **Might:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Calm, Chaos
 
-If you play me to a battlefield, I enter ready.[Action][&gt;] :rb_energy_1::rb_rune_rainbow:, :rb_exhaust:: [Stun] an enemy unit attacking here. (It doesn't deal combat damage this turn.)
+If you play me to a battlefield, I enter ready.[Action][>] :rb_energy_1::rb_rune_rainbow:, :rb_exhaust:: [Stun] an enemy unit attacking here. (It doesn't deal combat damage this turn.)
 
 > *Another person to kill. Shadow, can you handle it?"
 
@@ -2060,7 +2060,7 @@ I enter ready.Reduce my cost by :rb_energy_1: for each of the following tags amo
 
 ### Pouty Poro (Overnumbered)
 
-**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Fury
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Fury
 
 [Deflect]
 
@@ -2076,9 +2076,9 @@ And cold that reaches to our bone*
 
 ### Lonely Poro (Overnumbered)
 
-**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Calm
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Calm
 
-[Deathknell][&gt;] If I died alone, draw 1.
+[Deathknell][>] If I died alone, draw 1.
 
 > *We may have fallen out of grace
 
@@ -2092,7 +2092,7 @@ We may feel we are all alone*
 
 ### Plundering Poro (Overnumbered)
 
-**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Mind
 
 When I conquer, play a Gold gear token exhausted.
 
@@ -2108,7 +2108,7 @@ And shine like gold to lead us home*
 
 ### Veteran Poro (Overnumbered)
 
-**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Body
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Body
 
 [Weaponmaster]
 
@@ -2124,7 +2124,7 @@ So others strive to be enough*
 
 ### Mystic Poro (Overnumbered)
 
-**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Chaos
 
 [Vision]
 
@@ -2140,7 +2140,7 @@ And let it raise our hearts aloft*
 
 ### Daring Poro (Overnumbered)
 
-**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Order
+**Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Order
 
 [Assault]
 
@@ -2156,7 +2156,7 @@ And may it lead us to our fluft*
 
 ### Baron Nashor (Ultimate)
 
-**Energy:** 10 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Chaos
+**Energy:** 10 | **Might:** 12 | **Power:** 3 | **Type:** Unit | **Rarity:** Epic | **Domain:** Chaos
 
 As you play me, add the Baron Pit battlefield token to the board if it's not there already. If you do, I enter there.I can't be chosen by enemy spells and abilities.Other friendly units have +2 :rb_might:.
 
@@ -2272,7 +2272,7 @@ Deal 2 to a unit. Its controller may play this spell again for :rb_rune_rainbow:
 
 **Energy:** 1 | **Type:** Spell | **Rarity:** Common | **Domain:** Calm
 
-[Reaction] (Play any time, even before spells and abilities resolve.)Give a unit +1 :rb_might: this turn.[Level 6][&gt;] Give it +3 :rb_might: this turn instead. (While you have 6+ XP, get the effect.)
+[Reaction] (Play any time, even before spells and abilities resolve.)Give a unit +1 :rb_might: this turn.[Level 6][>] Give it +3 :rb_might: this turn instead. (While you have 6+ XP, get the effect.)
 
 *Artist: Kudos Productions | Unleashed #31*
 
@@ -2294,7 +2294,7 @@ Deal 2 to a unit. Its controller may play this spell again for :rb_rune_rainbow:
 
 **Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Common | **Domain:** Calm
 
-Move an enemy unit.[Level 6][&gt;] [Stun] an enemy unit. (While you have 6+ XP, get the effect. A stunned unit doesn't deal combat damage this turn.)
+Move an enemy unit.[Level 6][>] [Stun] an enemy unit. (While you have 6+ XP, get the effect. A stunned unit doesn't deal combat damage this turn.)
 
 > *Take a moment to heel up.*
 
@@ -2424,7 +2424,7 @@ Give a gear [Temporary]. (Kill it at the start of its controller's Beginning Pha
 
 **Energy:** 4 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Mind
 
-Deal 3 to an enemy unit. When it dies this turn, play a Gold gear token exhausted. (It has &quot;[Reaction][&gt;] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.&quot;)
+Deal 3 to an enemy unit. When it dies this turn, play a Gold gear token exhausted. (It has "[Reaction][>] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.")
 
 > *The world is cruel. It does not have to be ugly.
 
@@ -2448,7 +2448,7 @@ Deal 3 to an enemy unit. When it dies this turn, play a Gold gear token exhauste
 
 **Energy:** 5 | **Type:** Spell | **Rarity:** Common | **Domain:** Body
 
-Draw 2.[Level 6][&gt;] This costs :rb_energy_2: less. (While you have 6+ XP, get the effect.)[Level 11][&gt;] This costs :rb_energy_4: less instead.
+Draw 2.[Level 6][>] This costs :rb_energy_2: less. (While you have 6+ XP, get the effect.)[Level 11][>] This costs :rb_energy_4: less instead.
 
 > *Peace within, peace without."
 
@@ -2879,7 +2879,7 @@ When you play a unit during a showdown, you may exhaust this to draw 1.
 
 **Energy:** 2 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Calm
 
-[Action][&gt;] Exhaust a unit you control, :rb_exhaust:: Move a different unit you control to the location of the unit you exhausted to pay for this ability.
+[Action][>] Exhaust a unit you control, :rb_exhaust:: Move a different unit you control to the location of the unit you exhausted to pay for this ability.
 
 > *Great City of Demacia -  470
 
@@ -2895,7 +2895,7 @@ Bandle City -  ????*
 
 **Energy:** 2 | **Type:** Gear | **Rarity:** Rare | **Domain:** Calm
 
-This enters exhausted.[Reaction][&gt;] :rb_exhaust:: [Add] :rb_rune_rainbow:. (Abilities that add resources can't be reacted to.)[Level 6][&gt;] [&gt;&gt;][Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1::rb_rune_rainbow:. (Use this ability only while you have 6+ XP.)
+This enters exhausted.[Reaction][>] :rb_exhaust:: [Add] :rb_rune_rainbow:. (Abilities that add resources can't be reacted to.)[Level 6][>] [>>][Reaction][>] :rb_exhaust:: [Add] :rb_energy_1::rb_rune_rainbow:. (Use this ability only while you have 6+ XP.)
 
 *Artist: 黯荧岛Dark Glow | Unleashed #49*
 
@@ -2917,7 +2917,7 @@ When you draw your second card each turn, give a friendly unit +2 :rb_might: thi
 
 **Energy:** 2 | **Power:** 1 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Mind
 
-[Temporary] (Kill this at the start of its controller's Beginning Phase, before scoring.)When you play this, play a ready 3 :rb_might: Sprite unit token with [Temporary] to your base.[Deathknell][&gt;] Repeat this gear's play effect. (When this dies, get the effect.)
+[Temporary] (Kill this at the start of its controller's Beginning Phase, before scoring.)When you play this, play a ready 3 :rb_might: Sprite unit token with [Temporary] to your base.[Deathknell][>] Repeat this gear's play effect. (When this dies, get the effect.)
 
 *Artist: Envar Studio | Unleashed #78*
 
@@ -3037,7 +3037,7 @@ When you play this, gain 1 XP.[Equip] — Spend 1 XP (Pay the cost: Attach this 
 
 **Energy:** 2 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Order
 
-[Vision] (When you play this, look at the top card of your Main Deck. You may recycle it.)[Action][&gt;] Kill this, :rb_exhaust:: Give a unit +2 :rb_might: this turn.
+[Vision] (When you play this, look at the top card of your Main Deck. You may recycle it.)[Action][>] Kill this, :rb_exhaust:: Give a unit +2 :rb_might: this turn.
 
 > *Today's treasure is tomorrow's trash.*
 
@@ -3099,7 +3099,7 @@ When you play a unit, give a unit +1 :rb_might: this turn.
 
 **Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Chaos
 
-:rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted. (It has &quot;[Reaction][&gt;] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.&quot;)
+:rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted. (It has "[Reaction][>] Kill this, :rb_exhaust:: [Add] :rb_rune_rainbow:.")
 
 **Tags:** Pyke
 
@@ -3135,7 +3135,7 @@ When you conquer, if you assigned 3 or more excess damage, you may exhaust me to
 
 **Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Body
 
-[Level 6][&gt;] Your units have +1 :rb_might:. (While you have 6+ XP, get the effect.)[Level 11][&gt;] Your units enter ready.
+[Level 6][>] Your units have +1 :rb_might:. (While you have 6+ XP, get the effect.)[Level 11][>] Your units enter ready.
 
 **Tags:** Master Yi
 
@@ -3171,7 +3171,7 @@ When you conquer or hold, you may exhaust me to replace that battlefield with a 
 
 **Type:** Legend | **Rarity:** Rare | **Domain:** Mind, Chaos
 
-[Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns. (Abilities that add resources can't be reacted to.)
+[Reaction][>] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns. (Abilities that add resources can't be reacted to.)
 
 **Tags:** Diana
 
@@ -3217,7 +3217,7 @@ When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
 
 ### Jhin - Virtuoso (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Mind
+**Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Mind
 
 When you play a spell, if you spent :rb_energy_4: or more, you may banish it. Then, if there are four spells banished with me, put each in its trash, channel 4 runes, and draw 1.
 
@@ -3229,7 +3229,7 @@ When you play a spell, if you spent :rb_energy_4: or more, you may banish it. Th
 
 ### Jhin - Virtuoso (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Mind
+**Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Mind
 
 When you play a spell, if you spent :rb_energy_4: or more, you may banish it. Then, if there are four spells banished with me, put each in its trash, channel 4 runes, and draw 1.
 
@@ -3241,7 +3241,7 @@ When you play a spell, if you spent :rb_energy_4: or more, you may banish it. Th
 
 ### Rengar - Pridestalker (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Body
+**Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Body
 
 When you play a unit, give a unit +1 :rb_might: this turn.
 
@@ -3253,7 +3253,7 @@ When you play a unit, give a unit +1 :rb_might: this turn.
 
 ### Rengar - Pridestalker (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Body
+**Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Body
 
 When you play a unit, give a unit +1 :rb_might: this turn.
 
@@ -3265,7 +3265,7 @@ When you play a unit, give a unit +1 :rb_might: this turn.
 
 ### Pyke - Bloodharbor Ripper (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Chaos
+**Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Chaos
 
 :rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted.
 
@@ -3277,7 +3277,7 @@ When you play a unit, give a unit +1 :rb_might: this turn.
 
 ### Pyke - Bloodharbor Ripper (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Chaos
+**Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Chaos
 
 :rb_energy_1:, :rb_exhaust:: Return a friendly unit at a battlefield to its owner's hand. Play a Gold gear token exhausted.
 
@@ -3289,7 +3289,7 @@ When you play a unit, give a unit +1 :rb_might: this turn.
 
 ### Vi - Piltover Enforcer (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Order
+**Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Order
 
 When you conquer, if you assigned 3 or more excess damage, you may exhaust me to ready a unit.
 
@@ -3301,7 +3301,7 @@ When you conquer, if you assigned 3 or more excess damage, you may exhaust me to
 
 ### Vi - Piltover Enforcer (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Fury, Order
+**Type:** Legend | **Rarity:** Rare | **Domain:** Fury, Order
 
 When you conquer, if you assigned 3 or more excess damage, you may exhaust me to ready a unit.
 
@@ -3313,7 +3313,7 @@ When you conquer, if you assigned 3 or more excess damage, you may exhaust me to
 
 ### Lillia - Bashful Bloom (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Mind
+**Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Mind
 
 :rb_energy_4:, :rb_exhaust:: Play a ready 3 :rb_might: Sprite unit token with [Temporary]. This ability costs :rb_energy_1: less for each friendly unit with [Temporary].
 
@@ -3325,7 +3325,7 @@ When you conquer, if you assigned 3 or more excess damage, you may exhaust me to
 
 ### Lillia - Bashful Bloom (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Mind
+**Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Mind
 
 :rb_energy_4:, :rb_exhaust:: Play a ready 3 :rb_might: Sprite unit token with [Temporary]. This ability costs :rb_energy_1: less for each friendly unit with [Temporary].
 
@@ -3337,9 +3337,9 @@ When you conquer, if you assigned 3 or more excess damage, you may exhaust me to
 
 ### Master Yi - Wuju Master (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Body
+**Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Body
 
-[Level 6][&gt;] Your units have +1 :rb_might:.[Level 11][&gt;] Your units enter ready.
+[Level 6][>] Your units have +1 :rb_might:.[Level 11][>] Your units enter ready.
 
 **Tags:** Master Yi
 
@@ -3349,9 +3349,9 @@ When you conquer, if you assigned 3 or more excess damage, you may exhaust me to
 
 ### Master Yi - Wuju Master (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Body
+**Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Body
 
-[Level 6][&gt;] Your units have +1 :rb_might:.[Level 11][&gt;] Your units enter ready.
+[Level 6][>] Your units have +1 :rb_might:.[Level 11][>] Your units enter ready.
 
 **Tags:** Master Yi
 
@@ -3361,7 +3361,7 @@ When you conquer, if you assigned 3 or more excess damage, you may exhaust me to
 
 ### Vex - Gloomist (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Chaos
+**Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Chaos
 
 When you or an ally hold, you may exhaust me to draw 1.
 
@@ -3373,7 +3373,7 @@ When you or an ally hold, you may exhaust me to draw 1.
 
 ### Vex - Gloomist (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Chaos
+**Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Chaos
 
 When you or an ally hold, you may exhaust me to draw 1.
 
@@ -3385,7 +3385,7 @@ When you or an ally hold, you may exhaust me to draw 1.
 
 ### Ivern - Green Father (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Order
+**Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Order
 
 When you conquer or hold, you may exhaust me to replace that battlefield with a Brush battlefield token.
 
@@ -3397,7 +3397,7 @@ When you conquer or hold, you may exhaust me to replace that battlefield with a 
 
 ### Ivern - Green Father (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Calm, Order
+**Type:** Legend | **Rarity:** Rare | **Domain:** Calm, Order
 
 When you conquer or hold, you may exhaust me to replace that battlefield with a Brush battlefield token.
 
@@ -3409,9 +3409,9 @@ When you conquer or hold, you may exhaust me to replace that battlefield with a 
 
 ### Diana - Scorn of the Moon (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Mind, Chaos
+**Type:** Legend | **Rarity:** Rare | **Domain:** Mind, Chaos
 
-[Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns.
+[Reaction][>] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns.
 
 **Tags:** Diana
 
@@ -3421,9 +3421,9 @@ When you conquer or hold, you may exhaust me to replace that battlefield with a 
 
 ### Diana - Scorn of the Moon (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Mind, Chaos
+**Type:** Legend | **Rarity:** Rare | **Domain:** Mind, Chaos
 
-[Reaction][&gt;] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns.
+[Reaction][>] :rb_exhaust:: [Add] :rb_energy_1:. Spend this Energy only during showdowns.
 
 **Tags:** Diana
 
@@ -3433,7 +3433,7 @@ When you conquer or hold, you may exhaust me to replace that battlefield with a 
 
 ### LeBlanc - Deceiver (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Mind, Order
+**Type:** Legend | **Rarity:** Rare | **Domain:** Mind, Order
 
 When you conquer or hold, you may discard 1 and exhaust me to play a ready Reflection unit token there. It becomes a copy of another unit there. Give it [Temporary].
 
@@ -3445,7 +3445,7 @@ When you conquer or hold, you may discard 1 and exhaust me to play a ready Refle
 
 ### LeBlanc - Deceiver (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Mind, Order
+**Type:** Legend | **Rarity:** Rare | **Domain:** Mind, Order
 
 When you conquer or hold, you may discard 1 and exhaust me to play a ready Reflection unit token there. It becomes a copy of another unit there. Give it [Temporary].
 
@@ -3457,7 +3457,7 @@ When you conquer or hold, you may discard 1 and exhaust me to play a ready Refle
 
 ### Kha'Zix - Voidreaver (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Body, Chaos
+**Type:** Legend | **Rarity:** Rare | **Domain:** Body, Chaos
 
 When you win a combat, gain 1 XP.Spend 1 XP, :rb_exhaust:: [Buff] a unit.Spend 2 XP, :rb_exhaust:: Move an exhausted friendly unit from a battlefield to its base.
 
@@ -3469,7 +3469,7 @@ When you win a combat, gain 1 XP.Spend 1 XP, :rb_exhaust:: [Buff] a unit.Spend 2
 
 ### Kha'Zix - Voidreaver (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Body, Chaos
+**Type:** Legend | **Rarity:** Rare | **Domain:** Body, Chaos
 
 When you win a combat, gain 1 XP.Spend 1 XP, :rb_exhaust:: [Buff] a unit.Spend 2 XP, :rb_exhaust:: Move an exhausted friendly unit from a battlefield to its base.
 
@@ -3481,7 +3481,7 @@ When you win a combat, gain 1 XP.Spend 1 XP, :rb_exhaust:: [Buff] a unit.Spend 2
 
 ### Poppy - Keeper of the Hammer (Signature)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Body, Order
+**Type:** Legend | **Rarity:** Rare | **Domain:** Body, Order
 
 When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
 
@@ -3493,7 +3493,7 @@ When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
 
 ### Poppy - Keeper of the Hammer (Overnumbered)
 
-**Type:** Legend | **Rarity:** Showcase | **Domain:** Body, Order
+**Type:** Legend | **Rarity:** Rare | **Domain:** Body, Order
 
 When you hold, gain 1 XP.Spend 3 XP, :rb_exhaust:: Draw 1.
 
@@ -3589,7 +3589,7 @@ At the start of each player's Beginning Phase, deal 1 to each unit here. (This h
 
 **Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
 
-Units here have &quot;:rb_exhaust:: Gain 1 XP.&quot;
+Units here have ":rb_exhaust:: Gain 1 XP."
 
 *Artist: Polar Engine Studio | Unleashed #213*
 

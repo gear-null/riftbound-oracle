@@ -1,6 +1,6 @@
 ---
 category: cards
-generated: 2026-03-25
+generated: 2026-08-06
 generator: riftbound-oracle
 ---
 
@@ -412,7 +412,7 @@ When you play me, draw 1 for each of your [Mighty] units. (A unit is Mighty whil
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Common | **Domain:** Calm
 
-You may pay :rb_rune_calm: as an additional cost to play me.When you play me, if you paid the additional cost, draw 1.
+As you play me, you may pay :rb_rune_calm: as an additional cost. If you do, draw 1.
 
 > *It always goes back for seconds.*
 
@@ -616,7 +616,7 @@ While I'm at a battlefield, opponents can only play units to their base.While I'
 
 **Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Calm
 
-At the end of your turn, if I'm at a battlefield, ready up to 4 friendly runes.
+While I'm at a battlefield, ready 4 friendly runes at the end of your turn.
 
 > *The symphony never ends.*
 
@@ -900,7 +900,7 @@ When you play me, play a ready 3 :rb_might: Sprite unit token with [Temporary] h
 
 **Energy:** 5 | **Might:** 4 | **Type:** Unit | **Rarity:** Rare | **Domain:** Mind
 
-When I attack, you may pay :rb_rune_mind: to play a card with [Hidden] from your hand, ignoring its cost. If it’s a unit, play it here.
+When I attack, you may pay :rb_rune_mind: to play a card with [Hidden] from your hand here, ignoring its cost.
 
 > *I brought snacks!*
 
@@ -1078,7 +1078,7 @@ When I attack or defend, give an enemy unit here -2 :rb_might: this turn, to a m
 
 **Energy:** 2 | **Might:** 2 | **Power:** 1 | **Type:** Unit | **Rarity:** Showcase | **Domain:** Mind
 
-[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When I defend, choose an enemy unit here and reveal the top 5 cards of your Main Deck. Deal 1 to that unit for each card with [Hidden] revealed this way, then recycle the revealed cards.
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.
 
 **Tags:** Yordle, Teemo, Bandle City
 
@@ -1090,7 +1090,7 @@ When I attack or defend, give an enemy unit here -2 :rb_might: this turn, to a m
 
 **Energy:** 2 | **Might:** 2 | **Power:** 1 | **Type:** Unit | **Rarity:** Epic | **Domain:** Mind
 
-[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When I defend, choose an enemy unit here and reveal the top 5 cards of your Main Deck. Deal 1 to that unit for each card with [Hidden] revealed this way, then recycle the revealed cards.
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When I defend or I'm played from [Hidden], reveal the top 5 cards of your Main Deck. Deal 1 to an enemy unit here for each card with [Hidden], then recycle them.
 
 **Tags:** Yordle, Teemo, Bandle City
 
@@ -1694,7 +1694,7 @@ You may play me to an open battlefield.Friendly units may be played to open batt
 
 **Energy:** 4 | **Might:** 4 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
 
-[Ganking] (I can move from battlefield to battlefield.)As you look at or reveal me from the top of your deck, you may banish me. If you do, you may play me for :rb_rune_rainbow:.
+[Ganking] (I can move from battlefield to battlefield.)When you look at cards from the top of your deck (and don't draw them) and see me, you may play me for :rb_rune_rainbow:.
 
 **Tags:** Nocturne
 
@@ -1760,7 +1760,7 @@ When you play me, you may play a unit from your trash, ignoring its Energy cost.
 
 **Energy:** 2 | **Might:** 2 | **Type:** Unit | **Rarity:** Rare | **Domain:** Chaos
 
-[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When you play me, you may choose a unit you control at another location. Move me to its location and it to my original location.
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When you play me, you may choose a friendly unit. Move me to its location and it to my original location.
 
 **Tags:** Bilgewater
 
@@ -2060,11 +2060,11 @@ When you play me, kill an enemy unit.
 
 **Energy:** 6 | **Might:** 6 | **Power:** 1 | **Type:** Unit | **Rarity:** Rare | **Domain:** Order
 
-[Vision] (When you play me, look at the top card of your Main Deck. You may recycle it.)When you recycle one or more cards to your Main Deck, buff a friendly unit. (If it doesn't have a buff, it gets a +1 :rb_might: buff. Runes aren't cards.)
+[Vision] (When you play me, look at the top card of your Main Deck. You may recycle it.)When you recycle one or more cards, buff a friendly unit. (If it doesn't have a buff, it gets a +1 :rb_might: buff. Runes aren't cards.)
 
 > *Heart and mind as one.*
 
-**Tags:** Vi, Ionia
+**Tags:** Karma, Ionia
 
 *Artist: Six More Vodka | Origins #235*
 
@@ -2292,7 +2292,7 @@ When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit
 
 **Energy:** 4 | **Type:** Spell | **Rarity:** Common | **Domain:** Fury
 
-[Action] (Play on your turn or in showdowns.)Deal 3 to a unit at a battlefield. If this kills it, do this: draw 1.
+[Action] (Play on your turn or in showdowns.)Deal 3 to a unit at a battlefield. If this kills it, draw 1.
 
 > *Ashes, ashes, they all fall down." -Annie*
 
@@ -2610,7 +2610,7 @@ Each other player chooses Cards or Runes. For each player that chooses Cards, yo
 
 **Energy:** 3 | **Power:** 1 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Mind
 
-[Action] (Play on your turn or in showdowns.)Banish a friendly unit, then its owner plays it to their base, ignoring its cost.
+[Action] (Play on your turn or in showdowns.)Banish a friendly unit, then play it to base, ignoring its cost.
 
 > *Where do the portals go? You know, I've never asked." -Norra*
 
@@ -2670,7 +2670,7 @@ Draw 4.
 
 **Energy:** 5 | **Power:** 1 | **Type:** Spell | **Rarity:** Rare | **Domain:** Mind
 
-Each player looks at the top 5 cards of their Main Deck, banishes one of them, then recycles the rest. Starting with the next player, each player plays those cards, ignoring Energy costs. (They must still pay Power costs.)
+Each player looks at the top 5 cards of their Main Deck, chooses one, then recycles the rest. Starting with the next player, each player plays those cards, ignoring Energy costs. (They must still pay Power costs.)
 
 *Artist: Kudos Productions | Origins #115*
 
@@ -3058,7 +3058,7 @@ Each player kills one of their units.
 
 **Energy:** 2 | **Power:** 1 | **Type:** Spell | **Rarity:** Uncommon | **Domain:** Order
 
-[Action] (Play on your turn or in showdowns.)You may kill up to one gear. Draw 1.
+[Action] (Play on your turn or in showdowns.)You may kill a gear. Draw 1.
 
 > *One person's treasure is another one's trash.*
 
@@ -3178,7 +3178,7 @@ Deal 5 to a unit.When you conquer, you may discard 1 to return this from your tr
 
 **Energy:** 4 | **Power:** 1 | **Type:** Spell | **Rarity:** Epic | **Domain:** Calm, Body
 
-Move an enemy unit. Then do this: Choose another enemy unit at its destination. They deal damage equal to their Mights to each other.
+Move an enemy unit. Then choose another enemy unit at its destination. They deal damage equal to their Mights to each other.
 
 **Tags:** Lee Sin
 
@@ -3386,7 +3386,7 @@ This enters exhausted.:rb_exhaust:: Deal 2 to a unit at a battlefield.
 
 **Energy:** 2 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Fury
 
-Discard 1, :rb_exhaust:: Choose a friendly unit. The next time it would die this turn, you may pay :rb_rune_fury: to heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)
+Discard 1, :rb_exhaust:: Choose a friendly unit. The next time it dies this turn, you may pay :rb_rune_fury: to recall it exhausted instead. (Send it to base. This isn't a move.)
 
 *Artist: Kudos Productions | Origins #23*
 
@@ -3452,7 +3452,7 @@ When you kill a stunned enemy unit, you may exhaust this to draw 1.
 
 **Energy:** 2 | **Type:** Gear | **Rarity:** Rare | **Domain:** Calm
 
-[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)If a friendly unit would die, kill this instead. Heal that unit, exhaust it, and recall it. (Send it to base. This isn't a move.)
+[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)The next time a friendly unit would die, kill this instead. Recall that unit exhausted. (Send it to base. This isn't a move.)
 
 *Artist: Kudos Productions | Origins #77*
 
@@ -3566,7 +3566,7 @@ When you buff a friendly unit, you may pay :rb_rune_body: and exhaust this to re
 
 **Energy:** 9 | **Power:** 2 | **Type:** Gear | **Rarity:** Epic | **Domain:** Body
 
-At the end of your turn, reveal cards from the top of your Main Deck until you reveal a unit and banish it. Play it, ignoring its cost, and recycle the rest.
+At the end of your turn, reveal cards from the top of your Main Deck until you reveal a unit. Play it, ignoring its cost, and recycle the rest.
 
 > *The omens offer much to those who dare to see them.*
 
@@ -3588,7 +3588,7 @@ At the end of your turn, reveal cards from the top of your Main Deck until you r
 
 **Energy:** 2 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Chaos
 
-:rb_exhaust:: Return another friendly gear, unit, or facedown card to its owner's hand.
+:rb_exhaust:: Return another friendly gear, unit, or [Hidden] card to its owner's hand.
 
 > *I know I put it in here somewhere...." -Teemo*
 
@@ -3612,7 +3612,7 @@ When this is played, discarded, or killed, draw 1.
 
 **Energy:** 2 | **Type:** Gear | **Rarity:** Uncommon | **Domain:** Chaos
 
-:rb_energy_1:, :rb_exhaust:: Move a friendly unit at a battlefield to its base.
+:rb_energy_1:, :rb_exhaust:: Move a friendly unit at a battlefield to your base.
 
 > *Without a ship, a pirate's just another common criminal.*
 
@@ -3838,7 +3838,7 @@ You may pay :rb_energy_1: to hide a card with [Hidden] instead of :rb_rune_rainb
 
 **Type:** Legend | **Rarity:** Rare | **Domain:** Body, Order
 
-If a buffed unit you control would die, you may pay :rb_rune_rainbow:, exhaust me, and spend its buff to heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)When you conquer, ready me.
+When a buffed unit you control would die, you may pay :rb_rune_rainbow: and exhaust me to spend its buff and recall it exhausted instead. (Send it to base. This isn't a move.)When you conquer, ready me.
 
 **Tags:** Sett
 
@@ -4260,7 +4260,7 @@ When you hold here, activate the conquer effects of units here.
 
 **Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
 
-When you conquer here, you must recycle one of your runes. (This doesn’t choose anything.)
+When you conquer here, recycle one of your runes.
 
 *Artist: Envar Studio | Origins #287*
 
@@ -4280,7 +4280,7 @@ When you hold here, you may channel 1 rune exhausted.
 
 **Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
 
-When you conquer here, ready up to 2 runes at the end of this turn.
+When you conquer here, ready 2 runes at the end of this turn.
 
 *Artist: Six More Vodka | Origins #289*
 
@@ -4350,7 +4350,7 @@ Units can't move from here to base.
 
 **Type:** Battlefield | **Rarity:** Uncommon | **Domain:** Colorless
 
-Spells and abilities deal 1 Bonus Damage to units here. (Each instance of damage the spell deals to a unit here is increased by 1.)
+Spells and abilities affecting units here each deal 1 Bonus Damage. (Each instance of damage the spell deals is increased by 1.)
 
 *Artist: Envar Studio | Origins #296*
 

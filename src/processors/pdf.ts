@@ -26,12 +26,18 @@ export function extractPdfText(
       stdoutChunks.push(chunk);
     });
 
+    // Progress is multiplexed onto stderr; keep whatever isn't a progress line
+    // so a crash (missing pdfplumber, unreadable PDF) reports its actual cause.
+    const stderrLines: string[] = [];
+
     child.stderr.on("data", (chunk: Buffer) => {
       const lines = chunk.toString().split("\n");
       for (const line of lines) {
         const match = line.match(/^PROGRESS:(\d+)\/(\d+)$/);
         if (match) {
           onProgress(`Page ${match[1]}/${match[2]}`);
+        } else if (line.trim()) {
+          stderrLines.push(line);
         }
       }
     });
@@ -42,7 +48,8 @@ export function extractPdfText(
 
     child.on("close", (code) => {
       if (code !== 0) {
-        reject(new Error(`pdf-extract.py exited with code ${code}`));
+        const detail = stderrLines.length > 0 ? `\n${stderrLines.join("\n")}` : "";
+        reject(new Error(`pdf-extract.py exited with code ${code}${detail}`));
         return;
       }
       resolve(Buffer.concat(stdoutChunks).toString("utf-8"));

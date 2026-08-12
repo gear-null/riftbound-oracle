@@ -104,6 +104,57 @@ export async function fetchCardsBySet(setId: string): Promise<RiftcodexCard[]> {
   return allCards;
 }
 
+/**
+ * Resolve a set's display name from its cards. Every card in a set carries the
+ * same `set.label`, so the first one is authoritative; fall back to the set id
+ * when a set comes back empty or unlabelled.
+ *
+ * Note this is the *short* label ("Proving Grounds"); `fetchSetLabel` prefers
+ * the canonical name from /sets ("Origins: Proving Grounds").
+ */
+export function resolveSetLabel(cards: RiftcodexCard[], setId: string): string {
+  return cards[0]?.set?.label?.trim() || setId;
+}
+
+let setIndexPromise: Promise<Map<string, string>> | null = null;
+
+/** Fetch /sets at most once per process and index it by set_id. */
+function getSetIndex(): Promise<Map<string, string>> {
+  if (!setIndexPromise) {
+    setIndexPromise = fetchSets()
+      .then((sets) => new Map(sets.map((s) => [s.set_id, s.name])))
+      .catch((err) => {
+        setIndexPromise = null; // don't poison later lookups with one bad fetch
+        throw err;
+      });
+  }
+  return setIndexPromise;
+}
+
+/**
+ * Resolve a set's canonical display name, preferring /sets (which carries the
+ * fuller "Origins: Proving Grounds") over the short label on the cards. A
+ * failed /sets lookup degrades to the card label rather than failing the set —
+ * the cards are already in hand and carry a usable name.
+ */
+export async function fetchSetLabel(
+  setId: string,
+  cards: RiftcodexCard[] = []
+): Promise<string> {
+  try {
+    const name = (await getSetIndex()).get(setId)?.trim();
+    if (name) return name;
+  } catch {
+    // fall through to the card-derived label
+  }
+  return resolveSetLabel(cards, setId);
+}
+
+/** Test seam: drop the memoised /sets index. */
+export function resetSetIndexCache(): void {
+  setIndexPromise = null;
+}
+
 export function cardToMarkdown(card: RiftcodexCard): string {
   const lines: string[] = [];
 

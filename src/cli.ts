@@ -1,22 +1,24 @@
 import "dotenv/config";
 import * as p from "@clack/prompts";
 import color from "picocolors";
-import { writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { writeFileSync, readdirSync } from "node:fs";
+import { resolve, basename } from "node:path";
 import { processSource } from "./processors/index.js";
 import { processUrl } from "./processors/url.js";
 import { processRulesHub } from "./processors/rules-hub.js";
-import { uploadToDrive, cleanupDrive, listDriveFiles } from "./upload.js";
+import { extractPdfText } from "./processors/pdf.js";
 import {
   readManifest,
   writeManifest,
   markProcessed,
+  selectEntries,
   type Manifest,
   type ManifestEntry,
 } from "./manifest.js";
-import { fetchSets, fetchCardsBySet, cardsToMarkdown } from "./riftcodex.js";
+import { fetchSets, fetchCardsBySet, cardsToMarkdown, fetchSetLabel } from "./riftcodex.js";
 import { normalize } from "./normalize.js";
 import { downloadPrintCards } from "./print.js";
+import { syncToVault, resolveVaultDir } from "./vault.js";
 
 const command = process.argv[2];
 
@@ -35,14 +37,14 @@ async function main() {
     case "print":
       await handlePrint();
       break;
-    case "upload":
-      await handleUpload();
+    case "extract":
+      await handleExtract();
       break;
-    case "cleanup":
-      await handleCleanup();
+    case "card-index":
+      await handleCardIndex();
       break;
-    case "drive-status":
-      await handleDriveStatus();
+    case "vault-sync":
+      await handleVaultSync();
       break;
     case "status":
       await handleStatus();
@@ -61,20 +63,18 @@ ${color.bold("Commands:")}
   ${color.cyan("process")}            Process all sources from manifest
   ${color.cyan("process --only=X")}   Process only entries matching category or output path
   ${color.cyan("print --set=X")}      Download card images for printing
-  ${color.cyan("upload")}             Upload output markdown to Google Drive
-  ${color.cyan("drive-status")}       Show every Drive file the app can see
-  ${color.cyan("cleanup [--confirm]")}  Delete Drive orphans & duplicates (dry-run by default)
+  ${color.cyan("extract")}            Extract downloaded rulebook PDFs to markdown
+  ${color.cyan("card-index")}         Fetch card artwork URLs (needs network)
+  ${color.cyan("vault-sync")}         Mirror output/ into an Obsidian wiki's raw/ folder
   ${color.cyan("status")}             Show manifest status
   ${color.cyan("help")}               Show this help message
   `);
 }
 
-function filterEntries(entries: ManifestEntry[]): ManifestEntry[] {
-  const only = process.argv.find((a) => a.startsWith("--only="))?.split("=")[1];
-  if (!only) return entries;
-
-  return entries.filter(
-    (e) => e.category === only || e.output.includes(only)
+function filterEntriesFromArgv(entries: ManifestEntry[]): ManifestEntry[] {
+  return selectEntries(
+    entries,
+    process.argv.find((a) => a.startsWith("--only="))?.split("=")[1]
   );
 }
 
@@ -92,8 +92,8 @@ async function processEntry(
     switch (entry.type) {
       case "pdf": {
         if (!entry.convert) {
-          // PDFs are uploaded directly to Drive — no conversion needed
-          s.stop(`${label} — skipped (uploaded as original PDF)`);
+          // Kept as the original PDF; `oracle extract` turns it into markdown.
+          s.stop(`${label} — skipped (kept as PDF; run \`extract\`)`);
           markProcessed(manifest, entry.output);
           return true;
         }
@@ -127,7 +127,8 @@ async function processEntry(
             s.message(`Processing ${label} — ${progress}`);
           },
         });
-        // Persist the discovered PDFs so the uploader can pick them up.
+        // Record which PDFs this run downloaded. Traceability only — `extract`
+        // and `vault-sync` find PDFs by scanning output/, not by reading this.
         entry.pdfs = result.pdfOutputs.map((p) =>
           p.startsWith("output/") ? p : p.replace(/^.*\/output\//, "output/")
         );
@@ -136,7 +137,7 @@ async function processEntry(
       case "riftcodex": {
         s.message(`Fetching ${label} from Riftcodex API`);
         const cards = await fetchCardsBySet(entry.set_id);
-        const rawMarkdown = cardsToMarkdown(cards, `${entry.set_id} Set`);
+        const rawMarkdown = cardsToMarkdown(cards, await fetchSetLabel(entry.set_id, cards));
         const markdown = normalize(rawMarkdown, entry.category);
         writeFileSync(resolve(entry.output), markdown, "utf-8");
         break;
@@ -229,7 +230,7 @@ async function handlePrint() {
 
 async function handleProcess() {
   const manifest = readManifest();
-  const entries = filterEntries(manifest.entries);
+  const entries = filterEntriesFromArgv(manifest.entries);
 
   if (entries.length === 0) {
     p.log.warning("No entries to process. Add sources to manifests/sources.yaml.");
@@ -256,90 +257,104 @@ async function handleProcess() {
   }
 }
 
-async function handleUpload() {
-  const s = p.spinner();
-  s.start("Uploading output to Google Drive");
 
-  try {
-    const uploaded = await uploadToDrive();
-    s.stop(`Uploaded ${uploaded.length} file(s) to Drive`);
-    for (const file of uploaded) {
-      p.log.info(`  ${color.dim("→")} ${file}`);
+/**
+ * Turn the downloaded rulebook PDFs into markdown inside output/.
+ *
+ * Without this a fresh clone has core-rules.pdf but nothing readable, because
+ * extraction used to happen only as a side effect of vault-sync. The rules
+ * answerer needs core-rules.md and tournament-rules.md to exist locally.
+ */
+async function handleExtract() {
+  const s = p.spinner();
+  const pdfs = readdirSync(resolve("output")).filter((f) => f.endsWith(".pdf"));
+  if (pdfs.length === 0) {
+    p.log.warning("No PDFs in output/. Run `oracle process --only=rules` first.");
+    return;
+  }
+  for (const pdf of pdfs) {
+    const out = `output/${basename(pdf, ".pdf")}.md`;
+    s.start(`Extracting ${pdf}`);
+    try {
+      const text = await extractPdfText(resolve("output", pdf), (m) =>
+        s.message(`Extracting ${pdf} — ${m}`)
+      );
+      writeFileSync(resolve(out), normalize(text, "rules"), "utf-8");
+      s.stop(`${pdf} → ${color.cyan(out)}`);
+    } catch (err) {
+      s.error(`Failed: ${pdf}`);
+      p.log.error(String(err));
     }
+  }
+}
+
+/**
+ * Build a card-name → artwork-URL index for report rendering.
+ *
+ * Kept separate from `process` because it is purely presentational: the rules
+ * answerer works without it, and a blocked network should not fail a run.
+ */
+async function handleCardIndex() {
+  const s = p.spinner();
+  s.start("Fetching card artwork URLs");
+  try {
+    const sets = await fetchSets();
+    const index: Record<string, string> = {};
+    for (const set of sets) {
+      s.message(`Fetching ${set.set_id}`);
+      for (const card of await fetchCardsBySet(set.set_id)) {
+        if (card.media?.image_url) index[card.name] = card.media.image_url;
+      }
+    }
+    writeFileSync(resolve("output/card-index.json"), JSON.stringify(index, null, 1), "utf-8");
+    s.stop(`${Object.keys(index).length} card images → ${color.cyan("output/card-index.json")}`);
   } catch (err) {
-    s.error("Upload failed");
+    s.error("Card index failed — reports will render without artwork");
     p.log.error(String(err));
   }
 }
 
-async function handleDriveStatus() {
+async function handleVaultSync() {
   const s = p.spinner();
-  s.start("Listing files visible to this app in Drive");
+
+  let vaultDir: string;
   try {
-    const files = await listDriveFiles();
-    s.stop(`Found ${files.length} file(s) in the target folder`);
+    vaultDir = resolveVaultDir();
+  } catch (err) {
+    p.log.error(String(err instanceof Error ? err.message : err));
+    return;
+  }
 
-    if (files.length === 0) {
-      p.log.warning("No files visible — either the folder is empty or none were created by this OAuth session.");
-      return;
-    }
+  s.start(`Syncing output into ${vaultDir}`);
 
-    const sorted = [...files].sort((a, b) =>
-      b.modifiedTime.localeCompare(a.modifiedTime)
+  try {
+    const result = await syncToVault({
+      vaultDir,
+      onProgress: (msg) => s.message(`Syncing — ${msg}`),
+    });
+
+    s.stop(
+      `${result.written.length} file(s) updated, ${result.unchanged.length} already current`
     );
-    for (const f of sorted) {
-      const date = f.modifiedTime.slice(0, 10);
-      const size = f.size ? `${Math.round(Number(f.size) / 1024)} KB` : "—";
-      p.log.info(
-        `  ${color.cyan(f.name)} ${color.dim(`[${date}, ${size}, ${f.mimeType}]`)}`
-      );
+
+    for (const name of result.written) {
+      p.log.info(`  ${color.green("↑")} ${name}`);
     }
-  } catch (err) {
-    s.error("Drive listing failed");
-    p.log.error(String(err));
-  }
-}
-
-async function handleCleanup() {
-  const confirm = process.argv.includes("--confirm");
-  const s = p.spinner();
-  s.start(confirm ? "Cleaning up Drive folder" : "Planning Drive cleanup (dry-run)");
-
-  try {
-    const result = await cleanupDrive({ confirm });
-    s.stop(confirm ? "Cleanup complete" : "Cleanup plan ready");
-
-    if (result.kept.length > 0) {
-      p.log.message(color.bold(`Keeping ${result.kept.length} file(s):`));
-      for (const f of result.kept) {
-        p.log.info(`  ${color.green("✓")} ${f.name} ${color.dim(`(${f.modifiedTime.slice(0, 10)})`)}`);
-      }
+    if (result.unchanged.length > 0) {
+      p.log.message(color.dim(`  unchanged: ${result.unchanged.join(", ")}`));
     }
-
-    if (result.toDelete.length === 0) {
-      p.log.success("No orphans or duplicates visible to the app.");
-    } else {
+    if (result.written.length > 0) {
       p.log.message(
-        color.bold(
-          `${confirm ? "Deleted" : "Would delete"} ${result.toDelete.length} file(s):`
-        )
+        `\nNext: ask an agent to ingest the changed sources into ${color.cyan("pages/")}.`
       );
-      for (const { file, reason } of result.toDelete) {
-        p.log.info(
-          `  ${color.red("✗")} ${file.name} ${color.dim(`(${file.modifiedTime.slice(0, 10)}) — ${reason}`)}`
-        );
-      }
-      if (!confirm) {
-        p.log.message(
-          `\nRun ${color.cyan("npm run oracle -- cleanup --confirm")} to actually delete these files.`
-        );
-      }
     }
   } catch (err) {
-    s.error("Cleanup failed");
+    s.error("Vault sync failed");
     p.log.error(String(err));
   }
 }
+
+
 
 async function handleStatus() {
   const manifest = readManifest();

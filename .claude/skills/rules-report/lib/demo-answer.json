@@ -1,0 +1,81 @@
+{
+  "question": "Can I Empower the same unit twice in one turn?",
+  "reframe": "can the Empower keyword ability be activated a second time on a Game Object that already has the Empowered status?",
+  "corpus": { "CR": "2026-07-16", "TR": "2026-07-16", "generated": "2026-08-11" },
+
+  "holding": {
+    "disposition": "NO",
+    "line": "Not while it is still Empowered — the Empower ability may only be played if not Empowered, and re-Empowering an already-Empowered object does nothing; but you can Empower it again after it is Disempowered.",
+    "spans": [
+      { "text": "the Empower ability may only be played if not Empowered", "basis": "grounded", "note": "n2" },
+      { "text": "re-Empowering an already-Empowered object does nothing", "basis": "grounded", "note": "n3" },
+      { "text": "you can Empower it again after it is Disempowered", "basis": "inferred", "note": "n5" }
+    ]
+  },
+
+  "notes": [
+    {
+      "id": "n1",
+      "claim": "Empowered is a binary status: an object either has it or does not.",
+      "basis": "grounded",
+      "cites": [
+        { "rule": "CR:441.1.a", "quote": "Empowered is a binary state. A Game Object is Empowered or it isn’t." }
+      ]
+    },
+    {
+      "id": "n2",
+      "claim": "The Empower keyword carries its own activation restriction: it may only be played while the source is not Empowered.",
+      "basis": "grounded",
+      "crux": true,
+      "if_false": "If the keyword did not carry \"Play only if not Empowered\", then 827.3 would let you activate a second Empower instance freely and the only barrier would be 441.1.c's \"nothing additional happens\" — you could pay the cost for no effect. The holding would shift from \"you cannot\" to \"you can, but it is wasted\".",
+      "detail": "This is the load-bearing clause. It is easy to read 827.3 alone and conclude the opposite.",
+      "cites": [
+        { "rule": "CR:827.1.c.1", "quote": "Empower is functionally short for “[Cost]: Empower this. Play only if not Empowered.”" }
+      ]
+    },
+    {
+      "id": "n3",
+      "claim": "Even if the Empower action were somehow applied again, it would have no effect.",
+      "basis": "grounded",
+      "cites": [
+        { "rule": "CR:441.1.b", "quote": "An Empowered Game Object can not be Empowered." },
+        { "rule": "CR:441.1.c", "quote": "If a Game Object is instructed to be Empowered when it is already Empowered, nothing additional happens." }
+      ]
+    },
+    {
+      "id": "n4",
+      "claim": "A card may explicitly grant permission to be Empowered more than once, which overrides the restriction.",
+      "basis": "grounded",
+      "cites": [
+        { "rule": "CR:441.1.c.1", "quote": "Some effects may grant a Game Object permission to be Empowered multiple times. Such an effect ignores this restriction." }
+      ]
+    },
+    {
+      "id": "n5",
+      "claim": "Once Disempowered, the object is no longer Empowered, so the restriction in 827.1.c.1 no longer bites and Empower can be activated again.",
+      "basis": "structural",
+      "detail": "No rule says this in one sentence. It follows from the restriction being conditional on the current status: Disempower removes the status, so the condition is satisfied again. Nothing found limits Empower to once per turn.",
+      "cites": [
+        { "rule": "CR:442.1", "quote": "Disempowering is the act of removing the Empowered status from one or more Game Objects." }
+      ]
+    }
+  ],
+
+  "counterargument": [
+    {
+      "reading": "827.3 says multiple instances of Empower are separate activated abilities that can each be activated by paying their costs. So a unit printed with two Empower abilities can obviously be Empowered twice.",
+      "why_it_loses": "827.3 establishes that the abilities are separate and independently payable — it does not lift the condition each one carries. Every instance is shorthand for “[Cost]: Empower this. Play only if not Empowered.” (827.1.c.1), so once the first resolves, the second is unplayable while the status persists. 827.3 is about ability count, not about the status gate.",
+      "cites": [
+        { "rule": "CR:827.3", "quote": "Multiple instances of Empower are equivalent to multiple activated abilities and can each be activated separately by paying the corresponding costs." }
+      ]
+    }
+  ],
+
+  "considered_rejected": [
+    { "rule": "CR:828.1", "why": "Empowered as a dependent keyword governs what an Empowered card gains, not whether it can be Empowered again." }
+  ],
+
+  "open_questions": [
+    "Nothing found imposes a per-turn cap on Empower once the Disempower/Empower cycle is available; whether any printed card actually enables that loop is a card-pool question, not a rules one."
+  ]
+}
