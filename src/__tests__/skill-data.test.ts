@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { buildCardIndex, buildSkillData, cardText, keysFor } from "../skill-data.js";
+import { buildCardIndex, buildSkillData, cardStats, cardText, keysFor } from "../skill-data.js";
 import type { RiftcodexCard } from "../riftcodex.js";
 
 function card(over: Partial<RiftcodexCard> & { name: string }): RiftcodexCard {
@@ -64,19 +64,26 @@ describe("cardText", () => {
     expect(text).toContain(":rb_energy_1:");
   });
 
-  it("emits the stats line the bridge expects", () => {
-    const text = cardText(
-      card({
-        name: "Astral Heron",
-        attributes: { energy: 7, might: 7, power: null },
-        classification: { type: "Unit", supertype: null, rarity: "Epic", domain: ["Calm"] },
-      })
-    );
-    expect(text).toContain("**Energy:** 7");
-    expect(text).toContain("**Might:** 7");
-    expect(text).toContain("**Type:** Unit");
-    expect(text).toContain("**Domain:** Calm");
-    expect(text).not.toContain("**Power:**");
+  it("carries no markdown — stats are structured, not glued on as prose", () => {
+    // They used to ship as "**Energy:** 7 | **Might:** 7 | ...", which then
+    // rendered literally in reports because nothing downstream parses markdown.
+    const c = card({
+      name: "Astral Heron",
+      attributes: { energy: 7, might: 7, power: null },
+      classification: { type: "Unit", supertype: null, rarity: "Epic", domain: ["Calm"] },
+      text: { rich: "", plain: "When you play your first card each turn...", flavour: null },
+    });
+    expect(cardText(c)).not.toContain("**");
+    expect(cardText(c)).toBe("When you play your first card each turn...");
+    expect(cardStats(c)).toEqual({
+      energy: 7, might: 7, power: null, type: "Unit", rarity: "Epic", domain: ["Calm"],
+    });
+  });
+
+  it("keeps a zero cost as 0, not null", () => {
+    // 7 cards genuinely cost 0 Energy; a falsy-check would erase their cost.
+    const s = cardStats(card({ name: "Called Shot", attributes: { energy: 0, might: null, power: null } }));
+    expect(s.energy).toBe(0);
   });
 
   it("decodes HTML entities the API serves escaped", () => {
@@ -96,8 +103,12 @@ describe("cardText", () => {
     expect(text).not.toContain("&amp;");
   });
 
-  it("survives a card with no printed text", () => {
-    expect(cardText(card({ name: "Vanilla" }))).toContain("**Type:** Unit");
+  it("returns empty text for a vanilla card, with its stats intact", () => {
+    // A card with no rules text has no text — the stats are not a substitute
+    // for it, which is exactly why they no longer live in the same string.
+    const c = card({ name: "Vanilla", attributes: { energy: 2, might: 3, power: null } });
+    expect(cardText(c)).toBe("");
+    expect(cardStats(c).might).toBe(3);
   });
 });
 

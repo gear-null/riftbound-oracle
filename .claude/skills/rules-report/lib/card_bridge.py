@@ -108,7 +108,11 @@ class CardBridge:
             return f" [{code}] "
 
         text = re.sub(r":([a-z_0-9]+):", sub, text)
-        return re.sub(r"[ \t]{2,}", " ", text)
+        text = re.sub(r"[ \t]{2,}", " ", text)
+        # Padding the shortcodes leaves gaps against neighbouring punctuation:
+        # "[2] [R] : Double" and "( [1] [R] :". Close them back up.
+        text = re.sub(r"\s+([:.,)])", r"\1", text)
+        return re.sub(r"([(\[])\s+", r"\1", text).strip()
 
     def card_terms(self, card):
         """Rules vocabulary implied by a card: its keywords and its effect words."""
@@ -122,6 +126,7 @@ class CardBridge:
             if k in self.term_to_rule:
                 rules.append(self.term_to_rule[k])
         return {"name": card["name"], "image": card.get("image"),
+                "stats": card.get("stats") or {},
                 "inexact": card.get("inexact", False),
                 "asked_as": card.get("asked_as", card["name"]),
                 "keywords": list(dict.fromkeys(terms)),

@@ -288,6 +288,26 @@ def card_rendering():
 
     check("no cards field renders nothing", resolve_cards({}) == [])
 
+    # Stats travelled as markdown once and printed with the asterisks showing.
+    from render_report import stats_html, esc
+    withstats = [c for c in cards.values() if c.get("stats")]
+    check("cards carry structured stats", len(withstats) > 100,
+          f"{len(withstats)}/{len(cards)}")
+    check("no card text contains markdown bold",
+          not any("**" in c.get("text", "") for c in cards.values()))
+
+    vi = cards.get("vi - hotheaded")
+    if vi:
+        chips = stats_html(vi["stats"])
+        check("stats render as chips, not prose", 'class="chip"' in chips and "**" not in chips)
+
+    # `s or ""` blanked a legitimate zero; 7 cards cost 0 Energy.
+    check("a zero stat is not blanked", esc(0) == "0")
+    zero = [c for c in cards.values() if (c.get("stats") or {}).get("energy") == 0]
+    if zero:
+        check("a 0-Energy card still shows its cost",
+              "0</b>" in stats_html(zero[0]["stats"]), zero[0]["name"])
+
 
 def topic_blocks(idx):
     """A cross-reference must never look like "the rules say nothing".

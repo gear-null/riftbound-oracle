@@ -19,9 +19,20 @@ import { decodeEntities } from "./normalize.js";
 
 export const SKILL_DATA_DIR = ".claude/skills/rules-report/data";
 
+export interface CardStats {
+  energy: number | null;
+  might: number | null;
+  power: number | null;
+  type: string | null;
+  rarity: string | null;
+  domain: string[];
+}
+
 export interface SkillCard {
   name: string;
+  /** Printed rules text only. Stats live in `stats`, not glued on as markdown. */
   text: string;
+  stats: CardStats;
   image?: string;
 }
 
@@ -44,37 +55,39 @@ export function keysFor(displayName: string): string[] {
 }
 
 /**
- * Printed text in the shape `card_bridge.py` already parses: the stats line
- * followed by the card's plain text.
+ * The card's printed rules text, and nothing else.
  *
- * `text.plain` is deliberate — it keeps the `[Keyword]` brackets and
- * `:rb_energy_1:` shortcodes, which is precisely what the bridge maps onto
- * glossary rule sections (805-829). Substituting a prettier rendering would
- * silently sever the card→rules link that makes card questions answerable.
+ * Stats used to be glued on as a markdown line — `**Energy:** 4 | **Might:**
+ * 3 | ...` — which then rendered literally in reports, asterisks and all,
+ * because nothing downstream parses markdown. They are structured fields now
+ * (see `cardStats`) and the presentation layer decides how to show them.
  *
- * Entities must be decoded here. Riftcodex serves `text.plain` HTML-escaped,
- * so the keyword marker [>] arrives as `[&gt;]` — 93 occurrences across the
- * card pool. The markdown path ran this through `normalize()`, which decoded
- * them; going straight from the API to cards.json skipped that, which printed
- * a literal `[&gt;]` in reports and hid the `>` row from the symbol legend,
- * whose token scan saw four characters instead of one.
+ * `text.plain` is deliberate: it keeps the `[Keyword]` brackets and
+ * `:rb_energy_1:` shortcodes, which is exactly what `card_bridge.py` maps onto
+ * glossary rule sections (805-829). A prettier rendering here would silently
+ * sever the card→rules link that makes card questions answerable.
+ *
+ * Entities must be decoded. Riftcodex serves `text.plain` HTML-escaped, so the
+ * keyword marker [>] arrives as `[&gt;]` — 93 occurrences across the pool. The
+ * old markdown path ran normalize(), which decoded them; reading the API
+ * directly skipped that, printing a literal `[&gt;]` and hiding the `>` row
+ * from the symbol legend, whose token scan saw four characters instead of one.
  */
 export function cardText(card: RiftcodexCard): string {
-  const stats: string[] = [];
-  const { energy, might, power } = card.attributes ?? {};
-  if (energy != null) stats.push(`**Energy:** ${energy}`);
-  if (might != null) stats.push(`**Might:** ${might}`);
-  if (power != null) stats.push(`**Power:** ${power}`);
-  if (card.classification?.type) stats.push(`**Type:** ${card.classification.type}`);
-  if (card.classification?.rarity) stats.push(`**Rarity:** ${card.classification.rarity}`);
-  if (card.classification?.domain?.length) {
-    stats.push(`**Domain:** ${card.classification.domain.join(", ")}`);
-  }
+  return decodeEntities((card.text?.plain ?? "").trim());
+}
 
-  const parts = [stats.join(" | ")];
-  const body = card.text?.plain?.trim();
-  if (body) parts.push(body);
-  return decodeEntities(parts.filter(Boolean).join("\n\n"));
+/** The numbers and classifications, kept as data rather than prose. */
+export function cardStats(card: RiftcodexCard): CardStats {
+  const { energy = null, might = null, power = null } = card.attributes ?? {};
+  return {
+    energy,
+    might,
+    power,
+    type: card.classification?.type ?? null,
+    rarity: card.classification?.rarity ?? null,
+    domain: card.classification?.domain ?? [],
+  };
 }
 
 /** Fold fetched cards into the lookup index, first printing of a name winning. */
@@ -82,7 +95,7 @@ export function buildCardIndex(cards: RiftcodexCard[]): CardIndex {
   const index: CardIndex = {};
   for (const card of cards) {
     const display = card.name.replace(/\s*\(.*?\)\s*$/, "").trim();
-    const entry: SkillCard = { name: display, text: cardText(card) };
+    const entry: SkillCard = { name: display, text: cardText(card), stats: cardStats(card) };
     const image = card.media?.image_url;
     if (image) entry.image = image;
 
