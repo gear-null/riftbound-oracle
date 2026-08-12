@@ -2,10 +2,10 @@
 """`rules` — deterministic tools for answering Riftbound rules questions.
 
 Architecture note. This deliberately does NOT do semantic retrieval over the
-rules. That was measured and it failed: recall@10 of 32% over 620 real
-questions, because 65% of questions name a card and only ~4% of card names
-appear anywhere in rule text. Users ask in card vocabulary; the rules are
-written in rules vocabulary, and no amount of BM25 tuning bridges that.
+rules. That was built, measured at recall@10 of 32%, and rejected. The reason
+is structural: users ask in CARD vocabulary and the rules are written in RULES
+vocabulary, and card names essentially never appear in rule text — so no amount
+of BM25 tuning bridges the gap.
 
 Instead the agent NAVIGATES. These commands are the primitives it navigates
 with — each one exact, deterministic, and free of model judgement:
@@ -16,6 +16,7 @@ with — each one exact, deterministic, and free of model judgement:
     rules section <id>      a whole numbered section, in document order
     rules report <json>     verify + render + open — the ONLY way to finish an answer
     rules verify <json>     mechanical citation gate (report runs this for you)
+    rules rulebook          (re)generate the anchored HTML rulebook
     rules selftest          regression harness; run after every rules update
     rules render <json>     interactive HTML report
 
@@ -27,7 +28,8 @@ import json, os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-RULES_JSON = os.path.join(HERE, "rules.json")
+from corpus import rules_json as _rules_json
+RULES_JSON = _rules_json()
 RULES_DB = os.path.join(HERE, "rules.db")
 REPORTS = os.path.normpath(os.path.join(HERE, "..", "reports"))
 
@@ -61,31 +63,82 @@ def cmd_rule(args):
         print()
 
 
+def _idkey(rule_id):
+    return [(0, int(s), "") if s.isdigit() else (1, 0, s) for s in rule_id.split(".")]
+
+
 def cmd_section(args):
+    """A whole numbered section, in document order.
+
+    Some topics are written as a bare heading whose rules are SIBLING sections
+    ("467. Scoring", then 468-472), so asking for the heading alone returns one
+    word. Where that happens the following block is printed too — otherwise a
+    cross-reference like "see rule 467. Scoring" looks like a dead end, and an
+    empty result reads as "the rules are silent on this".
+    """
     idx = _idx()
     doc, sec = (args[0].split(":", 1) if ":" in args[0] else ("CR", args[0]))
     rows = [r for r in idx.rules.values() if r["doc"] == doc and r["section"] == sec]
     if not rows:
         print(f"no section {doc}:{sec}")
         return
-    def key(r):
-        out = []
-        for s in r["id"].split("."):
-            out.append((0, int(s), "") if s.isdigit() else (1, 0, s))
-        return out
-    for r in sorted(rows, key=key):
+
+    def show(r):
         print(f"{'  ' * (r['depth'] - 1)}{r['id']}. {r['text']}")
+
+    ordered = sorted(rows, key=lambda r: _idkey(r["id"]))
+    for r in ordered:
+        show(r)
+
+    head = ordered[0]
+    block = idx.topic_block(head)
+    if block:
+        print(f"\n  -- {head['id']} is a heading; its rules are sections "
+              f"{block[0]['id']}-{block[-1]['id']} --\n")
+        for r in block:
+            show(r)
+            kids = sorted(
+                (x for x in idx.rules.values()
+                 if x["doc"] == doc and x["id"].startswith(r["id"] + ".")),
+                key=lambda x: _idkey(x["id"]),
+            )
+            for k in kids:
+                show(k)
+        return
+
+    # A chapter heading holds sub-headings rather than rules. List them, so a
+    # cross-reference like "see rule 463" leads somewhere instead of nowhere.
+    contents = idx.topic_contents(head)
+    if contents:
+        print(f"\n  -- {head['id']} is a chapter heading; it continues with --\n")
+        for r in contents:
+            print(f"     {r['id']}. {r['text']}")
+        print("\n  -- document order, not strict containment; "
+              "`section <id>` any of the above --")
 
 
 def cmd_grep(args):
-    """Lexical search the agent drives itself. Not a retrieval pipeline."""
+    """Lexical search the agent drives itself. Not a retrieval pipeline.
+
+    Capped, and now says so. A silent cap invites reading "12 hits" as "all
+    the hits", and from there concluding the rules are silent on whatever fell
+    below the cut — the one wrong answer this system most needs to avoid.
+    """
     from retrieve import Retriever
+    ensure_index()
     limit = 12
     if "-n" in args:
         i = args.index("-n"); limit = int(args[i + 1]); args = args[:i] + args[i + 2:]
     r = Retriever(RULES_DB)
-    for h in r.search(" ".join(args), limit):
+    # One more than asked for, purely to detect truncation.
+    hits = r.search(" ".join(args), limit + 1)
+    for h in hits[:limit]:
         print(f"{h['uid']:18} [{h['section']}. {h['section_title'][:22]:24}] {h['text'][:110]}")
+    if not hits:
+        print("  no matches — try another term, or navigate by section number")
+    elif len(hits) > limit:
+        print(f"\n  -- showing {limit}; more matches exist. `-n {limit * 4}` for more. --")
+        print("  -- ranked by lexical overlap: good for locating, never proof of absence. --")
 
 
 def cmd_card(args):
@@ -120,6 +173,44 @@ def cmd_card(args):
         print()
 
 
+def ensure_index():
+    """Build the FTS index if absent, from the vendored rules.json.
+
+    rules.db is a build artifact and gitignored, so it never travels with a
+    copied skill — which left `grep`, one of the six documented tools, dead on
+    every fresh install. Worse, the traceback pointed at `build`, which needs
+    the source markdown a copied skill does not have.
+
+    The index derives entirely from data/rules.json, so it can be rebuilt
+    offline with nothing else present.
+    """
+    if os.path.exists(RULES_DB):
+        return
+    print("  building the search index (first run)...")
+    subprocess.run([sys.executable, os.path.join(HERE, "retrieve.py"), "build"],
+                   check=True, cwd=HERE)
+
+
+def cmd_rulebook(args):
+    """(Re)generate the anchored HTML rulebook that reports link into."""
+    from render_rulebook import main as build_rulebook
+    build_rulebook()
+
+
+def ensure_rulebook():
+    """Build the rulebook if it is missing, so a citation link is never dead.
+
+    Reports link to `../data/rules.html#CR-471.1.b.1`. If that file does not
+    exist the links resolve to nothing and the report looks broken through no
+    fault of the answer, so the first report generates it rather than leaving
+    the user to discover the gap by clicking.
+    """
+    from corpus import rulebook_html_path
+    if not os.path.exists(rulebook_html_path()):
+        print("  building the rulebook reports link into (first run)...")
+        cmd_rulebook([])
+
+
 def cmd_report(args):
     """Verify, render and open — one step, so an answer cannot be half-delivered.
 
@@ -142,6 +233,7 @@ def cmd_report(args):
             print(f"  ! {pb}")
         sys.exit(1)
 
+    ensure_rulebook()
     subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
     print(f"\nreport: {os.path.normpath(os.path.abspath(out))}")
     if "--no-open" not in args:
@@ -176,6 +268,7 @@ def cmd_verify(args):
 def cmd_render(args):
     src = args[0]
     out = args[1] if len(args) > 1 else "report.html"
+    ensure_rulebook()
     subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
 
 
@@ -187,23 +280,43 @@ def cmd_selftest(args):
 
 
 def cmd_build(args):
+    """Re-parse the source markdown into rules.json, then rebuild everything
+    derived from it.
+
+    The rulebook is rebuilt here on purpose: report citations link to
+    `rules.html#CR-<id>`, and a rules update renumbers ids. Leaving the old
+    HTML in place pointed every link at an anchor that had moved or vanished —
+    silently, since a missing fragment just lands at the top of the page.
+    """
     subprocess.run([sys.executable, os.path.join(HERE, "parse_rules.py"),
                     "--json", RULES_JSON], check=True, cwd=HERE)
     subprocess.run([sys.executable, os.path.join(HERE, "retrieve.py"), "build"],
                    check=True, cwd=HERE)
+    cmd_rulebook([])
 
 
 COMMANDS = {"rule": cmd_rule, "section": cmd_section, "grep": cmd_grep,
             "card": cmd_card, "verify": cmd_verify, "render": cmd_render,
-            "build": cmd_build, "selftest": cmd_selftest, "report": cmd_report}
+            "build": cmd_build, "selftest": cmd_selftest, "report": cmd_report,
+            "rulebook": cmd_rulebook}
 
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] not in COMMANDS:
         print(__doc__)
         sys.exit(0 if len(sys.argv) < 2 else 2)
+
+    # Resolve file arguments against the caller's cwd BEFORE chdir. Without
+    # this, `report heron-answer.json` run from a project root silently opened
+    # lib/heron-answer.json — a shipped sample — and printed "6/6 verified"
+    # for an answer the user never wrote. Silent substitution is the same
+    # failure this codebase refuses for near-miss card names.
+    args = []
+    for a in sys.argv[2:]:
+        args.append(os.path.abspath(a) if a.endswith(".json") and os.path.exists(a) else a)
+
     os.chdir(HERE)
-    COMMANDS[sys.argv[1]](sys.argv[2:])
+    COMMANDS[sys.argv[1]](args)
 
 
 if __name__ == "__main__":

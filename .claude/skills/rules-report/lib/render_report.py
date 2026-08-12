@@ -22,8 +22,13 @@ Grafted in after judging:
 file:// constraints respected: no network, no clipboard API (execCommand fallback),
 localStorage guarded, print handler opens <details>, dark mode via prefers-color-scheme.
 """
-import html, json, sys
+import html, json, re, sys
 from verify_citations import RuleIndex, verify_citation
+from render_rulebook import anchor as rulebook_anchor
+
+# Reports live in reports/, the rulebook in data/ — one copy, linked relatively,
+# so the pair keeps working offline and survives being moved or shared together.
+RULEBOOK = "../data/rules.html"
 
 BASIS = {
     "grounded":   ("●", "A rule states this in so many words"),
@@ -43,11 +48,27 @@ def _check(c, idx, where, problems):
     rid = c["rule"].split(":", 1)[-1]
     doc = c["rule"].split(":", 1)[0] if ":" in c["rule"] else None
     res = verify_citation(idx, rid, c.get("quote"), doc=doc)
+
+    # An unprefixed id resolves in whichever document holds it — 790 ids exist
+    # only in TR. Stamping those "CR" put Tournament Rules text in front of a
+    # judge labelled Core Rules, with a copy-cite button that said so and a
+    # rulebook link to an anchor that does not exist. RuleIndex.get was fixed
+    # never to cross documents; `doc or "CR"` reintroduced the same
+    # mis-attribution one layer up, so take the doc from the resolved rule.
+    resolved = idx.get(res.cite_as or rid, doc)
+    actual_doc = doc or (resolved["doc"] if resolved else None)
+    if actual_doc is None:
+        actual_doc = "CR"
+    elif doc is None and actual_doc != "CR":
+        problems.append(
+            f'{where}: citation {rid} has no document prefix and exists only in '
+            f'{actual_doc} — write it as {actual_doc}:{rid}')
+    doc = actual_doc
     # `checked`, not `ok`: a cite with no quote passes `ok` vacuously.
     c["verified"] = res.checked
     if res.ok and not res.checked:
         problems.append(f"{where}: citation {rid} has no quote — the verbatim check never ran")
-    c["cite_as"] = f'{doc or "CR"}:{res.cite_as}'
+    c["cite_as"] = f'{doc}:{res.cite_as}'
     c["narrowed"] = res.narrowed_to
     c["problems"] = res.problems
     if not res.ok:
@@ -169,20 +190,50 @@ def verify_answer(ans, idx):
     return ans
 
 
+def note_number(note_id):
+    """"n12" -> "12". Falls back to the raw id for anything unnumbered."""
+    digits = "".join(ch for ch in str(note_id) if ch.isdigit())
+    return digits or str(note_id)
+
+
 def holding_html(h, notes_by_id):
-    """Type the holding line: every span must be an exact substring of the line."""
+    """Type the holding line: every span must be an exact substring of the line.
+
+    Each span carries a superscript note number, the way a citation works in
+    prose. Previously the only marker was a `⌁` on inferred spans, so a reader
+    could see THAT a claim was underwritten but not WHICH note underwrote it —
+    the link existed, but its destination was invisible until clicked.
+    """
     line, spans = h["line"], h.get("spans", [])
-    out, cur = [], 0
-    for sp in spans:
-        i = line.find(sp["text"], cur)
+
+    # Walk the line in DOCUMENT order, not the order the model happened to list
+    # spans in. A monotonic cursor silently dropped any span written out of
+    # order: viktor-answer.json lists "Zero Recruits" third though it opens the
+    # line, so the literal answer to the question rendered as unmarked prose —
+    # no link, no superscript, and it was the crux and the weakest link.
+    placed, cur = [], 0
+    for sp in sorted(spans, key=lambda s: line.find(s.get("text", ""))):
+        text = sp.get("text", "")
+        i = line.find(text, cur) if text else -1
         if i < 0:
-            continue  # invariant violated; fall through to plain text
+            continue  # not a substring, or overlaps one already placed
+        placed.append((i, sp))
+        cur = i + len(text)
+
+    out, cur = [], 0
+    for i, sp in placed:
         out.append(esc(line[cur:i]))
         cls = "sp-grounded" if sp["basis"] == "grounded" else "sp-inferred"
-        glyph = "" if sp["basis"] == "grounded" else "<sup>⌁</sup>"
+        # The glyph still separates basis at a glance, for a reader who is not
+        # going to chase the number.
+        glyph = "" if sp["basis"] == "grounded" else "⌁"
+        num = note_number(sp["note"])
         out.append(
             f'<a class="{cls}" href="#{esc(sp["note"])}" '
-            f'title="{esc(BASIS[sp["basis"]][1])}">{esc(sp["text"])}{glyph}</a>'
+            f'title="{esc(BASIS[sp["basis"]][1])} — see note {esc(num)}">'
+            f'{esc(sp["text"])}</a>'
+            f'<a class="noteref" href="#{esc(sp["note"])}" '
+            f'aria-label="note {esc(num)}"><sup>{esc(glyph)}{esc(num)}</sup></a>'
         )
         cur = i + len(sp["text"])
     out.append(esc(line[cur:]))
@@ -205,30 +256,151 @@ def cite_html(c, idx):
     probs = "".join(f'<div class="prob">{esc(p)}</div>' for p in c.get("problems", [])
                     if not p.startswith("cite narrowed"))
     full = f'{doc} {rid} ({"Core Rules" if doc == "CR" else "Tournament Rules"}, 2026-07-16): "{c.get("quote","")}"'
+    # Every ancestor row links to its own anchor, not just the cited rule: the
+    # useful move after reading a citation is usually "show me the parent".
+    anchored = "".join(
+        f'<li class="{"anc-target" if r["id"] == rid else ""}" style="--d:{r["depth"]}">'
+        f'<a class="anc-link" href="{RULEBOOK}#{esc(rulebook_anchor(doc, r["id"]))}">'
+        f'<code>{esc(r["id"])}</code></a> <span>{esc(r["text"])}</span></li>'
+        for r in chain
+    )
     return f'''<details class="cite">
 <summary><code>{esc(doc)} {esc(rid)}</code> <span class="stamp {scls}">{stamp}</span></summary>
 <div class="cite-body">
 {narrow}{probs}
-<ol class="ancestry">{rows}</ol>
-<button class="copy" data-cite="{esc(full)}">copy cite</button>
+<ol class="ancestry">{anchored}</ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="{RULEBOOK}#{esc(rulebook_anchor(doc, rid))}"
+     title="Open {esc(doc)} {esc(rid)} in the full rulebook">open in rulebook &rarr;</a>
+  <button class="copy" data-cite="{esc(full)}">copy cite</button>
+</div>
 </div></details>'''
 
 
-def cards_html(ans):
-    """Card artwork alongside printed text.
+LEGEND_MARKER = "<!--LEGEND-->"
 
-    Images come from output/card-index.json (`npm run oracle card-index`). That
-    index is optional and network-dependent, so a missing image degrades to a
-    labelled placeholder rather than a broken <img>. Remote URLs are fine here —
-    these reports are local files, not sandboxed artifacts.
+
+def legend_html(page_html, idx):
+    """A key to the bracketed shorthand this report actually uses.
+
+    Built from the finished page rather than from the answer object, so it
+    covers every token a reader can see — quoted rule text and card text
+    included, not just what the model wrote.
+
+    Deliberately a key, not a substitution: `[A]` stays `[A]` in the text. The
+    point is a reader who gradually stops needing the legend and can then read
+    Riot's own PDFs unaided, which replacing the shorthand with glyphs would
+    quietly prevent.
     """
-    cards = ans.get("cards") or []
+    from symbols import build_legend, is_number_token, scan, NUMBER_RULE
+
+    legend = build_legend(list(idx.rules.values()))
+    # Unescape after stripping tags: the keyword marker [>] is written into the
+    # page as `[&gt;]`, so scanning the raw HTML silently never matched it —
+    # the one symbol a reader is least likely to guess.
+    visible = html.unescape(re.sub(r"<[^>]+>", " ", page_html))
+    used = scan(visible, legend)
+    if not used:
+        return ""
+
+    def row(token, meaning, rule, colour):
+        style = f' style="color:{colour}"' if colour else ""
+        link = (f'<a class="sym-rule" href="{RULEBOOK}#{esc(rulebook_anchor("CR", rule))}">'
+                f'CR {esc(rule)}</a>')
+        return (f'<div class="sym-row"><code class="sym"{style}>[{esc(token)}]</code>'
+                f'<span class="sym-mean">{esc(meaning)}</span>{link}</div>')
+
+    rows = []
+    # Numbers first — the most common token and the least guessable. Shown as
+    # the literal amounts on the page rather than an "[N]" placeholder, so the
+    # key needs no convention of its own to decode.
+    for token in sorted((t for t in used if is_number_token(t)), key=int):
+        amount = int(token)
+        rows.append(row(token, f"{amount} Energy", NUMBER_RULE, None))
+    for token in sorted(t for t in used if not is_number_token(t)):
+        e = legend[token]
+        rows.append(row(token, e["meaning"], e["rule"], e["colour"]))
+
+    return (
+        '<h2>Symbols used here</h2>'
+        '<div class="legend">' + "".join(rows) + "</div>"
+        '<p class="legend-note">Shorthand is left as Riot prints it, so this key '
+        'becomes unnecessary with use. Each entry links to the rule that defines it.</p>'
+    )
+
+
+def resolve_cards(ans):
+    """Turn the answer's `cards` list into renderable card records.
+
+    The agent supplies names — `"cards": ["Astral Heron"]` — and lookup happens
+    here against the skill's vendored card data. That split is deliberate: the
+    agent should not be inventing artwork URLs or retyping printed text, which
+    are exactly the things it would get subtly wrong.
+
+    A name that does not resolve is kept and marked, never dropped. Silently
+    omitting a card the answer discusses would leave the reader thinking the
+    card was never considered.
+    """
+    names = ans.get("cards") or []
+    if not names:
+        return []
+
+    try:
+        from card_bridge import CardBridge
+        bridge = CardBridge()
+    except Exception:
+        bridge = None
+
+    out = []
+    for entry in names:
+        # Accept a bare name or an object. An object is still looked up and
+        # ENRICHED rather than passed through: a hand-written entry that
+        # predates the card data would otherwise render "no artwork" beside a
+        # card whose art we hold, which reads as a missing image rather than as
+        # a stale answer file.
+        supplied = entry if isinstance(entry, dict) else {}
+        name = str(supplied.get("name") or (entry if not isinstance(entry, dict) else ""))
+        if not name:
+            out.append({"name": "(unnamed card entry)", "unresolved": True})
+            continue
+
+        card = bridge.cards.get(name.lower()) if bridge else None
+        if card:
+            resolved = bridge.card_terms(card)
+            # Anything explicitly supplied wins; the lookup only fills gaps.
+            resolved.update({k: v for k, v in supplied.items() if v})
+            out.append(resolved)
+        elif supplied:
+            # An object for a card that does not exist is still a nonexistent
+            # card. Passing it through rendered an invented card as real,
+            # which is precisely what find_cards refuses to do for names.
+            supplied = dict(supplied)
+            supplied["unresolved"] = True
+            out.append(supplied)
+        else:
+            out.append({"name": name, "unresolved": True})
+    return out
+
+
+def cards_html(ans):
+    """Card artwork beside printed text, for every card the answer names.
+
+    Artwork is referenced by URL from Riot's CDN, never copied into the repo.
+    A missing image degrades to a labelled placeholder rather than a broken
+    <img>; remote URLs are fine because these reports are local files.
+    """
+    cards = resolve_cards(ans)
     if not cards:
         return ""
     out = []
     for c in cards:
         img = c.get("image")
-        if img:
+        if c.get("unresolved"):
+            art = (
+                '<div class="card-art card-art--none">not found'
+                "<span>no card by this name</span></div>"
+            )
+        elif img:
             art = (
                 f'<img class="card-art" src="{esc(img)}" alt="{esc(c["name"])} card artwork"'
                 ' loading="lazy" referrerpolicy="no-referrer">'
@@ -236,12 +408,21 @@ def cards_html(ans):
         else:
             art = (
                 '<div class="card-art card-art--none">no artwork'
-                '<span>run <code>oracle card-index</code></span></div>'
+                "<span>rebuild with <code>oracle skill-data</code></span></div>"
             )
+
+        # Keywords a card prints map onto glossary sections; linking them lets a
+        # reader jump from "[Equip]" straight to the rule defining Equip.
+        secs = "".join(
+            f'<a class="card-rule" href="{RULEBOOK}#{esc(rulebook_anchor("CR", s))}">{esc(s)}</a>'
+            for s in (c.get("rule_sections") or [])
+        )
+        secs = f'<span class="card-rules">governed by {secs}</span>' if secs else ""
+
         out.append(
             '<figure class="card">' + art + '<figcaption><b>'
             + esc(c["name"]) + '</b><span class="card-text">'
-            + esc(c.get("text", "")) + '</span></figcaption></figure>'
+            + esc(c.get("text", "")) + "</span>" + secs + "</figcaption></figure>"
         )
     return '<h2>Cards referenced</h2><div class="cards">' + "".join(out) + "</div>"
 
@@ -263,6 +444,7 @@ def render(ans, idx):
         cites = "".join(cite_html(c, idx) for c in n.get("cites", []))
         note_blocks.append(f'''<section class="note b-{n["basis"]}" id="{esc(n["id"])}">
   <div class="note-head"><span class="glyph">{glyph}</span>
+    <sup class="noteref note-own">{esc(note_number(n["id"]))}</sup>
     <h3>{esc(n["claim"])}</h3>{crux}</div>
   <div class="basis" title="{esc(why)}">{esc(n["basis"])} — {esc(why)}</div>
   {f'<p class="detail">{esc(n["detail"])}</p>' if n.get("detail") else ""}
@@ -281,11 +463,17 @@ def render(ans, idx):
 
     openq = "".join(f'<li>{esc(q)}</li>' for q in ans.get("open_questions", []))
 
+    # The template supplies "As the rules see it:", and an author who also
+    # writes it gets it twice. Cheap to strip, and the alternative is relying
+    # on every future answer remembering a convention the schema does not show.
+    reframe = re.sub(r"^\s*as the rules see it\s*:\s*", "", ans.get("reframe", ""),
+                     flags=re.I)
+
     problems = "".join(f'<li>{esc(p)}</li>' for p in ans.get("_problems", []))
     ncites = sum(len(n.get("cites", [])) for n in ans["notes"])
     nverified = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
 
-    return f'''<!doctype html>
+    page = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ruling — {esc(ans["question"][:60])}</title>
@@ -346,6 +534,15 @@ h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform
  border-left:2px solid var(--line);margin-left:.2rem}}
 .ancestry li.anc-target{{background:var(--mark);border-radius:3px}}
 .ancestry code{{color:var(--accent);margin-right:.45rem}}
+.card-rules{{display:block;margin-top:.35rem;font-size:.72rem;color:var(--dim)}}
+.card-rule{{color:var(--accent);text-decoration:none;margin-right:.35rem;
+ border-bottom:1px dotted var(--accent)}}
+.anc-link{{text-decoration:none}}
+.anc-link:hover code{{text-decoration:underline}}
+.cite-actions{{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}}
+.rulebook-link{{font-size:.75rem;color:var(--accent);text-decoration:none;
+ border:1px solid var(--line);border-radius:4px;padding:.35em .7em}}
+.rulebook-link:hover{{border-color:var(--accent)}}
 .narrowed{{font-size:.8rem;color:var(--inferred);margin:.5rem 0}}
 .prob{{font-size:.8rem;color:var(--gap);margin:.5rem 0}}
 .copy{{font:.75rem ui-sans-serif,system-ui;padding:.35em .7em;border:1px solid var(--line);
@@ -361,36 +558,81 @@ h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform
 .card figcaption{{padding:.6rem .7rem;font-size:.82rem;display:flex;flex-direction:column;gap:.3rem}}
 .card-text{{color:var(--dim);font-size:.76rem;line-height:1.45}}
 ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
-@media(max-width:700px){{.hline{{font-size:1.05rem}}}}
-@media print{{.cite{{break-inside:avoid}} .copy{{display:none}} body{{background:#fff}}}}
+.noteref{{color:var(--accent);text-decoration:none;font-family:ui-sans-serif,system-ui;
+ font-weight:700;font-size:.68em;padding-left:.15em}}
+.weakref{{color:inherit;font-weight:600;text-decoration:underline dotted}}
+.noteref:hover{{text-decoration:underline}}
+.note-own{{color:var(--dim);font-size:.7rem;min-width:1.1rem;padding:0}}
+.legend{{display:grid;grid-template-columns:auto 1fr auto;gap:.4rem .8rem;align-items:baseline;
+ background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.85rem 1rem}}
+.sym-row{{display:contents}}
+.sym{{font-weight:700;font-size:.9rem;justify-self:start}}
+.sym-mean{{font-size:.88rem}}
+.sym-rule{{font:.72rem ui-monospace,monospace;color:var(--accent);text-decoration:none;
+ white-space:nowrap}}
+.sym-rule:hover{{text-decoration:underline}}
+.legend-note{{font-size:.78rem;color:var(--dim);margin:.55rem 0 0;font-style:italic}}
+.rb-overlay{{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);
+ display:flex;align-items:center;justify-content:center;padding:2vh 2vw}}
+.rb-overlay[hidden]{{display:none}}
+.rb-panel{{background:var(--bg);border:1px solid var(--line);border-radius:8px;
+ width:min(60rem,96vw);height:min(88vh,60rem);display:flex;flex-direction:column;
+ overflow:hidden;box-shadow:0 1.5rem 3rem rgba(0,0,0,.4)}}
+.rb-bar{{display:flex;align-items:center;gap:.8rem;padding:.55rem .8rem;
+ border-bottom:1px solid var(--line);background:var(--card)}}
+.rb-title{{font:600 .82rem ui-sans-serif,system-ui;flex:1;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.rb-pop{{font:.72rem ui-sans-serif,system-ui;color:var(--accent);text-decoration:none;white-space:nowrap}}
+.rb-close{{font-size:1.3rem;line-height:1;background:none;border:0;color:var(--dim);
+ cursor:pointer;padding:0 .2rem}}
+.rb-frame{{flex:1;width:100%;border:0;background:var(--bg)}}
+@media(max-width:700px){{.hline{{font-size:1.05rem}}
+ .legend{{grid-template-columns:auto 1fr}} .sym-rule{{grid-column:2}}}}
+@media print{{.cite{{break-inside:avoid}} .copy,.rulebook-link{{display:none}} .rb-overlay{{display:none !important}} body{{background:#fff}}}}
 </style></head><body><div class="wrap">
 
 <header>
   <div class="pin">CR {esc(ans["corpus"]["CR"])} · TR {esc(ans["corpus"]["TR"])} · generated {esc(ans["corpus"]["generated"])} · offline</div>
   <h1>{esc(ans["question"])}</h1>
-  <p class="reframe">As the rules see it: {esc(ans["reframe"])}</p>
+  <p class="reframe">As the rules see it: {esc(reframe)}</p>
 </header>
 
 <div class="holding">
   <div class="disp {esc(disp)}">{esc(disp)}</div>
   <div class="hline">{holding_html(h, notes_by_id)}</div>
   <div class="strength">
-    weakest link: <b>{esc(ans["_weakest"])}</b> ({esc(ans["_strength"])}) ·
+    weakest link: <a class="weakref" href="#{esc(ans["_weakest"])}">note
+    {esc(note_number(ans["_weakest"]))}</a> ({esc(ans["_strength"])}) ·
     {nverified}/{ncites} citations verified verbatim
     {f'<div class="forced">verdict forced to UNSETTLED — a cited rule failed verification (was {esc(forced)})</div>' if forced else ""}
   </div>
 </div>
+
+{cards_html(ans)}
 
 <h2>Reasoning</h2>
 {"".join(note_blocks)}
 
 {f'<h2>The argument against, and why it loses</h2>{counter}' if counter else ""}
 {f'<h2>Considered and rejected</h2><ul class="plain">{rejected}</ul>' if rejected else ""}
-{cards_html(ans)}
 {f'<h2>The rules do not settle</h2><ul class="plain">{openq}</ul>' if openq else ""}
 {f'<h2>Verification problems</h2><ul class="plain">{problems}</ul>' if problems else ""}
+<!--LEGEND-->
 
-</div><script>
+</div>
+
+<div id="rb-overlay" class="rb-overlay" hidden>
+  <div class="rb-panel" role="dialog" aria-modal="true" aria-label="Rulebook">
+    <div class="rb-bar">
+      <span class="rb-title" id="rb-title">Rulebook</span>
+      <a class="rb-pop" id="rb-pop" href="{RULEBOOK}" target="_blank" rel="noopener">open full page &#8599;</a>
+      <button class="rb-close" id="rb-close" aria-label="Close">&times;</button>
+    </div>
+    <iframe class="rb-frame" id="rb-frame" title="Rulebook"></iframe>
+  </div>
+</div>
+
+<script>
 // file:// has no clipboard API in Chrome — execCommand fallback is mandatory.
 document.addEventListener('click', function(e){{
   var b = e.target.closest('.copy'); if(!b) return;
@@ -413,7 +655,46 @@ window.addEventListener('beforeprint', function(){{
 window.addEventListener('afterprint', function(){{
   document.querySelectorAll('details').forEach(function(d){{d.open=d.dataset.wasOpen==='1';}});
 }});
+
+// Reading a cited rule should not cost you your place in the argument, so the
+// rulebook opens OVER the report. An iframe, not fetch: file:// forbids XHR
+// between local files, while an iframe loads and honours the #fragment
+// natively. Nothing scripts INTO the frame — cross-origin rules forbid it for
+// file:// and we do not need it.
+(function(){{
+  var ov=document.getElementById('rb-overlay'), fr=document.getElementById('rb-frame'),
+      ttl=document.getElementById('rb-title'), pop=document.getElementById('rb-pop'), last=null;
+  function open(href, label){{
+    last=document.activeElement; ttl.textContent=label||'Rulebook'; pop.href=href;
+    fr.src=href;                 // reassigning src re-navigates, so a second
+    ov.hidden=false;             // citation scrolls to ITS rule, not the first
+    document.body.style.overflow='hidden';
+    document.getElementById('rb-close').focus();
+  }}
+  function close(){{
+    ov.hidden=true; fr.src='about:blank';
+    document.body.style.overflow='';
+    if(last && last.focus) last.focus();
+  }}
+  document.addEventListener('click', function(e){{
+    var a=e.target.closest('a.rulebook-link, a.anc-link, a.card-rule, a.sym-rule');
+    if(a){{
+      // Modified and middle clicks keep their normal meaning; the href is real.
+      if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;
+      e.preventDefault();
+      var href=a.getAttribute('href'), m=/#([A-Z]{{2}})-(.+)$/.exec(href);
+      open(href, m ? m[1]+' '+decodeURIComponent(m[2]) : 'Rulebook');
+      return;
+    }}
+    if(e.target.closest('#rb-close') || e.target===ov) close();
+  }});
+  document.addEventListener('keydown', function(e){{ if(e.key==='Escape' && !ov.hidden) close(); }});
+}})();
 </script></body></html>'''
+
+    # The legend reflects what is actually on the page, so it is computed from
+    # the finished page and substituted last.
+    return page.replace(LEGEND_MARKER, legend_html(page, idx))
 
 
 def main():

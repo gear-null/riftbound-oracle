@@ -92,6 +92,30 @@ Type-specific fields:
 - `RIFTBOUND_CORPUS` — optional override for where the rules-report skill reads the corpus
   (defaults to this repo's `output/`)
 
+## The skill is the product
+
+`.claude/skills/rules-report/` is the shipped artifact. Someone copies that one folder into their
+project and it answers questions offline with no clone, no build and no network, because
+everything it needs is vendored in `data/`:
+
+| file | what it is | rebuilt by |
+|---|---|---|
+| `data/rules.json` | 3,316 parsed, addressable rules | `rules_cli.py build` |
+| `data/cards.json` | card text + artwork URLs | `npm run oracle skill-data` |
+| `data/rules.html` | anchored rulebook that report citations link into | `rules_cli.py rulebook` |
+
+All three are committed. Ignoring any of them breaks the copy-and-go promise.
+
+The TypeScript pipeline in `src/` is the **maintainer** side: it fetches from Riot and Riftcodex
+and regenerates the files above. Nothing in the answering path touches it. When editing the skill,
+keep it that way — a `from corpus import source_corpus_dir` at module scope is enough to make a
+copied skill unusable, which is exactly how `parse_rules.py` once took the whole selftest down.
+
+**Reports link into the rulebook by relative path** (`../data/rules.html#CR-471.1.b.1`). The anchor
+scheme lives in `render_rulebook.anchor()` and `render_report.py` imports it rather than
+re-deriving the format — one definition, so the two cannot drift. `selftest` asserts every emitted
+link resolves to a real anchor.
+
 ## Only Riot's documents are citable
 
 `rules.md`, `core-rules.pdf`, `tournament-rules.pdf` and the Riftcodex card data are the entire

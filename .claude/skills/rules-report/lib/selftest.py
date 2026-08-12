@@ -9,16 +9,18 @@ is a real regression, not a hypothetical.
 
 Exit 0 = safe to answer questions against this corpus.
 """
-import json, os, subprocess, sys
+import json, os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 FAILS = []
 NOTES = []
+RAN = [0]
 
 
 def check(name, ok, detail=""):
+    RAN[0] += 1
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}{'  — ' + detail if detail else ''}")
     if not ok:
         FAILS.append(name)
@@ -39,7 +41,14 @@ def parser_fidelity():
     """
     print("\n=== parser fidelity (fixtures) ===")
     import tempfile
-    from parse_rules import parse_doc
+    try:
+        from parse_rules import parse_doc
+    except SystemExit:
+        # A skill copied out of the source repo has no markdown to parse. The
+        # parser is only exercised when rebuilding, so this is a skip, not a
+        # failure — every other check still runs against the vendored corpus.
+        note("source corpus absent; parser checks skipped (rebuild-only path)")
+        return
 
     def run(body):
         with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False, encoding="utf-8") as fh:
@@ -80,7 +89,7 @@ def corpus_integrity():
     """The parser has fabricated rules and corrupted others before now."""
     print("\n=== corpus integrity ===")
     from verify_citations import RuleIndex
-    idx = RuleIndex(os.path.join(HERE, "rules.json"))
+    idx = RuleIndex()
     rules = list(idx.rules.values())
     # `> 3000` against an actual 3316 meant 300 rules could vanish silently.
     EXPECTED = 3316
@@ -213,18 +222,202 @@ def holding_invariants(idx):
           r["holding"]["disposition"] == "UNSETTLED", f'-> {r["holding"]["disposition"]}')
 
 
+def rulebook_and_links():
+    """The report's citation links must land on real anchors.
+
+    A citation that expands but cannot be followed was the gap this closes, so
+    the failure mode to guard is a link pointing at an anchor the rulebook does
+    not define — invisible until a reader clicks it.
+    """
+    print("\n=== rulebook anchors + report links ===")
+    import json as _json
+    from corpus import rules_json, rulebook_html_path
+    from render_rulebook import render_rulebook, anchor
+
+    rules = _json.load(open(rules_json(), encoding="utf-8"))
+    book = render_rulebook(rules, "test")
+    ids = set(re.findall(r'<section class="r[^"]*" id="([^"]+)"', book))
+    want = {anchor(r["doc"], r["id"]) for r in rules}
+    check("every rule gets an anchor", ids == want,
+          f"{len(ids)} anchors for {len(want)} rules")
+
+    internal = set(re.findall(r'href="#([^"]+)"', book))
+    check("no rulebook link points at a missing anchor", internal <= ids,
+          ", ".join(sorted(internal - ids)[:3]))
+
+    # A citation rendered by the report must resolve against that same scheme.
+    from render_report import verify_answer, render
+    from verify_citations import RuleIndex
+    idx = RuleIndex()
+    src = os.path.join(HERE, "demo-answer.json")
+    if os.path.exists(src):
+        ans = verify_answer(json.load(open(src, encoding="utf-8")), idx)
+        html = render(ans, idx)
+        targets = set(re.findall(r'href="\.\./data/rules\.html#([^"]+)"', html))
+        check("report emits rulebook links", bool(targets), f"{len(targets)} distinct")
+        check("every report link resolves in the rulebook", targets <= ids,
+              ", ".join(sorted(targets - ids)[:3]))
+
+    if not os.path.exists(rulebook_html_path()):
+        note("data/rules.html not built yet; run `rules_cli.py rulebook`")
+
+
+def card_rendering():
+    """Cards silently never rendered: the schema had no `cards` field at all."""
+    print("\n=== card resolution ===")
+    from render_report import resolve_cards
+    from corpus import load_cards
+
+    cards = load_cards()
+    if not cards:
+        note("data/cards.json missing; run `npm run oracle skill-data`")
+        return
+    check("card data is present", len(cards) > 100, f"{len(cards)} lookup names")
+
+    withart = sum(1 for c in cards.values() if c.get("image"))
+    check("cards carry artwork URLs", withart > 0, f"{withart}/{len(cards)}")
+
+    sample = next(iter(cards.values()))["name"]
+    got = resolve_cards({"cards": [sample]})
+    check("a named card resolves to text + artwork",
+          len(got) == 1 and got[0]["name"] == sample and not got[0].get("unresolved"))
+
+    missing = resolve_cards({"cards": ["Definitely Not A Real Card"]})
+    check("an unresolvable name is marked, not dropped",
+          len(missing) == 1 and missing[0].get("unresolved"))
+
+    check("no cards field renders nothing", resolve_cards({}) == [])
+
+
+def topic_blocks(idx):
+    """A cross-reference must never look like "the rules say nothing".
+
+    "see rule 467. Scoring" lands on a bare heading whose rules are SIBLINGS
+    (468-472), not children. An agent that reads the empty subtree as silence
+    reaches the worst wrong answer this system can produce.
+    """
+    print("\n=== topic blocks (heading -> sibling rules) ===")
+    scoring = idx.get("467", "CR")
+    check("467 Scoring is recognised as a bare heading", bool(scoring) and idx.is_topic_heading(scoring))
+    block = idx.topic_block(scoring) if scoring else []
+    ids = [r["id"] for r in block]
+    check("its block resolves to the sibling rules", ids == ["468", "469", "470", "471", "472"],
+          ", ".join(ids) or "empty")
+
+    # The block must stop at the next heading, not run to the end of the doc.
+    check("the block stops at the next heading", len(ids) < 12, f"{len(ids)} sections")
+
+    # An ordinary section with children must be left completely alone.
+    flow = idx.get("829", "CR")
+    check("a section with children is not treated as a heading",
+          bool(flow) and not idx.is_topic_heading(flow))
+    check("a section with children has no topic block", idx.topic_block(flow) == [])
+
+    # A one-line rule that merely lacks children is not a heading either.
+    body = next((r for r in idx.rules.values()
+                 if r["doc"] == "CR" and r.get("depth") == 1
+                 and r["text"].strip().endswith(".")
+                 and not any(x.get("parent") == r["id"] and x["doc"] == "CR"
+                             for x in idx.rules.values())), None)
+    check("a childless one-line RULE is not treated as a heading",
+          body is not None and not idx.is_topic_heading(body),
+          f'{body["id"] if body else "?"}')
+
+    # Chapter headings hold sub-headings, not rules. 316.7.e and 348.1 both
+    # say "see rule 463", and two tournament rules say "see 600" — so these
+    # are reachable cross-reference targets, not hypotheticals.
+    combat = idx.get("463", "CR")
+    contents = idx.topic_contents(combat) if combat else []
+    check("a chapter heading lists its sub-headings",
+          [r["id"] for r in contents] == ["464", "465", "466", "467"],
+          ", ".join(r["id"] for r in contents) or "empty")
+    # Skipping body sections to reach more sub-headings was tried; it let 463
+    # run past its four steps into Layers and Modes of Play.
+    check("a chapter listing does not run past its own topic",
+          all(r["id"] < "473" for r in contents), ", ".join(r["id"] for r in contents))
+
+    # TR:600 ran past its own formats into chapter 700 before this was bounded.
+    formats = idx.get("600", "TR")
+    fc = [r["id"] for r in (idx.topic_contents(formats) if formats else [])]
+    check("a contents listing stops at the next chapter",
+          fc == ["601", "602", "603", "604"], ", ".join(fc) or "empty")
+
+    # The invariant that matters: no heading is a dead end.
+    dead = [f'{d}:{r["id"]}' for d in ("CR", "TR")
+            for r in idx._top_sections(d)
+            if idx.is_topic_heading(r)
+            and not idx.topic_block(r) and not idx.topic_contents(r)]
+    check("no heading resolves to nothing at all", not dead, ", ".join(dead[:4]))
+
+
+def symbols_and_notes():
+    """The legend is derived from the rules, so it must survive a renumber."""
+    print("\n=== symbol legend + note references ===")
+    import json as _json
+    from corpus import rules_json
+    from symbols import build_legend, scan
+    from render_report import note_number, verify_answer, render
+    from verify_citations import RuleIndex
+
+    rules = _json.load(open(rules_json(), encoding="utf-8"))
+    legend = build_legend(rules)
+
+    # Six domains (CR 134.2.a-f) plus exhaust/might/any/own/keyword (CR 135.2.e).
+    check("all six domain shorthands are derived", 
+          all(t in legend for t in "RGBOPY"),
+          "missing " + ", ".join(t for t in "RGBOPY" if t not in legend))
+    check("the non-domain symbols are derived",
+          all(t in legend for t in ("A", "C", "E", "M", ">")),
+          ", ".join(sorted(legend)))
+    check("every legend entry cites a real rule",
+          all(e["rule"] in {r["id"] for r in rules if r["doc"] == "CR"}
+              for e in legend.values()))
+
+    # Bracketed prose must not be glossed as symbols or the key becomes noise.
+    check("prose brackets are not treated as symbols",
+          not scan("issue a [Warning], then [do X] on [Reaction]", legend))
+    check("real symbols are found", scan("[E]: Add [Y].", legend) == {"E", "Y"})
+
+    # [>] is written into the page as `[&gt;]`; scanning raw HTML missed it.
+    from render_report import legend_html
+    esc_page = "<p>a keyword marker [&gt;] and a cost of [E]</p>"
+    lg = legend_html(esc_page, RuleIndex())
+    check("an HTML-escaped symbol still reaches the legend", "[&gt;]" in lg or "[>]" in lg,
+          "keyword marker missing from the key")
+
+    check("note ids reduce to numbers", note_number("n12") == "12")
+    check("an unnumbered note id survives", note_number("intro") == "intro")
+
+    src = os.path.join(HERE, "demo-answer.json")
+    if os.path.exists(src):
+        idx = RuleIndex()
+        html = render(verify_answer(json.load(open(src, encoding="utf-8")), idx), idx)
+        check("the legend placeholder is always substituted", "<!--LEGEND-->" not in html)
+        spans = json.load(open(src, encoding="utf-8"))["holding"].get("spans", [])
+        if spans:
+            check("holding spans carry a superscript note ref",
+                  html.count('class="noteref"') >= len(spans),
+                  f'{html.count(chr(34) + "noteref" + chr(34))} refs for {len(spans)} spans')
+
+
 def main():
     print("rules-report selftest")
     parser_fidelity()
     idx = corpus_integrity()
     verifier_regression(idx)
     holding_invariants(idx)
+    rulebook_and_links()
+    card_rendering()
+    symbols_and_notes()
+    topic_blocks(idx)
 
     print()
     if FAILS:
-        print(f"FAILED {len(FAILS)}: {', '.join(FAILS)}")
+        print(f"FAILED {len(FAILS)} of {RAN[0]}: {', '.join(FAILS)}")
         sys.exit(1)
-    print("all checks passed — safe to answer against this corpus")
+    # The count is printed rather than documented. Hardcoding it in the README
+    # meant it silently drifted every time a check was added.
+    print(f"all {RAN[0]} checks passed — safe to answer against this corpus")
     sys.exit(0)
 
 

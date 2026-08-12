@@ -25,6 +25,16 @@ Never answer a rules question from memory. Rule numbers were renumbered in the
 2026-07-16 update (Movement 440→445, Scoring 462-467→467-472); anything you recall may
 name a rule that has since moved.
 
+## Before you start
+
+**Requires Python 3.10+.** Stock macOS ships 3.9, which cannot parse this code
+(`bool | None` in a dataclass) and fails most commands with a `TypeError`. If
+`python3 --version` is below 3.10, use a newer interpreter.
+
+Everything the tools need ships inside this folder. You never need to run
+`build` — that is a maintainer command needing source material a normal install
+does not have.
+
 ## Tools
 
 Run from `lib/`: `python3 rules_cli.py <cmd>`
@@ -33,10 +43,9 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 |---|---|
 | `card <name>` | Exact card lookup → printed text, its `[Keywords]`, and the rule sections those map to |
 | `rule <id>...` | A rule **with its ancestor spine, children, examples and cross-refs**. `829.1.b.1` or `TR:601.1.c.1` |
-| `section <id>` | A whole numbered section in document order |
-| `grep <fts query>` | Lexical search over rule text. SQLite FTS5 syntax: `"burn" NOT "burn out"`, `banish*`, `sideboard AND size` |
-| `build` | Rebuild the rule index from the corpus. Run this first on a fresh clone |
-| `selftest` | 26-check regression harness; run after every rules update |
+| `section <id>` | A whole numbered section in document order. A bare heading also prints the sibling sections holding its rules |
+| `grep <fts query>` [`-n N`] | Lexical search over rule text. SQLite FTS5 syntax: `"burn" NOT "burn out"`, `banish*`, `sideboard AND size`. Capped at 12; raise it with `-n 50` |
+| `selftest` | Regression harness; run after every rules update |
 | `report <answer.json>` | **How you finish.** Verify + render + open, in one step |
 | `verify <answer.json>` | The citation gate alone. Exit 1 if anything fails |
 | `render <answer.json> [out]` | Render alone; prefer `report` |
@@ -82,7 +91,7 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 ```json
 {
   "question": "verbatim as asked",
-  "reframe": "the same question in rules vocabulary",
+  "reframe": "the same question in rules vocabulary (the report prefixes \"As the rules see it:\" — do not repeat it)",
   "corpus": {"CR": "2026-07-16", "TR": "2026-07-16", "generated": "YYYY-MM-DD"},
   "holding": {
     "disposition": "YES | NO | DEPENDS | UNSETTLED",
@@ -102,9 +111,18 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
   "counterargument": [{"reading": "opposing reading at full strength",
                        "why_it_loses": "...", "cites": [...]}],
   "considered_rejected": [{"rule": "CR:370.3", "why": "one line"}],
-  "open_questions": ["..."]
+  "open_questions": ["..."],
+  "cards": ["Astral Heron"]
 }
 ```
+
+**`cards` is a list of names, nothing more.** Name every card the question or
+your answer discusses, spelled as `rules_cli.py card` resolved it. The renderer
+looks each one up in the skill's card data and renders its artwork, printed
+text and governing rule sections. Do not supply text or image URLs yourself —
+those are exactly the fields you would get subtly wrong, and the lookup is
+already exact. A name that does not resolve is shown as "not found" rather than
+dropped, so a typo is visible instead of silent.
 
 Rules the renderer enforces, so write to them:
 
@@ -116,6 +134,20 @@ Rules the renderer enforces, so write to them:
   whole answer structural, and the report says so.
 - If any citation fails verification the disposition is **forced to UNSETTLED**. You
   cannot outrun the verifier — fix the citation instead.
+
+## Two ways to wrongly conclude the rules are silent
+
+Both look identical to a careless reader: an empty result. Neither is silence.
+
+**A heading's rules can be its siblings, not its children.** Riot writes some topics as
+`467. Scoring` followed by sections 468-472 — so 467 has an empty subtree even though five
+sections of rules sit directly under it, and `194.1.a` cheerfully says "see rule 467. Scoring".
+`section` prints the sibling block for you, but if you reach such a heading another way, keep
+reading forward instead of concluding nothing is there.
+
+**`grep` is capped at 12 hits.** It tells you when it truncated. It ranks by lexical overlap, so
+it is a way to *locate* rules, never evidence that a rule does not exist. Before writing a `gap`
+note, navigate by section number — the rules use vocabulary players do not.
 
 ## Distinguish "the rules are silent" from "our data is incomplete"
 

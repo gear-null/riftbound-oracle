@@ -18,47 +18,37 @@ over — see the `inexact` path below.
 import json, re
 from collections import defaultdict
 
-from corpus import card_files, image_index_path
+from corpus import load_cards, rules_json
 
 # Card text says [Stun]; the rules title a section "423. Stun". Emoji shortcodes
 # (:rb_might:, 543 occurrences) carry meaning too and must be translated, not dropped.
 SHORTCODE = {
     "rb_might": "might", "rb_energy": "energy", "rb_power": "power",
-    "rb_rune_rainbow": "power any domain", "rb_exhaust": "exhaust",
+    "rb_rune_rainbow": "[A]", "rb_exhaust": "[E]",
     "rb_recycle": "recycle", "rb_trash": "trash",
 }
 
+# Domain runes and numbered energy, rendered as the shorthand the rules use so
+# the card panel agrees with the rule text quoted beside it and the symbol
+# legend can gloss both. Unmapped codes used to be replaced with a space, which
+# deleted the cost outright: Blighted Battleaxe read "[Equip] ( : Attach ...)"
+# with its price gone, and Astral Heron lost the 2 Energy while the note on the
+# same page quoted the errata as "costs [2][A][A] less".
+DOMAIN_RUNE = {
+    "rb_rune_fury": "[R]", "rb_rune_calm": "[G]", "rb_rune_mind": "[B]",
+    "rb_rune_body": "[O]", "rb_rune_chaos": "[P]", "rb_rune_order": "[Y]",
+}
+SHORTCODE.update(DOMAIN_RUNE)
+
 
 class CardBridge:
-    def __init__(self, rules_json="rules.json"):
-        self.cards = {}
-        self.images = self._load_images()
-        self._load_cards()
+    def __init__(self, rules_path=None):
+        # Keyed by lowercased name AND by the pre-subtitle base name, so both
+        # "Viktor - Machine Herald" and "Viktor" resolve. Built by
+        # `oracle skill-data`; see data/cards.json.
+        self.cards = load_cards()
         self.term_to_rule = {}
-        self._load_rule_titles(rules_json)
-
-    @staticmethod
-    def _load_images():
-        """Card name -> artwork URL. Absent until `oracle card-index` is run."""
-        try:
-            with open(image_index_path(), encoding="utf-8") as fh:
-                return {k.lower(): v for k, v in json.load(fh).items()}
-        except (OSError, ValueError):
-            return {}
-
-    def _load_cards(self):
-        for path in card_files():
-            text = open(path, encoding="utf-8").read()
-            for block in re.split(r"\n(?=### )", text)[1:]:
-                lines = block.split("\n")
-                name = lines[0].replace("### ", "").strip()
-                base = re.sub(r"\s*\(.*?\)\s*$", "", name).strip()
-                body = "\n".join(lines[1:])
-                body = re.sub(r"\*Artist:.*", "", body)
-                # Same card is reprinted across sets — keep the first, don't duplicate.
-                for key in {base.lower(), base.split(" - ")[0].strip().lower()}:
-                    if len(key) > 3:
-                        self.cards.setdefault(key, {"name": base, "text": body})
+        self._load_rule_titles(rules_path or rules_json())
 
     def _load_rule_titles(self, rules_json):
         for r in json.load(open(rules_json, encoding="utf-8")):
@@ -99,8 +89,26 @@ class CardBridge:
 
     @staticmethod
     def _clean(text):
-        text = re.sub(r":([a-z_0-9]+):", lambda m: SHORTCODE.get(m.group(1), " "), text)
-        return text
+        """Expand :shortcode: emoji to words.
+
+        Padded with spaces and re-collapsed: adjacent shortcodes are common
+        (a two-rune cost is `:rb_rune_rainbow::rb_rune_rainbow:`) and without
+        padding they fused into "power any domainpower any domain".
+        """
+        def sub(m):
+            code = m.group(1)
+            if code in SHORTCODE:
+                return f" {SHORTCODE[code]} "
+            # ":rb_energy_2:" -> "[2]", the same shorthand the rules print.
+            n = re.fullmatch(r"rb_energy_(\d+)", code)
+            if n:
+                return f" [{n.group(1)}] "
+            # Anything unrecognised keeps its name rather than vanishing; a
+            # visible oddity is recoverable, a deleted cost is not.
+            return f" [{code}] "
+
+        text = re.sub(r":([a-z_0-9]+):", sub, text)
+        return re.sub(r"[ \t]{2,}", " ", text)
 
     def card_terms(self, card):
         """Rules vocabulary implied by a card: its keywords and its effect words."""
@@ -113,7 +121,7 @@ class CardBridge:
             terms.append(k)
             if k in self.term_to_rule:
                 rules.append(self.term_to_rule[k])
-        return {"name": card["name"], "image": self.images.get(card["name"].lower()),
+        return {"name": card["name"], "image": card.get("image"),
                 "inexact": card.get("inexact", False),
                 "asked_as": card.get("asked_as", card["name"]),
                 "keywords": list(dict.fromkeys(terms)),

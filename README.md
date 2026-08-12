@@ -11,7 +11,8 @@ individually-graded claims, and every citation expandable to the real rule text 
 Before the report is written, a deterministic verifier proves that every cited rule exists and that
 every quote appears verbatim. A citation that fails cannot reach you.
 
-It runs entirely on your machine, driven by whatever LLM agent you already use.
+It runs entirely on your machine, driven by whatever LLM agent you already use — and it
+installs by copying one folder.
 
 ---
 
@@ -34,34 +35,33 @@ and a genuine gap in the rules — it produced **zero fabrications**.
 
 ---
 
-## Setup
+## Install
 
-**Requires:** Node 22+, Python 3.10+, and an LLM agent that can run shell commands and read files
-(Claude Code, or any agent with equivalent tool access).
+Copy the skill into your project. That is the whole install.
 
 ```bash
-git clone <this repo> && cd riftbound-oracle
-npm install
-python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
-
-cp .env.example .env          # defaults are fine; nothing secret is needed
-
-npm run build
-npm run oracle process        # fetch cards + rules  (network)
-npm run oracle extract        # rulebook PDFs -> markdown  (local)
-npm run oracle card-index     # optional: card artwork URLs for reports  (network)
+git clone <this repo> /tmp/riftbound-oracle
+mkdir -p .claude/skills
+cp -R /tmp/riftbound-oracle/.claude/skills/rules-report .claude/skills/
 ```
 
-That fills `output/` with the corpus. Then build the rules index:
+**Requires:** Python 3.10+ and an LLM agent that can run shell commands and read files
+(Claude Code, or any agent with equivalent tool access). No Node, no build, no network, no API
+key. The rulebook, the card data and the anchored HTML rules all ship inside the folder — 2.6MB.
+
+Confirm it works:
 
 ```bash
 cd .claude/skills/rules-report/lib
-python3 rules_cli.py build      # parse the rules into an addressable tree
-python3 rules_cli.py selftest   # 26 checks — run this after every rules update
+python3 rules_cli.py selftest        # regression harness; prints its own count
+python3 rules_cli.py card "Astral Heron"
 ```
 
-`selftest` should end with `all checks passed`. If it doesn't, the corpus changed shape and answers
-built on it are not trustworthy yet.
+`selftest` should end with `all checks passed`. Then just ask your agent a rules question.
+
+> The Node pipeline in `src/` is the **maintainer** side — it regenerates the data the skill
+> ships with. You do not need it to use the skill. See [Maintaining](#maintaining) if you want to
+> refresh the corpus after a Riot rules update.
 
 ---
 
@@ -77,6 +77,39 @@ Does a countered Flow spell still get banished?
 The agent navigates the rulebook using the tools below, writes a structured answer, verifies it, and
 opens the report. **You never run a command yourself** — except `selftest` after a rules update.
 
+### What you get back
+
+Reports land in `.claude/skills/rules-report/reports/` and are self-contained HTML you can open,
+keep or send on. Three things in them are worth knowing about:
+
+**Citations are followable.** Every cited rule expands in place to show its ancestor spine, and
+every id in that spine links into `data/rules.html` — the full rulebook rendered with an anchor on
+all 3,316 rules. Clicking lands on the exact clause, highlighted, in context, with its own
+cross-references live. It is a local file, so this works offline and keeps working if you move the
+`rules-report` folder somewhere else.
+
+**Cards are shown.** Any card the answer discusses appears with its artwork, printed text, and
+links to the glossary sections its keywords map onto. Artwork is loaded from Riot's CDN by URL —
+no image is stored in this repo.
+
+**Claims are numbered like footnotes.** The verdict is one sentence, and each part of it carries a
+superscript pointing at the numbered claim that supports it — `…played this turn⌁5`. Click through
+to claim 5 and its citations open. A `⌁` before the number means that step is inferred rather than
+stated outright.
+
+**Confidence is a floor, not an average.** The header reads e.g. `weakest link: note 5
+(structural)`. That names the shakiest claim in the chain and how well it is supported —
+`grounded` (a rule says it outright), `structural` (it follows from the rules cited), or `gap`
+(the rules don't address it). One `structural` step makes the whole answer structural. A chain is
+only as strong as its weakest link, so that is what gets reported.
+
+**A key to the shorthand, when it is used.** Rules text is full of bracketed shorthand — `[E]: Add
+[Y].` is opaque until you know it means "exhaust this: add one Power of Order". Reports end with a
+legend covering exactly the symbols on that page, each linking to the rule that defines it. The
+text itself is left as Riot prints it, deliberately: the legend is there to become unnecessary, so
+that you end up able to read Riot's own PDFs unaided. The legend is derived from CR 134.2 and
+135.2.e rather than hardcoded, so it follows a renumbering on its own.
+
 ### The tools your agent uses
 
 Run from `.claude/skills/rules-report/lib/`:
@@ -88,6 +121,7 @@ Run from `.claude/skills/rules-report/lib/`:
 | `rules_cli.py section <id>` | A whole numbered section in document order |
 | `rules_cli.py grep <query>` | Lexical search (SQLite FTS5 syntax) |
 | `rules_cli.py report <json>` | **Verify + render + open.** How an answer is finished |
+| `rules_cli.py rulebook` | Regenerate the anchored HTML rulebook |
 | `rules_cli.py selftest` | Regression harness |
 
 The division of labour is the design: **the agent decides what to look at; code decides whether the
@@ -121,6 +155,8 @@ Four layers. Only two involve a model.
    *Agent.*
 4. **Verify** — every citation must exist, quote verbatim, and be narrowed to the tightest rule whose
    own text says it. A failure forces the verdict to `UNSETTLED`. *Deterministic.*
+5. **Link** — the report and the anchored rulebook are generated from the same parsed corpus the
+   verifier checks against, so a citation and its link can never disagree. *Deterministic.*
 
 **Retrieval was built first, then rejected.** Lexical search over the rules reached 32% recall@10
 on a 620-question benchmark — measured during development, against a corpus this repo no longer
@@ -133,20 +169,31 @@ finds nothing, and the gap runs one way — so cards are looked up exactly, and 
 
 ---
 
-## Keeping it current
+## Maintaining
 
-Riot updates the rules per set. When that happens:
+Only needed when Riot ships a rules update or a new set — and only by whoever maintains the
+skill's data. Users just take the newer folder.
+
+This is the one place the Node pipeline is required:
 
 ```bash
-npm run oracle process -- --only=rules
-npm run oracle extract
-cd .claude/skills/rules-report/lib && python3 rules_cli.py build && python3 rules_cli.py selftest
+npm install && npm run build
+
+npm run oracle process -- --only=rules   # refetch the Rules Hub
+npm run oracle extract                   # rulebook PDFs -> markdown
+npm run oracle skill-data                # rebuild data/cards.json
+
+cd .claude/skills/rules-report/lib
+python3 rules_cli.py build               # re-parse -> data/rules.json
+python3 rules_cli.py rulebook            # re-render -> data/rules.html
+python3 rules_cli.py selftest            # regression harness
 ```
 
-`rules.json` is committed on purpose: a rules update then arrives as a **reviewable diff of rule
-IDs** rather than as a wrong citation discovered months later. The 2026-07-16 update renumbered much
-of the 400s (Movement 440→445, Scoring 462-467→467-472), which is exactly the kind of change that
-silently invalidates saved answers.
+`data/rules.json` is committed on purpose: a rules update then arrives as a **reviewable diff of
+rule IDs** rather than as a wrong citation discovered months later. The 2026-07-16 update
+renumbered much of the 400s (Movement 440→445, Scoring 462-467→467-472), exactly the kind of
+change that silently invalidates saved answers — and now also silently breaks anchor links, which
+`selftest` checks for.
 
 > **Rate limiting.** Riot's Rules Hub sits behind Cloudflare and will reset connections if hit
 > repeatedly. Run rules updates on demand, never on a schedule. On `ECONNRESET`, wait or change
@@ -206,13 +253,20 @@ commands above rebuild everything from source in a few minutes.
 ## Layout
 
 ```
+.claude/skills/rules-report/   <- THE PRODUCT. Copy this folder; nothing else is needed.
+  SKILL.md                     the procedure your agent follows
+  lib/                         rules_cli.py and the deterministic tools
+  data/                        vendored + committed, 2.6MB
+    rules.json                 3,316 parsed, addressable rules
+    cards.json                 card text + artwork URLs
+    rules.html                 anchored rulebook that citations link into
+  reports/                     generated HTML reports (gitignored)
+
+                               --- maintainer side, not needed to use the skill ---
 src/                     TypeScript pipeline (fetch, parse, normalise)
   processors/            one per source type: riftcodex, rules-hub, pdf, html, url
+  skill-data.ts          builds data/cards.json
 manifests/sources.yaml   prescriptive: what gets fetched and where it lands
-output/                  the generated corpus
+output/                  intermediate corpus the skill data is built from
 scripts/pdf-extract.py   pdfplumber PDF → text
-.claude/skills/rules-report/
-  SKILL.md               the procedure your agent follows
-  lib/                   rules_cli.py and the deterministic tools
-  reports/               generated HTML reports (gitignored)
 ```

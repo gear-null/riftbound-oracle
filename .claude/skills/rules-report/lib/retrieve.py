@@ -21,7 +21,7 @@ Usage:
 """
 import json, re, sqlite3, sys, textwrap
 
-RULES_JSON = "rules.json"
+from corpus import rules_json
 DB = "rules.db"
 
 
@@ -33,7 +33,7 @@ def sort_key(rule_id):
 
 
 def build():
-    rules = json.load(open(RULES_JSON, encoding="utf-8"))
+    rules = json.load(open(rules_json(), encoding="utf-8"))
     con = sqlite3.connect(DB)
     con.executescript("""
         DROP TABLE IF EXISTS rule;
