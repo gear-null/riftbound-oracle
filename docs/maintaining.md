@@ -49,6 +49,20 @@ stay flagged rather than silently short, and are named on every run and by the s
 Verify against the image before adding an entry. A wrong transcription is worse than a
 flagged gap: the gap is honest, the transcription is not.
 
+## Errata beats the card database
+
+Card text comes from Riftcodex, which lags Riot by months — it served Stalking Wolf's
+pre-errata wording long after the correction was published. Riot's errata is already in this
+repo: the Rules Hub crawl writes it into `output/rules.md` as `[NEW TEXT]` blocks.
+
+`skill-data` applies it. Where the two disagree on **wording**, Riot wins and the card records
+`errata` provenance, which the report shows. Notation-only differences are left alone, since
+the errata prints `[1][C]` where the API sends `:rb_energy_1:` and rewriting every reprint
+would churn the corpus for nothing.
+
+**Order matters:** crawl the rules before rebuilding cards, or there is no errata to apply and
+`skill-data` warns that card text may be stale. The update run below is already in that order.
+
 ## Packaging a release
 
 ```bash

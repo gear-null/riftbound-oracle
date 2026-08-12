@@ -15,6 +15,7 @@
 import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
+import { loadErrata, sameWording, type Erratum } from "./errata.js";
 import { fetchSets, fetchCardsBySet, type RiftcodexCard } from "./riftcodex.js";
 import { decodeEntities } from "./normalize.js";
 
@@ -48,6 +49,18 @@ export function loadOverlays(path = OVERLAY_PATH): Map<string, CardOverlay> {
  * the gear's own might, and putting it in the stats row would read as the
  * latter.
  */
+/**
+ * Replace API text with Riot's errata where the WORDING differs.
+ *
+ * Notation-only differences are left alone: the errata prints `[1][C]` where
+ * the API sends `:rb_energy_1:`, and rewriting every reprinted card into the
+ * other notation would churn the corpus for no gain.
+ */
+export function applyErratum(entry: SkillCard, erratum?: Erratum): SkillCard {
+  if (!erratum || sameWording(entry.text, erratum.text)) return entry;
+  return { ...entry, text: erratum.text, errata: "Riot errata (Rules Hub)" };
+}
+
 export function applyOverlay(entry: SkillCard, overlay?: CardOverlay): SkillCard {
   if (!overlay) return entry;
   const extra = [
@@ -88,6 +101,12 @@ export interface SkillCard {
    * `media.accessibility_text` alike, so no field choice recovers it.
    */
   incomplete?: string;
+  /**
+   * Set when Riot's published errata replaced the card text the API served.
+   * Riftcodex lags Riot by months, so where the two disagree the errata wins —
+   * and the report says which text the reader is looking at.
+   */
+  errata?: string;
   /**
    * Set when a bare base name is shared by genuinely DIFFERENT cards — "Ahri"
    * covers Alluring, Inquisitive and Nine-Tailed Fox. Lists every full name so
@@ -196,7 +215,8 @@ export function cardStats(card: RiftcodexCard): CardStats {
  */
 export function buildCardIndex(
   cards: RiftcodexCard[],
-  overlays: Map<string, CardOverlay> = new Map()
+  overlays: Map<string, CardOverlay> = new Map(),
+  errata: Map<string, Erratum> = new Map()
 ): CardIndex {
   const index: CardIndex = {};
   // Full display names seen per key, so a collision is detectable.
@@ -225,6 +245,9 @@ export function buildCardIndex(
     let entry: SkillCard = { name: display, text: body, stats: cardStats(card) };
     const gap = missingText(card, body);
     if (gap) entry.incomplete = gap;
+    // Errata first: it is the authoritative text. An overlay then adds what no
+    // text field carries at all (the granted-effect band), so the two compose.
+    entry = applyErratum(entry, errata.get(display.toLowerCase()));
     entry = applyOverlay(entry, overlays.get(display.toLowerCase()));
     const image = card.media?.image_url;
     if (image) entry.image = image;
@@ -277,7 +300,11 @@ export async function buildSkillData(opts: BuildSkillDataOptions = {}) {
   }
 
   const overlays = loadOverlays();
-  const index = buildCardIndex(all, overlays);
+  const errata = loadErrata();
+  const index = buildCardIndex(all, overlays, errata);
+  const errataApplied = new Set(
+    Object.values(index).filter((c) => c.errata).map((c) => c.name)
+  );
   const stillMissing = new Set(
     Object.values(index).filter((c) => c.incomplete).map((c) => c.name)
   );
@@ -295,6 +322,8 @@ export async function buildSkillData(opts: BuildSkillDataOptions = {}) {
     keys: Object.keys(index).length,
     withArt,
     overlaid: overlays.size,
+    errataApplied: errataApplied.size,
+    errataAvailable: errata.size,
     stillMissing: [...stillMissing].sort(),
   };
 }

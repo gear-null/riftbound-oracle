@@ -148,6 +148,7 @@ class CardBridge:
                 "stats": card.get("stats") or {},
                 "ambiguous": card.get("ambiguous") or [],
                 "incomplete": card.get("incomplete"),
+                "errata": card.get("errata"),
                 "inexact": card.get("inexact", False),
                 "asked_as": card.get("asked_as", card["name"]),
                 "keywords": list(dict.fromkeys(terms)),

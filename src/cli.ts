@@ -377,6 +377,17 @@ async function handleSkillData() {
     }
     // Equipment gear prints its granted effect only on the artwork, so the
     // gap is named rather than left to be discovered in a report.
+    if (result.errataApplied) {
+      p.log.info(
+        `${result.errataApplied} card(s) corrected from Riot errata ` +
+          `(${result.errataAvailable} errata in the rules corpus)`
+      );
+    } else if (!result.errataAvailable) {
+      p.log.warning(
+        "No errata found in output/rules.md — run " +
+          `${color.cyan("oracle process -- --only=rules")} first, or card text may be stale`
+      );
+    }
     if (result.stillMissing.length) {
       p.log.warning(
         `${result.stillMissing.length} card(s) still missing text the API does not carry. ` +

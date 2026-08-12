@@ -390,6 +390,18 @@ def card_rendering():
           _rr.embed_image("https://invalid.invalid/x.png", timeout=3) is None)
     check("no url embeds to None", _rr.embed_image("") is None)
 
+    # Card text comes from a third-party database that lags Riot by months. We
+    # crawl Riot's errata ourselves, so holding both and showing the stale one
+    # is a contradiction inside our own corpus.
+    errata_cards = {v["name"] for v in cards.values() if v.get("errata")}
+    check("Riot errata has been applied to the card pool", len(errata_cards) > 10,
+          f"{len(errata_cards)} corrected")
+    wolf = cards.get("stalking wolf")
+    if wolf:
+        check("a known errata'd card carries the corrected wording",
+              "ambush" in wolf["text"].lower().split("as an additional cost")[-1],
+              wolf["text"][-52:])
+
     # A cost printed on a card must survive into the rendered panel. Unmapped
     # shortcodes were once replaced with a space, deleting the price outright.
     from card_bridge import CardBridge

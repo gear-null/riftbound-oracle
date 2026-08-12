@@ -861,7 +861,7 @@
  },
  "astral heron": {
   "name": "Astral Heron",
-  "text": "When you play your first card each turn, if I'm at a battlefield, your next card costs :rb_energy_2::rb_rune_rainbow::rb_rune_rainbow: less.",
+  "text": "When you play your first card each turn, if I'm at a battlefield, the next card you play this turn costs [2][A][A] less.",
   "stats": {
    "energy": 7,
    "might": 7,
@@ -872,6 +872,7 @@
     "Calm"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b1ce87efc9a1a7e2438c53e034a7f92caaa67ed6-744x1039.png?accountingTag=RB"
  },
  "atakhan": {
@@ -906,7 +907,7 @@
  },
  "ava achiever": {
   "name": "Ava Achiever",
-  "text": "When I attack, you may pay :rb_rune_mind: to play a card with [Hidden] from your hand here, ignoring its cost.",
+  "text": "When I attack, you may pay [C] to play a card with [Hidden] from your hand, ignoring its cost. If it’s a unit, play it here. #### ▲ #####",
   "stats": {
    "energy": 5,
    "might": 4,
@@ -917,6 +918,7 @@
     "Mind"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/93e91aa99eb09baa68dd95b0013a89d9ffde5240-744x1039.png?accountingTag=RB"
  },
  "azir": {
@@ -1574,7 +1576,7 @@
  },
  "bone skewer": {
   "name": "Bone Skewer",
-  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)Choose a battlefield. An opponent reveals their hand. You may choose a unit from it. They play that unit to that battlefield, ignoring any and all costs. When they do, [Stun] it. (It doesn't deal combat damage this turn.)",
+  "text": "[Hidden] (Hide now for [A] to react with later for [0].) Choose a battlefield. An opponent reveals their hand. You may choose a unit from it. They play that unit to that battlefield, ignoring any and all costs. If they do, then do this: [Stun] it. (It doesn't deal combat damage this turn.)",
   "stats": {
    "energy": 2,
    "might": null,
@@ -1585,6 +1587,7 @@
     "Chaos"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e06e3e3033640bc8a5bc98acd4e3a0925c6e2c9a-744x1039.png?accountingTag=RB"
  },
  "boneshiver": {
@@ -2164,7 +2167,7 @@
  },
  "clockwork keeper": {
   "name": "Clockwork Keeper",
-  "text": "As you play me, you may pay :rb_rune_calm: as an additional cost. If you do, draw 1.",
+  "text": "You may pay [C] as an additional cost to play me. When you play me, if you paid the additional cost, draw 1. #### ▲ #####",
   "stats": {
    "energy": 2,
    "might": 2,
@@ -2175,6 +2178,7 @@
     "Calm"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/417e606418349bb25d4b07d460fa043ad85f2778-744x1039.png?accountingTag=RB"
  },
  "cloth armor": {
@@ -2776,7 +2780,7 @@
  },
  "dazzling aurora": {
   "name": "Dazzling Aurora",
-  "text": "At the end of your turn, reveal cards from the top of your Main Deck until you reveal a unit. Play it, ignoring its cost, and recycle the rest.",
+  "text": "At the end of your turn, reveal cards from the top of your Main Deck until you reveal a unit and banish it. Play it, ignoring its cost, and recycle the rest. #### ▲ #####",
   "stats": {
    "energy": 9,
    "might": null,
@@ -2787,6 +2791,7 @@
     "Body"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c023856a50c75058465f283d181277ce265ba108-744x1039.png?accountingTag=RB"
  },
  "deadbloom predator": {
@@ -2821,7 +2826,7 @@
  },
  "death from below": {
   "name": "Death from Below",
-  "text": "Kill a unit at a battlefield. Then, if it had 3 :rb_might: or less, you may play this from your trash for :rb_rune_rainbow:.",
+  "text": "Kill a unit at a battlefield. Then, if it had 3 [M] or less, do this: You may play this from your trash for [A].",
   "stats": {
    "energy": 4,
    "might": null,
@@ -2833,6 +2838,7 @@
     "Chaos"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17d93a11a252287e3b0f4bbe32722ecc9469ec66-744x1039.png?accountingTag=RB"
  },
  "death mark": {
@@ -3222,7 +3228,7 @@
  },
  "disintegrate": {
   "name": "Disintegrate",
-  "text": "[Action] (Play on your turn or in showdowns.)Deal 3 to a unit at a battlefield. If this kills it, draw 1.",
+  "text": "Action (Play on your turn or in showdowns.) Deal 3 to a unit at a battlefield. If this kills it, do this: draw 1. #### ▲ #####",
   "stats": {
    "energy": 4,
    "might": null,
@@ -3233,6 +3239,7 @@
     "Fury"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a27374ac3a81f3dfefb43c3c3237c23b4883cb5a-744x1039.png?accountingTag=RB"
  },
  "disposal order": {
@@ -3466,7 +3473,7 @@
  },
  "dragon's rage": {
   "name": "Dragon's Rage",
-  "text": "Move an enemy unit. Then choose another enemy unit at its destination. They deal damage equal to their Mights to each other.",
+  "text": "Move an enemy unit. Then do this: Choose another enemy unit at its destination. They deal damage equal to their Mights to each other. #### ▲ #####",
   "stats": {
    "energy": 4,
    "might": null,
@@ -3478,6 +3485,7 @@
     "Body"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7f4cbd4fb340cc13b3fbe0ec0db706464d9b29f4-744x1039.png?accountingTag=RB"
  },
  "dragonsoul sage": {
@@ -4994,7 +5002,7 @@
  },
  "gangplank, naval": {
   "name": "Gangplank, Naval",
-  "text": "[Empower] :rb_rune_body::rb_rune_body: (:rb_rune_body::rb_rune_body:: Empower me. Use only if not Empowered.)[Empowered][>] If a spell or ability that chooses me would stun me, give me -:rb_might:, or return me to hand, give me +3 :rb_might: instead.",
+  "text": "[Empower] [C][C] ([C][C]: Empower me. Use only if not Empowered.) [Empowered][>] If a spell or ability that chooses me would stun me, give me -[M], or return me to hand, give me +3 [M] this turn instead.",
   "stats": {
    "energy": 6,
    "might": 6,
@@ -5005,6 +5013,7 @@
     "Body"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f270a3ecc4850594513c45d145f2b855152e2cb7-744x1039.png?accountingTag=RB"
  },
  "garbage grabber": {
@@ -5361,7 +5370,7 @@
  },
  "guards!": {
   "name": "Guards!",
-  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)Play a 2 :rb_might: Sand Soldier unit token. You may pay :rb_rune_order: to ready it.",
+  "text": "[Hidden] (Hide now for [A] to react with later for [0].) Play a 2 [M] Sand Soldier unit token. Then do this: You may pay [C] to ready it.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -5372,6 +5381,7 @@
     "Order"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1dc4fef81d018c6cf14f0344b51ebcdec968aab9-744x1039.png?accountingTag=RB"
  },
  "guerilla warfare": {
@@ -5832,7 +5842,7 @@
  },
  "highlander": {
   "name": "Highlander",
-  "text": "[Reaction] (Play any time, even before spells and abilities resolve.)Choose a friendly unit. The next time it dies this turn, recall it exhausted instead. (Send it to base. This isn't a move.)",
+  "text": "[Reaction] (Play any time, even before spells and abilities resolve.) Choose a friendly unit. The next time it would die this turn, heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.) #### ▲ #####",
   "stats": {
    "energy": 4,
    "might": null,
@@ -5844,6 +5854,7 @@
     "Body"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/18c0818cbbfdf26a1237b4f7703b1f035f47b014-744x1039.png?accountingTag=RB"
  },
  "honest broker": {
@@ -6998,7 +7009,7 @@
  },
  "keeper of masks": {
   "name": "Keeper of Masks",
-  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Temporary] (Kill me at the start of my controller's Beginning Phase, before scoring.)When you play me, play two Reflection unit tokens here. They become copies of me.",
+  "text": "[Hidden] (Hide now for [A] to react with later for [0].) [Temporary] (Kill me at the start of my controller's Beginning Phase, before scoring.) When you play me, play two Reflection unit tokens here. Then do this: They become copies of me.",
   "stats": {
    "energy": 2,
    "might": 1,
@@ -7009,6 +7020,7 @@
     "Mind"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/67606d98bd3d8816e686dacacb91a56627d4b5f5-744x1039.png?accountingTag=RB"
  },
  "keeper's verdict": {
@@ -8524,7 +8536,7 @@
  },
  "mirror image": {
   "name": "Mirror Image",
-  "text": "Choose a unit. Play a ready Reflection unit token to your base. It becomes a copy of that unit. Give it [Temporary]. (Kill it at the start of its controller's Beginning Phase, before scoring.)",
+  "text": "Choose a unit. Play a ready Reflection unit token to your base. Then do this: It becomes a copy of that unit. Give it [Temporary]. (Kill it at the start of its controller's Beginning Phase, before scoring.)",
   "stats": {
    "energy": 3,
    "might": null,
@@ -8536,6 +8548,7 @@
     "Order"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a7ef8a09c0297cd796c4e2dee15922745ede7417-744x1039.png?accountingTag=RB"
  },
  "mischievous marai": {
@@ -9473,7 +9486,7 @@
  },
  "pack of wonders": {
   "name": "Pack of Wonders",
-  "text": ":rb_exhaust:: Return another friendly gear, unit, or [Hidden] card to its owner's hand.",
+  "text": "[E]: Return another friendly gear, unit, or facedown card to its owner's hand. #### ▲ #####",
   "stats": {
    "energy": 2,
    "might": null,
@@ -9484,6 +9497,7 @@
     "Chaos"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0830f326c49abe7fb1d3c9787e7ce5d7b776eec-744x1039.png?accountingTag=RB"
  },
  "pakaa cub": {
@@ -9900,7 +9914,7 @@
  },
  "portal rescue": {
   "name": "Portal Rescue",
-  "text": "[Action] (Play on your turn or in showdowns.)Banish a friendly unit, then play it to base, ignoring its cost.",
+  "text": "[Action] (Play on your turn or in showdowns.) Banish a friendly unit, then its owner plays it to their base, ignoring its cost. #### ▲ #####",
   "stats": {
    "energy": 3,
    "might": null,
@@ -9911,6 +9925,7 @@
     "Mind"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bafb4c68fa9a3eb71fecd0cdffb9e20b9f68d532-744x1039.png?accountingTag=RB"
  },
  "possession": {
@@ -10065,7 +10080,7 @@
  },
  "promising future": {
   "name": "Promising Future",
-  "text": "Each player looks at the top 5 cards of their Main Deck, chooses one, then recycles the rest. Starting with the next player, each player plays those cards, ignoring Energy costs. (They must still pay Power costs.)",
+  "text": "Each player looks at the top 5 cards of their Main Deck, banishes one of them, then recycles the rest. Starting with the next player, each player plays those cards, ignoring Energy costs. (They must still pay Power costs.) #### ▲ #####",
   "stats": {
    "energy": 5,
    "might": null,
@@ -10076,6 +10091,7 @@
     "Mind"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1ea5e7e50aaecee0b2ee2657d3c829dff0718fba-744x1039.png?accountingTag=RB"
  },
  "protective sands": {
@@ -10637,7 +10653,7 @@
  },
  "relentless pursuit": {
   "name": "Relentless Pursuit",
-  "text": "[Action] (Play on your turn or in showdowns.)Move a friendly unit. You may attach an Equipment with the same controller to it. This turn, that unit has \"When I conquer, you may move me to my base.\"",
+  "text": "[Action] (Play on your turn or in showdowns.) Move a friendly unit. You may attach up to one Equipment with the same controller to it. This turn, that unit has \"When I conquer, you may move me to my base.\"",
   "stats": {
    "energy": 2,
    "might": null,
@@ -10649,6 +10665,7 @@
     "Body"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/48754730486abefdb56221d0760b9c963aae7c09-744x1039.png?accountingTag=RB"
  },
  "rell": {
@@ -10909,7 +10926,7 @@
  },
  "rengar, trophy hunter": {
   "name": "Rengar, Trophy Hunter",
-  "text": "[Ambush]I can be played to a battlefield where there are enemy units.",
+  "text": "[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.) I can [Ambush] to a battlefield where there are enemy units, even if you don't have units there.",
   "stats": {
    "energy": 5,
    "might": 6,
@@ -10920,6 +10937,7 @@
     "Body"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1f16f5b1f980106057606a2faa3cce64fa4850e7-744x1039.png?accountingTag=RB"
  },
  "repair specialist": {
@@ -10954,7 +10972,7 @@
  },
  "resonating strike": {
   "name": "Resonating Strike",
-  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)[Reaction] (Play on your turn or in showdowns.)Choose a battlefield you control and a unit you control at a different location. Move that unit to that battlefield and give it +2 :rb_might: this turn.",
+  "text": "[Hidden] (Hide now for [A] to react with later for [0].) [Reaction] (Play any time, even before spells and abilities resolve.) Choose a battlefield you control and a unit you control at a different location. Move that unit to that battlefield and give it +2 [S] this turn.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -10965,6 +10983,7 @@
     "Calm"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1a625de128019d65d41dd0af4f8d189d5de530a5-744x1039.png?accountingTag=RB"
  },
  "retreat": {
@@ -11444,7 +11463,7 @@
  },
  "salvage": {
   "name": "Salvage",
-  "text": "[Action] (Play on your turn or in showdowns.)You may kill a gear. Draw 1.",
+  "text": "[Action] (Play on your turn or in showdowns.) You may kill up to one gear. Draw 1. #### ▲ #####",
   "stats": {
    "energy": 2,
    "might": null,
@@ -11455,6 +11474,7 @@
     "Order"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9bdbac358e7c9415c1354b6d1f6888dcf9c5519b-744x1039.png?accountingTag=RB"
  },
  "sanction": {
@@ -12256,7 +12276,7 @@
  },
  "sigil of the storm": {
   "name": "Sigil of the Storm",
-  "text": "When you conquer here, recycle one of your runes.",
+  "text": "When you conquer here, you must recycle one of your runes. (This doesn’t choose anything.) #### ▲ #####",
   "stats": {
    "energy": null,
    "might": null,
@@ -12267,6 +12287,7 @@
     "Colorless"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9b795e7a2af421aabc01dc6f35c0b5d547fe3c0e-1038x744.png?accountingTag=RB"
  },
  "simian ancestor": {
@@ -13004,7 +13025,7 @@
  },
  "stalking wolf": {
   "name": "Stalking Wolf",
-  "text": "[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)As an additional cost to play me, kill a Bird, Cat, Dog, or Poro you control. You may play me to its battlefield (even if you don't have other units there).",
+  "text": "[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.) As an additional cost to play me, kill a Bird, Cat, Dog, or Poro you control. You may [Ambush] me to its battlefield, even if you don't have other units there.",
   "stats": {
    "energy": 4,
    "might": 6,
@@ -13015,6 +13036,7 @@
     "Order"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5f5f66caad21d59bf966ddc501bb4f9c84a595c6-744x1039.png?accountingTag=RB"
  },
  "stalwart poro": {
@@ -13471,7 +13493,7 @@
  },
  "targon's peak": {
   "name": "Targon's Peak",
-  "text": "When you conquer here, ready 2 runes at the end of this turn.",
+  "text": "When you conquer here, ready up to 2 runes at the end of this turn. #### ▲ #####",
   "stats": {
    "energy": null,
    "might": null,
@@ -13482,6 +13504,7 @@
     "Colorless"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6ff1b34ad231645910f670496e1662de0b545a44-1038x744.png?accountingTag=RB"
  },
  "targonian visionary": {
@@ -13792,7 +13815,7 @@
  },
  "the syren": {
   "name": "The Syren",
-  "text": ":rb_energy_1:, :rb_exhaust:: Move a friendly unit at a battlefield to your base.",
+  "text": "[1], [E]: Move a friendly unit at a battlefield to its base. #### ▲ #####",
   "stats": {
    "energy": 2,
    "might": null,
@@ -13803,6 +13826,7 @@
     "Chaos"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cafdd212b542243e10e5fac587616ab77e3d9cf1-744x1039.png?accountingTag=RB"
  },
  "the zero drive": {
@@ -13929,7 +13953,7 @@
  },
  "tideturner": {
   "name": "Tideturner",
-  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)When you play me, you may choose a friendly unit. Move me to its location and it to my original location.",
+  "text": "[Hidden] (Hide now for [A] to react with later for [0].) When you play me, you may choose a unit you control at another location. Move me to its location and it to my original location. #### ▲ #####",
   "stats": {
    "energy": 2,
    "might": 2,
@@ -13940,6 +13964,7 @@
     "Chaos"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bad355dba8b32d1fba33dc3924cad6a34b61b5af-744x1039.png?accountingTag=RB"
  },
  "time warp": {
@@ -14455,7 +14480,7 @@
  },
  "unlicensed armory": {
   "name": "Unlicensed Armory",
-  "text": "Discard 1, :rb_exhaust:: Choose a friendly unit. The next time it dies this turn, you may pay :rb_rune_fury: to recall it exhausted instead. (Send it to base. This isn't a move.)",
+  "text": "Discard 1, [E]: Choose a friendly unit. The next time it would die this turn, you may pay [C] to heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.) #### ▲ #####",
   "stats": {
    "energy": 2,
    "might": null,
@@ -14466,6 +14491,7 @@
     "Fury"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1a80bedd893d9024fc90f108da36b4fd1d496ad6-744x1039.png?accountingTag=RB"
  },
  "unsung hero": {
@@ -15019,7 +15045,7 @@
  },
  "void gate": {
   "name": "Void Gate",
-  "text": "Spells and abilities affecting units here each deal 1 Bonus Damage. (Each instance of damage the spell deals is increased by 1.)",
+  "text": "Spells and abilities deal 1 Bonus Damage to units here. (Each instance of damage the spell deals to a unit here is increased by 1.) #### ▲ #####",
   "stats": {
    "energy": null,
    "might": null,
@@ -15030,6 +15056,7 @@
     "Colorless"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/14a52a367fd41fd84745e050e62d1f281f733467-1038x744.png?accountingTag=RB"
  },
  "void hatchling": {
@@ -15848,7 +15875,7 @@
  },
  "zhonya's hourglass": {
   "name": "Zhonya's Hourglass",
-  "text": "[Hidden] (Hide now for :rb_rune_rainbow: to react with later for :rb_energy_0:.)The next time a friendly unit would die, kill this instead. Recall that unit exhausted. (Send it to base. This isn't a move.)",
+  "text": "[Hidden] (Hide now for [A] to react with later for [0].) If a friendly unit would die, kill this instead. Heal that unit, exhaust it, and recall it. (Send it to base. This isn't a move.) #### ▲ #####",
   "stats": {
    "energy": 2,
    "might": null,
@@ -15859,6 +15886,7 @@
     "Calm"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dc38172c56f838b407fc9f170ba973da32d7cd4d-744x1039.png?accountingTag=RB"
  },
  "zilean": {

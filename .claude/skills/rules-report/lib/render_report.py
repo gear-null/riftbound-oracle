@@ -512,6 +512,9 @@ def cards_html(ans):
         # short, the two visibly disagree, so the panel has to say which one is
         # incomplete rather than letting the reader assume the text is whole.
         gap = ""
+        if c.get("errata"):
+            gap += (f'<span class="card-errata">Text updated by {esc(c["errata"])} — '
+                    "the card database still serves the older wording.</span>")
         if c.get("incomplete"):
             gap = (f'<span class="card-gap">Printed text incomplete — {esc(c["incomplete"])}. '
                    "Read it from the card image.</span>")
@@ -663,6 +666,9 @@ h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform
 .chip-q{{font-variant:small-caps;letter-spacing:.02em}}
 .chip-d{{border-color:var(--accent);color:var(--accent)}}
 .card-text{{color:var(--dim);font-size:.76rem;line-height:1.45}}
+.card-errata{{display:block;margin-top:.4rem;padding:.35rem .5rem;border-radius:4px;
+ border-left:2px solid var(--grounded);background:var(--card);color:var(--dim);
+ font-size:.7rem;line-height:1.4}}
 .card-gap{{display:block;margin-top:.4rem;padding:.4rem .5rem;border-radius:4px;
  background:var(--mark);color:var(--fg);font-size:.72rem;line-height:1.4}}
 ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
