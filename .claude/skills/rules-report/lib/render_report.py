@@ -463,6 +463,12 @@ def render(ans, idx):
 
     openq = "".join(f'<li>{esc(q)}</li>' for q in ans.get("open_questions", []))
 
+    # The template supplies "As the rules see it:", and an author who also
+    # writes it gets it twice. Cheap to strip, and the alternative is relying
+    # on every future answer remembering a convention the schema does not show.
+    reframe = re.sub(r"^\s*as the rules see it\s*:\s*", "", ans.get("reframe", ""),
+                     flags=re.I)
+
     problems = "".join(f'<li>{esc(p)}</li>' for p in ans.get("_problems", []))
     ncites = sum(len(n.get("cites", [])) for n in ans["notes"])
     nverified = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
@@ -588,7 +594,7 @@ ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
 <header>
   <div class="pin">CR {esc(ans["corpus"]["CR"])} · TR {esc(ans["corpus"]["TR"])} · generated {esc(ans["corpus"]["generated"])} · offline</div>
   <h1>{esc(ans["question"])}</h1>
-  <p class="reframe">As the rules see it: {esc(ans["reframe"])}</p>
+  <p class="reframe">As the rules see it: {esc(reframe)}</p>
 </header>
 
 <div class="holding">

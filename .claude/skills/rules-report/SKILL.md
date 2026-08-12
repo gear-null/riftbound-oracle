@@ -91,7 +91,7 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 ```json
 {
   "question": "verbatim as asked",
-  "reframe": "the same question in rules vocabulary",
+  "reframe": "the same question in rules vocabulary (the report prefixes \"As the rules see it:\" — do not repeat it)",
   "corpus": {"CR": "2026-07-16", "TR": "2026-07-16", "generated": "YYYY-MM-DD"},
   "holding": {
     "disposition": "YES | NO | DEPENDS | UNSETTLED",

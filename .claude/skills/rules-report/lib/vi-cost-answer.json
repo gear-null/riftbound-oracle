@@ -1,0 +1,73 @@
+{
+  "question": "How much energy does Vi - Hotheaded cost?",
+  "reframe": "As the rules see it: what numeral sits in the Cost element of Vi - Hotheaded, and is that the whole price of playing her?",
+  "corpus": { "CR": "2026-07-16", "TR": "2026-07-16", "generated": "2026-08-12" },
+  "holding": {
+    "disposition": "YES",
+    "line": "Vi - Hotheaded costs 4 Energy, which is the numeral in her Cost element, and that is her whole play cost — the [2][R] on her is a separate activated ability, not part of playing her.",
+    "spans": [
+      { "text": "costs 4 Energy", "basis": "grounded", "note": "n1" },
+      { "text": "the numeral in her Cost element", "basis": "grounded", "note": "n2" },
+      { "text": "a separate activated ability, not part of playing her", "basis": "grounded", "note": "n3" }
+    ]
+  },
+  "notes": [
+    {
+      "id": "n1",
+      "basis": "grounded",
+      "claim": "Her printed Energy cost is 4.",
+      "detail": "Card data: Vi - Hotheaded — Energy 4, Might 3, Unit, Epic, Fury. The value itself is read off the card, not derived from a rule; the rules below say what that numeral means.",
+      "crux": true,
+      "if_false": "If the printed numeral were anything other than 4 — a misprint, a reprint with a different cost, or stale card data — the answer changes outright. Nothing in the rules would flag it; check the physical card.",
+      "cites": [
+        {
+          "rule": "CR:131.2.a",
+          "quote": "The numeral listed in the Cost element in the upper left corner of the card."
+        }
+      ]
+    },
+    {
+      "id": "n2",
+      "basis": "grounded",
+      "claim": "That numeral is where a Main Deck card's cost lives.",
+      "cites": [
+        {
+          "rule": "CR:131.1",
+          "quote": "Main Deck cards have a Cost, listed in the upper left corner of the front face of the card."
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "basis": "grounded",
+      "claim": "The [2][R] printed on her is an activated ability's cost, paid only when that ability is used.",
+      "detail": "Her text reads \"[2][R]: Double my Might this turn.\" The colon is what marks it: the cost before it belongs to the ability, so it is not added to the 4 Energy needed to play her.",
+      "cites": [
+        {
+          "rule": "CR:377.1",
+          "quote": "Activated Abilities are recognized by the presence of a \":\" in the text of the card, preceded by a cost and succeeded by an effect."
+        }
+      ]
+    }
+  ],
+  "counterargument": [
+    {
+      "reading": "Her cost is 4 Energy plus [2][R], because both are printed on the card.",
+      "why_it_loses": "Only the Cost element is the card's cost. The [2][R] sits before a colon in her rules text, which marks it as the price of activating that ability while she is already on the board.",
+      "cites": [
+        {
+          "rule": "CR:131.2.a",
+          "quote": "The numeral listed in the Cost element in the upper left corner of the card."
+        }
+      ]
+    }
+  ],
+  "considered_rejected": [
+    {
+      "rule": "CR:444",
+      "why": "Pay covers how a resource leaves the Rune Pool; the question is what the cost is, not how it is paid."
+    }
+  ],
+  "open_questions": [],
+  "cards": ["Vi - Hotheaded"]
+}
