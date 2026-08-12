@@ -1,7 +1,7 @@
 import "dotenv/config";
 import * as p from "@clack/prompts";
 import color from "picocolors";
-import { writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve, basename } from "node:path";
 import { processSource } from "./processors/index.js";
 import { processUrl } from "./processors/url.js";
@@ -16,7 +16,7 @@ import {
   type ManifestEntry,
 } from "./manifest.js";
 import { fetchSets, fetchCardsBySet, cardsToMarkdown, fetchSetLabel } from "./riftcodex.js";
-import { buildSkillData } from "./skill-data.js";
+import { buildSkillData, SKILL_DATA_DIR } from "./skill-data.js";
 import { normalize } from "./normalize.js";
 import { downloadPrintCards } from "./print.js";
 import { syncToVault, resolveVaultDir } from "./vault.js";
@@ -40,6 +40,9 @@ async function main() {
       break;
     case "extract":
       await handleExtract();
+      break;
+    case "gear-gaps":
+      await handleGearGaps();
       break;
     case "skill-data":
       await handleSkillData();
@@ -66,6 +69,7 @@ ${color.bold("Commands:")}
   ${color.cyan("print --set=X")}      Download card images for printing
   ${color.cyan("extract")}            Extract downloaded rulebook PDFs to markdown
   ${color.cyan("skill-data")}         Rebuild the skill's vendored card data (needs network)
+  ${color.cyan("gear-gaps")}          Collect artwork + a YAML stub for cards the API can't supply
   ${color.cyan("vault-sync")}         Mirror output/ into an Obsidian wiki's raw/ folder
   ${color.cyan("status")}             Show manifest status
   ${color.cyan("help")}               Show this help message
@@ -299,6 +303,36 @@ async function handleExtract() {
  * Failure is non-fatal. The committed cards.json stays valid, and rules-only
  * questions never touched card data anyway.
  */
+/**
+ * Gather everything a maintainer needs to transcribe the card text the API
+ * does not carry. Downloads the artwork and writes a pre-filled stub; the
+ * human supplies only what the image shows. No parsing, no model.
+ */
+async function handleGearGaps() {
+  const { findGaps, collectGaps, loadOverlays } = await import("./gear-gaps.js");
+  const index = JSON.parse(
+    readFileSync(resolve(`${SKILL_DATA_DIR}/cards.json`), "utf-8")
+  );
+  const gaps = findGaps(index, loadOverlays());
+  if (!gaps.length) {
+    p.log.success("No cards are missing text — nothing to transcribe.");
+    return;
+  }
+
+  const s = p.spinner();
+  s.start(`Collecting artwork for ${gaps.length} card(s)`);
+  const result = await collectGaps(gaps, { onProgress: (m) => s.message(`Fetching ${m}`) });
+  s.stop(`${result.saved}/${result.gaps} image(s) → ${color.cyan(result.dir)}`);
+  if (result.failed.length) {
+    p.log.warning(`${result.failed.length} image(s) unavailable: ${result.failed.join(", ")}`);
+  }
+  p.log.info(
+    `Fill in ${color.cyan(`${result.dir}/overlay-stub.yaml`)} from the images, then move the ` +
+      `completed entries into ${color.cyan("manifests/card-overlays.yaml")} and re-run ` +
+      color.cyan("skill-data")
+  );
+}
+
 async function handleSkillData() {
   const s = p.spinner();
   s.start("Fetching card data for the skill");

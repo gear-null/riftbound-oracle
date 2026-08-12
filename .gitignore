@@ -2,6 +2,10 @@ node_modules/
 dist/
 print/
 
+# Working directory for `oracle gear-gaps`: downloaded artwork plus a stub
+# to transcribe from. Completed entries belong in manifests/card-overlays.yaml.
+gear-gaps/
+
 # Card artwork is never redistributed. The index is a generated list of Riot
 # CDN URLs — each user builds their own with `npm run oracle card-index`.
 output/card-index.json
