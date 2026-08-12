@@ -107,6 +107,22 @@ def _check_holding(ans, idx):
         if text not in line:
             problems.append(f'holding span "{text[:40]}" is not a substring of holding.line')
             continue
+        # Overlapping spans cannot both be placed, so the renderer drops one —
+        # silently, with no link and no superscript. That is the same failure as
+        # the out-of-order crux bug, so it must fail verification rather than
+        # render a claim that looks like unmarked prose.
+        start = line.find(text)
+        end = start + len(text)
+        for other in spans:
+            o = other.get("text", "")
+            if other is sp or not o or o not in line:
+                continue
+            os_, oe = line.find(o), line.find(o) + len(o)
+            if os_ < end and start < oe and (os_, oe) != (start, end):
+                problems.append(
+                    f'holding span "{text[:30]}" overlaps "{o[:30]}" — '
+                    "only one can render; make the spans disjoint")
+                break
         covered += len(text)
 
         note = by_id.get(sp.get("note"))
@@ -395,18 +411,26 @@ def stats_html(stats):
     and rendered with the asterisks showing, because nothing here parses
     markdown. They are structured now, so presentation is a layout decision.
     """
-    if not stats:
+    # An answer file may supply a card object, so this is untrusted input like
+    # everything else here. A crash means no report at all, and iterating a
+    # string domain produced one chip per LETTER — four "classifications"
+    # reading F, u, r, y.
+    if not isinstance(stats, dict):
         return ""
     chips = []
     for key, label in (("energy", "Energy"), ("might", "Might"), ("power", "Power")):
-        if stats.get(key) is not None:
-            chips.append(
-                f'<span class="chip"><b>{esc(stats[key])}</b> {esc(label)}</span>')
+        v = stats.get(key)
+        if isinstance(v, bool) or v is None:
+            continue
+        chips.append(f'<span class="chip"><b>{esc(v)}</b> {esc(label)}</span>')
     for key in ("type", "rarity"):
-        if stats.get(key):
-            chips.append(f'<span class="chip chip-q">{esc(stats[key])}</span>')
-    for dom in stats.get("domain") or []:
-        chips.append(f'<span class="chip chip-d">{esc(dom)}</span>')
+        v = stats.get(key)
+        if v and isinstance(v, str):
+            chips.append(f'<span class="chip chip-q">{esc(v)}</span>')
+    dom = stats.get("domain")
+    for d in ([dom] if isinstance(dom, str) else (dom or [])):
+        if isinstance(d, str) and d:
+            chips.append(f'<span class="chip chip-d">{esc(d)}</span>')
     return f'<span class="card-stats">{"".join(chips)}</span>' if chips else ""
 
 
