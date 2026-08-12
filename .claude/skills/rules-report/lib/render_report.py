@@ -22,7 +22,7 @@ Grafted in after judging:
 file:// constraints respected: no network, no clipboard API (execCommand fallback),
 localStorage guarded, print handler opens <details>, dark mode via prefers-color-scheme.
 """
-import html, json, re, sys
+import html, json, os, re, sys
 from verify_citations import RuleIndex, verify_citation
 from render_rulebook import anchor as rulebook_anchor
 
@@ -301,6 +301,35 @@ def cite_html(c, idx):
 
 LEGEND_MARKER = "<!--LEGEND-->"
 
+# Viewers that render untrusted HTML — Claude Desktop's preview, artifact panes —
+# apply a CSP that blocks remote images, so a linked card renders as the
+# "artwork offline" placeholder even though the network is fine. Inlining the
+# bytes makes the report self-contained and therefore viewable anywhere, at the
+# cost of roughly 1MB per card. Off by default: a local browser loads the URL
+# happily and a lean file is nicer to keep.
+EMBED_ART = os.environ.get("RIFTBOUND_EMBED_ART", "").lower() in ("1", "true", "yes")
+
+
+def embed_image(url, timeout=15):
+    """Fetch an image and return it as a data: URI, or None on any failure.
+
+    Never raises and never blocks for long: artwork is a nicety, and a report
+    that fails to render because a CDN was slow would be a much worse trade.
+    """
+    if not url:
+        return None
+    try:
+        import base64, urllib.request
+        req = urllib.request.Request(url, headers={"User-Agent": "riftbound-oracle"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            if resp.status != 200:
+                return None
+            blob = resp.read()
+        ctype = "image/png" if url.lower().split("?")[0].endswith(".png") else "image/jpeg"
+        return f"data:{ctype};base64,{base64.b64encode(blob).decode('ascii')}"
+    except Exception:
+        return None
+
 
 def legend_html(page_html, idx):
     """A key to the bracketed shorthand this report actually uses.
@@ -447,6 +476,8 @@ def cards_html(ans):
     out = []
     for c in cards:
         img = c.get("image")
+        if img and EMBED_ART:
+            img = embed_image(img) or img
         if c.get("unresolved"):
             art = (
                 '<div class="card-art card-art--none">not found'

@@ -115,6 +115,11 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 }
 ```
 
+**If the reader has no browser** — a desktop or mobile app rather than a terminal — set
+`RIFTBOUND_EMBED_ART=1` before `report`. Preview panes block remote images, so the card
+artwork would otherwise show "artwork offline". Embedding inlines it, making the report
+self-contained at roughly 1MB per card.
+
 **`cards` is a list of names, nothing more.** Name every card the question or
 your answer discusses, spelled as `rules_cli.py card` resolved it. The renderer
 looks each one up in the skill's card data and renders its artwork, printed

@@ -381,6 +381,15 @@ def card_rendering():
               "Might" in axe["text"] and not axe.get("incomplete"),
               axe["text"][-46:])
 
+    # Preview surfaces (Claude Desktop, artifact panes) block remote images, so
+    # a linked card shows the offline placeholder even with a working network.
+    # Embedding must therefore produce a report with NO remote image refs.
+    import render_report as _rr
+    check("artwork embedding is opt-in", _rr.EMBED_ART is False or _rr.EMBED_ART is True)
+    check("a failed fetch degrades to None rather than raising",
+          _rr.embed_image("https://invalid.invalid/x.png", timeout=3) is None)
+    check("no url embeds to None", _rr.embed_image("") is None)
+
     # A cost printed on a card must survive into the rendered panel. Unmapped
     # shortcodes were once replaced with a space, deleting the price outright.
     from card_bridge import CardBridge
