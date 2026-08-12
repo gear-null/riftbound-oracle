@@ -19,7 +19,7 @@ folder — no build step, no API key, and no network needed to install or to ans
 artwork in a report loads from Riot's CDN; offline it shows a placeholder and everything
 else still works.)
 
-![A Riftbound Oracle report](docs/images/report.png)
+![A Riftbound Oracle report: a hard two-card ruling, with the verdict decomposed into graded claims](docs/images/report.png)
 
 ---
 
@@ -77,7 +77,7 @@ inferred answer, and the report says so. You always know the weakest step.
 the report — scrolled to the exact clause, with its own cross-references live, without
 losing your place.
 
-![The rulebook overlay, opened on a cited rule](docs/images/rulebook-overlay.png)
+![The anchored rulebook, opened over the report on the exact clause a claim rests on](docs/images/rulebook-overlay.png)
 
 ---
 
