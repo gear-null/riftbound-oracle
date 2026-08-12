@@ -362,6 +362,25 @@ def card_rendering():
     check("every flagged alias lists at least two full names",
           all(len(v["ambiguous"]) > 1 for v in ambiguous.values()))
 
+    # Equipment gear prints its granted effect only on the artwork, so the
+    # API's text is short. The gap must stay VISIBLE: a flagged card is honest,
+    # a silently short one invites "the card has no such ability".
+    incomplete = sorted({v["name"] for v in cards.values() if v.get("incomplete")})
+    note(f"{len(incomplete)} card(s) await transcription into "
+         f"manifests/card-overlays.yaml: {', '.join(incomplete[:5])}"
+         + (" ..." if len(incomplete) > 5 else "") if incomplete
+         else "no cards await transcription")
+    check("every flagged card explains what is missing",
+          all(isinstance(v.get("incomplete"), str) and v["incomplete"]
+              for v in cards.values() if v.get("incomplete")))
+
+    # A transcribed card must actually carry its granted effect and lose the flag.
+    axe = cards.get("blighted battleaxe")
+    if axe:
+        check("a transcribed card carries its granted effect",
+              "Might" in axe["text"] and not axe.get("incomplete"),
+              axe["text"][-46:])
+
     # A cost printed on a card must survive into the rendered panel. Unmapped
     # shortcodes were once replaced with a space, deleting the price outright.
     from card_bridge import CardBridge

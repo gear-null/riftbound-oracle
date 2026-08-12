@@ -199,6 +199,9 @@ def cmd_card(args):
         if line:
             print(f"  {line}")
         print(f"  {c['text']}")
+        if c.get("incomplete"):
+            print(f"  !!! PRINTED TEXT INCOMPLETE — {c['incomplete']}.")
+            print(f"      Do not conclude the card lacks an ability you cannot see here.")
         print(f"  keywords : {', '.join(c['keywords']) or '(none printed)'}")
         print(f"  -> rules : {', '.join(c['rule_sections']) or '(no keyword maps to a rule section)'}")
         print()

@@ -311,6 +311,17 @@ async function handleSkillData() {
     if (result.withArt === 0) {
       p.log.warning("No artwork URLs returned — reports will render placeholders");
     }
+    // Equipment gear prints its granted effect only on the artwork, so the
+    // gap is named rather than left to be discovered in a report.
+    if (result.stillMissing.length) {
+      p.log.warning(
+        `${result.stillMissing.length} card(s) still missing text the API does not carry. ` +
+          `Transcribe from the artwork into ${color.cyan("manifests/card-overlays.yaml")}:`
+      );
+      p.log.message(result.stillMissing.join(", "));
+    } else if (result.overlaid) {
+      p.log.info(`${result.overlaid} card overlay(s) applied; no gaps remain`);
+    }
   } catch (err) {
     s.error("skill-data failed — the committed cards.json is unchanged");
     p.log.error(String(err));
