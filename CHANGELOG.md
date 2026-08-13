@@ -24,6 +24,11 @@ This project follows [Semantic Versioning](https://semver.org/) and
   checked the checksum we were already publishing. It remains the path for machines without
   Node.
 
+### Changed
+
+- README rewritten for people deciding whether to install, rather than people maintaining it.
+  Design rationale and build instructions moved to `docs/`.
+
 ### Fixed
 
 - **`SKILL-VERSION.json` is committed, not injected at package time.** A registry install
