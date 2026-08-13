@@ -9,7 +9,7 @@ a release exists because Riot changed the rules, not because the code moved.
 This project follows [Semantic Versioning](https://semver.org/) and
 [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [1.1.0] — 2026-08-13
 
 ### Added
 
@@ -53,6 +53,7 @@ This project follows [Semantic Versioning](https://semver.org/) and
   text incomplete" warning, but a reader asking what Boneshiver grants got a caveat instead of
   an answer.
 
+[1.1.0]: https://github.com/gear-null/riftbound-oracle/releases/tag/v1.1.0
 [1.0.1]: https://github.com/gear-null/riftbound-oracle/releases/tag/v1.0.1
 
 ## [1.0.0] — 2026-08-12

@@ -1,6 +1,6 @@
 {
   "name": "riftbound-oracle",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
   "description": "Riftbound TCG rules corpus + a citation-verified rules answerer",
   "bin": {
