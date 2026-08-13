@@ -388,7 +388,7 @@ async function handlePackage() {
     s.stop(`${Math.round(r.bytes / 1024)}KB → ${color.cyan(r.archive)}`);
     p.log.info(
       `rules ${r.manifest.rules_version} · ${r.manifest.rules} rules · ` +
-        `${r.manifest.cards} cards · commit ${r.manifest.commit}`
+        `${r.manifest.cards} cards`
     );
     if (r.manifest.cards_awaiting_transcription) {
       p.log.warning(

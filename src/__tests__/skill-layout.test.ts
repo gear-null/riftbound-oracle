@@ -36,5 +36,6 @@ describe("registry-installable layout", () => {
     const v = JSON.parse(readFileSync(join(SKILL_SRC, "SKILL-VERSION.json"), "utf-8"));
     expect(v.rules_version).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(v.cards).toBeGreaterThan(500);
+    expect(v).not.toHaveProperty("commit");
   });
 });

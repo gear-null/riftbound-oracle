@@ -31,6 +31,11 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ### Fixed
 
+- **Release archives now reproduce from their own tag.** The version manifest recorded the
+  commit it was built from — but the manifest is itself committed, so that hash could never
+  settle: build at A, commit, and the next build says B. A published archive could not be
+  rebuilt from the tag that shipped it, which is the entire point of a reproducible build.
+  The field is gone; the version names the release and the tag names the commit.
 - **`SKILL-VERSION.json` is committed, not injected at package time.** A registry install
   clones from git and never sees the archive, so its provenance file did not exist — a user
   had no way to tell which corpus they had. Every channel now carries it.

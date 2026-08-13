@@ -21,6 +21,12 @@
  * injected at package time. `npx skills add` installs straight from git and
  * never sees the archive, so a manifest that existed only inside the zip left
  * registry users with no way to tell which corpus they had.
+ *
+ * It records no commit hash, deliberately. The manifest is committed, so a
+ * hash of "the commit this was built from" is self-referential: building at A
+ * writes A, committing that yields B, rebuilding writes B, and the archive can
+ * never be reproduced from its own tag — which is the one thing reproducibility
+ * is for. The version identifies the release and the tag identifies the commit.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, cpSync, readdirSync, statSync, utimesSync } from "node:fs";
@@ -45,15 +51,6 @@ export interface SkillManifest {
   rules: number;
   cards: number;
   cards_awaiting_transcription: number;
-  commit: string;
-}
-
-function gitCommit(): string {
-  try {
-    return execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf-8" }).trim();
-  } catch {
-    return "unknown";   // a tarball export has no git; not worth failing over
-  }
 }
 
 /** Read the corpus the skill actually carries, so the manifest is not asserted. */
@@ -74,7 +71,6 @@ export function describeSkill(skillDir: string, version: string): SkillManifest 
     rules: rules.length,
     cards: names.size,
     cards_awaiting_transcription: awaiting.size,
-    commit: gitCommit(),
   };
 }
 

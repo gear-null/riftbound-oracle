@@ -71,6 +71,11 @@ half-regenerated there. `install.sh` and the zip are the release-pinned paths.
 registry path never sees the archive. Commit it when the corpus moves — `oracle package`
 rewrites it and `git status` will show the drift.
 
+It deliberately records **no commit hash**. The manifest is itself committed, so "the commit
+this was built from" is self-referential — building at A writes A, committing yields B, and the
+archive can never be rebuilt from its own tag, which defeats the point of reproducibility. The
+version names the release; the tag names the commit.
+
 ## The installer
 
 `install.sh` lives at the repo root and is fetched from `main`, so it is **not** versioned with

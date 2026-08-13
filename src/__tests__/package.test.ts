@@ -40,6 +40,21 @@ describe("describeSkill", () => {
 });
 
 describe("packageSkill", () => {
+  it("records nothing self-referential, so a release reproduces from its tag", () => {
+    // A commit hash here cannot be stable: the manifest is committed, so
+    // building at A writes A, committing yields B, rebuilding writes B. The
+    // archive could then never be rebuilt from its own tag.
+    const dir = mkdtempSync(join(tmpdir(), "sk-"));
+    try {
+      fakeSkill(dir);
+      const m = describeSkill(dir, "1.2.3") as unknown as Record<string, unknown>;
+      expect(m).not.toHaveProperty("commit");
+      expect(JSON.stringify(m)).not.toMatch(/\b[0-9a-f]{7,40}\b/);
+      // and it is a pure function of the corpus + version
+      expect(describeSkill(dir, "1.2.3")).toEqual(m);
+    } finally { rmSync(dir, { recursive: true }); }
+  });
+
   it("is byte-reproducible across builds", () => {
     // A release checksum is meaningless if archiving identical bytes twice
     // yields two different files.
