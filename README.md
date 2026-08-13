@@ -26,51 +26,49 @@ else still works.)
 ## Install
 
 ```bash
+npx skills add gear-null/riftbound-oracle
+```
+
+Works with Claude Code, Cursor, Codex, Gemini CLI, GitHub Copilot and a dozen other
+terminal agents. **Requires Python 3.9+** — the interpreter macOS already ships — and nothing
+else. No build step, no API key, and it answers offline.
+
+Confirm the corpus is intact:
+
+```bash
+cd .agents/skills/rules-report/lib && python3 rules_cli.py selftest
+```
+
+It should end `all N checks passed`. If it doesn't, don't ask questions against it yet.
+
+<details>
+<summary>Desktop and mobile apps, or installing without Node</summary>
+
+**Claude Desktop and mobile** take a file rather than a command. Download
+`riftbound-rules-report-vX.Y.Z.zip` from
+[Releases](https://github.com/gear-null/riftbound-oracle/releases/latest) and upload it as a
+skill.
+
+Card artwork loads from Riot's CDN, which those apps block — set `RIFTBOUND_EMBED_ART=1`
+before generating a report and the images are inlined instead.
+
+**No Node?** A shell installer takes the same release, verifies its published checksum, and
+runs the selftest:
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/gear-null/riftbound-oracle/main/install.sh | sh
 ```
 
-That resolves the latest release, verifies its checksum, installs into
-`.claude/skills/`, and runs the selftest to prove the corpus is intact. **Requires Python
-3.9+** — the interpreter macOS already ships — and nothing else. No Node, no build step, no
-API key.
+`--dir <path>` installs elsewhere, `--version <tag>` pins a release, `--force` replaces an
+existing install. Read it first if you'd rather not pipe the internet into a shell — it's
+short.
 
-<details>
-<summary>Other agents, other locations, and not piping the internet into a shell</summary>
+**Anything else.** The skill is a plain folder of Python and data — no runtime, no daemon, no
+install hooks. Put it wherever your agent looks for skills and point that agent at
+`SKILL.md`. Every copy carries `SKILL-VERSION.json` recording the corpus it was built from.
 
-The skill is a plain folder of Python and data — no runtime, no daemon, no install hooks. Put
-it wherever your agent looks for skills:
-
-```bash
-curl -fsSL .../install.sh | sh -s -- --dir ~/my-agent/skills
-```
-
-| flag | |
-|---|---|
-| `--dir <path>` | install somewhere else (default `.claude/skills`) |
-| `--version <tag>` | pin a release instead of taking the latest |
-| `--force` | replace an existing install |
-| `--no-verify` | skip the selftest |
-
-Prefer to read it first? Sensible:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/gear-null/riftbound-oracle/main/install.sh -o install.sh
-less install.sh && sh install.sh
-```
-
-Or skip the script entirely — download the zip from
-[Releases](https://github.com/gear-null/riftbound-oracle/releases/latest), check it against the
-published `.sha256`, and unzip it wherever you like. The build is byte-reproducible, so that
-checksum is the one a rebuild produces.
-
-Either way, confirm it works:
-
-```bash
-cd <install-dir>/rules-report/lib && python3 rules_cli.py selftest
-```
-
-It should end `all N checks passed`. If it doesn't, the corpus is not trustworthy yet — say so
-rather than asking questions against it.
+Text-only skill surfaces — Gemini Spark, for instance — can't run this: the answers come from
+executing the verifier against the corpus, not from prose an agent reads.
 
 </details>
 

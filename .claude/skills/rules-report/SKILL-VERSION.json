@@ -1,0 +1,10 @@
+{
+  "name": "rules-report",
+  "version": "1.0.1",
+  "built_from": "https://github.com/gear-null/riftbound-oracle",
+  "rules_version": "2026-07-16",
+  "rules": 3316,
+  "cards": 954,
+  "cards_awaiting_transcription": 0,
+  "commit": "1c3841a"
+}

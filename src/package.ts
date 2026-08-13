@@ -13,10 +13,14 @@
  * identical archive — a release checksum then means something, and a rebuild
  * that changes nothing is visibly a no-op.
  *
- * TRACEABLE. A downloaded skill is cut off from this repository, so it carries
+ * TRACEABLE. An installed skill is cut off from this repository, so it carries
  * a manifest recording what corpus it was built from: rules version, card and
  * rule counts, the commit, and how many cards are still awaiting transcription.
- * Someone holding the zip can tell whether it predates a rules update.
+ *
+ * That manifest is written into the SOURCE skill folder and committed, not
+ * injected at package time. `npx skills add` installs straight from git and
+ * never sees the archive, so a manifest that existed only inside the zip left
+ * registry users with no way to tell which corpus they had.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, cpSync, readdirSync, statSync, utimesSync } from "node:fs";
@@ -104,6 +108,15 @@ export function packageSkill(opts: PackageOptions = {}) {
     (JSON.parse(readFileSync(resolve("package.json"), "utf-8")).version as string);
   const manifest = describeSkill(skillDir, version);
 
+  // Write it into the source tree so every channel carries it — git installs
+  // included. It shows up in `git status` when the corpus moves, which is the
+  // reminder to commit it.
+  writeFileSync(
+    join(skillDir, "SKILL-VERSION.json"),
+    JSON.stringify(manifest, null, 2) + "\n",
+    "utf-8"
+  );
+
   const staging = mkdtempSync(join(tmpdir(), "skill-pkg-"));
   try {
     const root = join(staging, "rules-report");
@@ -111,7 +124,6 @@ export function packageSkill(opts: PackageOptions = {}) {
       recursive: true,
       filter: (src) => !EXCLUDE.has(src.split("/").pop() ?? ""),
     });
-    writeFileSync(join(root, "SKILL-VERSION.json"), JSON.stringify(manifest, null, 2) + "\n", "utf-8");
     stampRecursively(root);
 
     mkdirSync(distDir, { recursive: true });

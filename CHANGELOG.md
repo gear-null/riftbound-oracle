@@ -13,11 +13,22 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ### Added
 
+- **Install with `npx skills add gear-null/riftbound-oracle`.** The repo was already
+  installable through Vercel's skills CLI — verified: it resolves the skill, installs 3.8MB
+  including the corpus, and passes all 98 checks across 17+ terminal agents. This is now the
+  primary instruction.
 - **One-line installer.** `curl -fsSL .../install.sh | sh` resolves the latest release,
   verifies its published checksum, installs to `.claude/skills/` and runs the selftest to
   prove the corpus is intact. `--dir` puts it wherever another agent looks for skills.
   The old instructions hardcoded a version that went stale on every release and never
-  checked the checksum we were already publishing.
+  checked the checksum we were already publishing. It remains the path for machines without
+  Node.
+
+### Fixed
+
+- **`SKILL-VERSION.json` is committed, not injected at package time.** A registry install
+  clones from git and never sees the archive, so its provenance file did not exist — a user
+  had no way to tell which corpus they had. Every channel now carries it.
 
 ## [1.0.1] — 2026-08-12
 

@@ -50,6 +50,27 @@ write it for a reader of the release, not a reader of the diff.
 
 The body is for *why*, and it is worth the space — it is the only record of what was measured.
 
+## Distribution channels
+
+Three, because they serve different consumers and none of them subsumes the others:
+
+| channel | consumer | mechanism |
+|---|---|---|
+| `npx skills add gear-null/riftbound-oracle` | terminal agents (17+) | clones from **git `main`** |
+| Release zip | Claude Desktop / mobile | a file the GUI uploads |
+| `install.sh` | no Node available | downloads the release, verifies its checksum |
+
+The registry path needs no publishing step: Vercel's `skills` CLI installs from any public git
+repo, and skills.sh lists a skill through install telemetry rather than an upload. Our layout
+already satisfies it — `.claude/skills/rules-report/SKILL.md` with `name` matching the folder.
+
+**It tracks `main`, not a tag.** So `main` must always be installable: never leave the corpus
+half-regenerated there. `install.sh` and the zip are the release-pinned paths.
+
+`SKILL-VERSION.json` is committed rather than injected at package time, precisely because the
+registry path never sees the archive. Commit it when the corpus moves — `oracle package`
+rewrites it and `git status` will show the drift.
+
 ## The installer
 
 `install.sh` lives at the repo root and is fetched from `main`, so it is **not** versioned with
