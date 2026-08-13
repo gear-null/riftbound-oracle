@@ -50,6 +50,19 @@ write it for a reader of the release, not a reader of the diff.
 
 The body is for *why*, and it is worth the space — it is the only record of what was measured.
 
+## The installer
+
+`install.sh` lives at the repo root and is fetched from `main`, so it is **not** versioned with
+the release — a fix to the installer reaches everyone immediately, and it resolves the latest
+release itself rather than hardcoding a version that goes stale every time you publish.
+
+It resolves `latest` by following GitHub's redirect rather than parsing the API: no token, no
+`jq`, and it cannot fail because a rate-limit response parsed badly.
+
+If you rename the release asset, change the archive layout, or move the skill folder, the
+installer breaks for everyone at once. `npx vitest run src/__tests__/install.test.ts` pins the
+asset name and the option parsing against the packaging code.
+
 ## Versioning
 
 Semver against the **skill's behaviour**, not the corpus:

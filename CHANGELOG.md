@@ -9,6 +9,16 @@ a release exists because Riot changed the rules, not because the code moved.
 This project follows [Semantic Versioning](https://semver.org/) and
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+
+- **One-line installer.** `curl -fsSL .../install.sh | sh` resolves the latest release,
+  verifies its published checksum, installs to `.claude/skills/` and runs the selftest to
+  prove the corpus is intact. `--dir` puts it wherever another agent looks for skills.
+  The old instructions hardcoded a version that went stale on every release and never
+  checked the checksum we were already publishing.
+
 ## [1.0.1] — 2026-08-12
 
 ### Corpus

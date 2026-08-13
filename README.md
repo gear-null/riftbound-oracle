@@ -25,39 +25,53 @@ else still works.)
 
 ## Install
 
-Download the latest release and unzip it into your project:
-
 ```bash
-mkdir -p .claude/skills
-curl -L -o skill.zip https://github.com/gear-null/riftbound-oracle/releases/latest/download/riftbound-rules-report-v1.0.0.zip
-unzip skill.zip -d .claude/skills/ && rm skill.zip
+curl -fsSL https://raw.githubusercontent.com/gear-null/riftbound-oracle/main/install.sh | sh
 ```
 
-Or grab the zip from [Releases](https://github.com/gear-null/riftbound-oracle/releases/latest)
-and upload it wherever your agent takes skills.
-
-**Requires Python 3.9+** — the interpreter macOS already ships. No Node, no build step, no
-network, no API key. Check it works:
-
-```bash
-cd .claude/skills/rules-report/lib && python3 rules_cli.py selftest
-```
-
-It should end `all N checks passed`. If it doesn't, the corpus is not trustworthy yet — say
-so rather than asking questions against it.
+That resolves the latest release, verifies its checksum, installs into
+`.claude/skills/`, and runs the selftest to prove the corpus is intact. **Requires Python
+3.9+** — the interpreter macOS already ships — and nothing else. No Node, no build step, no
+API key.
 
 <details>
-<summary>Verifying the download</summary>
+<summary>Other agents, other locations, and not piping the internet into a shell</summary>
 
-Each release ships a `.sha256` beside the archive, and the build is byte-reproducible — the
-same corpus always produces the same checksum.
+The skill is a plain folder of Python and data — no runtime, no daemon, no install hooks. Put
+it wherever your agent looks for skills:
 
 ```bash
-shasum -a 256 -c riftbound-rules-report-v1.0.0.zip.sha256
+curl -fsSL .../install.sh | sh -s -- --dir ~/my-agent/skills
 ```
 
-`SKILL-VERSION.json` inside the archive records the rules version and card counts it was built
-from, so you can tell whether your copy predates a Riot update.
+| flag | |
+|---|---|
+| `--dir <path>` | install somewhere else (default `.claude/skills`) |
+| `--version <tag>` | pin a release instead of taking the latest |
+| `--force` | replace an existing install |
+| `--no-verify` | skip the selftest |
+
+Prefer to read it first? Sensible:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gear-null/riftbound-oracle/main/install.sh -o install.sh
+less install.sh && sh install.sh
+```
+
+Or skip the script entirely — download the zip from
+[Releases](https://github.com/gear-null/riftbound-oracle/releases/latest), check it against the
+published `.sha256`, and unzip it wherever you like. The build is byte-reproducible, so that
+checksum is the one a rebuild produces.
+
+Either way, confirm it works:
+
+```bash
+cd <install-dir>/rules-report/lib && python3 rules_cli.py selftest
+```
+
+It should end `all N checks passed`. If it doesn't, the corpus is not trustworthy yet — say so
+rather than asking questions against it.
+
 </details>
 
 ## Ask it something
