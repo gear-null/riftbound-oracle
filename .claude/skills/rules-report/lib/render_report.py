@@ -286,15 +286,20 @@ def cite_html(c, idx):
         f'<code>{esc(r["id"])}</code></a> <span>{esc(r["text"])}</span></li>'
         for r in chain
     )
-    return f'''<details class="cite">
-<summary><code>{esc(doc)} {esc(rid)}</code> <span class="stamp {scls}">{stamp}</span></summary>
+    # The stamp reads the same in colour and in greyscale: verified carries a
+    # check on a hairline plate, UNVERIFIED inverts to solid Mist on Ink. A
+    # reader who cannot separate the two hues still cannot miss the failure.
+    tick = "&#10003;" if c["verified"] else "&#10007;"
+    return f'''<details class="cite plate">
+<summary><code class="cite-id">{esc(doc)} {esc(rid)}</code>
+  <span class="stamp {scls}">{tick} {stamp}</span></summary>
 <div class="cite-body">
 {narrow}{probs}
 <ol class="ancestry">{anchored}</ol>
 <div class="cite-actions">
   <a class="rulebook-link" href="{RULEBOOK}#{esc(rulebook_anchor(doc, rid))}"
-     title="Open {esc(doc)} {esc(rid)} in the full rulebook">open in rulebook &rarr;</a>
-  <button class="copy" data-cite="{esc(full)}">copy cite</button>
+     title="Open {esc(doc)} {esc(rid)} in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="{esc(full)}">Copy cite</button>
 </div>
 </div></details>'''
 
@@ -373,8 +378,8 @@ def legend_html(page_html, idx):
         rows.append(row(token, e["meaning"], e["rule"], e["colour"]))
 
     return (
-        '<h2>Symbols used here</h2>'
-        '<div class="legend">' + "".join(rows) + "</div>"
+        '<h2 id="symbols" data-od-id="sec-symbols">Symbols used here</h2>'
+        '<div class="legend plate">' + "".join(rows) + "</div>"
         '<p class="legend-note">Shorthand is left as Riot prints it, so this key '
         'becomes unnecessary with use. Each entry links to the rule that defines it.</p>'
     )
@@ -519,14 +524,558 @@ def cards_html(ans):
             gap = (f'<span class="card-gap">Printed text incomplete — {esc(c["incomplete"])}. '
                    "Read it from the card image.</span>")
 
+        slug = re.sub(r"[^a-z0-9]+", "-", c["name"].lower()).strip("-") or "card"
         out.append(
-            '<figure class="card">' + art + '<figcaption>'
+            f'<figure class="card plate" data-od-id="card-{esc(slug)}">' + art
+            + '<figcaption>'
             + f'<b class="card-name">{esc(c["name"])}</b>'
             + stats_html(c.get("stats"))
             + f'<span class="card-text">{esc(c.get("text", ""))}</span>'
             + gap + secs + "</figcaption></figure>"
         )
-    return '<h2>Cards referenced</h2><div class="cards">' + "".join(out) + "</div>"
+    return ('<h2 id="cards" data-od-id="sec-cards">Cards referenced</h2>'
+            '<div class="cards">' + "".join(out) + "</div>")
+
+
+# The identity mark, inlined so the report stays one file. Original geometry —
+# a chamfered bezel, a gold shell with a Mist specular arc, a Mind Blue core —
+# deliberately derivative of the Runeterra register without reproducing any of
+# Riot's marks. See the design system's logo usage rules.
+MARK = (
+    '<svg class="mark" viewBox="0 0 96 96" role="img" aria-label="Riftbound Oracle">'
+    '<path d="M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z" fill="none"'
+    ' stroke="#c8aa6e" stroke-width="2.5"/>'
+    '<circle cx="48" cy="48" r="25" fill="none" stroke="#c8aa6e" stroke-width="3"/>'
+    '<path d="M30.61 43.34 A18 18 0 0 1 43.34 30.61" fill="none" stroke="#e4f1f5"'
+    ' stroke-width="3" stroke-linecap="round"/>'
+    '<path d="M48 37 L50.4 45.6 L59 48 L50.4 50.4 L48 59 L45.6 50.4 L37 48 L45.6 45.6 Z"'
+    ' fill="#3c8fe0"/></svg>'
+)
+
+# The 24px cut of the same mark: below 48px the meridian and pips close up, so
+# only the chamfered bezel and the core survive.
+FAVICON = (
+    "data:image/svg+xml,"
+    "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E"
+    "%3Cpath d='M6 2 L18 2 L22 6 L22 18 L18 22 L6 22 L2 18 L2 6 Z' fill='none'"
+    " stroke='%23c8aa6e' stroke-width='1.75'/%3E"
+    "%3Cpath d='M12 6.5 L13.2 10.8 L17.5 12 L13.2 13.2 L12 17.5 L10.8 13.2 L6.5 12"
+    " L10.8 10.8 Z' fill='%233c8fe0'/%3E%3C/svg%3E"
+)
+
+# The rail's symbols jump can only be written once the legend is known, and the
+# legend is derived from the finished page. Same trick as LEGEND_MARKER.
+RAILSYM_MARKER = "<!--RAILSYM-->"
+
+# Shown once, under the verdict, instead of repeating the same sentence under
+# every note. Three lines a reader absorbs and then stops needing.
+KEY_ROWS = (
+    ("grounded", "Grounded", "A rule states this in so many words."),
+    ("structural", "Structural", "No single rule says this; it follows from the rules cited."),
+    ("gap", "Gap", "The rules are silent — the note shows what was searched."),
+)
+
+
+def basis_key_html(notes):
+    """The basis key, limited to the bases this answer actually uses."""
+    used = {n["basis"] for n in notes}
+    used |= {"structural"} if "inferred" in used else set()
+    rows = "".join(
+        f'<div class="key-item k-{k}"><b>{BASIS[k][0]} {label}</b>{esc(why)}</div>'
+        for k, label, why in KEY_ROWS if k in used
+    )
+    return f'<div class="key" data-od-id="basis-key">{rows}</div>' if rows else ""
+
+
+def clip(text, limit=58):
+    """Shorten a claim for the rail without cutting a word in half."""
+    text = " ".join(str(text).split())
+    if len(text) <= limit:
+        return text
+    return text[:text.rfind(" ", 0, limit)].rstrip(" ,;:—-") + "…"
+
+
+def rail_html(ans, has_counter, has_rejected, has_open, has_cards, has_problems):
+    """A sticky index of the argument.
+
+    The report is one long column of dense conditional prose, and the reader's
+    real question while scrolling is "which claim am I in, and is it the one
+    everything rests on". The rail answers both without leaving the page: it
+    restates the verdict, and marks the crux and the current note.
+    """
+    h = ans["holding"]
+    rows = []
+    for n in ans["notes"]:
+        is_crux = bool(n.get("crux"))
+        badge = '<span class="rail-crux">crux</span>' if is_crux else ""
+        rows.append(
+            f'<a class="rail-note{" is-crux" if is_crux else ""}" href="#{esc(n["id"])}" '
+            f'title="{esc(n["claim"])}">'
+            f'<span class="n">{esc(note_number(n["id"]))}</span>'
+            f'<span class="t">{esc(clip(n["claim"]))}{badge}</span></a>'
+        )
+    notes = "".join(rows)
+    jumps = []
+    if has_cards:
+        jumps.append(("#cards", "Cards referenced"))
+    if has_counter:
+        jumps.append(("#against", "The argument against"))
+    if has_rejected:
+        jumps.append(("#rejected", "Considered and rejected"))
+    if has_open:
+        jumps.append(("#unsettled", "The rules do not settle"))
+    if has_problems:
+        jumps.append(("#problems", "Verification problems"))
+    jump_html = "".join(f'<a class="rail-jump" href="{href}">{esc(label)}</a>'
+                        for href, label in jumps)
+
+    return f'''<aside class="rail" data-od-id="rail" aria-label="Report contents">
+  <div class="rail-plate plate">
+    <h4>The ruling</h4>
+    <span class="rail-disp">{esc(h["disposition"])}</span>
+    <p class="rail-meta">Weakest link <a class="weakref" href="#{esc(ans["_weakest"])}">note
+      {esc(note_number(ans["_weakest"]))}</a> · {esc(ans["_strength"])}</p>
+  </div>
+  <nav class="rail-nav">
+    <h4>The claims</h4>
+    {notes}
+  </nav>
+  <nav class="rail-nav">{jump_html}{RAILSYM_MARKER}</nav>
+</aside>'''
+
+
+# The stylesheet lives outside the page f-string on purpose: every `{` in CSS
+# would otherwise have to be doubled, which is how the old sheet became
+# unreadable and therefore unmaintained.
+#
+# Riftbound — Runeterra Visual Language. The artwork is painterly, the chrome is
+# crisp: nothing that carries information sits on a gradient. The only gradient
+# in the sheet is the 1px lit edge of a chamfered frame.
+_CSS = """
+:root{
+ --ink-900:#060b14; --ink-800:#0a1428; --ink-700:#0f1e33; --ink-600:#16293f;
+ --ink-500:#1e3a52; --mist-100:#e4f1f5; --slate-300:#7a96a8; --slate-400:#4a6a80;
+ --gold-700:#785a28; --gold-500:#c8aa6e; --blue:#3c8fe0;
+ --bg:var(--ink-900); --surface:var(--ink-700); --well:var(--ink-800);
+ --fg:var(--mist-100); --muted:var(--slate-300); --line:var(--gold-700);
+ --rule:var(--ink-500); --accent:var(--gold-500);
+ /* Riot's Beaufort and TT Norms are proprietary and not redistributed; Cinzel
+    and Barlow are the design system's open stand-ins. A report is a local file
+    with no network, so what actually renders is the declared fallback. */
+ --display:"Beaufort for LOL",Cinzel,Georgia,"Times New Roman",serif;
+ --body:"TT Norms Pro Compact",Barlow,system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+ --plate:"Barlow Semi Condensed",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ --ch:10px;
+ --wash:color-mix(in oklch,var(--gold-500) 12%,transparent);
+ --lift:color-mix(in oklch,var(--ink-700) 88%,var(--mist-100));
+ --sink:color-mix(in oklch,var(--ink-900) 70%,transparent);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.65 var(--body);
+ padding-bottom:5rem}
+::selection{background:var(--gold-700);color:var(--mist-100)}
+/* Rules prose is dense and conditional; a one-word last line is where a reader
+   loses the thread of a conditional. Browsers that lack it simply wrap as usual. */
+h1,.hline,.detail,.reframe,.why,.counter h3,.note-head h3,ul.plain li,.foot{text-wrap:pretty}
+
+/* A fixed turbulence grain is what makes crisp chrome and painterly art read as
+   one surface. 3.5%, overlay, never intercepting a click. */
+.grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23g)'/></svg>")}
+
+/* Chamfers, not radii — the cheapest way to signal Runeterra with no artwork.
+   The frame is a real 1px hairline: the element's background IS the frame, and
+   a clipped pseudo-element inset by 1px paints the surface back over it. A
+   plain border cannot do this, because clip-path cuts the border at the
+   chamfer and leaves the corner open. */
+.plate{position:relative;isolation:isolate;padding:1px;background:var(--line);
+ filter:drop-shadow(0 1px 0 var(--sink));
+ clip-path:polygon(var(--ch) 0,100% 0,100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,0 100%,0 var(--ch))}
+.plate::after{content:"";position:absolute;inset:1px;z-index:-1;background:var(--surface);
+ clip-path:polygon(calc(var(--ch) - 1px) 0,100% 0,100% calc(100% - var(--ch) + 1px),calc(100% - var(--ch) + 1px) 100%,0 100%,0 calc(var(--ch) - 1px))}
+
+.wrap{max-width:66rem;margin:0 auto;padding:0 1.5rem}
+.layout{display:grid;grid-template-columns:minmax(0,44rem) 15.5rem;gap:3rem;align-items:start}
+main{min-width:0}
+
+/* ── masthead ───────────────────────────────────────────────────────── */
+.masthead{background:var(--well);border-bottom:1px solid var(--rule)}
+.masthead-in{display:flex;align-items:center;gap:.8rem;padding:.85rem 0;flex-wrap:wrap}
+.mark{width:32px;height:32px;flex:none;display:block}
+.wordmark{display:flex;flex-direction:column;gap:.22rem;line-height:1}
+.wordmark .eyebrow{font:600 .58rem/1 var(--plate);letter-spacing:.24em;text-transform:uppercase;
+ color:var(--slate-300)}
+/* The display face is set in caps only, and only twice on the page: here and
+   on the disposition. Cinzel's lowercase is not what the register is for. */
+.wordmark b{font:600 1.02rem/1 var(--display);letter-spacing:.15em;text-transform:uppercase;
+ color:var(--gold-500)}
+.unofficial{align-self:center;padding:.42em .7em;border:1px solid var(--line);
+ font:600 .58rem/1 var(--plate);letter-spacing:.16em;text-transform:uppercase;color:var(--slate-300)}
+.corpus{margin-left:auto;text-align:right;font:500 .68rem/1.6 var(--plate);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--slate-300)}
+.corpus b{color:var(--fg);font-weight:600}
+
+/* ── the question ───────────────────────────────────────────────────── */
+.label{display:block;font:600 .64rem/1 var(--plate);letter-spacing:.17em;text-transform:uppercase;
+ color:var(--slate-300)}
+.ask{padding-top:2.6rem}
+h1{margin:.75rem 0 0;font:500 1.5rem/1.34 var(--body);max-width:34ch;color:var(--fg)}
+.reframe{margin:1.1rem 0 0;padding-top:.9rem;border-top:1px solid var(--rule);
+ color:var(--muted);font-size:1rem;max-width:68ch}
+.reframe .label{margin-bottom:.35rem}
+
+/* ── the verdict: the one panel that gets the whole design budget ───── */
+.verdict{--ch:14px;margin:1.9rem 0 0;padding:1.5rem 1.6rem 1.35rem;
+ background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 42%,var(--gold-700) 100%)}
+.verdict.d-UNSETTLED{background:linear-gradient(148deg,var(--mist-100) 0%,var(--gold-700) 48%,var(--gold-700) 100%)}
+.verdict-head{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.disp{font:700 clamp(1.55rem,4.4vw,2.3rem)/1 var(--display);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--fg)}
+.disp.UNSETTLED{background:var(--mist-100);color:var(--ink-900);padding:.1em .3em;letter-spacing:.07em}
+.hairline{flex:1 1 2rem;height:1px;background:var(--line)}
+.tally{font:600 .7rem/1.5 var(--plate);letter-spacing:.11em;text-transform:uppercase;
+ color:var(--muted);white-space:nowrap}
+.tally b{color:var(--fg)}
+.hline{margin:1.15rem 0 0;font-size:1.2rem;line-height:1.55;max-width:68ch}
+.sp-grounded{color:inherit;text-decoration:none;border-bottom:2px solid var(--gold-500)}
+.sp-inferred{color:inherit;text-decoration:none;border-bottom:2px dotted var(--blue)}
+.sp-grounded:hover,.sp-inferred:hover{background:var(--wash);color:var(--fg)}
+.noteref{color:var(--blue);text-decoration:none;font:700 .95em/1 var(--plate);padding-left:.12em}
+.noteref:hover{color:var(--fg)}
+.strength{display:flex;flex-wrap:wrap;gap:.35rem 1.7rem;margin-top:1.3rem;padding-top:.95rem;
+ border-top:1px solid var(--rule);font:500 .78rem/1.6 var(--plate);letter-spacing:.05em;
+ color:var(--muted)}
+.metric{display:flex;gap:.5rem;align-items:baseline}
+.metric .label{display:inline;letter-spacing:.14em}
+.metric b{color:var(--fg);font-weight:600}
+.weakref{color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.weakref:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.forced{flex-basis:100%;margin-top:.35rem;padding:.6rem .75rem;background:var(--mist-100);
+ color:var(--ink-900);font:600 .72rem/1.5 var(--plate);letter-spacing:.07em;text-transform:uppercase}
+
+/* ── how to read a basis, stated once ───────────────────────────────── */
+.key{display:flex;flex-wrap:wrap;gap:.5rem;margin:.85rem 0 0}
+.key-item{flex:1 1 12.5rem;padding:.65rem .75rem;background:var(--well);
+ border:1px solid var(--rule);font-size:.82rem;line-height:1.5;color:var(--muted)}
+.key-item b{display:block;margin-bottom:.28rem;font:600 .65rem/1 var(--plate);
+ letter-spacing:.14em;text-transform:uppercase}
+.k-grounded b{color:var(--gold-500)}
+.k-structural b{color:var(--blue)}
+.k-gap b{color:var(--slate-300)}
+
+/* ── section rules ──────────────────────────────────────────────────── */
+h2{display:flex;align-items:center;gap:.95rem;margin:3rem 0 1.15rem;scroll-margin-top:1.5rem;
+ font:600 .74rem/1 var(--plate);letter-spacing:.17em;text-transform:uppercase;color:var(--gold-500)}
+h2::after{content:"";flex:1;height:1px;background:var(--line);opacity:.5}
+
+/* ── notes ──────────────────────────────────────────────────────────── */
+.note{--ch:9px;display:grid;grid-template-columns:2.9rem minmax(0,1fr);margin:.85rem 0;
+ scroll-margin-top:1.5rem}
+.note.is-crux,.note:target{background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 45%,var(--gold-700) 100%)}
+.note-n{display:flex;justify-content:center;padding:1.05rem .4rem;
+ border-right:1px solid var(--rule);font:600 .95rem/1 var(--plate);
+ font-variant-numeric:tabular-nums;color:var(--slate-300)}
+.b-grounded .note-n{color:var(--gold-500)}
+.b-structural .note-n{color:var(--blue)}
+.note-body{padding:1rem 1.15rem 1.1rem;min-width:0}
+.note-head{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
+.note-head h3{flex:1 1 15rem;margin:0;font:500 1.02rem/1.45 var(--body);max-width:68ch}
+.note-tags{display:flex;gap:.4rem;flex-wrap:wrap}
+.basis-chip{font:600 .63rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase;
+ border:1px solid var(--rule);padding:.42em .55em;color:var(--muted);white-space:nowrap}
+.b-grounded .basis-chip{color:var(--gold-500);border-color:var(--line)}
+.b-structural .basis-chip{color:var(--blue);border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.crux{font:700 .63rem/1 var(--plate);letter-spacing:.14em;text-transform:uppercase;
+ border:1px solid var(--gold-500);color:var(--gold-500);padding:.42em .55em;white-space:nowrap}
+.detail{margin:.8rem 0 0;font-size:.97rem;max-width:68ch;color:var(--fg)}
+.iffalse{margin:.9rem 0 0;padding:.75rem .85rem;background:var(--well);border:1px solid var(--line);
+ font-size:.93rem;max-width:68ch}
+.iffalse b{display:block;margin-bottom:.3rem;font:600 .64rem/1 var(--plate);letter-spacing:.14em;
+ text-transform:uppercase;color:var(--gold-500)}
+.checked{margin:.85rem 0 0;font:500 .74rem/1.6 var(--plate);letter-spacing:.07em;color:var(--muted)}
+.checked b{margin-right:.5rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--slate-300)}
+
+/* ── citations ──────────────────────────────────────────────────────── */
+.cites{display:flex;flex-direction:column;gap:.4rem;margin-top:.95rem}
+.cite{--ch:7px;background:var(--rule);filter:none}
+.cite::after{background:var(--well)}
+.cite summary{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;min-height:36px;
+ cursor:pointer;list-style:none}
+.cite summary::-webkit-details-marker{display:none}
+.cite summary::before{content:"+";width:.7rem;font:600 .9rem/1 var(--plate);color:var(--slate-300)}
+.cite[open] summary::before{content:"\\2013"}
+.cite summary:hover{background:var(--lift)}
+.cite summary:hover::before{color:var(--fg)}
+.cite-id{flex:1;font:600 .78rem/1 var(--plate);letter-spacing:.09em;color:var(--fg);
+ font-variant-numeric:tabular-nums}
+.stamp{font:600 .62rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase;
+ padding:.4em .55em;white-space:nowrap}
+.stamp.ok{color:var(--blue);border:1px solid color-mix(in oklch,var(--blue) 42%,transparent)}
+/* A failed citation inverts. It is the one thing on the page that must survive
+   a glance, a greyscale printer and a reader who does not know the palette. */
+.stamp.bad{background:var(--mist-100);color:var(--ink-900);border:1px solid var(--mist-100)}
+.cite-body{padding:.15rem .8rem .8rem;border-top:1px solid var(--rule)}
+.ancestry{list-style:none;margin:.7rem 0;padding:0}
+.ancestry li{padding:.35rem 0 .35rem calc(.75rem + var(--d) * .95rem);font-size:.9rem;
+ line-height:1.5;color:var(--muted);border-left:1px solid var(--slate-400)}
+.ancestry li.anc-target{background:var(--wash);border-left-color:var(--gold-500);color:var(--fg)}
+.ancestry code{margin-right:.5rem;font:600 .82rem/1 var(--plate);letter-spacing:.04em;
+ font-variant-numeric:tabular-nums;color:var(--blue)}
+.anc-link{text-decoration:none;border-bottom:1px dotted transparent}
+.anc-link:hover{border-bottom-color:var(--fg)}
+.anc-link:hover code{color:var(--fg)}
+.narrowed{margin:.6rem 0;font-size:.85rem;line-height:1.5;color:var(--gold-500)}
+.prob{margin:.6rem 0;padding:.45rem .6rem;background:var(--wash);border-left:2px solid var(--mist-100);
+ font-size:.85rem;line-height:1.5;color:var(--fg)}
+.cite-actions{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center}
+.rulebook-link,.copy{display:inline-flex;align-items:center;min-height:34px;padding:.6em .85em;
+ border:1px solid var(--rule);background:transparent;color:var(--fg);cursor:pointer;
+ text-decoration:none;font:600 .66rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+.rulebook-link:hover,.copy:hover{background:var(--lift);border-color:var(--gold-500);color:var(--fg)}
+
+/* ── counterargument ────────────────────────────────────────────────── */
+.counter{--ch:9px;margin:.85rem 0;padding:1.1rem 1.2rem;background:var(--rule)}
+.counter::after{background:var(--well)}
+.counter h3{margin:.45rem 0 1rem;font:500 1.05rem/1.55 var(--body);color:var(--fg);max-width:68ch}
+.counter .why{margin:.45rem 0 0;font-size:.95rem;color:var(--muted);max-width:68ch}
+.counter .cites{margin-top:1rem}
+
+/* ── plain lists ────────────────────────────────────────────────────── */
+ul.plain{list-style:none;margin:.5rem 0 0;padding:0}
+ul.plain li{position:relative;padding:.7rem 0 .7rem 1.2rem;border-bottom:1px solid var(--rule);
+ font-size:.95rem;max-width:68ch}
+ul.plain li:last-child{border-bottom:0}
+ul.plain li::before{content:"";position:absolute;left:0;top:1.25rem;width:5px;height:5px;
+ background:var(--gold-700);transform:rotate(45deg)}
+ul.plain code{font:600 .84rem/1 var(--plate);letter-spacing:.05em;color:var(--blue)}
+
+/* ── cards ──────────────────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(12.5rem,1fr));gap:.9rem}
+.card{--ch:8px;margin:0;display:flex;flex-direction:column;overflow:hidden}
+.card-art{width:100%;height:auto;display:block;background:var(--well)}
+.card-art--none{aspect-ratio:744/1039;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;gap:.4rem;padding:1rem;text-align:center;color:var(--fg);
+ font:600 .68rem/1.4 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+.card-art--none span{font:400 .72rem/1.45 var(--body);letter-spacing:0;text-transform:none;
+ color:var(--muted)}
+.card figcaption{display:flex;flex-direction:column;gap:.35rem;padding:.7rem .75rem .8rem;
+ border-top:1px solid var(--rule)}
+.card-name{font:600 .9rem/1.35 var(--body)}
+.card-stats{display:flex;flex-wrap:wrap;gap:.25rem}
+.chip{font:600 .62rem/1 var(--plate);letter-spacing:.09em;text-transform:uppercase;
+ border:1px solid var(--rule);padding:.35em .48em;color:var(--muted);white-space:nowrap}
+.chip b{color:var(--fg);font-weight:700}
+.chip-d{border-color:var(--line);color:var(--gold-500)}
+.card-text{font-size:.79rem;line-height:1.55;color:var(--muted)}
+.card-errata,.card-gap{display:block;margin-top:.3rem;padding:.45rem .55rem;
+ font-size:.74rem;line-height:1.5}
+.card-errata{border-left:2px solid var(--gold-700);background:var(--well);color:var(--muted)}
+.card-gap{border-left:2px solid var(--mist-100);background:var(--wash);color:var(--fg)}
+.card-rules{display:block;margin-top:.15rem;font:500 .64rem/1.6 var(--plate);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--slate-300)}
+.card-rule{margin-right:.4rem;color:var(--blue);text-decoration:none;
+ border-bottom:1px dotted var(--blue)}
+.card-rule:hover{color:var(--fg);border-bottom-color:var(--fg)}
+
+/* ── symbol legend ──────────────────────────────────────────────────── */
+.legend{display:grid;grid-template-columns:auto 1fr auto;gap:.55rem 1.1rem;align-items:baseline;
+ padding:1.05rem 1.15rem}
+.sym-row{display:contents}
+.sym{justify-self:start;font:700 .95rem/1 var(--plate);color:var(--fg)}
+.sym-mean{font-size:.9rem}
+.sym-rule{white-space:nowrap;font:600 .72rem/1 var(--plate);letter-spacing:.07em;color:var(--blue);
+ text-decoration:none;border-bottom:1px dotted var(--blue)}
+.sym-rule:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.legend-note{margin:.8rem 0 0;font-size:.85rem;color:var(--muted);max-width:68ch}
+
+/* ── the rail ───────────────────────────────────────────────────────── */
+.rail{position:sticky;top:1.6rem;align-self:start;max-height:calc(100vh - 3.2rem);
+ overflow-y:auto;padding-bottom:1rem;scrollbar-width:thin;
+ scrollbar-color:var(--ink-500) transparent}
+.rail h4{margin:0 0 .55rem;font:600 .63rem/1 var(--plate);letter-spacing:.17em;
+ text-transform:uppercase;color:var(--slate-300)}
+.rail-plate{--ch:8px;padding:.95rem 1rem}
+.rail-disp{display:block;font:700 1.15rem/1 var(--display);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--fg)}
+.rail-meta{margin:.7rem 0 0;font:500 .73rem/1.6 var(--plate);letter-spacing:.05em;color:var(--muted)}
+.rail-nav{display:flex;flex-direction:column;margin-top:1.4rem}
+.rail-note{display:grid;grid-template-columns:1.3rem minmax(0,1fr);gap:.45rem;
+ padding:.45rem .55rem;border-left:1px solid transparent;text-decoration:none;
+ color:var(--muted);font-size:.79rem;line-height:1.4}
+.rail-note .n{font:600 .72rem/1.4 var(--plate);font-variant-numeric:tabular-nums;
+ color:var(--slate-300)}
+.rail-note.is-crux .n{color:var(--gold-500)}
+.rail-crux{display:inline-block;margin-left:.4rem;font:700 .58rem/1 var(--plate);
+ letter-spacing:.13em;text-transform:uppercase;color:var(--gold-500)}
+.rail-note:hover{background:var(--lift);color:var(--fg);border-left-color:var(--slate-400)}
+.rail-note.here{background:var(--wash);color:var(--fg);border-left-color:var(--gold-500)}
+.rail-jump{padding:.45rem .55rem;border-left:1px solid transparent;text-decoration:none;
+ color:var(--muted);font:600 .68rem/1.4 var(--plate);letter-spacing:.1em;text-transform:uppercase}
+.rail-jump:hover{background:var(--lift);color:var(--fg);border-left-color:var(--slate-400)}
+
+/* ── rulebook overlay ───────────────────────────────────────────────── */
+.rb-overlay{position:fixed;inset:0;z-index:120;padding:3vh 3vw;display:flex;align-items:center;
+ justify-content:center;background:color-mix(in oklch,var(--ink-900) 84%,transparent)}
+.rb-overlay[hidden]{display:none}
+.rb-panel{--ch:12px;width:min(62rem,96vw);height:min(88vh,58rem);display:flex;flex-direction:column;
+ overflow:hidden}
+.rb-panel::after{background:var(--ink-600)}
+.rb-bar{display:flex;align-items:center;gap:.9rem;padding:.6rem .8rem;
+ border-bottom:1px solid var(--rule)}
+.rb-title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font:600 .74rem/1.4 var(--plate);letter-spacing:.12em;text-transform:uppercase;color:var(--fg)}
+.rb-pop{white-space:nowrap;font:600 .67rem/1 var(--plate);letter-spacing:.11em;text-transform:uppercase;
+ color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.rb-pop:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.rb-close{width:34px;height:34px;flex:none;font-size:1.15rem;line-height:1;cursor:pointer;
+ background:transparent;border:1px solid var(--rule);color:var(--muted)}
+.rb-close:hover{background:var(--lift);border-color:var(--gold-500);color:var(--fg)}
+.rb-frame{flex:1;width:100%;border:0;background:var(--ink-900)}
+
+/* ── footer ─────────────────────────────────────────────────────────── */
+.foot{margin-top:3.5rem;padding-top:1.1rem;border-top:1px solid var(--rule);
+ font-size:.8rem;line-height:1.6;color:var(--muted)}
+
+/* ── focus, always visible ──────────────────────────────────────────── */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold-500);
+ outline-offset:2px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{position:fixed;left:1rem;top:1rem;z-index:200;left:1rem;padding:.75em 1em;
+ background:var(--ink-700);border:1px solid var(--gold-500);color:var(--fg);text-decoration:none;
+ font:600 .68rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+
+@media(max-width:1060px){
+ .layout{grid-template-columns:minmax(0,1fr)}
+ .rail{display:none}
+}
+@media(max-width:720px){
+ body{font-size:16px}
+ .hline{font-size:1.08rem}
+ .note{grid-template-columns:minmax(0,1fr)}
+ .note-n{justify-content:flex-start;padding:.65rem .9rem;border-right:0;
+  border-bottom:1px solid var(--rule)}
+ .cards{grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr))}
+ .legend{grid-template-columns:auto 1fr}
+ .sym-rule{grid-column:2;justify-self:start}
+ .corpus{margin-left:0;text-align:left;flex-basis:100%}
+}
+@media(pointer:coarse){
+ .rulebook-link,.copy,.rb-close,.cite summary{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* Judges print these. Paper inverts the whole system: the ground becomes white,
+   ink becomes text, and gold drops to Gold 700 because Gold 500 on white is
+   2.4:1. Every value below is still a palette token — nothing new is invented
+   for print. */
+@media print{
+ /* color-scheme:dark makes the UA paint the canvas near-black wherever the
+    page background is transparent — on paper that produced a black sheet with
+    black text. Paper is a light surface; say so before anything else. */
+ :root{color-scheme:light;
+  --bg:transparent;--surface:transparent;--well:transparent;--fg:var(--ink-900);
+  --muted:var(--slate-400);--line:var(--gold-700);--rule:var(--slate-400);--accent:var(--gold-700);
+  --blue:var(--ink-700);--wash:transparent;--lift:transparent;--sink:transparent}
+ html,body{background:transparent}
+ body{color:var(--fg);font-size:11pt;padding-bottom:0}
+ .grain,.rail,.rb-overlay,.copy,.rulebook-link,.skip,.unofficial{display:none!important}
+ .masthead{background:transparent}
+ .plate{background:transparent;border:1px solid var(--line);clip-path:none;filter:none}
+ .plate::after{display:none}
+ /* .verdict.d-UNSETTLED outranks a bare .verdict, so it has to be named. */
+ .verdict,.verdict.d-UNSETTLED,.note.is-crux,.note:target{background:transparent}
+ .disp{color:var(--fg)}
+ .disp.UNSETTLED,.forced,.stamp.bad{background:transparent;color:var(--fg);
+  border:1.5pt solid var(--fg)}
+ .wordmark b,.k-grounded b,.iffalse b,h2,.crux,.chip-d,.card-rules{color:var(--gold-700)}
+ .note,.cite,.card,.counter,.key-item{break-inside:avoid}
+ h2{break-after:avoid}
+ a{color:var(--fg)}
+ .layout{display:block}
+}
+"""
+
+_JS = """
+// file:// has no clipboard API in Chrome — the execCommand fallback is mandatory.
+document.addEventListener('click', function(e){
+  var b = e.target.closest('.copy'); if(!b) return;
+  var t = b.dataset.cite, done = function(){ b.textContent='Copied'; setTimeout(function(){b.textContent='Copy cite';},1200); };
+  try { if(navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(t).then(done); return; } } catch(_){}
+  var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity=0;
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch(_){ b.textContent='Copy failed'; }
+  document.body.removeChild(ta);
+});
+// Jumping to a note from the holding line should open its citations.
+window.addEventListener('hashchange', function(){
+  var el=document.querySelector(location.hash); if(!el) return;
+  el.querySelectorAll('details').forEach(function(d){d.open=true;});
+});
+// Judges print things; printed <details> must not hide the evidence.
+window.addEventListener('beforeprint', function(){
+  document.querySelectorAll('details').forEach(function(d){d.dataset.wasOpen=d.open?'1':'';d.open=true;});
+});
+window.addEventListener('afterprint', function(){
+  document.querySelectorAll('details').forEach(function(d){d.open=d.dataset.wasOpen==='1';});
+});
+
+// The rail marks the claim you are currently reading. Purely an orientation
+// aid: if IntersectionObserver is missing the rail still works as a link list.
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.rail-note'));
+  if(!links.length || !window.IntersectionObserver) return;
+  var map={}, seen={};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ seen[en.target.id]=en.isIntersecting; });
+    // Topmost note currently in the reading band, or none at all: at the top of
+    // the page and past the last note nothing is being read, and a highlight
+    // left behind points at a claim the reader has scrolled away from.
+    var current=null;
+    Object.keys(map).forEach(function(id){ if(!current && seen[id]) current=id; });
+    links.forEach(function(l){ l.classList.remove('here'); });
+    if(current) map[current].classList.add('here');
+  },{rootMargin:'-12% 0px -68% 0px'});
+  document.querySelectorAll('.note').forEach(function(n){ io.observe(n); });
+})();
+
+// Reading a cited rule should not cost you your place in the argument, so the
+// rulebook opens OVER the report. An iframe, not fetch: file:// forbids XHR
+// between local files, while an iframe loads and honours the #fragment
+// natively. Nothing scripts INTO the frame — cross-origin rules forbid it for
+// file:// and we do not need it.
+(function(){
+  var ov=document.getElementById('rb-overlay'), fr=document.getElementById('rb-frame'),
+      ttl=document.getElementById('rb-title'), pop=document.getElementById('rb-pop'), last=null;
+  function open(href, label){
+    last=document.activeElement; ttl.textContent=label||'Rulebook'; pop.href=href;
+    fr.src=href;                 // reassigning src re-navigates, so a second
+    ov.hidden=false;             // citation scrolls to ITS rule, not the first
+    document.body.style.overflow='hidden';
+    document.getElementById('rb-close').focus();
+  }
+  function close(){
+    ov.hidden=true; fr.src='about:blank';
+    document.body.style.overflow='';
+    if(last && last.focus) last.focus();
+  }
+  document.addEventListener('click', function(e){
+    var a=e.target.closest('a.rulebook-link, a.anc-link, a.card-rule, a.sym-rule');
+    if(a){
+      // Modified and middle clicks keep their normal meaning; the href is real.
+      if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;
+      e.preventDefault();
+      var href=a.getAttribute('href'), m=/#([A-Z]{2})-(.+)$/.exec(href);
+      open(href, m ? m[1]+' '+decodeURIComponent(m[2]) : 'Rulebook');
+      return;
+    }
+    if(e.target.closest('#rb-close') || e.target===ov) close();
+  });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !ov.hidden) close(); });
+})();
+"""
 
 
 def render(ans, idx):
@@ -538,26 +1087,35 @@ def render(ans, idx):
     note_blocks = []
     for n in ans["notes"]:
         glyph, why = BASIS[n["basis"]]
-        crux = '<span class="crux">CRUX</span>' if n.get("crux") else ""
-        iff = (f'<div class="iffalse"><b>If this is wrong:</b> {esc(n["if_false"])}</div>'
+        crux = '<span class="crux">Crux</span>' if n.get("crux") else ""
+        iff = (f'<div class="iffalse"><b>If this is wrong</b>{esc(n["if_false"])}</div>'
                if n.get("if_false") else "")
-        checked = (f'<div class="checked">searched: {esc(", ".join(n["rules_checked"]))}</div>'
+        checked = (f'<div class="checked"><b>Rules searched</b>'
+                   f'{esc(" · ".join(n["rules_checked"]))}</div>'
                    if n.get("rules_checked") else "")
         cites = "".join(cite_html(c, idx) for c in n.get("cites", []))
-        note_blocks.append(f'''<section class="note b-{n["basis"]}" id="{esc(n["id"])}">
-  <div class="note-head"><span class="glyph">{glyph}</span>
-    <sup class="noteref note-own">{esc(note_number(n["id"]))}</sup>
-    <h3>{esc(n["claim"])}</h3>{crux}</div>
-  <div class="basis" title="{esc(why)}">{esc(n["basis"])} — {esc(why)}</div>
-  {f'<p class="detail">{esc(n["detail"])}</p>' if n.get("detail") else ""}
-  {iff}{checked}{cites}
+        note_blocks.append(f'''<section class="note plate b-{n["basis"]}{" is-crux" if n.get("crux") else ""}"
+    id="{esc(n["id"])}" data-od-id="note-{esc(n["id"])}">
+  <div class="note-n" aria-hidden="true">{esc(note_number(n["id"]))}</div>
+  <div class="note-body">
+    <div class="note-head">
+      <h3>{esc(n["claim"])}</h3>
+      <span class="note-tags"><span class="basis-chip" title="{esc(why)}">{glyph} {esc(n["basis"])}</span>{crux}</span>
+    </div>
+    {f'<p class="detail">{esc(n["detail"])}</p>' if n.get("detail") else ""}
+    {iff}{checked}
+    {f'<div class="cites">{cites}</div>' if cites else ""}
+  </div>
 </section>''')
 
-    counter = "".join(f'''<section class="counter">
+    counter = "".join(f'''<section class="counter plate" data-od-id="counter-{i}">
+  <span class="label">The opposing reading</span>
   <h3>“{esc(c["reading"])}”</h3>
-  <p>{esc(c["why_it_loses"])}</p>
-  {"".join(cite_html(x, idx) for x in c.get("cites", []))}
-</section>''' for c in ans.get("counterargument", []))
+  <span class="label">Why it loses</span>
+  <p class="why">{esc(c["why_it_loses"])}</p>
+  {f'<div class="cites">{"".join(cite_html(x, idx) for x in c.get("cites", []))}</div>'
+   if c.get("cites") else ""}
+</section>''' for i, c in enumerate(ans.get("counterargument", []), 1))
 
     rejected = "".join(
         f'<li><code>{esc(r["rule"])}</code> — {esc(r["why"])}</li>'
@@ -575,240 +1133,106 @@ def render(ans, idx):
     ncites = sum(len(n.get("cites", [])) for n in ans["notes"])
     nverified = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
 
+    cards_block = cards_html(ans)
+    key = basis_key_html(ans["notes"])
+    rail = rail_html(ans, bool(counter), bool(rejected), bool(openq),
+                     bool(cards_block), bool(problems))
+    corpus = ans["corpus"]
+    forced_html = (
+        '<div class="forced">Verdict forced to UNSETTLED — a cited rule failed '
+        f'verification (was {esc(forced)})</div>' if forced else "")
+
     page = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
 <title>Ruling — {esc(ans["question"][:60])}</title>
-<style>
-:root{{--bg:#fbfaf8;--fg:#1a1a18;--dim:#6b6862;--line:#e0ddd6;--card:#fff;
- --grounded:#1f7a4d;--inferred:#9a6a12;--gap:#a33;--mark:#fff2a8;--accent:#2b5c9b}}
-@media(prefers-color-scheme:dark){{:root{{--bg:#16171a;--fg:#e6e4e0;--dim:#9a978f;
- --line:#2e3034;--card:#1d1f23;--grounded:#4cc38a;--inferred:#d9a441;--gap:#f2777a;
- --mark:#5c4a12;--accent:#7aa7e0}}}}
-*{{box-sizing:border-box}}
-body{{margin:0;background:var(--bg);color:var(--fg);
- font:16px/1.6 ui-serif,Georgia,'Iowan Old Style',serif;padding:0 0 4rem}}
-code{{font:0.85em ui-monospace,SFMono-Regular,Menlo,monospace}}
-.wrap{{max-width:1180px;margin:0 auto;padding:0 1.2rem}}
-header{{border-bottom:1px solid var(--line);padding:1.6rem 0 1.1rem;margin-bottom:1.4rem}}
-.pin{{font:0.75rem ui-monospace,monospace;color:var(--dim);letter-spacing:.02em}}
-h1{{font-size:1.15rem;font-weight:600;margin:.5rem 0 .2rem;line-height:1.35}}
-.reframe{{color:var(--dim);font-size:.95rem;font-style:italic;margin:.35rem 0 0}}
-.holding{{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--accent);
- border-radius:6px;padding:1rem 1.1rem;margin:1.3rem 0}}
-.disp{{display:inline-block;font:600 .72rem/1 ui-sans-serif,system-ui;letter-spacing:.09em;
- padding:.42em .7em;border-radius:3px;background:var(--accent);color:#fff;margin-bottom:.6rem}}
-.disp.UNSETTLED{{background:var(--gap)}} .disp.DEPENDS{{background:var(--inferred)}}
-.hline{{font-size:1.16rem;line-height:1.5}}
-.sp-grounded{{border-bottom:2px solid var(--grounded);color:inherit;text-decoration:none}}
-.sp-inferred{{border-bottom:2px dotted var(--inferred);color:inherit;text-decoration:none}}
-.sp-grounded:hover,.sp-inferred:hover{{background:var(--mark)}}
-.strength{{margin-top:.75rem;font-size:.82rem;color:var(--dim);
- font-family:ui-sans-serif,system-ui;border-top:1px solid var(--line);padding-top:.6rem}}
-.forced{{color:var(--gap);font-weight:600}}
-h2{{font:600 .78rem/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform:uppercase;
- color:var(--dim);margin:2.4rem 0 .9rem;padding-bottom:.4rem;border-bottom:1px solid var(--line)}}
-.note{{background:var(--card);border:1px solid var(--line);border-radius:6px;
- padding:.9rem 1rem;margin:.7rem 0;border-left:4px solid var(--line)}}
-.note.b-grounded{{border-left-color:var(--grounded)}}
-.note.b-structural{{border-left-color:var(--inferred)}}
-.note.b-gap{{border-left-color:var(--gap)}}
-.note-head{{display:flex;gap:.55rem;align-items:baseline}}
-.note-head h3{{font-size:1rem;font-weight:600;margin:0;flex:1}}
-.glyph{{color:var(--dim)}}
-.crux{{font:600 .62rem/1 ui-sans-serif,system-ui;letter-spacing:.08em;background:var(--inferred);
- color:#fff;padding:.35em .55em;border-radius:3px}}
-.basis{{font:.76rem ui-sans-serif,system-ui;color:var(--dim);margin:.35rem 0 .5rem}}
-.detail{{margin:.5rem 0;font-size:.95rem}}
-.iffalse{{background:var(--mark);border-radius:4px;padding:.55rem .7rem;margin:.55rem 0;font-size:.9rem}}
-.checked{{font:.75rem ui-monospace,monospace;color:var(--dim);margin:.4rem 0}}
-.cite{{margin:.45rem 0;border:1px solid var(--line);border-radius:4px;background:var(--bg)}}
-.cite summary{{cursor:pointer;padding:.42rem .6rem;font-size:.85rem;list-style:none;
- display:flex;gap:.5rem;align-items:center}}
-.cite summary::-webkit-details-marker{{display:none}}
-.cite summary::before{{content:"▸";color:var(--dim);font-size:.8em}}
-.cite[open] summary::before{{content:"▾"}}
-.stamp{{font:600 .62rem/1 ui-sans-serif,system-ui;letter-spacing:.06em;padding:.3em .5em;border-radius:3px}}
-.stamp.ok{{background:var(--grounded);color:#fff}} .stamp.bad{{background:var(--gap);color:#fff}}
-.cite-body{{padding:.2rem .7rem .7rem;border-top:1px solid var(--line)}}
-.ancestry{{list-style:none;margin:.6rem 0;padding:0}}
-.ancestry li{{padding:.3rem 0 .3rem calc(var(--d) * 1.05rem);font-size:.88rem;
- border-left:2px solid var(--line);margin-left:.2rem}}
-.ancestry li.anc-target{{background:var(--mark);border-radius:3px}}
-.ancestry code{{color:var(--accent);margin-right:.45rem}}
-.card-rules{{display:block;margin-top:.35rem;font-size:.72rem;color:var(--dim)}}
-.card-rule{{color:var(--accent);text-decoration:none;margin-right:.35rem;
- border-bottom:1px dotted var(--accent)}}
-.anc-link{{text-decoration:none}}
-.anc-link:hover code{{text-decoration:underline}}
-.cite-actions{{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}}
-.rulebook-link{{font-size:.75rem;color:var(--accent);text-decoration:none;
- border:1px solid var(--line);border-radius:4px;padding:.35em .7em}}
-.rulebook-link:hover{{border-color:var(--accent)}}
-.narrowed{{font-size:.8rem;color:var(--inferred);margin:.5rem 0}}
-.prob{{font-size:.8rem;color:var(--gap);margin:.5rem 0}}
-.copy{{font:.75rem ui-sans-serif,system-ui;padding:.35em .7em;border:1px solid var(--line);
- background:var(--bg);color:var(--fg);border-radius:3px;cursor:pointer}}
-.counter{{background:var(--card);border:1px dashed var(--line);border-radius:6px;
- padding:.9rem 1rem;margin:.7rem 0}}
-.counter h3{{font-size:.98rem;margin:0 0 .4rem;color:var(--gap)}}
-.cards{{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.9rem}}
-.card{{margin:0;background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column}}
-.card-art{{width:100%;height:auto;display:block;background:var(--bg)}}
-.card-art--none{{aspect-ratio:744/1039;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;color:var(--dim);font-size:.78rem;text-align:center;border-bottom:1px solid var(--line)}}
-.card-art--none span{{font-size:.7rem;opacity:.85}}
-.card figcaption{{padding:.6rem .7rem;font-size:.82rem;display:flex;flex-direction:column;gap:.3rem}}
-.card-name{{font-size:.9rem}}
-.card-stats{{display:flex;flex-wrap:wrap;gap:.25rem;margin:.15rem 0 .1rem}}
-.chip{{font:.68rem ui-sans-serif,system-ui;background:var(--bg);border:1px solid var(--line);
- border-radius:3px;padding:.16em .42em;color:var(--dim);white-space:nowrap}}
-.chip b{{color:var(--fg);font-weight:650}}
-.chip-q{{font-variant:small-caps;letter-spacing:.02em}}
-.chip-d{{border-color:var(--accent);color:var(--accent)}}
-.card-text{{color:var(--dim);font-size:.76rem;line-height:1.45}}
-.card-errata{{display:block;margin-top:.4rem;padding:.35rem .5rem;border-radius:4px;
- border-left:2px solid var(--grounded);background:var(--card);color:var(--dim);
- font-size:.7rem;line-height:1.4}}
-.card-gap{{display:block;margin-top:.4rem;padding:.4rem .5rem;border-radius:4px;
- background:var(--mark);color:var(--fg);font-size:.72rem;line-height:1.4}}
-ul.plain{{padding-left:1.2rem}} ul.plain li{{margin:.35rem 0;font-size:.93rem}}
-.noteref{{color:var(--accent);text-decoration:none;font-family:ui-sans-serif,system-ui;
- font-weight:700;font-size:.68em;padding-left:.15em}}
-.weakref{{color:inherit;font-weight:600;text-decoration:underline dotted}}
-.noteref:hover{{text-decoration:underline}}
-.note-own{{color:var(--dim);font-size:.7rem;min-width:1.1rem;padding:0}}
-.legend{{display:grid;grid-template-columns:auto 1fr auto;gap:.4rem .8rem;align-items:baseline;
- background:var(--card);border:1px solid var(--line);border-radius:6px;padding:.85rem 1rem}}
-.sym-row{{display:contents}}
-.sym{{font-weight:700;font-size:.9rem;justify-self:start}}
-.sym-mean{{font-size:.88rem}}
-.sym-rule{{font:.72rem ui-monospace,monospace;color:var(--accent);text-decoration:none;
- white-space:nowrap}}
-.sym-rule:hover{{text-decoration:underline}}
-.legend-note{{font-size:.78rem;color:var(--dim);margin:.55rem 0 0;font-style:italic}}
-.rb-overlay{{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);
- display:flex;align-items:center;justify-content:center;padding:2vh 2vw}}
-.rb-overlay[hidden]{{display:none}}
-.rb-panel{{background:var(--bg);border:1px solid var(--line);border-radius:8px;
- width:min(60rem,96vw);height:min(88vh,60rem);display:flex;flex-direction:column;
- overflow:hidden;box-shadow:0 1.5rem 3rem rgba(0,0,0,.4)}}
-.rb-bar{{display:flex;align-items:center;gap:.8rem;padding:.55rem .8rem;
- border-bottom:1px solid var(--line);background:var(--card)}}
-.rb-title{{font:600 .82rem ui-sans-serif,system-ui;flex:1;
- white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
-.rb-pop{{font:.72rem ui-sans-serif,system-ui;color:var(--accent);text-decoration:none;white-space:nowrap}}
-.rb-close{{font-size:1.3rem;line-height:1;background:none;border:0;color:var(--dim);
- cursor:pointer;padding:0 .2rem}}
-.rb-frame{{flex:1;width:100%;border:0;background:var(--bg)}}
-@media(max-width:700px){{.hline{{font-size:1.05rem}}
- .legend{{grid-template-columns:auto 1fr}} .sym-rule{{grid-column:2}}}}
-@media print{{.cite{{break-inside:avoid}} .copy,.rulebook-link{{display:none}} .rb-overlay{{display:none !important}} body{{background:#fff}}}}
-</style></head><body><div class="wrap">
+<link rel="icon" href="{FAVICON}">
+<style>{_CSS}</style></head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#ruling">Skip to the ruling</a>
 
-<header>
-  <div class="pin">CR {esc(ans["corpus"]["CR"])} · TR {esc(ans["corpus"]["TR"])} · generated {esc(ans["corpus"]["generated"])} · offline</div>
-  <h1>{esc(ans["question"])}</h1>
-  <p class="reframe">As the rules see it: {esc(reframe)}</p>
+<header class="masthead" data-od-id="masthead">
+  <div class="wrap masthead-in">
+    {MARK}
+    <span class="wordmark"><span class="eyebrow">Riftbound</span><b>Oracle</b></span>
+    <span class="unofficial">Unofficial rules companion</span>
+    <span class="corpus">CR <b>{esc(corpus["CR"])}</b> &middot; TR <b>{esc(corpus["TR"])}</b><br>
+      corpus built {esc(corpus["generated"])} &middot; offline</span>
+  </div>
 </header>
 
-<div class="holding">
-  <div class="disp {esc(disp)}">{esc(disp)}</div>
-  <div class="hline">{holding_html(h, notes_by_id)}</div>
-  <div class="strength">
-    weakest link: <a class="weakref" href="#{esc(ans["_weakest"])}">note
-    {esc(note_number(ans["_weakest"]))}</a> ({esc(ans["_strength"])}) ·
-    {nverified}/{ncites} citations verified verbatim
-    {f'<div class="forced">verdict forced to UNSETTLED — a cited rule failed verification (was {esc(forced)})</div>' if forced else ""}
+<div class="wrap layout">
+<main data-od-id="report">
+
+<section class="ask" data-od-id="question">
+  <span class="label">The question</span>
+  <h1>{esc(ans["question"])}</h1>
+  <p class="reframe"><span class="label">As the rules see it</span>{esc(reframe)}</p>
+</section>
+
+<section class="verdict plate d-{esc(disp)}" id="ruling" data-od-id="ruling">
+  <div class="verdict-head">
+    <span class="disp {esc(disp)}">{esc(disp)}</span>
+    <span class="hairline" aria-hidden="true"></span>
+    <span class="tally"><b>{nverified}/{ncites}</b> citations verified verbatim</span>
   </div>
-</div>
+  <p class="hline">{holding_html(h, notes_by_id)}</p>
+  <div class="strength">
+    <span class="metric"><span class="label">Weakest link</span>
+      <a class="weakref" href="#{esc(ans["_weakest"])}">note {esc(note_number(ans["_weakest"]))}</a>
+      <b>{esc(ans["_strength"])}</b></span>
+    <span class="metric"><span class="label">Confidence</span>the lowest link, never an average</span>
+    {forced_html}
+  </div>
+</section>
 
-{cards_html(ans)}
+{key}
 
-<h2>Reasoning</h2>
+{cards_block}
+
+<h2 id="reasoning" data-od-id="sec-reasoning">Reasoning</h2>
 {"".join(note_blocks)}
 
-{f'<h2>The argument against, and why it loses</h2>{counter}' if counter else ""}
-{f'<h2>Considered and rejected</h2><ul class="plain">{rejected}</ul>' if rejected else ""}
-{f'<h2>The rules do not settle</h2><ul class="plain">{openq}</ul>' if openq else ""}
-{f'<h2>Verification problems</h2><ul class="plain">{problems}</ul>' if problems else ""}
+{f'<h2 id="against" data-od-id="sec-against">The argument against, and why it loses</h2>{counter}' if counter else ""}
+{f'<h2 id="rejected" data-od-id="sec-rejected">Considered and rejected</h2><ul class="plain">{rejected}</ul>' if rejected else ""}
+{f'<h2 id="unsettled" data-od-id="sec-unsettled">The rules do not settle</h2><ul class="plain">{openq}</ul>' if openq else ""}
+{f'<h2 id="problems" data-od-id="sec-problems">Verification problems</h2><ul class="plain">{problems}</ul>' if problems else ""}
 <!--LEGEND-->
 
+<footer class="foot" data-od-id="footer">
+  Riftbound Oracle is an unofficial fan project, not endorsed by, affiliated with or
+  sponsored by Riot Games. Rule text is quoted from Riot&rsquo;s Comprehensive Rules and
+  Tournament Rules; card artwork is loaded from Riot&rsquo;s CDN and is not redistributed
+  here.
+</footer>
+
+</main>
+{rail}
 </div>
 
 <div id="rb-overlay" class="rb-overlay" hidden>
-  <div class="rb-panel" role="dialog" aria-modal="true" aria-label="Rulebook">
+  <div class="rb-panel plate" role="dialog" aria-modal="true" aria-label="Rulebook">
     <div class="rb-bar">
       <span class="rb-title" id="rb-title">Rulebook</span>
-      <a class="rb-pop" id="rb-pop" href="{RULEBOOK}" target="_blank" rel="noopener">open full page &#8599;</a>
+      <a class="rb-pop" id="rb-pop" href="{RULEBOOK}" target="_blank" rel="noopener">Open full page &#8599;</a>
       <button class="rb-close" id="rb-close" aria-label="Close">&times;</button>
     </div>
     <iframe class="rb-frame" id="rb-frame" title="Rulebook"></iframe>
   </div>
 </div>
 
-<script>
-// file:// has no clipboard API in Chrome — execCommand fallback is mandatory.
-document.addEventListener('click', function(e){{
-  var b = e.target.closest('.copy'); if(!b) return;
-  var t = b.dataset.cite, done = function(){{ b.textContent='copied'; setTimeout(function(){{b.textContent='copy cite';}},1200); }};
-  try {{ if(navigator.clipboard && window.isSecureContext) {{ navigator.clipboard.writeText(t).then(done); return; }} }} catch(_){{}}
-  var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity=0;
-  document.body.appendChild(ta); ta.select();
-  try {{ document.execCommand('copy'); done(); }} catch(_){{ b.textContent='copy failed'; }}
-  document.body.removeChild(ta);
-}});
-// Jumping to a note from the holding line should open its citations.
-window.addEventListener('hashchange', function(){{
-  var el=document.querySelector(location.hash); if(!el) return;
-  el.querySelectorAll('details').forEach(function(d){{d.open=true;}});
-}});
-// Judges print things; printed <details> must not hide the evidence.
-window.addEventListener('beforeprint', function(){{
-  document.querySelectorAll('details').forEach(function(d){{d.dataset.wasOpen=d.open?'1':'';d.open=true;}});
-}});
-window.addEventListener('afterprint', function(){{
-  document.querySelectorAll('details').forEach(function(d){{d.open=d.dataset.wasOpen==='1';}});
-}});
-
-// Reading a cited rule should not cost you your place in the argument, so the
-// rulebook opens OVER the report. An iframe, not fetch: file:// forbids XHR
-// between local files, while an iframe loads and honours the #fragment
-// natively. Nothing scripts INTO the frame — cross-origin rules forbid it for
-// file:// and we do not need it.
-(function(){{
-  var ov=document.getElementById('rb-overlay'), fr=document.getElementById('rb-frame'),
-      ttl=document.getElementById('rb-title'), pop=document.getElementById('rb-pop'), last=null;
-  function open(href, label){{
-    last=document.activeElement; ttl.textContent=label||'Rulebook'; pop.href=href;
-    fr.src=href;                 // reassigning src re-navigates, so a second
-    ov.hidden=false;             // citation scrolls to ITS rule, not the first
-    document.body.style.overflow='hidden';
-    document.getElementById('rb-close').focus();
-  }}
-  function close(){{
-    ov.hidden=true; fr.src='about:blank';
-    document.body.style.overflow='';
-    if(last && last.focus) last.focus();
-  }}
-  document.addEventListener('click', function(e){{
-    var a=e.target.closest('a.rulebook-link, a.anc-link, a.card-rule, a.sym-rule');
-    if(a){{
-      // Modified and middle clicks keep their normal meaning; the href is real.
-      if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;
-      e.preventDefault();
-      var href=a.getAttribute('href'), m=/#([A-Z]{{2}})-(.+)$/.exec(href);
-      open(href, m ? m[1]+' '+decodeURIComponent(m[2]) : 'Rulebook');
-      return;
-    }}
-    if(e.target.closest('#rb-close') || e.target===ov) close();
-  }});
-  document.addEventListener('keydown', function(e){{ if(e.key==='Escape' && !ov.hidden) close(); }});
-}})();
-</script></body></html>'''
+<script>{_JS}</script></body></html>'''
 
     # The legend reflects what is actually on the page, so it is computed from
     # the finished page and substituted last.
-    return page.replace(LEGEND_MARKER, legend_html(page, idx))
+    legend = legend_html(page, idx)
+    # The rail can only offer the symbols jump once we know the legend exists;
+    # a jump to a section that was never emitted is worse than no jump.
+    railsym = ('<a class="rail-jump" href="#symbols">Symbols used here</a>'
+               if legend else "")
+    return page.replace(LEGEND_MARKER, legend).replace(RAILSYM_MARKER, railsym)
 
 
 def main():
