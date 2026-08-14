@@ -31,7 +31,8 @@ never carried by colour alone.
 
 ## Weakest link
 
-The header reads e.g. `weakest link: note 5 (structural)`.
+The verdict plate carries it as a metric — **Weakest link**, the note it points at,
+and that note's basis — and the rail repeats it.
 
 Confidence is **`min()` across claims, never an average**. Nine grounded claims plus one
 structural makes a structural answer. A chain is only as strong as its weakest step, so

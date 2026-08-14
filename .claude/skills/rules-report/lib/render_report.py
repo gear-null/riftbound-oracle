@@ -674,7 +674,7 @@ _CSS = """
  --gold-700:#785a28; --gold-500:#c8aa6e; --blue:#3c8fe0;
  --bg:var(--ink-900); --surface:var(--ink-700); --well:var(--ink-800);
  --fg:var(--mist-100); --muted:var(--slate-300); --line:var(--gold-700);
- --rule:var(--ink-500); --accent:var(--gold-500);
+ --rule:var(--ink-500); 
  /* Riot's Beaufort and TT Norms are proprietary and not redistributed; Cinzel
     and Barlow are the design system's open stand-ins. A report is a local file
     with no network, so what actually renders is the declared fallback. */
@@ -958,7 +958,7 @@ ul.plain code{font:600 .84rem/1 var(--plate);letter-spacing:.05em;color:var(--bl
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold-500);
  outline-offset:2px}
 .skip{position:absolute;left:-9999px}
-.skip:focus{position:fixed;left:1rem;top:1rem;z-index:200;left:1rem;padding:.75em 1em;
+.skip:focus{position:fixed;left:1rem;top:1rem;z-index:200;padding:.75em 1em;
  background:var(--ink-700);border:1px solid var(--gold-500);color:var(--fg);text-decoration:none;
  font:600 .68rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase}
 
@@ -992,7 +992,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
     black text. Paper is a light surface; say so before anything else. */
  :root{color-scheme:light;
   --bg:transparent;--surface:transparent;--well:transparent;--fg:var(--ink-900);
-  --muted:var(--slate-400);--line:var(--gold-700);--rule:var(--slate-400);--accent:var(--gold-700);
+  --muted:var(--slate-400);--line:var(--gold-700);--rule:var(--slate-400);
   --blue:var(--ink-700);--wash:transparent;--lift:transparent;--sink:transparent;
   /* Raw palette tokens have to be remapped too, not just the semantic ones.
      Anything reaching for a palette value DIRECTLY kept its dark-ground colour
