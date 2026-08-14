@@ -5,17 +5,21 @@ name: Watch upstream
 # without review — `npx skills add` installs from main, so an unreviewed
 # regeneration would go straight to every user.
 #
-# What this deliberately does NOT do: crawl Riot's Rules Hub. Measured — both
-# riftbound.leagueoflegends.com and playriftbound.com refuse the connection
-# outright from a datacenter IP. A rules or errata update therefore needs a
-# human on an ordinary connection; see docs/maintaining.md. Card regeneration
-# needs no hub access, because errata is applied from the committed
-# output/rules.md.
+# NOT SCHEDULED, and that is a finding rather than an oversight. Both upstreams
+# refuse hosted CI: Riot's hosts drop the connection outright (http 000), and
+# Riftcodex returns 403 to GitHub runners consistently across repeated runs
+# while answering every User-Agent from an ordinary connection. It is the IP,
+# not the agent string, and working around that would mean evading a bot
+# protection rather than fixing anything.
+#
+# So a nightly run could only ever report "could not check". A red X every
+# morning teaches people to ignore CI, and a green "all clear" would be a lie
+# through an entire set release.
+#
+# Run `npm run oracle watch` locally instead — it takes one request. This
+# workflow stays for manual dispatch and works unchanged the day it runs on a
+# self-hosted runner, or if Cloudflare's posture changes.
 on:
-  schedule:
-    # Daily, well off the hour to avoid the stampede. One request to /sets on
-    # the ~364 days a year nothing has changed.
-    - cron: "37 6 * * *"
   workflow_dispatch:
     inputs:
       force:
@@ -44,6 +48,8 @@ jobs:
           cache: npm
       - run: npm ci && npm run build
 
+      # Exits 0 when upstream is unreachable and says so, rather than failing:
+      # being unable to look is not a defect in this repository.
       - id: check
         run: npm run oracle watch
 

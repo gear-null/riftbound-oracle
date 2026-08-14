@@ -333,7 +333,27 @@ async function handleWatch() {
   const s = p.spinner();
   s.start("Checking upstream");
   try {
-    const { drift, live } = await checkUpstream();
+    const result = await checkUpstream();
+
+    if (!result.reachable) {
+      // Not an error in this repository: hosted CI is blocked by Cloudflare at
+      // both upstreams. Say so, and do not claim all-clear.
+      s.stop("Could not reach upstream");
+      p.log.warning(
+        `${result.reason} — no conclusion drawn. Riftcodex and Riot's hub both ` +
+          "refuse datacenter IPs; run this from an ordinary connection."
+      );
+      if (process.env.GITHUB_OUTPUT) {
+        writeFileSync(
+          process.env.GITHUB_OUTPUT,
+          `changed=false\nreachable=false\nsummary=upstream unreachable from this runner\n`,
+          { flag: "a" }
+        );
+      }
+      return;
+    }
+
+    const { drift, live } = result;
     s.stop(drift.changed ? "Upstream has moved" : "Upstream unchanged");
     p.log.message(drift.summary);
 
@@ -341,11 +361,10 @@ async function handleWatch() {
       saveState(live, new Date().toISOString().slice(0, 10));
       p.log.info("Recorded current upstream state");
     }
-    // Machine-readable for the workflow, without parsing the pretty output.
     if (process.env.GITHUB_OUTPUT) {
       writeFileSync(
         process.env.GITHUB_OUTPUT,
-        `changed=${drift.changed}\nsummary=${drift.summary}\n`,
+        `changed=${drift.changed}\nreachable=true\nsummary=${drift.summary}\n`,
         { flag: "a" }
       );
     }

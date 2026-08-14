@@ -71,16 +71,29 @@ describe("checkUpstream", () => {
     ).rejects.toThrow(/refusing/);
   });
 
+  it("reports unreachable as its own outcome, never as unchanged", async () => {
+    // Cloudflare 403s hosted CI at both upstreams. A watcher that cannot tell
+    // "nothing changed" from "I could not look" reports all-clear through an
+    // entire set release.
+    const r = await checkUpstream({
+      fetchSets: async () => { throw new Error("403 Forbidden"); },
+    });
+    expect(r.reachable).toBe(false);
+    expect(r.drift).toBeNull();
+    if (!r.reachable) expect(r.reason).toContain("403");
+  });
+
   it("compares live data against the committed state", async () => {
     const dir = mkdtempSync(join(tmpdir(), "watch-"));
     try {
       const path = join(dir, "upstream.json");
       saveState([S("OGN", 352)], "2026-08-14", path);
-      const { drift } = await checkUpstream({
+      const r = await checkUpstream({
         statePath: path,
         fetchSets: async () => ({ items: [{ set_id: "OGN", card_count: 352 }] }),
       });
-      expect(drift.changed).toBe(false);
+      expect(r.reachable).toBe(true);
+      expect(r.drift?.changed).toBe(false);
     } finally { rmSync(dir, { recursive: true }); }
   });
 });

@@ -13,10 +13,10 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ### Added
 
-- **A daily upstream watcher.** Checks Riftcodex for a new set or changed card counts in one
-  request, and on a change regenerates the card data and opens a pull request for review —
-  never publishing, never pushing to `main`. `npm run oracle watch` runs the same check by
-  hand.
+- **`npm run oracle watch`** — checks Riftcodex for a new set or changed card counts in a
+  single request and reports what moved. A workflow does the full detect → regenerate → open-a-PR
+  flow on manual dispatch, never publishing and never pushing to `main`. It is not scheduled:
+  both upstreams block hosted CI at the IP level, so checking upstream is a local task.
 - **CI on every push and pull request.** `main` is a live distribution channel — `npx skills
   add` installs from it — so the corpus checks now run automatically rather than when someone
   remembers. Three jobs: the skill exactly as a registry install receives it (Python 3.9 and

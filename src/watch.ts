@@ -22,6 +22,14 @@
  *
  * The watcher therefore reports card-side drift precisely and says plainly that
  * the rules side is a human's job.
+ *
+ * A later measurement narrowed this further: Riftcodex is behind Cloudflare too
+ * and returns 403 to GitHub-hosted runners, consistently, while answering every
+ * User-Agent from an ordinary connection. So NEITHER upstream is reachable from
+ * hosted CI. `checkUpstream` therefore distinguishes "nothing changed" from "I
+ * could not look" — a scheduled job that cannot tell the difference either
+ * cries wolf nightly or silently reports all-clear, and both are worse than
+ * saying so.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -126,7 +134,21 @@ export async function checkUpstream(opts: CheckOptions = {}) {
   const api = opts.apiUrl ?? process.env.RIFTCODEX_API_URL ?? "https://api.riftcodex.com";
   const get = opts.fetchSets ?? defaultFetch;
 
-  const live = toSnapshots(await get(`${api}/sets`));
+  let payload: unknown;
+  try {
+    payload = await get(`${api}/sets`);
+  } catch (err) {
+    // Unreachable is not the same as unchanged, and must never be reported as
+    // it. Cloudflare 403s every hosted CI runner.
+    return {
+      reachable: false as const,
+      reason: err instanceof Error ? err.message : String(err),
+      drift: null,
+      live: [] as SetSnapshot[],
+    };
+  }
+
+  const live = toSnapshots(payload);
   if (!live.length) {
     // An empty list is far more likely to be an API hiccup than every set
     // being withdrawn, and acting on it would blank the corpus.
@@ -134,6 +156,5 @@ export async function checkUpstream(opts: CheckOptions = {}) {
   }
 
   const state = loadState(opts.statePath);
-  const drift = diffSets(state.sets, live);
-  return { drift, live, previous: state.sets };
+  return { reachable: true as const, drift: diffSets(state.sets, live), live };
 }

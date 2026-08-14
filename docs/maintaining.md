@@ -7,16 +7,29 @@ This is the one place the Node pipeline is required.
 
 ## What CI can and cannot refresh
 
-A scheduled job (`.github/workflows/watch.yml`) checks Riftcodex daily for a new set or a
-changed card count, and if it finds one it regenerates the card data and **opens a pull
-request**. Nothing reaches `main` without review, because `npx skills add` installs from
-`main`.
+**Neither upstream is reachable from hosted CI.** Measured, twice each:
 
-**It cannot touch the rules.** Riot's hosts refuse connections from datacenter IPs outright —
-measured: both `riftbound.leagueoflegends.com` and `playriftbound.com` return http 000 from
-CI, which is the Cloudflare posture the rate-limiting note below describes. So a rules or
-errata update is a human job, run from an ordinary connection. Card regeneration is unaffected:
-errata is applied from the committed `output/rules.md`, not fetched.
+| | from an ordinary connection | from a GitHub runner |
+|---|---|---|
+| Riot's Rules Hub | reachable | connection refused (http 000) |
+| Riftcodex API | reachable on every User-Agent | **403**, consistently |
+
+Both sit behind Cloudflare, and it is the IP rather than the agent string. Getting past that
+would mean evading a bot protection, which is not something this project should do to save a
+person one command.
+
+So **checking upstream is a local task**:
+
+```bash
+npm run oracle watch          # one request; says what moved, or that nothing did
+npm run oracle watch -- --write   # record the new state after regenerating
+```
+
+`.github/workflows/watch.yml` does the full detect → regenerate → open-a-PR flow and is kept
+for manual dispatch. It works unchanged on a self-hosted runner, or if the block ever lifts.
+It is deliberately **not scheduled**: a nightly job that can only ever report "could not check"
+either goes red every morning until people ignore it, or reports all-clear through an entire
+set release.
 
 The PR reports whether the corpus verified. A new set usually ships equipment whose granted
 effect the API omits, which fails the selftest by design — that failure is reported rather than
