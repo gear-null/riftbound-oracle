@@ -5,6 +5,23 @@ the skill's data. Users just take the newer folder.
 
 This is the one place the Node pipeline is required.
 
+## What CI can and cannot refresh
+
+A scheduled job (`.github/workflows/watch.yml`) checks Riftcodex daily for a new set or a
+changed card count, and if it finds one it regenerates the card data and **opens a pull
+request**. Nothing reaches `main` without review, because `npx skills add` installs from
+`main`.
+
+**It cannot touch the rules.** Riot's hosts refuse connections from datacenter IPs outright —
+measured: both `riftbound.leagueoflegends.com` and `playriftbound.com` return http 000 from
+CI, which is the Cloudflare posture the rate-limiting note below describes. So a rules or
+errata update is a human job, run from an ordinary connection. Card regeneration is unaffected:
+errata is applied from the committed `output/rules.md`, not fetched.
+
+The PR reports whether the corpus verified. A new set usually ships equipment whose granted
+effect the API omits, which fails the selftest by design — that failure is reported rather than
+suppressed, and it is the signal to run `oracle gear-gaps`.
+
 ## The update run
 
 ```bash

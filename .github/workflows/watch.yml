@@ -1,0 +1,153 @@
+name: Watch upstream
+
+# Detect when Riftcodex ships a new set or changes a card, regenerate against
+# it, and open a PULL REQUEST. Nothing is published and nothing reaches main
+# without review — `npx skills add` installs from main, so an unreviewed
+# regeneration would go straight to every user.
+#
+# What this deliberately does NOT do: crawl Riot's Rules Hub. Measured — both
+# riftbound.leagueoflegends.com and playriftbound.com refuse the connection
+# outright from a datacenter IP. A rules or errata update therefore needs a
+# human on an ordinary connection; see docs/maintaining.md. Card regeneration
+# needs no hub access, because errata is applied from the committed
+# output/rules.md.
+on:
+  schedule:
+    # Daily, well off the hour to avoid the stampede. One request to /sets on
+    # the ~364 days a year nothing has changed.
+    - cron: "37 6 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Regenerate even if nothing changed upstream"
+        type: boolean
+        default: false
+
+concurrency:
+  group: watch
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      summary: ${{ steps.check.outputs.summary }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npm run build
+
+      - id: check
+        run: npm run oracle watch
+
+      - name: Report
+        env:
+          SUMMARY: ${{ steps.check.outputs.summary }}
+        run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+
+  regenerate:
+    needs: detect
+    if: needs.detect.outputs.changed == 'true' || inputs.force
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - run: npm ci && npm run build
+
+      - name: Rebuild card data
+        run: npm run oracle skill-data
+
+      - name: Rebuild the rule index and rulebook
+        run: |
+          cd .claude/skills/rules-report/lib
+          python3 rules_cli.py build
+
+      # Deliberately non-fatal. A new set almost always ships equipment whose
+      # granted effect the API omits, which fails the selftest by design — and
+      # that is precisely when a human most needs to see a PR. The verdict goes
+      # in the PR body, and ci.yml re-runs on the PR, so a broken corpus shows
+      # red there rather than silently never being proposed.
+      - name: Verify the corpus
+        id: verify
+        continue-on-error: true
+        run: |
+          cd .claude/skills/rules-report/lib
+          python3 rules_cli.py selftest 2>&1 | tail -40 > /tmp/selftest.log
+          echo "result=$?" >> "$GITHUB_OUTPUT"
+          cat /tmp/selftest.log
+
+      - name: Record the upstream state this was built against
+        run: npm run oracle watch -- --write
+
+      - name: Refresh the version manifest
+        run: npm run oracle package
+
+      - name: Draft the changelog entry
+        id: notes
+        env:
+          SUMMARY: ${{ needs.detect.outputs.summary }}
+        run: |
+          {
+            echo "Upstream: $SUMMARY"
+            echo
+            if [ "${{ steps.verify.outcome }}" = "success" ]; then
+              echo "Corpus verified — all checks passed."
+            else
+              echo "**The corpus does not verify.** Do not merge until this is resolved:"
+              echo
+              echo '```'
+              tail -20 /tmp/selftest.log
+              echo '```'
+            fi
+            echo
+            echo '```'
+            npm run --silent oracle changelog 2>/dev/null | sed 's/^[│ ]*//' || true
+            echo '```'
+          } > /tmp/body.md
+          # A new set almost always ships equipment whose granted effect the
+          # API omits; the selftest fails on those, so say what to do about it.
+          if ! grep -q '"cards_awaiting_transcription": 0' .claude/skills/rules-report/SKILL-VERSION.json; then
+            {
+              echo
+              echo '> **Cards need transcribing.** Run `npm run oracle gear-gaps`, read the'
+              echo '> granted-effect band off each image, and add entries to'
+              echo '> `manifests/card-overlays.yaml`.'
+            } >> /tmp/body.md
+          fi
+          {
+            echo
+            echo "Rules text is *not* refreshed by this job — the Rules Hub is unreachable from CI."
+          } >> /tmp/body.md
+
+      - name: Open a pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/upstream-refresh
+          base: main
+          title: "chore: refresh corpus — ${{ needs.detect.outputs.summary }}"
+          body-path: /tmp/body.md
+          commit-message: |
+            chore: regenerate corpus from upstream
+
+            ${{ needs.detect.outputs.summary }}
+
+            Card data rebuilt from Riftcodex and re-verified. Rules text is
+            unchanged — the Rules Hub is not reachable from CI.
+          labels: corpus
+          delete-branch: true

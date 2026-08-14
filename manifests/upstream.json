@@ -1,0 +1,45 @@
+{
+  "sets": [
+    {
+      "set_id": "JDG",
+      "card_count": 3,
+      "published_on": "2025-12-01T00:00:00"
+    },
+    {
+      "set_id": "OGN",
+      "card_count": 352,
+      "published_on": "2025-10-31T00:00:00"
+    },
+    {
+      "set_id": "OGS",
+      "card_count": 24,
+      "published_on": "2025-10-31T00:00:00"
+    },
+    {
+      "set_id": "OPP",
+      "card_count": 133,
+      "published_on": "2025-10-31T00:00:00"
+    },
+    {
+      "set_id": "PR",
+      "card_count": 13,
+      "published_on": "2025-10-31T00:00:00"
+    },
+    {
+      "set_id": "SFD",
+      "card_count": 288,
+      "published_on": "2026-02-13T00:00:00"
+    },
+    {
+      "set_id": "UNL",
+      "card_count": 280,
+      "published_on": "2026-05-08T00:00:00"
+    },
+    {
+      "set_id": "VEN",
+      "card_count": 358,
+      "published_on": "2026-07-31T00:00:00"
+    }
+  ],
+  "checked": "2026-08-14"
+}

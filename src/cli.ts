@@ -42,6 +42,9 @@ async function main() {
     case "extract":
       await handleExtract();
       break;
+    case "watch":
+      await handleWatch();
+      break;
     case "changelog":
       await handleChangelog();
       break;
@@ -79,6 +82,7 @@ ${color.bold("Commands:")}
   ${color.cyan("gear-gaps")}          Collect artwork + a YAML stub for cards the API can't supply
   ${color.cyan("package")}            Build the distributable skill archive into dist/
   ${color.cyan("changelog")}          Draft the next changelog entry from git + the corpus
+  ${color.cyan("watch")}              Check upstream for new sets or changed card counts
   ${color.cyan("vault-sync")}         Mirror output/ into an Obsidian wiki's raw/ folder
   ${color.cyan("status")}             Show manifest status
   ${color.cyan("help")}               Show this help message
@@ -317,6 +321,41 @@ async function handleExtract() {
  * does not carry. Downloads the artwork and writes a pre-filled stub; the
  * human supplies only what the image shows. No parsing, no model.
  */
+/**
+ * Report upstream card-side drift, and record the new state when asked.
+ *
+ * Exits 0 with `changed=false` when nothing moved, so a scheduled job can act
+ * on the output without parsing prose. `--write` updates the committed state,
+ * which a rebuild does once it has actually regenerated against it.
+ */
+async function handleWatch() {
+  const { checkUpstream, saveState } = await import("./watch.js");
+  const s = p.spinner();
+  s.start("Checking upstream");
+  try {
+    const { drift, live } = await checkUpstream();
+    s.stop(drift.changed ? "Upstream has moved" : "Upstream unchanged");
+    p.log.message(drift.summary);
+
+    if (process.argv.includes("--write")) {
+      saveState(live, new Date().toISOString().slice(0, 10));
+      p.log.info("Recorded current upstream state");
+    }
+    // Machine-readable for the workflow, without parsing the pretty output.
+    if (process.env.GITHUB_OUTPUT) {
+      writeFileSync(
+        process.env.GITHUB_OUTPUT,
+        `changed=${drift.changed}\nsummary=${drift.summary}\n`,
+        { flag: "a" }
+      );
+    }
+  } catch (err) {
+    s.error("Upstream check failed");
+    p.log.error(String(err instanceof Error ? err.message : err));
+    process.exitCode = 1;
+  }
+}
+
 /**
  * Draft the next changelog entry. Prints rather than writes: it is a draft to
  * edit into CHANGELOG.md, because a generated changelog nobody reads is how
