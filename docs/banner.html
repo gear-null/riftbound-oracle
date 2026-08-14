@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Riftbound Oracle — repository banner</title>
+<!--
+  Source for riftbound-oracle.png, the README banner.
+
+  Render it at 1200x400 CSS px with a device pixel ratio of 2, which produces the
+  committed 2400x800 asset. The banner is drawn, not generated: every value here
+  is a design-system token, the mark is this project's own geometry, and the rule
+  it quotes is real corpus text — CR 142.4.a, verbatim. Nothing on it is invented,
+  which is the entire claim the project makes.
+
+  Regenerate after editing:
+    agent-browser open file://.../docs/banner.html
+    agent-browser set viewport 1200 400 2
+    agent-browser screenshot .../riftbound-oracle.png
+-->
+<style>
+:root{
+ --ink-900:#060b14; --ink-700:#0f1e33; --ink-500:#1e3a52;
+ --mist-100:#e4f1f5; --slate-300:#7a96a8;
+ --gold-700:#785a28; --gold-500:#c8aa6e; --blue:#3c8fe0;
+ --display:"Beaufort for LOL",Cinzel,Georgia,"Times New Roman",serif;
+ --body:"TT Norms Pro Compact",Barlow,system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+ --plate:"Barlow Semi Condensed",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ --ch:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1200px;height:400px;overflow:hidden}
+body{background:var(--ink-900);color:var(--mist-100);font-family:var(--body)}
+
+/* The grain is what makes crisp chrome and painterly art read as one surface.
+   There is no painterly art on this banner, but the same 3.5% tooth keeps it
+   from looking like a flat export. */
+.grain{position:fixed;inset:0;z-index:10;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23g)'/></svg>")}
+
+.frame{display:grid;grid-template-columns:1fr 1px 1.28fr;align-items:center;
+ gap:0 44px;height:100%;padding:52px 56px}
+
+/* ── identity ───────────────────────────────────────────────────────── */
+.lockup{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:0 22px}
+.mark{width:132px;height:132px;display:block}
+.mark-rule{width:1px;height:104px;background:var(--gold-700)}
+.words{display:flex;flex-direction:column;gap:9px}
+.eyebrow{font:600 16px/1 var(--plate);letter-spacing:.26em;text-transform:uppercase;
+ color:var(--slate-300)}
+.wordmark{font:600 58px/1 var(--display);letter-spacing:.13em;text-transform:uppercase;
+ color:var(--gold-500)}
+
+/* The filigree register: a 1px rule with diamond terminals, carrying no fill.
+   The disclaimer lives inside the lockup so it cannot be cropped off. */
+.plate-line{display:flex;align-items:center;gap:9px;margin-top:3px}
+.dia{width:5px;height:5px;flex:none;background:var(--gold-500);transform:rotate(45deg)}
+.plate-line .rule{height:1px;background:var(--gold-700)}
+.plate-line .rule.lead{width:16px;flex:none}
+.plate-line .rule.tail{flex:1}
+.plate-text{font:600 14px/1 var(--plate);letter-spacing:.17em;text-transform:uppercase;
+ color:var(--slate-300);white-space:nowrap}
+
+/* ── the divider ────────────────────────────────────────────────────── */
+.split{position:relative;height:100%;background:var(--gold-700)}
+.split::before,.split::after{content:"";position:absolute;left:-3px;width:7px;height:7px;
+ background:var(--gold-500);transform:rotate(45deg)}
+.split::before{top:-3px} .split::after{bottom:-3px}
+
+/* ── the proof ──────────────────────────────────────────────────────── */
+/* One rim-lit chamfered plate absorbs the whole design budget; the identity
+   half stays quiet. The frame is a real 1px hairline: the element's background
+   IS the frame, and a clipped pseudo-element inset by 1px paints the surface
+   back over it. A plain border cannot do this — clip-path cuts a border at the
+   chamfer and leaves the corner open. */
+.proof{position:relative;isolation:isolate;padding:1px;
+ background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 44%,var(--gold-700) 100%);
+ clip-path:polygon(var(--ch) 0,100% 0,100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,0 100%,0 var(--ch))}
+.proof::after{content:"";position:absolute;inset:1px;z-index:-1;background:var(--ink-700);
+ clip-path:polygon(calc(var(--ch) - 1px) 0,100% 0,100% calc(100% - var(--ch) + 1px),calc(100% - var(--ch) + 1px) 100%,0 100%,0 calc(var(--ch) - 1px))}
+.proof-in{padding:26px 30px 24px}
+
+.cite-row{display:flex;align-items:center;gap:16px}
+.cite-id{font:600 21px/1 var(--plate);letter-spacing:.09em;font-variant-numeric:tabular-nums;
+ color:var(--mist-100)}
+.cite-row .rule{flex:1;height:1px;background:var(--ink-500)}
+.stamp{flex:none;padding:.42em .6em;border:1px solid color-mix(in oklch,var(--blue) 42%,transparent);
+ font:600 15px/1 var(--plate);letter-spacing:.13em;text-transform:uppercase;color:var(--blue)}
+
+.quote{margin:20px 0 0;font-size:25px;line-height:1.5;max-width:34ch;text-wrap:pretty}
+
+/* One line, deliberately: a wrapped second line leaves the diamond terminal
+   floating beside neither line. */
+.attrib{display:flex;align-items:center;gap:10px;margin-top:22px;padding-top:16px;
+ border-top:1px solid var(--ink-500)}
+.attrib .tick{flex:none;color:var(--gold-500);font-size:14px;line-height:1}
+.attrib span{font:600 14px/1 var(--plate);letter-spacing:.14em;text-transform:uppercase;
+ color:var(--slate-300);white-space:nowrap}
+</style></head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="frame">
+
+  <div class="lockup">
+    <!-- Original identity: a scrying orb seated in a chamfered bezel. Derivative
+         of the Runeterra ornament vocabulary — chamfers, etched pips, aged-gold
+         hairlines — without reproducing any Riot letterform or glyph. -->
+    <svg class="mark" viewBox="0 0 128 128" role="img" aria-label="Riftbound Oracle">
+      <defs>
+        <radialGradient id="core-glow">
+          <stop offset="0%" stop-color="#3c8fe0" stop-opacity=".55"/>
+          <stop offset="100%" stop-color="#3c8fe0" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- bezel: 80x80 with 13-unit chamfers -->
+      <path d="M37 24 L91 24 L104 37 L104 91 L91 104 L37 104 L24 91 L24 37 Z"
+            fill="none" stroke="#c8aa6e" stroke-width="1.5"/>
+      <!-- corner pips: lit pair Gold 500, shadowed pair Gold 700, so the light
+           direction is stated in the ornament itself -->
+      <rect x="28" y="28" width="5" height="5" fill="#c8aa6e" transform="rotate(45 30.5 30.5)"/>
+      <rect x="95" y="28" width="5" height="5" fill="#c8aa6e" transform="rotate(45 97.5 30.5)"/>
+      <rect x="95" y="95" width="5" height="5" fill="#785a28" transform="rotate(45 97.5 97.5)"/>
+      <rect x="28" y="95" width="5" height="5" fill="#785a28" transform="rotate(45 30.5 97.5)"/>
+      <!-- shell + meridian: a sphere, not a disc -->
+      <circle cx="64" cy="64" r="28" fill="none" stroke="#c8aa6e" stroke-width="2"/>
+      <ellipse cx="64" cy="64" rx="10.5" ry="28" fill="none" stroke="#785a28" stroke-width="1"/>
+      <!-- specular arc: the system's rim light -->
+      <path d="M43.71 58.56 A21 21 0 0 1 58.56 43.71" fill="none" stroke="#e4f1f5"
+            stroke-width="2.5" stroke-linecap="round"/>
+      <!-- core: the only emissive element and the only saturated colour. Against
+           the warm gold shell it is the mandatory warm/cool split. -->
+      <circle cx="64" cy="64" r="20" fill="url(#core-glow)"/>
+      <path d="M64 51.5 L66.55 61.45 L76.5 64 L66.55 66.55 L64 76.5 L61.45 66.55 L51.5 64 L61.45 61.45 Z"
+            fill="#3c8fe0"/>
+    </svg>
+
+    <div class="mark-rule"></div>
+
+    <div class="words">
+      <div class="eyebrow">Riftbound</div>
+      <div class="wordmark">Oracle</div>
+      <div class="plate-line">
+        <span class="dia"></span>
+        <span class="rule lead"></span>
+        <span class="plate-text">Unofficial rules companion</span>
+        <span class="rule tail"></span>
+        <span class="dia"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="split"></div>
+
+  <div class="proof">
+    <div class="proof-in">
+      <div class="cite-row">
+        <span class="cite-id">CR 142.4.a</span>
+        <span class="rule"></span>
+        <span class="stamp">&#10003; Verified</span>
+      </div>
+      <p class="quote">&ldquo;Lethal Damage is the amount of marked Damage that will
+        cause a unit to die in a cleanup.&rdquo;</p>
+      <div class="attrib">
+        <span class="tick">&#9670;</span>
+        <span>Checked by code, not by the model</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body></html>
