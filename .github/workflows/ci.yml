@@ -1,0 +1,114 @@
+name: CI
+
+# `npx skills add gear-null/riftbound-oracle` installs from main, so main is a
+# live distribution channel rather than a staging area. Everything below is
+# deterministic — no model, no API key, no secrets — which is exactly why it
+# can guard every push instead of relying on someone remembering to run it.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A newer push supersedes an in-flight run on the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # The skill as a registry install actually receives it: the committed folder,
+  # no build step, no dependencies. This is the job that matters most — it is
+  # the only one testing what users get.
+  skill:
+    name: skill on python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 is the documented floor and the version macOS ships. A single
+        # PEP-604 annotation once made the skill unimportable there, so the
+        # floor is tested rather than asserted.
+        python: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Corpus and citation checks
+        working-directory: .claude/skills/rules-report/lib
+        run: python3 rules_cli.py selftest
+
+      - name: Answer a question end to end
+        working-directory: .claude/skills/rules-report/lib
+        run: |
+          python3 rules_cli.py card "Stalking Wolf"
+          python3 rules_cli.py rule 829.1.b.1
+          python3 rules_cli.py grep chain
+          # The gate must refuse a bad citation, not merely report one.
+          python3 rules_cli.py report flow-counter-answer.json --no-open
+
+  pipeline:
+    name: pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npx vitest run
+
+      - name: Build
+        run: npm run build
+
+  # The archive is only meaningfully reproducible if something rebuilds it.
+  package:
+    name: package reproducibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci && npm run build
+
+      - name: Build twice and compare
+        run: |
+          npm run oracle package >/dev/null
+          first=$(cut -d' ' -f1 dist/*.zip.sha256)
+          npm run oracle package >/dev/null
+          second=$(cut -d' ' -f1 dist/*.zip.sha256)
+          echo "first  $first"
+          echo "second $second"
+          test "$first" = "$second" || {
+            echo "::error::the archive is not reproducible — a release checksum would be meaningless"
+            exit 1
+          }
+
+      - name: The committed manifest matches the corpus
+        run: |
+          # `oracle package` rewrites SKILL-VERSION.json. If that changes the
+          # tree, someone regenerated the corpus and forgot to commit the
+          # manifest — so registry installs would advertise the wrong version.
+          git diff --exit-code -- .claude/skills/rules-report/SKILL-VERSION.json || {
+            echo "::error::SKILL-VERSION.json is stale — run 'npm run oracle package' and commit it"
+            exit 1
+          }
+
+      - name: Install the archive the way a user would
+        run: |
+          mkdir -p /tmp/consumer
+          unzip -q dist/*.zip -d /tmp/consumer
+          cd /tmp/consumer/rules-report/lib
+          python3 rules_cli.py selftest

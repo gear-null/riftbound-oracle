@@ -65,7 +65,9 @@ repo, and skills.sh lists a skill through install telemetry rather than an uploa
 already satisfies it — `.claude/skills/rules-report/SKILL.md` with `name` matching the folder.
 
 **It tracks `main`, not a tag.** So `main` must always be installable: never leave the corpus
-half-regenerated there. `install.sh` and the zip are the release-pinned paths.
+half-regenerated there. CI enforces this on every push — `.github/workflows/ci.yml` runs the
+selftest against the committed skill on Python 3.9 and 3.13, exactly as a registry install
+receives it, and fails if `SKILL-VERSION.json` no longer matches the corpus beside it. `install.sh` and the zip are the release-pinned paths.
 
 `SKILL-VERSION.json` is committed rather than injected at package time, precisely because the
 registry path never sees the archive. Commit it when the corpus moves — `oracle package`

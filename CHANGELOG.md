@@ -9,6 +9,15 @@ a release exists because Riot changed the rules, not because the code moved.
 This project follows [Semantic Versioning](https://semver.org/) and
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+
+- **CI on every push and pull request.** `main` is a live distribution channel — `npx skills
+  add` installs from it — so the corpus checks now run automatically rather than when someone
+  remembers. Three jobs: the skill exactly as a registry install receives it (Python 3.9 and
+  3.13, no build step), the pipeline (typecheck, tests, build), and archive reproducibility.
+
 ## [1.1.0] — 2026-08-13
 
 ### Added
