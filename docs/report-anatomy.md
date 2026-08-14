@@ -77,7 +77,7 @@ the legend is there to become unnecessary. See
 
 Judges print these. The screen report is dark by design — it follows the Runeterra
 visual language, blue-black ground and aged-gold hairlines — but printing inverts the
-whole system to a light sheet: dark ink, Gold 700 hairlines (Gold 500 is only 2.4:1 on
+whole system to a light sheet: dark ink, Gold 700 hairlines (Gold 500 is only 2.2:1 on
 white), every `<details>` forced open so no evidence hides, and the rail, the grain and
 both buttons dropped. `UNSETTLED`, the forced-verdict banner and a failed citation print
 as ruled boxes rather than as fills.

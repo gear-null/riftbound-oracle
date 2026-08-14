@@ -35,7 +35,7 @@ h1::after{content:"";flex:1;height:1px;background:var(--gold-700);opacity:.5}
 .meta{margin-top:.7rem;color:var(--dim);font:500 .76rem/1.6 var(--plate);letter-spacing:.05em}
 .search{width:100%;margin:1.1rem 0 0;padding:.7rem .8rem;border:1px solid var(--line);
  background:var(--card);color:var(--fg);font:400 .92rem/1.4 var(--body)}
-.search::placeholder{color:var(--slate-400)}
+.search::placeholder{color:var(--dim)}
 .search:focus-visible{outline:2px solid var(--gold-500);outline-offset:2px;border-color:var(--gold-500)}
 .toc-doc h3{margin:1.6rem 0 .5rem;font:600 .68rem/1 var(--plate);letter-spacing:.17em;
  text-transform:uppercase;color:var(--gold-500)}
@@ -68,7 +68,10 @@ a.xref:hover{color:var(--fg);border-bottom-color:var(--fg)}
 .eg{margin:.4rem 0 .4rem 5.5rem;padding:.5rem .8rem;background:var(--card);
  border-left:2px solid var(--gold-700);font-size:.87rem;color:var(--dim);max-width:64ch}
 .see{margin:.25rem 0 .25rem 5.5rem;font:500 .76rem/1.6 var(--plate);letter-spacing:.06em;
- color:var(--slate-400)}
+ /* --dim, not slate-400: that is the divider floor (3.4:1 here) and this is
+    text. An unresolvable cross-reference stays as bare text, so the refs you
+    cannot follow were also the ones you could barely read. */
+ color:var(--dim)}
 .see a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .see a:hover{color:var(--fg);border-bottom-color:var(--fg)}
 a:focus-visible{outline:2px solid var(--gold-500);outline-offset:2px}
@@ -78,7 +81,11 @@ a:focus-visible{outline:2px solid var(--gold-500);outline-offset:2px}
     page background is transparent, and the sheet prints black on black. */
  :root{color-scheme:light;
   --bg:transparent;--fg:var(--ink-900);--dim:var(--slate-400);--line:var(--slate-400);
-  --card:transparent;--accent:var(--ink-700);--wash:transparent;--lift:transparent}
+  --card:transparent;--accent:var(--ink-700);--wash:transparent;--lift:transparent;
+  /* Raw palette tokens need remapping too, not just the semantic ones —
+     anything using one DIRECTLY kept its dark-ground value on paper
+     (slate-300 3.1:1, gold-500 2.2:1, mist-100 1.2:1 on white). */
+  --slate-300:var(--slate-400);--gold-500:var(--gold-700);--mist-100:var(--slate-400)}
  html,body{background:transparent}
  body{font-size:10.5pt}
  .grain,.search{display:none!important}

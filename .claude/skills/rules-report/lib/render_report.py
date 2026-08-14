@@ -103,6 +103,14 @@ def _check_holding(ans, idx):
 
     covered = 0
     for sp in spans:
+        # Spans are model-generated too. Note bases are validated and coerced
+        # a few lines below; spans were not, so an unknown value reached
+        # holding_html and raised KeyError mid-render.
+        if sp.get("basis") not in BASIS:
+            problems.append(
+                f'holding span "{str(sp.get("text", ""))[:30]}" has unknown basis '
+                f'{sp.get("basis")!r}')
+            sp["basis"] = "inferred"
         text = sp.get("text", "")
         if text not in line:
             problems.append(f'holding span "{text[:40]}" is not a substring of holding.line')
@@ -354,7 +362,14 @@ def legend_html(page_html, idx):
     # Unescape after stripping tags: the keyword marker [>] is written into the
     # page as `[&gt;]`, so scanning the raw HTML silently never matched it —
     # the one symbol a reader is least likely to guess.
-    visible = html.unescape(re.sub(r"<[^>]+>", " ", page_html))
+    # Strip script/style BODIES first. Removing only tags left their text
+    # content in the scan, and the overlay JS contains `m[1]` and `m[2]` — so
+    # every report shipped a fabricated "[1] · [2] = that much Energy" row
+    # citing CR 429.5, for symbols that appear nowhere on the page. A legend
+    # entry is a citation; inventing one is the failure this project exists to
+    # prevent.
+    body = re.sub(r"<(script|style)\b.*?</\1>", " ", page_html, flags=re.S | re.I)
+    visible = html.unescape(re.sub(r"<[^>]+>", " ", body))
     used = scan(visible, legend)
     if not used:
         return ""
@@ -524,7 +539,8 @@ def cards_html(ans):
             gap = (f'<span class="card-gap">Printed text incomplete — {esc(c["incomplete"])}. '
                    "Read it from the card image.</span>")
 
-        slug = re.sub(r"[^a-z0-9]+", "-", c["name"].lower()).strip("-") or "card"
+        # Model-generated JSON: the name key exists but need not be a string.
+        slug = re.sub(r"[^a-z0-9]+", "-", str(c.get("name", "")).lower()).strip("-") or "card"
         out.append(
             f'<figure class="card plate" data-od-id="card-{esc(slug)}">' + art
             + '<figcaption>'
@@ -977,7 +993,15 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
  :root{color-scheme:light;
   --bg:transparent;--surface:transparent;--well:transparent;--fg:var(--ink-900);
   --muted:var(--slate-400);--line:var(--gold-700);--rule:var(--slate-400);--accent:var(--gold-700);
-  --blue:var(--ink-700);--wash:transparent;--lift:transparent;--sink:transparent}
+  --blue:var(--ink-700);--wash:transparent;--lift:transparent;--sink:transparent;
+  /* Raw palette tokens have to be remapped too, not just the semantic ones.
+     Anything reaching for a palette value DIRECTLY kept its dark-ground colour
+     on paper: gold-500 at 2.23:1, slate-300 at 3.11:1, mist-100 at 1.15:1.
+     The worst of it inverted the argument — .sp-grounded (gold-500) all but
+     vanished while .sp-inferred (--blue, correctly remapped) printed at
+     16.75:1, so the inferred half of the verdict line looked the better
+     supported one. */
+  --gold-500:var(--gold-700);--slate-300:var(--slate-400);--mist-100:var(--slate-400)}
  html,body{background:transparent}
  body{color:var(--fg);font-size:11pt;padding-bottom:0}
  .grain,.rail,.rb-overlay,.copy,.rulebook-link,.skip,.unofficial{display:none!important}
@@ -1030,11 +1054,20 @@ window.addEventListener('afterprint', function(){
   links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
   var io=new IntersectionObserver(function(entries){
     entries.forEach(function(en){ seen[en.target.id]=en.isIntersecting; });
-    // Topmost note currently in the reading band, or none at all: at the top of
-    // the page and past the last note nothing is being read, and a highlight
-    // left behind points at a claim the reader has scrolled away from.
-    var current=null;
-    Object.keys(map).forEach(function(id){ if(!current && seen[id]) current=id; });
+    // Pick the note occupying MOST of the reading band, not the first one that
+    // happens to touch it. Taking the topmost meant a claim whose last 14px
+    // were still in the band beat the claim actually filling it, so the rail
+    // lagged one behind what you were reading — the opposite of the point.
+    // None at all is a valid answer: above the first note and below the last,
+    // a leftover highlight points at a claim you have scrolled away from.
+    var top=innerHeight*0.12, bot=innerHeight*0.32, current=null, best=0;
+    Object.keys(map).forEach(function(id){
+      if(!seen[id]) return;
+      var el=document.getElementById(id); if(!el) return;
+      var r=el.getBoundingClientRect();
+      var overlap=Math.min(r.bottom,bot)-Math.max(r.top,top);
+      if(overlap>best){ best=overlap; current=id; }
+    });
     links.forEach(function(l){ l.classList.remove('here'); });
     if(current) map[current].classList.add('here');
   },{rootMargin:'-12% 0px -68% 0px'});
@@ -1130,8 +1163,13 @@ def render(ans, idx):
                      flags=re.I)
 
     problems = "".join(f'<li>{esc(p)}</li>' for p in ans.get("_problems", []))
-    ncites = sum(len(n.get("cites", [])) for n in ans["notes"])
-    nverified = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
+    # Every citation the verifier checked, not just the notes'. A failed
+    # counterargument cite forces UNSETTLED, so excluding it let the headline
+    # metric read "6/6 verified" on the one report where one demonstrably did not.
+    _cites = [c for src in list(ans["notes"]) + list(ans.get("counterargument", []))
+              for c in src.get("cites", [])]
+    ncites = len(_cites)
+    nverified = sum(1 for c in _cites if c["verified"])
 
     cards_block = cards_html(ans)
     key = basis_key_html(ans["notes"])
@@ -1249,7 +1287,13 @@ def main():
         for pb in ans["_problems"]:
             print(f"  ! {pb}", file=sys.stderr)
         sys.exit(1)
-    open(out, "w", encoding="utf-8").write(render(ans, idx))
+    # Render first, then write. `open(out,"w")` truncates on open, so a crash
+    # inside render() used to destroy the previous good report at that path —
+    # which matters most in the re-verify-a-saved-ruling flow, where the file
+    # being overwritten is the artifact you were checking.
+    html_out = render(ans, idx)
+    with open(out, "w", encoding="utf-8") as fh:
+        fh.write(html_out)
     ncites = sum(len(n.get("cites", [])) for n in ans["notes"])
     nver = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
     print(f"wrote {out}")
