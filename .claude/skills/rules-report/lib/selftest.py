@@ -804,17 +804,28 @@ def rendered_surfaces(idx):
               not stale, f'{stale} not in {sorted(set(ans["corpus"].values()))}')
 
     # Every fixture's corpus CR is 2026-07-16 — exactly the literal the copy-cite
-    # string used to hardcode. So the per-fixture check above AGREES with the bug
-    # and cannot see it; reverting the fix leaves it green. Move the corpus and
-    # the drift becomes visible.
+    # string used to hardcode — so a whole-report check agrees with the bug and
+    # cannot see it. Exercised at cite_html directly, because the corpus stamp
+    # is now cross-checked against the index and a bogus date is (correctly)
+    # rejected before rendering.
+    from render_report import cite_html
     base = json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8"))
-    moved = copy.deepcopy(base)
-    moved["corpus"] = {"CR": "2099-01-02", "TR": "2099-01-02", "generated": "2099-01-03"}
-    page = render(verify_answer(moved, idx), idx)
-    stale = sorted(d for d in set(re.findall(r"\d{4}-\d{2}-\d{2}", page))
-                   if d not in moved["corpus"].values())
+    vans = verify_answer(copy.deepcopy(base), idx)
+    a_cite = vans["notes"][0]["cites"][0]
+    frag = cite_html(a_cite, idx, {"CR": "2099-01-02", "TR": "2099-01-02"})
+    drifted = sorted(d for d in set(re.findall(r"\d{4}-\d{2}-\d{2}", frag))
+                     if not d.startswith("2099"))
     check("citation dates follow the corpus, not a hardcoded literal",
-          not stale, f"{stale} survived a corpus move")
+          not drifted, f"{drifted} survived a corpus move")
+
+    # And a corpus with no entry for the citation's document must say so rather
+    # than reach for whatever value happens to be first in the dict — `generated`
+    # sits in the same block, so that fallback asserted the report's build date
+    # as the rules version.
+    partial = cite_html(a_cite, idx, {"generated": "2026-08-12"})
+    check("a missing corpus entry reads as unstated, not as another date",
+          "version unstated" in partial and "2026-08-12" not in partial,
+          partial[partial.find("data-cite"):][:90])
 
     check("the legend row check actually inspected rows", seen_rows[0] > 0,
           f"{seen_rows[0]} legend rows seen across the five fixtures")
@@ -892,6 +903,86 @@ def rendered_surfaces(idx):
           "no card by this name" not in broke, "rendered the card as nonexistent")
     check("and says the database failed instead",
           "did not load" in broke)
+
+    # A cite with no quote stamps ✗ UNVERIFIED, but the note stayed "verified"
+    # and the verdict was never downgraded — the two halves of the page
+    # disagreeing. Omitting the quote is the cheapest way to defeat the
+    # verbatim gate; it must not also buy a clean verdict.
+    noq = copy.deepcopy(base)
+    noq["notes"][0]["cites"] = [{"rule": noq["notes"][0]["cites"][0]["rule"]}]
+    rq = verify_answer(noq, idx)
+    check("a quote-less citation downgrades its note",
+          rq["notes"][0]["verified"] is False)
+    check("and forces the verdict", rq["holding"]["disposition"] == "UNSETTLED")
+
+    # "Considered and rejected" reads as evidence of thoroughness, so an id
+    # invented there buys more credibility than one in a note. It was never
+    # verified at all.
+    rej = copy.deepcopy(base)
+    rej["considered_rejected"] = [{"rule": "CR:999.9.z", "why": "invented"}]
+    check("a fabricated considered_rejected id fails verification",
+          any("999.9.z" in p for p in verify_answer(rej, idx)["_problems"]))
+
+    # The masthead's provenance came from the answer file with nothing to check
+    # it against, while every rule in the index carries its own version.
+    stamp = copy.deepcopy(base)
+    stamp["corpus"] = dict(stamp["corpus"], CR="2027-01-01")
+    check("a corpus stamp contradicting the index fails verification",
+          any("2027-01-01" in p for p in verify_answer(stamp, idx)["_problems"]))
+
+    # card_terms carries `ambiguous` and rules_cli shouts about it; the renderer
+    # dropped it, so one printing rendered as though it were the card.
+    amb = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                       encoding="utf-8")))
+    amb["cards"] = ["Ahri"]
+    check("an ambiguous card name says so on the page",
+          "This name matches" in render(verify_answer(amb, idx), idx))
+
+    # render_report already refused to truncate on a mid-render crash; the
+    # RULEBOOK still did, and ensure_rulebook tested only os.path.exists — so a
+    # 0-byte rules.html was accepted forever and every citation link opened an
+    # empty page while the report still stamped them verified.
+    #
+    # Pointed at a temp path, NOT the real rulebook: running this against a
+    # truncating build would otherwise destroy the committed artifact, which is
+    # exactly what happened once while developing the fix.
+    import corpus as _corpus
+    import render_rulebook as _rbmod
+    _real_path = _corpus.rulebook_html_path
+    _real_render = _rbmod.render_rulebook
+    with tempfile.TemporaryDirectory() as d:
+        decoy = os.path.join(d, "rules.html")
+        open(decoy, "w", encoding="utf-8").write("PREVIOUS GOOD RULEBOOK")
+        try:
+            _corpus.rulebook_html_path = lambda: decoy
+            def _boom(*a, **k):
+                raise KeyError("id")
+            _rbmod.render_rulebook = _boom
+            try:
+                _rbmod.main()
+            except Exception:
+                pass
+        finally:
+            _corpus.rulebook_html_path = _real_path
+            _rbmod.render_rulebook = _real_render
+        check("a crash inside the rulebook render leaves the previous one intact",
+              open(decoy, encoding="utf-8").read() == "PREVIOUS GOOD RULEBOOK")
+
+    # data/rules.html is generated and committed, so it can silently fall behind
+    # its generator — it had, by two CSS fixes, until this was written. Every
+    # report links into this file, so a stale copy is a stale rulebook for every
+    # reader of every report.
+    with tempfile.TemporaryDirectory() as d:
+        fresh = os.path.join(d, "rules.html")
+        try:
+            _corpus.rulebook_html_path = lambda: fresh
+            _rbmod.main()
+        finally:
+            _corpus.rulebook_html_path = _real_path
+        committed = open(_real_path(), encoding="utf-8").read()
+        check("the committed rulebook matches what the generator produces",
+              open(fresh, encoding="utf-8").read() == committed,
+              "run `rules_cli.py rulebook` and commit the result")
 
     check("a rail claim is shortened even with no early space",
           len(clip("x" * 100)) <= 60, repr(clip("x" * 100))[:24])

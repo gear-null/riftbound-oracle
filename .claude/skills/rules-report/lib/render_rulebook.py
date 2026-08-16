@@ -268,10 +268,23 @@ def main():
     from corpus import rules_json, rulebook_html_path
 
     rules = json.load(open(rules_json(), encoding="utf-8"))
-    version = os.environ.get("RIFTBOUND_RULES_VERSION", "2026-07-16")
+    # The corpus carries its own version; the hardcoded literal was the same
+    # class of defect as the one removed from the report's copy-cite string,
+    # and would silently label a refreshed rulebook with the old date.
+    stamped = {r.get("version") for r in rules if r.get("version")}
+    version = os.environ.get("RIFTBOUND_RULES_VERSION") or (
+        sorted(stamped)[-1] if stamped else "version unstated")
     out = rulebook_html_path()
-    with open(out, "w", encoding="utf-8") as fh:
-        fh.write(render_rulebook(rules, version))
+    # Render BEFORE opening for write. `open(out, "w")` truncates immediately,
+    # so any exception inside render_rulebook left a 0-byte rules.html — and
+    # `ensure_rulebook` tested only os.path.exists, so it never rebuilt. Every
+    # "Open in rulebook", every ancestry link and the overlay iframe then
+    # landed on an empty page while the citations still read "verified".
+    page = render_rulebook(rules, version)
+    tmp = out + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        fh.write(page)
+    os.replace(tmp, out)
     print(f"  {len(rules)} rules -> {out}")
 
 

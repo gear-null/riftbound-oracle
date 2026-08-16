@@ -88,7 +88,12 @@ def _check(c, idx, where, problems):
     c["problems"] = res.problems
     if not res.ok:
         problems.append(f'{where}: {"; ".join(res.problems)}')
-    return res.ok
+    # `checked`, not `ok`. The citation stamp already used `checked`, so a
+    # quote-less cite rendered a ✗ UNVERIFIED plate beside a note still marked
+    # verified and a verdict never downgraded — the two halves of the page
+    # disagreeing about the same citation. Omitting the quote is the cheapest
+    # way to defeat the verbatim gate; it must not also buy a clean verdict.
+    return res.ok and res.checked
 
 
 def place_spans(line, spans):
@@ -241,6 +246,38 @@ def verify_answer(ans, idx):
             if not _check(c, idx, f"counterargument {i}", problems):
                 ca_failed = True
 
+    # The masthead's "CR 2026-07-16 · TR 2026-07-16" is provenance, and it came
+    # from the answer file — i.e. from the model — with nothing to check it
+    # against. Every rule in the index carries its own version, so a stamp that
+    # contradicts the corpus it was verified against is free to detect. With
+    # the copy-cite date now reading from the same block, both provenance
+    # claims on the page derived from unverified input.
+    stamped = {r.get("version") for r in idx.rules.values() if r.get("version")}
+    for key in ("CR", "TR"):
+        claimed = ans.get("corpus", {}).get(key)
+        if claimed and stamped and claimed not in stamped:
+            problems.append(
+                f"corpus.{key} claims {claimed}, but this index was built from "
+                f'{" / ".join(sorted(stamped))}')
+
+    # "Considered and rejected" is read as evidence of thoroughness, so an id
+    # invented here buys more credibility than one in a note. It reached the
+    # page entirely unverified: no quote to check, but the rule must at least
+    # exist and be addressed by the document it names.
+    for i, cr in enumerate(ans.get("considered_rejected", []), 1):
+        ref = str(cr.get("rule", ""))
+        cdoc, crid = (ref.split(":", 1) if ":" in ref else (None, ref))
+        if not crid:
+            problems.append(f"considered_rejected {i}: no rule id")
+            continue
+        found = idx.get(crid, cdoc)
+        if not found:
+            problems.append(
+                f"considered_rejected {i}: {ref} does not exist at this corpus version")
+        elif cdoc and found["doc"] != cdoc:
+            problems.append(
+                f'considered_rejected {i}: {ref} is in {found["doc"]}, not {cdoc}')
+
     cruxes = [n["id"] for n in ans["notes"] if n.get("crux")]
     if len(cruxes) != 1:
         problems.append(f"exactly one note must be crux, found {len(cruxes)}: {cruxes or 'none'}")
@@ -352,7 +389,11 @@ def cite_html(c, idx, corpus):
     # a hardcoded literal, so the next rules update would have moved the
     # masthead while every copy-cite button kept asserting the old version —
     # and the copy-cite string is the artifact a judge pastes into a dispute.
-    dated = corpus.get(doc) or next(iter(corpus.values()), "")
+    # NOT `or next(iter(corpus.values()))`. corpus holds `generated` alongside
+    # CR/TR, so a dict-order fallback asserted the report's build date as the
+    # rules version. An unstated version must read as unstated: this string is
+    # what a judge pastes into a dispute, so a wrong date is worse than none.
+    dated = corpus.get(doc) or "version unstated"
     full = f'{doc} {rid} ({"Core Rules" if doc == "CR" else "Tournament Rules"}, {dated}): "{c.get("quote","")}"'
     # Every ancestor row links to its own anchor, not just the cited rule: the
     # useful move after reading a citation is usually "show me the parent".
@@ -580,6 +621,12 @@ def card_notice(c):
     if c.get("errata"):
         out += (f'<span class="card-errata">Text updated by {esc(c["errata"])} — '
                 "the card database still serves the older wording.</span>")
+    if c.get("ambiguous"):
+        others = ", ".join(str(n) for n in c["ambiguous"])
+        out += (f'<span class="card-gap">This name matches '
+                f'{len(c["ambiguous"])} cards — {esc(others)}. '
+                "Shown below is one of them; check the answer means that one."
+                "</span>")
     if c.get("incomplete"):
         out += (f'<span class="card-gap">Printed text incomplete — {esc(c["incomplete"])}. '
                 "Read it from the card image.</span>")

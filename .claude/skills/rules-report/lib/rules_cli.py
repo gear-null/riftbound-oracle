@@ -240,7 +240,13 @@ def ensure_rulebook():
     the user to discover the gap by clicking.
     """
     from corpus import rulebook_html_path
-    if not os.path.exists(rulebook_html_path()):
+    # Size, not existence. A crash mid-render used to leave a 0-byte rules.html
+    # behind, and an existence test happily accepted it forever — so every
+    # citation link opened an empty page while the report still stamped them
+    # verified. The floor is deliberately crude: any real rulebook is ~MBs, and
+    # anything under a kilobyte is a failed write, not a small corpus.
+    path = rulebook_html_path()
+    if not os.path.exists(path) or os.path.getsize(path) < 1024:
         print("  building the rulebook reports link into (first run)...")
         cmd_rulebook([])
 
