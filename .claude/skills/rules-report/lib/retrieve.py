@@ -23,13 +23,16 @@ import json, os, re, sqlite3, sys, textwrap
 
 from corpus import rules_json
 
-# Anchored to this file, not the cwd. `rules_cli.py` always passes an explicit
-# absolute path, so the shipped answering path was never affected — but the
-# standalone usage in the docstring above is real, and with a bare relative
-# name it built or opened a `rules.db` wherever it happened to be invoked
-# from. That silently scattered empty databases (one turned up in `output/`)
-# and meant a standalone `query` could read an index that was not the one
-# `build` had just written.
+# Anchored to this file, not the cwd. With a bare relative name this built or
+# opened a `rules.db` wherever it happened to be invoked from, which silently
+# scattered empty databases (one turned up in `output/`) and meant a standalone
+# `query` could read an index that was not the one `build` had just written.
+#
+# Only the READ path was ever protected: rules_cli.py passes an absolute
+# RULES_DB into `Retriever`. The WRITE path takes no path argument at all and
+# resolves this module-level name, so it was protected purely by `cwd=HERE` on
+# the two subprocess calls in rules_cli.py. Those are load-bearing, not
+# belt-and-braces — do not delete them as redundant.
 DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rules.db")
 
 

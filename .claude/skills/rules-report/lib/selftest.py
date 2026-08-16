@@ -739,6 +739,138 @@ def metric_consistency(idx):
           _empty("YES").get("_forced") == "YES")
 
 
+def rendered_surfaces(idx):
+    """The surfaces this rebuild actually changed, over ALL five fixtures.
+
+    The harness used to open demo, viktor and heron only — and demo has no
+    cards and produces no symbol legend, so the two surfaces the rebuild
+    touched most were reached by fixtures nothing loaded. The check that the
+    legend placeholder is always substituted passed on demo because the legend
+    was empty and the marker was replaced with the empty string. It had never
+    looked at a rendered legend row.
+    """
+    print("\n=== rendered surfaces (all five fixtures) ===")
+    import copy
+    import tempfile
+    from render_report import _CSS, _JS, clip, legend_html, render, verify_answer
+
+    # A legend row is a citation like any other. Every report on main carried a
+    # fabricated "[1] / [2] = that much Energy" row citing CR 429.5, harvested
+    # out of the overlay JS's own `m[1]`/`m[2]`. Ninety-eight checks stayed
+    # green through it, because nothing compared the legend to the visible page.
+    # Counted across the loop below: if the row regex ever stops matching, the
+    # per-fixture check would pass on an empty list and prove nothing. Three of
+    # the five fixtures do render a legend, so zero rows overall is a broken
+    # check rather than a clean report.
+    seen_rows = [0]
+
+    check("script bodies do not reach the legend",
+          legend_html(f"<p>no symbols here</p><script>{_JS}</script>", idx) == "")
+    check("style bodies do not reach the legend",
+          legend_html(f"<style>{_CSS}</style><p>no symbols here</p>", idx) == "")
+
+    for sample in ("demo", "viktor", "heron", "flow-counter", "vi-cost"):
+        src = os.path.join(HERE, f"{sample}-answer.json")
+        ans = verify_answer(json.load(open(src, encoding="utf-8")), idx)
+        page = render(ans, idx)
+
+        # Every legend entry must name a symbol the reader can actually see.
+        body = re.sub(r"<(script|style)\b.*?</\1>", " ", page, flags=re.S | re.I)
+        visible = __import__("html").unescape(re.sub(r"<[^>]+>", " ", body))
+        glossed = re.findall(r'class="sym"[^>]*>\[([^\]]+)\]</code>', page)
+        missing = [t for t in glossed if f"[{t}]" not in visible]
+        check(f"{sample}: every legend entry names a symbol on the page",
+              not missing, f"{len(glossed)} rows, fabricated {missing}")
+        seen_rows[0] += len(glossed)
+
+        # The rail restates the verdict in its own markup. A desync renders
+        # perfectly and contradicts the plate beside it.
+        rd = re.search(r'class="rail-disp">([^<]+)<', page)
+        check(f"{sample}: the rail restates the verified verdict",
+              bool(rd) and rd.group(1) == ans["holding"]["disposition"],
+              f'rail {rd and rd.group(1)} vs {ans["holding"]["disposition"]}')
+
+        ids = set(re.findall(r'\sid="([^"]+)"', page))
+        dead = sorted(h for h in set(re.findall(r'href="#([^"]+)"', page)) if h not in ids)
+        check(f"{sample}: every in-page link resolves", not dead, ", ".join(dead[:4]))
+
+        # The copy-cite string is what a judge pastes into a dispute. It used to
+        # hardcode 2026-07-16 while the masthead read corpus.CR, so the next
+        # rules update would have made every button assert a version the report
+        # itself did not claim.
+        stale = sorted(d for d in set(re.findall(r"\d{4}-\d{2}-\d{2}", page))
+                       if d not in ans["corpus"].values())
+        check(f"{sample}: no citation asserts a rules date the corpus disclaims",
+              not stale, f'{stale} not in {sorted(set(ans["corpus"].values()))}')
+
+    # Every fixture's corpus CR is 2026-07-16 — exactly the literal the copy-cite
+    # string used to hardcode. So the per-fixture check above AGREES with the bug
+    # and cannot see it; reverting the fix leaves it green. Move the corpus and
+    # the drift becomes visible.
+    base = json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8"))
+    moved = copy.deepcopy(base)
+    moved["corpus"] = {"CR": "2099-01-02", "TR": "2099-01-02", "generated": "2099-01-03"}
+    page = render(verify_answer(moved, idx), idx)
+    stale = sorted(d for d in set(re.findall(r"\d{4}-\d{2}-\d{2}", page))
+                   if d not in moved["corpus"].values())
+    check("citation dates follow the corpus, not a hardcoded literal",
+          not stale, f"{stale} survived a corpus move")
+
+    check("the legend row check actually inspected rows", seen_rows[0] > 0,
+          f"{seen_rows[0]} legend rows seen across the five fixtures")
+
+    # The key decodes the marks on the verdict line, but derived itself from the
+    # NOTES. `_check_holding` constrains only grounded spans, so an inferred span
+    # over a grounded note is valid input — and printed a dotted mark on the one
+    # line everyone reads with no row explaining it. No fixture hits this, which
+    # is why it stayed latent; construct it.
+    mark = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                        encoding="utf-8")))
+    mark["holding"]["spans"][0]["basis"] = "inferred"
+    marked = render(verify_answer(mark, idx), idx)
+    # Match the emitted ROW, not the bare token — `k-structural` also appears in
+    # the stylesheet, so a looser probe passes on any page ever rendered.
+    has_row = 'class="key-item k-structural"' in marked
+    check("the key explains every mark the verdict line uses",
+          'class="sp-inferred"' not in marked or has_row,
+          "inferred span rendered with no structural row in the key")
+
+    check("a rail claim is shortened even with no early space",
+          len(clip("x" * 100)) <= 60, repr(clip("x" * 100))[:24])
+    check("a short claim is left alone", clip("abc") == "abc")
+
+    # Print is invisible to every other gate: screen rendering, the selftest and
+    # a human reviewer all miss it. Only a judge with a printer finds out — and
+    # the failure this guards inverted the argument, printing the grounded half
+    # of the verdict line at 2.23:1 and the inferred half at 16.75:1.
+    import render_rulebook as _rb
+    for name, css in (("report", _CSS), ("rulebook", _rb._CSS)):
+        blk = css[css.index("@media print"):]
+        check(f"the {name} print sheet declares a light canvas", "color-scheme:light" in blk)
+        gone = [t for t in ("--gold-500", "--slate-300", "--mist-100") if f"{t}:" not in blk]
+        check(f"the {name} print sheet remaps the raw palette tokens", not gone, ", ".join(gone))
+
+    weird = copy.deepcopy(base)
+    weird["holding"]["spans"][0]["basis"] = "definitional"
+    check("an unknown holding-span basis is reported, not silently coerced",
+          any("basis" in p for p in verify_answer(weird, idx)["_problems"]))
+
+    # verify_answer never touches `corpus`; render dereferences corpus["CR"].
+    # So this verifies clean and then dies mid-render — the exact shape that
+    # used to truncate the previous report to zero bytes.
+    with tempfile.TemporaryDirectory() as d:
+        src, out = os.path.join(d, "crash.json"), os.path.join(d, "out.html")
+        crash = copy.deepcopy(base)
+        crash.pop("corpus")
+        json.dump(crash, open(src, "w", encoding="utf-8"))
+        open(out, "w", encoding="utf-8").write("PREVIOUS GOOD REPORT")
+        r = subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out],
+                           capture_output=True, text=True, cwd=HERE)
+        check("a crash inside render leaves the previous report intact",
+              r.returncode != 0 and open(out, encoding="utf-8").read() == "PREVIOUS GOOD REPORT",
+              f"rc={r.returncode}")
+
+
 def main():
     print("rules-report selftest")
     parser_fidelity()
@@ -752,6 +884,7 @@ def main():
     attribution_and_spans(idx)
     render_gate()
     metric_consistency(idx)
+    rendered_surfaces(idx)
     python_floor()
 
     print()

@@ -8,7 +8,7 @@ self-contained, works offline, and can be kept or sent on.
 On a wide screen the argument sits beside a sticky index: the disposition, the weakest
 link, and every claim in order with the **crux** marked. The claim you are currently
 reading is highlighted as you scroll, so "which step am I in" never costs you a scroll
-back up. Below 1060px the rail is dropped — the document is already linear — and it is
+back up. At or below 1060px the rail is dropped — the document is already linear — and it is
 never printed.
 
 ## The verdict line
@@ -38,6 +38,14 @@ Confidence is **`min()` across claims, never an average**. Nine grounded claims 
 structural makes a structural answer. A chain is only as strong as its weakest step, so
 that is what gets reported rather than a flattering summary.
 
+**`gap` notes are excluded from that minimum**, unless every note is a gap. So nine
+grounded claims plus one gap still reports a *grounded* weakest link. This is deliberate
+— a gap note records a question the rules do not answer, which is usually adjacent to the
+holding rather than load-bearing under it, and letting one drag the whole report to `gap`
+would punish an author for being explicit about what they searched. The consequence is
+worth knowing: **a report can carry a `○ gap` note and still headline a grounded weakest
+link**, so read the notes, not only the metric.
+
 ## Crux and "if this is wrong"
 
 Exactly one claim is marked **CRUX**: the load-bearing one. It must state what happens
@@ -51,10 +59,15 @@ meaningless without the clause it sits under. Every ID in that spine links into 
 full anchored rulebook, which opens in an overlay so you keep your place.
 
 The `✓ VERIFIED` stamp means code checked that the rule exists and that the quoted span
-appears verbatim in it. A failure inverts to a solid `✕ UNVERIFIED` plate rather than
+appears verbatim in it. A failure inverts to a solid `✗ UNVERIFIED` plate rather than
 merely changing hue, so it survives a glance, a greyscale printer and a reader who does
-not know the palette. If a citation the holding depends on fails, the disposition is
-forced to `UNSETTLED` and the report will not render at all.
+not know the palette.
+
+**Any** failed citation forces the disposition to `UNSETTLED` — in a note or in the
+counterargument, load-bearing or not — and `report` then refuses to write the file. The
+one way to see such a page is `render --force`, which writes it anyway with the verdict
+pinned to `UNSETTLED` and the forced-verdict banner explaining why. That escape hatch
+exists for debugging a citation, not for publishing around one.
 
 ## Counterargument
 
@@ -65,7 +78,13 @@ has already read the contrary rule will not believe the holding until it is conf
 
 Any card the answer discusses, with artwork, structured stats, its printed text, and
 links to the glossary sections its keywords map onto. Artwork is loaded from Riot's CDN
-by URL; no image is stored in this project.
+by URL; no image is stored in this project, and a reader with no network sees a labelled
+"artwork offline" placeholder rather than a broken image.
+
+Setting `RIFTBOUND_EMBED_ART=1` inlines the artwork as `data:` URIs instead, at roughly
+1MB per card. That is for readers whose viewer blocks remote images — Claude Desktop's
+preview, artifact panes — and it is the one case where this project does hold image bytes,
+in the generated report rather than in the repository.
 
 ## Symbols used here
 
@@ -79,8 +98,9 @@ the legend is there to become unnecessary. See
 Judges print these. The screen report is dark by design — it follows the Runeterra
 visual language, blue-black ground and aged-gold hairlines — but printing inverts the
 whole system to a light sheet: dark ink, Gold 700 hairlines (Gold 500 is only 2.2:1 on
-white), every `<details>` forced open so no evidence hides, and the rail, the grain and
-both buttons dropped. `UNSETTLED`, the forced-verdict banner and a failed citation print
+white), every `<details>` forced open so no evidence hides — and their prior state
+restored afterwards — with the rail, the grain, both buttons, the skip link and the
+"Unofficial rules companion" badge all dropped. The footer disclaimer stays. `UNSETTLED`, the forced-verdict banner and a failed citation print
 as ruled boxes rather than as fills.
 
 ## Dispositions

@@ -145,7 +145,7 @@ _CSS = """
  --display:"Beaufort for LOL",Cinzel,Georgia,"Times New Roman",serif;
  --body:"TT Norms Pro Compact",Barlow,system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
  --plate:"Barlow Semi Condensed",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
- --wash:color-mix(in oklch,var(--gold-500) 13%,transparent);
+ --wash:color-mix(in oklch,var(--gold-500) 12%,transparent);
  --lift:color-mix(in oklch,var(--ink-700) 88%,var(--mist-100));
 }
 *{box-sizing:border-box}
@@ -189,7 +189,8 @@ ol.toc a:hover .n{color:var(--gold-500)}
 .rt{display:flex;gap:.7rem;align-items:baseline;margin:0;font-size:inherit;font-weight:inherit}
 h2.rt{font:600 1.02rem/1.4 var(--body)}
 /* Rule ids are the addresses a judge reads out loud, so they sit at Slate 300
-   (5.9:1), not at the Slate 400 divider floor. */
+   (6.34:1 on --bg, which is what .rid actually renders against), not at the
+   Slate 400 divider floor. */
 .rid{flex:none;min-width:4.8rem;padding-top:.1rem;color:var(--slate-300);text-decoration:none;
  font:600 .78rem/1.5 var(--plate);letter-spacing:.05em;font-variant-numeric:tabular-nums}
 .rid:hover{color:var(--gold-500)}

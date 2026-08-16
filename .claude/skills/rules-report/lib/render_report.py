@@ -20,7 +20,9 @@ Grafted in after judging:
                            not be able to outrun its own verifier.
 
 file:// constraints respected: no network, no clipboard API (execCommand fallback),
-localStorage guarded, print handler opens <details>, dark mode via prefers-color-scheme.
+print handler opens <details> and restores their prior state afterwards. The theme is
+committed dark rather than following prefers-color-scheme — this document has one
+intended appearance on screen and inverts wholesale for paper.
 """
 import html, json, os, re, sys
 from verify_citations import RuleIndex, verify_citation
@@ -82,7 +84,7 @@ def _check(c, idx, where, problems):
     return res.ok
 
 
-def _check_holding(ans, idx):
+def _check_holding(ans):
     """Enforce the holding line's invariants.
 
     Evaluation showed error concentrating here: answers with a correct body and
@@ -189,7 +191,7 @@ def verify_answer(ans, idx):
     if len(cruxes) != 1:
         problems.append(f"exactly one note must be crux, found {len(cruxes)}: {cruxes or 'none'}")
 
-    problems += _check_holding(ans, idx)
+    problems += _check_holding(ans)
 
     notes = ans["notes"]
     # The answer is model-generated JSON, i.e. untrusted input. An unknown
@@ -292,7 +294,7 @@ def holding_html(h):
     return "".join(out)
 
 
-def cite_html(c, idx):
+def cite_html(c, idx, corpus):
     rid = c["cite_as"].split(":", 1)[-1]
     doc = c["cite_as"].split(":", 1)[0]
     chain = idx.ancestry(rid, doc)
@@ -302,7 +304,12 @@ def cite_html(c, idx):
               f'now cites the tightest rule that says it</div>' if c.get("narrowed") else "")
     probs = "".join(f'<div class="prob">{esc(p)}</div>' for p in c.get("problems", [])
                     if not p.startswith("cite narrowed"))
-    full = f'{doc} {rid} ({"Core Rules" if doc == "CR" else "Tournament Rules"}, 2026-07-16): "{c.get("quote","")}"'
+    # The date comes from the answer's corpus block, like the masthead. It was
+    # a hardcoded literal, so the next rules update would have moved the
+    # masthead while every copy-cite button kept asserting the old version —
+    # and the copy-cite string is the artifact a judge pastes into a dispute.
+    dated = corpus.get(doc) or next(iter(corpus.values()), "")
+    full = f'{doc} {rid} ({"Core Rules" if doc == "CR" else "Tournament Rules"}, {dated}): "{c.get("quote","")}"'
     # Every ancestor row links to its own anchor, not just the cited rule: the
     # useful move after reading a citation is usually "show me the parent".
     anchored = "".join(
@@ -613,7 +620,8 @@ FAVICON = (
 RAILSYM_MARKER = "<!--RAILSYM-->"
 
 # Shown once, under the verdict, instead of repeating the same sentence under
-# every note. Three lines a reader absorbs and then stops needing.
+# every note. One to three lines — only the bases actually in use — that a
+# reader absorbs and then stops needing.
 KEY_ROWS = (
     ("grounded", "Grounded", "A rule states this in so many words."),
     ("structural", "Structural", "No single rule says this; it follows from the rules cited."),
@@ -621,9 +629,15 @@ KEY_ROWS = (
 )
 
 
-def basis_key_html(notes):
-    """The basis key, limited to the bases this answer actually uses."""
-    used = {n["basis"] for n in notes}
+def basis_key_html(notes, spans=()):
+    """The basis key, limited to the bases this answer actually uses.
+
+    Spans count, not just notes. `_check_holding` constrains only grounded
+    spans, so an `inferred` span may point at a `grounded` note — and deriving
+    the key from notes alone then printed a dotted mark on the verdict line,
+    the one line everyone reads, with no row explaining it.
+    """
+    used = ({n["basis"] for n in notes} | {s.get("basis") for s in spans}) - {None}
     used |= {"structural"} if "inferred" in used else set()
     rows = "".join(
         f'<div class="key-item k-{k}"><b>{BASIS[k][0]} {label}</b>{esc(why)}</div>'
@@ -637,7 +651,11 @@ def clip(text, limit=58):
     text = " ".join(str(text).split())
     if len(text) <= limit:
         return text
-    return text[:text.rfind(" ", 0, limit)].rstrip(" ,;:—-") + "…"
+    # rfind returns -1 when no space falls inside the limit, and text[:-1] then
+    # kept all but the last character — a 100-char claim rendered in full with
+    # an ellipsis falsely claiming it had been shortened. Cut hard instead.
+    cut = text.rfind(" ", 0, limit)
+    return text[:cut if cut > 0 else limit].rstrip(" ,;:—-") + "…"
 
 
 def rail_html(ans, jumps):
@@ -740,8 +758,9 @@ main{min-width:0}
 .wordmark{display:flex;flex-direction:column;gap:.22rem;line-height:1}
 .wordmark .eyebrow{font:600 .58rem/1 var(--plate);letter-spacing:.24em;text-transform:uppercase;
  color:var(--slate-300)}
-/* The display face is set in caps only, and only twice on the page: here and
-   on the disposition. Cinzel's lowercase is not what the register is for. */
+/* The display face is set in caps only, and only three times on the page: here,
+   on the disposition, and on the rail's restatement of it. Cinzel's lowercase is
+   not what the register is for. */
 .wordmark b{font:600 1.02rem/1 var(--display);letter-spacing:.15em;text-transform:uppercase;
  color:var(--gold-500)}
 .unofficial{align-self:center;padding:.42em .7em;border:1px solid var(--line);
@@ -1002,7 +1021,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 
 /* Judges print these. Paper inverts the whole system: the ground becomes white,
    ink becomes text, and gold drops to Gold 700 because Gold 500 on white is
-   2.4:1. Every value below is still a palette token — nothing new is invented
+   2.23:1. Every value below is still a palette token — nothing new is invented
    for print. */
 @media print{
  /* color-scheme:dark makes the UA paint the canvas near-black wherever the
@@ -1131,6 +1150,7 @@ window.addEventListener('afterprint', function(){
 
 def render(ans, idx):
     h = ans["holding"]
+    corpus = ans["corpus"]
     disp = h["disposition"]
     forced = h.get("_forced")
 
@@ -1143,7 +1163,7 @@ def render(ans, idx):
         checked = (f'<div class="checked"><b>Rules searched</b>'
                    f'{esc(" · ".join(n["rules_checked"]))}</div>'
                    if n.get("rules_checked") else "")
-        cites = "".join(cite_html(c, idx) for c in n.get("cites", []))
+        cites = "".join(cite_html(c, idx, corpus) for c in n.get("cites", []))
         note_blocks.append(f'''<section class="note plate b-{n["basis"]}{" is-crux" if n.get("crux") else ""}"
     id="{esc(n["id"])}" data-od-id="note-{esc(n["id"])}">
   <div class="note-n" aria-hidden="true">{esc(note_number(n["id"]))}</div>
@@ -1163,7 +1183,7 @@ def render(ans, idx):
   <h3>“{esc(c["reading"])}”</h3>
   <span class="label">Why it loses</span>
   <p class="why">{esc(c["why_it_loses"])}</p>
-  {f'<div class="cites">{"".join(cite_html(x, idx) for x in c.get("cites", []))}</div>'
+  {f'<div class="cites">{"".join(cite_html(x, idx, corpus) for x in c.get("cites", []))}</div>'
    if c.get("cites") else ""}
 </section>''' for i, c in enumerate(ans.get("counterargument", []), 1))
 
@@ -1185,7 +1205,7 @@ def render(ans, idx):
     nverified = sum(1 for c in _cites if c["verified"])
 
     cards_block = cards_html(ans)
-    key = basis_key_html(ans["notes"])
+    key = basis_key_html(ans["notes"], h.get("spans", []))
     # Passed as data, not as five same-typed positional flags whose declared
     # order differed from the order the rail emitted them in. Transposing two
     # produced a wrong rail with no error and nothing to fail a test on.
@@ -1198,7 +1218,6 @@ def render(ans, idx):
             ("#problems", "Verification problems", problems),
         ) if present
     ])
-    corpus = ans["corpus"]
     forced_html = (
         '<div class="forced">Verdict forced to UNSETTLED — a cited rule failed '
         f'verification (was {esc(forced)})</div>' if forced else "")
