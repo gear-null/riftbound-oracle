@@ -683,6 +683,62 @@ def symbols_and_notes():
                   f'{html.count(chr(34) + "noteref" + chr(34))} refs for {len(spans)} spans')
 
 
+def metric_consistency(idx):
+    """Three defects that each rendered a completely normal-looking report.
+
+    None crashed, none changed any fixture's bytes, and the suite was green
+    through all three. That is precisely why they are pinned here: the render
+    gate catches a fabricated citation, but nothing was watching the numbers
+    and notices the reader actually reads.
+    """
+    print("\n=== headline metrics + card notices ===")
+    import tempfile
+    from render_report import all_cites, card_notice, verify_answer
+
+    # 1. The console tally and the report headline are the same quantity and
+    #    must never be computed twice. They were, and had drifted: the
+    #    counterargument's citations are verified like any other, but only the
+    #    headline counted them, so the terminal said 6/6 where the report it had
+    #    just written said 8/8.
+    src = os.path.join(HERE, "flow-counter-answer.json")
+    ans = verify_answer(json.load(open(src, encoding="utf-8")), idx)
+    every = len(all_cites(ans))
+    notes_only = sum(len(n.get("cites", [])) for n in ans["notes"])
+    check("the fixture reaches the counterargument path at all", every > notes_only,
+          f"{every} cites total vs {notes_only} in notes")
+
+    with tempfile.TemporaryDirectory() as d:
+        out = os.path.join(d, "fc.html")
+        r = subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out],
+                           capture_output=True, text=True, cwd=HERE)
+        m = re.search(r"citations\s*:\s*(\d+)/(\d+)", r.stdout)
+        check("the console reports a citation tally", bool(m), r.stdout.strip()[:80])
+        if m:
+            check("and it counts every citation the verifier checked",
+                  int(m.group(2)) == every, f"console {m.group(2)}, actual {every}")
+        html = open(out, encoding="utf-8").read()
+        i = html.find("citations verified verbatim")
+        near = " ".join(re.sub(r"<[^>]+>", " ", html[max(0, i - 200):i]).split())
+        check("the headline agrees with the console", f"{every}/{every}" in near, near[-40:])
+
+    # 2. Errata and incomplete-text are independent; a card can carry both.
+    both = card_notice({"errata": "the 2026-07-16 update", "incomplete": "granted effect"})
+    check("a card that is both erratum'd AND short shows both notices",
+          "card-errata" in both and "card-gap" in both, both[:60])
+    check("a card with neither shows no notice", card_notice({}) == "")
+
+    # 3. An answer that ABSTAINS is not an answer that failed verification. The
+    #    no-notes path set _forced unconditionally, so an author's honest
+    #    UNSETTLED rendered the banner "forced to UNSETTLED (was UNSETTLED)".
+    def _empty(disp):
+        return verify_answer({"notes": [], "holding": {"disposition": disp, "line": "x",
+                                                       "spans": []}}, idx)["holding"]
+    check("an already-UNSETTLED answer with no notes is not marked forced",
+          _empty("UNSETTLED").get("_forced") is None)
+    check("but a YES with no notes still is",
+          _empty("YES").get("_forced") == "YES")
+
+
 def main():
     print("rules-report selftest")
     parser_fidelity()
@@ -695,6 +751,7 @@ def main():
     topic_blocks(idx)
     attribution_and_spans(idx)
     render_gate()
+    metric_consistency(idx)
     python_floor()
 
     print()

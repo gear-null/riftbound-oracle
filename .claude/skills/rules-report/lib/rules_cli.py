@@ -287,11 +287,12 @@ def cmd_report(args):
 
 
 def cmd_verify(args):
-    from render_report import verify_answer
+    from render_report import all_cites, verify_answer
     ans = json.load(open(args[0], encoding="utf-8"))
     ans = verify_answer(ans, _idx())
-    nc = sum(len(n.get("cites", [])) for n in ans["notes"])
-    nv = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
+    cites = all_cites(ans)
+    nc = len(cites)
+    nv = sum(1 for c in cites if c["verified"])
     print(f"disposition : {ans['holding']['disposition']}"
           + (f"  (FORCED from {ans['holding']['_forced']})" if ans["holding"].get("_forced") else ""))
     print(f"citations   : {nv}/{nc} verified verbatim")

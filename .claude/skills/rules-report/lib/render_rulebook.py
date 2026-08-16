@@ -19,6 +19,8 @@ import re
 from collections import defaultdict
 
 DOC_TITLE = {"CR": "Comprehensive Rules", "TR": "Tournament Rules"}
+# Hoisted: the ordering below indexed into a fresh list(DOC_TITLE) per comparison.
+DOC_ORDER = list(DOC_TITLE)
 
 # Bare ids inside rule text ("see 471.1.b") become links. Requires at least one
 # dot so ordinary numbers — "8 points", "2026" — are left alone.
@@ -106,7 +108,7 @@ def render_rulebook(rules, version="unknown"):
 
     # CR before TR; anything else after, alphabetically — deterministic output
     # so regenerating an unchanged corpus produces an unchanged file.
-    order = sorted(by_doc, key=lambda d: (d not in DOC_TITLE, list(DOC_TITLE).index(d) if d in DOC_TITLE else 0, d))
+    order = sorted(by_doc, key=lambda d: (DOC_ORDER.index(d) if d in DOC_ORDER else len(DOC_ORDER), d))
     by_doc = {d: by_doc[d] for d in order}
 
     sections = []

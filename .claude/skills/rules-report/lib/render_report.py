@@ -203,8 +203,13 @@ def verify_answer(ans, idx):
         problems.append("answer has no notes")
         ans["_weakest"], ans["_strength"] = "-", "gap"
         ans["_problems"] = problems
-        ans["holding"]["_forced"] = ans["holding"].get("disposition")
-        ans["holding"]["disposition"] = "UNSETTLED"
+        # Guarded exactly as the load-bearing branch below is. Setting _forced
+        # unconditionally made an answer that was ALREADY UNSETTLED render the
+        # banner "forced to UNSETTLED (was UNSETTLED)", which reads as a
+        # verification failure rather than an author's honest abstention.
+        if ans["holding"]["disposition"] != "UNSETTLED":
+            ans["holding"]["_forced"] = ans["holding"]["disposition"]
+            ans["holding"]["disposition"] = "UNSETTLED"
         return ans
     graded = [n for n in notes if n["basis"] != "gap"] or notes
     weakest = min(graded, key=lambda n: RANK[n["basis"]])
@@ -220,13 +225,30 @@ def verify_answer(ans, idx):
     return ans
 
 
+def all_cites(ans):
+    """Every citation the verifier checked — the notes' AND the counterargument's.
+
+    One definition, because three copies of this comprehension had already
+    drifted apart. `render` counted both sources; `main`'s console summary and
+    `rules_cli.cmd_verify` counted only the notes, so the same answer file
+    reported "9/9 verified" on the terminal and "12/12" in the headline of the
+    report it had just written.
+
+    Both sources belong in the tally: a failed counterargument cite forces
+    UNSETTLED exactly as a failed note cite does, so a metric that omits it can
+    read all-clear on a report the verifier demonstrably rejected.
+    """
+    return [c for src in list(ans["notes"]) + list(ans.get("counterargument", []))
+            for c in src.get("cites", [])]
+
+
 def note_number(note_id):
     """"n12" -> "12". Falls back to the raw id for anything unnumbered."""
     digits = "".join(ch for ch in str(note_id) if ch.isdigit())
     return digits or str(note_id)
 
 
-def holding_html(h, notes_by_id):
+def holding_html(h):
     """Type the holding line: every span must be an exact substring of the line.
 
     Each span carries a superscript note number, the way a citation works in
@@ -274,11 +296,6 @@ def cite_html(c, idx):
     rid = c["cite_as"].split(":", 1)[-1]
     doc = c["cite_as"].split(":", 1)[0]
     chain = idx.ancestry(rid, doc)
-    rows = "".join(
-        f'<li class="{"anc-target" if r["id"] == rid else ""}" style="--d:{r["depth"]}">'
-        f'<code>{esc(r["id"])}</code> <span>{esc(r["text"])}</span></li>'
-        for r in chain
-    )
     stamp = ("verified" if c["verified"] else "UNVERIFIED")
     scls = "ok" if c["verified"] else "bad"
     narrow = (f'<div class="narrowed">narrowed from {esc(c["narrowed"])} — '
@@ -483,6 +500,24 @@ def stats_html(stats):
     return f'<span class="card-stats">{"".join(chips)}</span>' if chips else ""
 
 
+def card_notice(c):
+    """The "do not trust this text" banners under a card's printed rules text.
+
+    The two are INDEPENDENT and can both apply: a card can be erratum'd by a
+    rules update AND have text the API serves short. Assigning the second
+    instead of appending it dropped the errata notice on exactly those cards,
+    telling the reader the text was merely incomplete when it was also stale.
+    """
+    out = ""
+    if c.get("errata"):
+        out += (f'<span class="card-errata">Text updated by {esc(c["errata"])} — '
+                "the card database still serves the older wording.</span>")
+    if c.get("incomplete"):
+        out += (f'<span class="card-gap">Printed text incomplete — {esc(c["incomplete"])}. '
+                "Read it from the card image.</span>")
+    return out
+
+
 def cards_html(ans):
     """Card artwork beside printed text, for every card the answer names.
 
@@ -531,13 +566,7 @@ def cards_html(ans):
         # The artwork sits directly beside this text. Where the source data is
         # short, the two visibly disagree, so the panel has to say which one is
         # incomplete rather than letting the reader assume the text is whole.
-        gap = ""
-        if c.get("errata"):
-            gap += (f'<span class="card-errata">Text updated by {esc(c["errata"])} — '
-                    "the card database still serves the older wording.</span>")
-        if c.get("incomplete"):
-            gap = (f'<span class="card-gap">Printed text incomplete — {esc(c["incomplete"])}. '
-                   "Read it from the card image.</span>")
+        gap = card_notice(c)
 
         # Model-generated JSON: the name key exists but need not be a string.
         slug = re.sub(r"[^a-z0-9]+", "-", str(c.get("name", "")).lower()).strip("-") or "card"
@@ -611,7 +640,7 @@ def clip(text, limit=58):
     return text[:text.rfind(" ", 0, limit)].rstrip(" ,;:—-") + "…"
 
 
-def rail_html(ans, has_counter, has_rejected, has_open, has_cards, has_problems):
+def rail_html(ans, jumps):
     """A sticky index of the argument.
 
     The report is one long column of dense conditional prose, and the reader's
@@ -631,17 +660,6 @@ def rail_html(ans, has_counter, has_rejected, has_open, has_cards, has_problems)
             f'<span class="t">{esc(clip(n["claim"]))}{badge}</span></a>'
         )
     notes = "".join(rows)
-    jumps = []
-    if has_cards:
-        jumps.append(("#cards", "Cards referenced"))
-    if has_counter:
-        jumps.append(("#against", "The argument against"))
-    if has_rejected:
-        jumps.append(("#rejected", "Considered and rejected"))
-    if has_open:
-        jumps.append(("#unsettled", "The rules do not settle"))
-    if has_problems:
-        jumps.append(("#problems", "Verification problems"))
     jump_html = "".join(f'<a class="rail-jump" href="{href}">{esc(label)}</a>'
                         for href, label in jumps)
 
@@ -1112,7 +1130,6 @@ window.addEventListener('afterprint', function(){
 
 
 def render(ans, idx):
-    notes_by_id = {n["id"]: n for n in ans["notes"]}
     h = ans["holding"]
     disp = h["disposition"]
     forced = h.get("_forced")
@@ -1163,18 +1180,24 @@ def render(ans, idx):
                      flags=re.I)
 
     problems = "".join(f'<li>{esc(p)}</li>' for p in ans.get("_problems", []))
-    # Every citation the verifier checked, not just the notes'. A failed
-    # counterargument cite forces UNSETTLED, so excluding it let the headline
-    # metric read "6/6 verified" on the one report where one demonstrably did not.
-    _cites = [c for src in list(ans["notes"]) + list(ans.get("counterargument", []))
-              for c in src.get("cites", [])]
+    _cites = all_cites(ans)
     ncites = len(_cites)
     nverified = sum(1 for c in _cites if c["verified"])
 
     cards_block = cards_html(ans)
     key = basis_key_html(ans["notes"])
-    rail = rail_html(ans, bool(counter), bool(rejected), bool(openq),
-                     bool(cards_block), bool(problems))
+    # Passed as data, not as five same-typed positional flags whose declared
+    # order differed from the order the rail emitted them in. Transposing two
+    # produced a wrong rail with no error and nothing to fail a test on.
+    rail = rail_html(ans, [
+        (href, label) for href, label, present in (
+            ("#cards", "Cards referenced", cards_block),
+            ("#against", "The argument against", counter),
+            ("#rejected", "Considered and rejected", rejected),
+            ("#unsettled", "The rules do not settle", openq),
+            ("#problems", "Verification problems", problems),
+        ) if present
+    ])
     corpus = ans["corpus"]
     forced_html = (
         '<div class="forced">Verdict forced to UNSETTLED — a cited rule failed '
@@ -1216,7 +1239,7 @@ def render(ans, idx):
     <span class="hairline" aria-hidden="true"></span>
     <span class="tally"><b>{nverified}/{ncites}</b> citations verified verbatim</span>
   </div>
-  <p class="hline">{holding_html(h, notes_by_id)}</p>
+  <p class="hline">{holding_html(h)}</p>
   <div class="strength">
     <span class="metric"><span class="label">Weakest link</span>
       <a class="weakref" href="#{esc(ans["_weakest"])}">note {esc(note_number(ans["_weakest"]))}</a>
@@ -1294,8 +1317,9 @@ def main():
     html_out = render(ans, idx)
     with open(out, "w", encoding="utf-8") as fh:
         fh.write(html_out)
-    ncites = sum(len(n.get("cites", [])) for n in ans["notes"])
-    nver = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
+    _cites = all_cites(ans)
+    ncites = len(_cites)
+    nver = sum(1 for c in _cites if c["verified"])
     print(f"wrote {out}")
     print(f"  disposition : {ans['holding']['disposition']}"
           + (f" (forced from {ans['holding']['_forced']})" if ans['holding'].get('_forced') else ""))
