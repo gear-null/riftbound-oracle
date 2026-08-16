@@ -19,10 +19,18 @@ Usage:
     python3 retrieve.py query "does a countered flow spell still get banished"
     python3 retrieve.py selftest
 """
-import json, re, sqlite3, sys, textwrap
+import json, os, re, sqlite3, sys, textwrap
 
 from corpus import rules_json
-DB = "rules.db"
+
+# Anchored to this file, not the cwd. `rules_cli.py` always passes an explicit
+# absolute path, so the shipped answering path was never affected — but the
+# standalone usage in the docstring above is real, and with a bare relative
+# name it built or opened a `rules.db` wherever it happened to be invoked
+# from. That silently scattered empty databases (one turned up in `output/`)
+# and meant a standalone `query` could read an index that was not the one
+# `build` had just written.
+DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rules.db")
 
 
 def sort_key(rule_id):
