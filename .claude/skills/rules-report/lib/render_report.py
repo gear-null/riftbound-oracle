@@ -63,7 +63,14 @@ def _check(c, idx, where, problems):
     # rulebook link to an anchor that does not exist. RuleIndex.get was fixed
     # never to cross documents; `doc or "CR"` reintroduced the same
     # mis-attribution one layer up, so take the doc from the resolved rule.
-    resolved = idx.get(res.cite_as or rid, doc)
+    # Resolve the doc from the id as WRITTEN, not from the narrowed one.
+    # `verify_citation` narrows only within the rule's own document, so the doc
+    # cannot change under narrowing — but `idx.get(narrowed_id, None)` is
+    # first-hit-wins across documents, so a bare TR id whose narrowed descendant
+    # also exists in CR would have flipped to CR, printed CR's ancestry, and
+    # stamped it verified. Not reachable in today's corpus (checked: 0 of 790
+    # TR-only ids have a CR-first descendant), but one rules update would do it.
+    resolved = idx.get(rid, doc) or idx.get(res.cite_as or rid, doc)
     actual_doc = doc or (resolved["doc"] if resolved else None)
     if actual_doc is None:
         actual_doc = "CR"
@@ -82,6 +89,31 @@ def _check(c, idx, where, problems):
     if not res.ok:
         problems.append(f'{where}: {"; ".join(res.problems)}')
     return res.ok
+
+
+def place_spans(line, spans):
+    """The single decision about which spans render, and where.
+
+    `_check_holding` used to reason about pairwise first-occurrence ranges while
+    `holding_html` placed spans with a monotonic cursor. Two ways of answering
+    the same question, so they disagreed: two spans carrying the SAME text, on a
+    line where that text occurs once, passed the pairwise guard (which exempts
+    identical ranges as harmless) and then lost one to the cursor — rendered as
+    unmarked prose, no link, no superscript, zero problems reported.
+
+    Both callers now run this, so a span the renderer will drop is a span the
+    verifier has already refused.
+    """
+    placed, dropped, cur = [], [], 0
+    for sp in sorted(spans, key=lambda s: line.find(s.get("text", ""))):
+        text = sp.get("text", "")
+        i = line.find(text, cur) if text else -1
+        if i < 0:
+            dropped.append(sp)
+            continue
+        placed.append((i, sp))
+        cur = i + len(text)
+    return placed, dropped
 
 
 def _check_holding(ans):
@@ -148,6 +180,16 @@ def _check_holding(ans):
                 problems.append(
                     f'holding span "{text[:30]}" claims grounded but {note["id"]} has a failed citation')
 
+    # Whatever the pairwise reasoning above concluded, this is the authority:
+    # any span the renderer cannot place would render as unmarked prose.
+    # Identical duplicate spans reach here having passed every earlier guard,
+    # because the overlap test exempts identical ranges as harmless — they are
+    # harmless to that test and fatal to the placement cursor.
+    for sp in place_spans(line, spans)[1]:
+        problems.append(
+            f'holding span "{str(sp.get("text", ""))[:30]}" cannot be placed — '
+            "it duplicates or overlaps another span; only one would render")
+
     # Substantive uncovered text is where loose summaries hide.
     words = len([w for w in line.split() if len(w) > 3])
     if words and covered / max(len(line), 1) < 0.30:
@@ -165,6 +207,18 @@ def verify_answer(ans, idx):
     skeptical reader will go check first.
     """
     problems = []
+    # The answer is model-generated JSON, i.e. untrusted input. Coerced BEFORE
+    # anything reads note["basis"] — the gap-note check below and _check_holding
+    # both do, so a note missing the key raised KeyError mid-verification and
+    # produced no report at all. The span-level guard was already placed before
+    # its first use; this was the one spot where the pattern stayed inverted.
+    # A crash means no report, and anyone who later wraps this in try/except
+    # turns the verifier into a no-op.
+    for n in ans["notes"]:
+        if n.get("basis") not in RANK:
+            problems.append(f'{n.get("id", "?")}: unknown basis {n.get("basis")!r}')
+            n["basis"] = "gap"
+
     for note in ans["notes"]:
         note_ok = True
         for c in note.get("cites", []):
@@ -194,13 +248,6 @@ def verify_answer(ans, idx):
     problems += _check_holding(ans)
 
     notes = ans["notes"]
-    # The answer is model-generated JSON, i.e. untrusted input. An unknown
-    # basis used to raise KeyError here; a crash means no report, and anyone
-    # who later wraps this in try/except turns the verifier into a no-op.
-    for n in notes:
-        if n.get("basis") not in RANK:
-            problems.append(f'{n.get("id", "?")}: unknown basis {n.get("basis")!r}')
-            n["basis"] = "gap"
     if not notes:
         problems.append("answer has no notes")
         ans["_weakest"], ans["_strength"] = "-", "gap"
@@ -265,22 +312,19 @@ def holding_html(h):
     # order: viktor-answer.json lists "Zero Recruits" third though it opens the
     # line, so the literal answer to the question rendered as unmarked prose —
     # no link, no superscript, and it was the crux and the weakest link.
-    placed, cur = [], 0
-    for sp in sorted(spans, key=lambda s: line.find(s.get("text", ""))):
-        text = sp.get("text", "")
-        i = line.find(text, cur) if text else -1
-        if i < 0:
-            continue  # not a substring, or overlaps one already placed
-        placed.append((i, sp))
-        cur = i + len(text)
+    placed, _dropped = place_spans(line, spans)
 
     out, cur = [], 0
     for i, sp in placed:
         out.append(esc(line[cur:i]))
-        cls = "sp-grounded" if sp["basis"] == "grounded" else "sp-inferred"
+        # A `gap` span used to fall into the sp-inferred branch: the rules are
+        # silent on this, drawn with the dotted blue mark that means "it follows
+        # from the rules below" — a strength upgrade (RANK 1 -> 2) on the one
+        # line everyone reads, and one that now contradicts the key's ○ Gap row.
+        cls = {"grounded": "sp-grounded", "gap": "sp-gap"}.get(sp["basis"], "sp-inferred")
         # The glyph still separates basis at a glance, for a reader who is not
         # going to chase the number.
-        glyph = "" if sp["basis"] == "grounded" else "⌁"
+        glyph = {"grounded": "", "gap": "○"}.get(sp["basis"], "⌁")
         num = note_number(sp["note"])
         out.append(
             f'<a class="{cls}" href="#{esc(sp["note"])}" '
@@ -793,7 +837,8 @@ h1{margin:.75rem 0 0;font:500 1.5rem/1.34 var(--body);max-width:34ch;color:var(-
 .hline{margin:1.15rem 0 0;font-size:1.2rem;line-height:1.55;max-width:68ch}
 .sp-grounded{color:inherit;text-decoration:none;border-bottom:2px solid var(--gold-500)}
 .sp-inferred{color:inherit;text-decoration:none;border-bottom:2px dotted var(--blue)}
-.sp-grounded:hover,.sp-inferred:hover{background:var(--wash);color:var(--fg)}
+.sp-gap{color:inherit;text-decoration:none;border-bottom:2px dotted var(--muted)}
+.sp-grounded:hover,.sp-inferred:hover,.sp-gap:hover{background:var(--wash);color:var(--fg)}
 .noteref{color:var(--blue);text-decoration:none;font:700 .95em/1 var(--plate);padding-left:.12em}
 .noteref:hover{color:var(--fg)}
 .strength{display:flex;flex-wrap:wrap;gap:.35rem 1.7rem;margin-top:1.3rem;padding-top:.95rem;
@@ -831,6 +876,11 @@ h2::after{content:"";flex:1;height:1px;background:var(--line);opacity:.5}
  font-variant-numeric:tabular-nums;color:var(--slate-300)}
 .b-grounded .note-n{color:var(--gold-500)}
 .b-structural .note-n{color:var(--blue)}
+.b-inferred .note-n{color:var(--blue)}
+/* Restates the base colour rather than changing it: a gap is deliberately the
+   quietest note on the page, and writing it out makes that a decision instead
+   of an omission that looks identical to a forgotten rule. */
+.b-gap .note-n{color:var(--slate-300)}
 .note-body{padding:1rem 1.15rem 1.1rem;min-width:0}
 .note-head{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
 .note-head h3{flex:1 1 15rem;margin:0;font:500 1.02rem/1.45 var(--body);max-width:68ch}
@@ -839,6 +889,8 @@ h2::after{content:"";flex:1;height:1px;background:var(--line);opacity:.5}
  border:1px solid var(--rule);padding:.42em .55em;color:var(--muted);white-space:nowrap}
 .b-grounded .basis-chip{color:var(--gold-500);border-color:var(--line)}
 .b-structural .basis-chip{color:var(--blue);border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.b-inferred .basis-chip{color:var(--blue);border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.b-gap .basis-chip{color:var(--muted);border-color:var(--rule)}
 .crux{font:700 .63rem/1 var(--plate);letter-spacing:.14em;text-transform:uppercase;
  border:1px solid var(--gold-500);color:var(--gold-500);padding:.42em .55em;white-space:nowrap}
 .detail{margin:.8rem 0 0;font-size:.97rem;max-width:68ch;color:var(--fg)}

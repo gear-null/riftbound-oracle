@@ -752,7 +752,7 @@ def rendered_surfaces(idx):
     print("\n=== rendered surfaces (all five fixtures) ===")
     import copy
     import tempfile
-    from render_report import _CSS, _JS, clip, legend_html, render, verify_answer
+    from render_report import BASIS, _CSS, _JS, clip, legend_html, render, verify_answer
 
     # A legend row is a citation like any other. Every report on main carried a
     # fabricated "[1] / [2] = that much Energy" row citing CR 429.5, harvested
@@ -834,6 +834,44 @@ def rendered_surfaces(idx):
     check("the key explains every mark the verdict line uses",
           'class="sp-inferred"' not in marked or has_row,
           "inferred span rendered with no structural row in the key")
+
+    # Two spans with the SAME text, on a line where it occurs once, passed every
+    # guard: the overlap test exempts identical ranges as harmless, and the
+    # placement cursor then dropped one to unmarked prose with zero problems.
+    dup = copy.deepcopy(json.load(open(os.path.join(HERE, "flow-counter-answer.json"),
+                                       encoding="utf-8")))
+    dup["holding"]["spans"].append({"text": dup["holding"]["spans"][0]["text"],
+                                    "basis": dup["holding"]["spans"][0]["basis"],
+                                    "note": dup["notes"][1]["id"]})
+    rdup = verify_answer(dup, idx)
+    check("a span the renderer would drop fails verification",
+          any("cannot be placed" in p for p in rdup["_problems"]), str(rdup["_problems"])[:70])
+
+    # A `gap` span means "the rules are silent"; it used to be drawn with the
+    # dotted-blue mark that means "it follows from the rules below" — RANK 1
+    # rendered as RANK 2, on the one line everyone reads.
+    gp = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                      encoding="utf-8")))
+    gp["holding"]["spans"][1]["basis"] = "gap"
+    gpage = render(verify_answer(gp, idx), idx)
+    check("a gap span is not drawn as a structural one",
+          'class="sp-gap"' in gpage and 'class="sp-inferred"' not in gpage)
+
+    # Every basis the schema accepts must have a paint. `inferred` did not, so a
+    # note the key printed as Structural rendered in the muted treatment a gap
+    # note gets — the key and the note disagreeing about the same claim.
+    unpainted = [k for k in BASIS if f".b-{k} " not in _CSS]
+    check("every accepted note basis has a stylesheet rule", not unpainted,
+          f"unpainted: {unpainted}")
+
+    # The basis coercion must run before ANYTHING reads note["basis"].
+    nob = copy.deepcopy(base)
+    del nob["notes"][0]["basis"]
+    try:
+        check("a note missing its basis is reported, not crashed",
+              any("basis" in p for p in verify_answer(nob, idx)["_problems"]))
+    except KeyError as e:
+        check("a note missing its basis is reported, not crashed", False, f"KeyError {e}")
 
     check("a rail claim is shortened even with no early space",
           len(clip("x" * 100)) <= 60, repr(clip("x" * 100))[:24])
