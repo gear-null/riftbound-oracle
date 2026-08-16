@@ -873,6 +873,26 @@ def rendered_surfaces(idx):
     except KeyError as e:
         check("a note missing its basis is reported, not crashed", False, f"KeyError {e}")
 
+    # A failure to LOAD the card data used to render "not found — no card by
+    # this name" on every card: a factual assertion about the corpus, produced
+    # by a tooling failure, with zero problems and the verdict untouched. This
+    # is the exact conversion SKILL.md forbids the model from making.
+    import card_bridge
+    _real = card_bridge.CardBridge
+    try:
+        class _Boom:
+            def __init__(self, *a, **k):
+                raise RuntimeError("card data unreadable")
+        card_bridge.CardBridge = _Boom
+        broke = render(verify_answer(copy.deepcopy(json.load(
+            open(os.path.join(HERE, "vi-cost-answer.json"), encoding="utf-8"))), idx), idx)
+    finally:
+        card_bridge.CardBridge = _real
+    check("unreadable card data is not reported as a missing card",
+          "no card by this name" not in broke, "rendered the card as nonexistent")
+    check("and says the database failed instead",
+          "did not load" in broke)
+
     check("a rail claim is shortened even with no early space",
           len(clip("x" * 100)) <= 60, repr(clip("x" * 100))[:24])
     check("a short claim is left alone", clip("abc") == "abc")

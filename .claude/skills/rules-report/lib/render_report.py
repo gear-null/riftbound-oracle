@@ -484,11 +484,23 @@ def resolve_cards(ans):
     if not names:
         return []
 
+    # A failure to LOAD the card data is not a statement about any card. It
+    # used to be one: every name then missed the lookup and rendered "not found
+    # — no card by this name", which asserts the card does not exist in
+    # Riftbound. A reader would go and re-type the name. SKILL.md forbids the
+    # model from converting a data gap into a rules gap; the renderer must not
+    # do it either. Kept non-fatal — the rules argument above is unaffected and
+    # is the part worth reading — but said plainly, and on stderr so whoever
+    # generated it knows the corpus is the problem and not their spelling.
+    bridge, unavailable = None, ""
     try:
         from card_bridge import CardBridge
         bridge = CardBridge()
-    except Exception:
-        bridge = None
+    except Exception as err:
+        unavailable = f"{type(err).__name__}: {err}"
+        print(f"  card data could not be loaded ({unavailable}) — "
+              "card panels will say so rather than report the cards missing",
+              file=sys.stderr)
 
     out = []
     for entry in names:
@@ -515,7 +527,12 @@ def resolve_cards(ans):
             # which is precisely what find_cards refuses to do for names.
             supplied = dict(supplied)
             supplied["unresolved"] = True
+            if unavailable:
+                supplied.pop("unresolved")
+                supplied["unavailable"] = unavailable
             out.append(supplied)
+        elif unavailable:
+            out.append({"name": name, "unavailable": unavailable})
         else:
             out.append({"name": name, "unresolved": True})
     return out
@@ -583,8 +600,25 @@ def cards_html(ans):
     for c in cards:
         img = c.get("image")
         if img and EMBED_ART:
-            img = embed_image(img) or img
-        if c.get("unresolved"):
+            # The fallback to the remote URL stays — a report that fails to
+            # render because a CDN was slow is a worse trade, as embed_image
+            # says. But it is not silent: EMBED_ART is set precisely BECAUSE
+            # the reader's viewer blocks remote images, so falling back hands
+            # them the "artwork offline" placeholder the flag existed to
+            # prevent, with nothing to explain why it did not work.
+            embedded = embed_image(img)
+            if not embedded:
+                print(f"  could not embed artwork for {c.get('name', '?')} — "
+                      "falling back to the CDN URL, which a viewer that blocks "
+                      "remote images will not load", file=sys.stderr)
+            img = embedded or img
+        if c.get("unavailable"):
+            art = (
+                '<div class="card-art card-art--none">data unavailable'
+                "<span>the card database did not load — this is not a "
+                "statement about the card</span></div>"
+            )
+        elif c.get("unresolved"):
             art = (
                 '<div class="card-art card-art--none">not found'
                 "<span>no card by this name</span></div>"
