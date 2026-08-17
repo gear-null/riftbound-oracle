@@ -38,6 +38,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      # Proves the suite above can actually fail. Two review rounds found
+      # checks that stayed green while the exact defect they were named for was
+      # live, so the check count is only evidence if the checks have been seen
+      # to go red. Runs on one Python version — it is about the checks, not the
+      # interpreter — and only when the skill changes.
+      - name: The selftest can fail
+        if: matrix.python == '3.13'
+        run: |
+          cd .claude/skills/rules-report/lib
+          python3 mutants.py
+
       - name: Corpus and citation checks
         working-directory: .claude/skills/rules-report/lib
         run: python3 rules_cli.py selftest

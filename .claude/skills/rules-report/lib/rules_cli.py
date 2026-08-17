@@ -18,6 +18,7 @@ with — each one exact, deterministic, and free of model judgement:
     rules verify <json>     mechanical citation gate (report runs this for you)
     rules rulebook          (re)generate the anchored HTML rulebook
     rules selftest          regression harness; run after every rules update
+    rules mutants           proves the selftest can fail — run before a release
     rules render <json>     interactive HTML report
 
 The division of labour: the agent decides WHAT to look at, code decides whether
@@ -319,6 +320,18 @@ def cmd_render(args):
     subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
 
 
+def cmd_mutants(args):
+    """Reintroduce each defect the selftest claims to catch, and watch it fail.
+
+    Seven review rounds found the same thing twice: checks that could not fail.
+    A green suite is only evidence if its checks have been observed to go red,
+    so this is the check on the checks. Slower than selftest — it runs the whole
+    suite once per mutant — so it is a pre-release gate, not an inner loop.
+    """
+    sys.exit(subprocess.run([sys.executable, os.path.join(HERE, "mutants.py")],
+                            cwd=HERE).returncode)
+
+
 def cmd_selftest(args):
     """Regression harness — run after every rules update."""
     # selftest's contract IS its exit code; discarding it reported a
@@ -345,6 +358,7 @@ def cmd_build(args):
 COMMANDS = {"rule": cmd_rule, "section": cmd_section, "grep": cmd_grep,
             "card": cmd_card, "verify": cmd_verify, "render": cmd_render,
             "build": cmd_build, "selftest": cmd_selftest, "report": cmd_report,
+            "mutants": cmd_mutants,
             "rulebook": cmd_rulebook}
 
 

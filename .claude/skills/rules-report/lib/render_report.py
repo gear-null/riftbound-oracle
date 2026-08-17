@@ -288,6 +288,14 @@ def verify_answer(ans, idx):
     # page entirely unverified: no quote to check, but the rule must at least
     # exist and be addressed by the document it names.
     for i, cr in enumerate(ans.get("considered_rejected", []), 1):
+        # Untrusted model JSON. A list of bare strings used to raise
+        # AttributeError here, and the crash hid every problem found after it —
+        # including a hallucinated quote in a note.
+        if not isinstance(cr, dict):
+            problems.append(
+                f"considered_rejected {i}: expected an object with `rule` and "
+                f"`why`, got {type(cr).__name__}")
+            continue
         ref = str(cr.get("rule", ""))
         cdoc, crid = (ref.split(":", 1) if ":" in ref else (None, ref))
         if not crid:
@@ -314,6 +322,13 @@ def verify_answer(ans, idx):
     # a fabricated id here buys the strongest claim in the document: that the
     # rules do not address something. It was rendered as "Rules searched"
     # without ever being checked.
+    for c in resolve_cards(ans):
+        for sec in (c.get("rule_sections") or []):
+            if isinstance(sec, str) and not idx.get(str(sec), "CR"):
+                problems.append(
+                    f'card {c.get("name", "?")}: rule_sections names {sec}, which '
+                    "does not exist at this corpus version")
+
     for note in ans["notes"]:
         for ref in note.get("rules_checked", []) or []:
             ref = str(ref)
@@ -333,6 +348,24 @@ def verify_answer(ans, idx):
         problems.append(
             f"duplicate note id(s) {', '.join(_dupes)} — every link to them "
             "resolves to the first, so the others are unreachable")
+
+    # The keys render() subscripts with [] — verified here rather than
+    # discovered as a KeyError halfway through writing the page. The verifier
+    # certifying an answer it cannot render is the two halves disagreeing about
+    # what a valid answer is, and rc=0 is what the product sells.
+    for key in ("question", "corpus"):
+        if key not in ans:
+            problems.append(f"answer is missing required key {key!r}")
+    for key in ("CR", "TR", "generated"):
+        if isinstance(ans.get("corpus"), dict) and key not in ans["corpus"]:
+            problems.append(f"corpus.{key} is missing")
+    for n in ans["notes"]:
+        if not n.get("claim"):
+            problems.append(f'{n.get("id", "?")}: no claim')
+        # Rendered with " · ".join(), which needs strings.
+        n["rules_checked"] = [str(x) for x in (n.get("rules_checked") or [])] or None
+        if n["rules_checked"] is None:
+            n.pop("rules_checked")
 
     cruxes = [n["id"] for n in ans["notes"] if n.get("crux")]
     if len(cruxes) != 1:
@@ -715,12 +748,19 @@ def card_notice(c):
     if c.get("errata"):
         out += (f'<span class="card-errata">Text updated by {esc(c["errata"])} — '
                 "the card database still serves the older wording.</span>")
-    if c.get("ambiguous"):
-        others = ", ".join(str(n) for n in c["ambiguous"])
-        out += (f'<span class="card-gap">This name matches '
-                f'{len(c["ambiguous"])} cards — {esc(others)}. '
-                "Shown below is one of them; check the answer means that one."
-                "</span>")
+    # Coerced: a bare string iterates per CHARACTER and rendered
+    # "This name matches 3 cards — Z, e, d." Same defect already closed for
+    # `stats` and `rule_sections`.
+    amb = c.get("ambiguous") or []
+    if isinstance(amb, str):
+        amb = [amb]
+    if len(amb) > 1:
+        others = ", ".join(str(n) for n in amb)
+        # Names the printing actually shown, and says ABOVE — the notice is the
+        # last element in the panel, so "shown below" pointed at nothing.
+        out += (f'<span class="card-gap">This name matches {len(amb)} cards — '
+                f'{esc(others)}. Shown above is <b>{esc(str(c.get("name", "")))}</b>'
+                " — check the answer means that one.</span>")
     if c.get("incomplete"):
         out += (f'<span class="card-gap">Printed text incomplete — {esc(c["incomplete"])}. '
                 "Read it from the card image.</span>")

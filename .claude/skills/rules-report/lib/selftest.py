@@ -264,7 +264,18 @@ def rulebook_and_links():
     # restyling and the overlay silently stops intercepting, so the reader gets
     # navigated out of the report instead of the panel.
     if os.path.exists(src):
-        emitted = set(re.findall(r'<a class="([^"]+)"[^>]*href="\.\./data/rules\.html', html))
+        # Union across every fixture: demo emits only anc-link and
+        # rulebook-link, so dropping `a.card-rule, a.sym-rule` from the
+        # interception selector left this check green while those links
+        # navigated the reader out of the report.
+        emitted = set()
+        for _f in ("demo", "viktor", "heron", "flow-counter", "vi-cost"):
+            _p = os.path.join(HERE, f"{_f}-answer.json")
+            if not os.path.exists(_p):
+                continue
+            _h = render(verify_answer(json.load(open(_p, encoding="utf-8")), idx), idx)
+            emitted |= set(re.findall(
+                r'<a class="([^"]+)"[^>]*href="\.\./data/rules\.html', _h))
         # rb-pop is the panel's own "open full page" link; it is meant to escape
         # the overlay, so it is deliberately not intercepted.
         emitted.discard("rb-pop")
@@ -821,9 +832,12 @@ def rendered_surfaces(idx):
     base = json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8"))
     vans = verify_answer(copy.deepcopy(base), idx)
     a_cite = vans["notes"][0]["cites"][0]
-    frag = cite_html(a_cite, idx, {"CR": "2099-01-02", "TR": "2099-01-02"})
-    drifted = sorted(d for d in set(re.findall(r"\d{4}-\d{2}-\d{2}", frag))
-                     if not d.startswith("2099"))
+    frag = cite_html(a_cite, idx, {"CR": "2099-01-02", "TR": "2088-03-04"})
+    # Distinct per document: with both set to the same date, a cite_html that
+    # ignored `doc` and always read corpus["CR"] passed. A TR cite must carry
+    # TR's date.
+    _want = "2099-01-02" if a_cite["cite_as"].startswith("CR") else "2088-03-04"
+    drifted = sorted(d for d in set(re.findall(r"\d{4}-\d{2}-\d{2}", frag)) if d != _want)
     check("citation dates follow the corpus, not a hardcoded literal",
           not drifted, f"{drifted} survived a corpus move")
 
@@ -1021,8 +1035,39 @@ def rendered_surfaces(idx):
     # false rejection is direct pressure toward --force.
     _ex = [(r["doc"], r["id"], e) for r in idx.rules.values() for e in r.get("examples", [])]
     _bad = [x for x in _ex if not verify_citation(idx, x[1], x[2], None, x[0]).ok]
-    check("an official Example can be cited verbatim", not _bad,
+    check("the corpus actually carries Examples to test", len(_ex) > 200, f"{len(_ex)}")
+    check("an official Example can be cited verbatim", _ex and not _bad,
           f"{len(_bad)} of {len(_ex)} rejected")
+
+    # Blocks are matched SEPARATELY, never joined. A quote welded from the end
+    # of one block and the start of the next exists nowhere Riot published, and
+    # matching a concatenation stamped it verified — the cheapest possible way
+    # to defeat a verbatim gate.
+    _sr = idx.get("811.1.d.2.a", "CR")
+    _splice = (" ".join(_sr["text"].split()[-6:]) + " "
+               + " ".join(_sr["examples"][0].split()[:6]))
+    check("a quote spliced across a block boundary is refused",
+          not verify_citation(idx, "811.1.d.2.a", _splice, None, "CR").ok)
+
+    # Normative text outranks Examples when narrowing. Examples routinely
+    # restate a NEIGHBOURING rule, so equal ranking attributed a quote to a rule
+    # whose own text does not contain it — 383.3.a onto 383.3.a.3, the opposite
+    # case, under a banner asserting the quote "lives" there.
+    # A quote living in 346's OWN text that ALSO appears inside 346.1's Example.
+    # Ranked equally, max-by-depth picks the Example's owner, so the page stamps
+    # a rule whose normative text does not contain the quote under a banner
+    # asserting it "lives" there. (383.3.a — the originally reported case — does
+    # NOT exercise this; a check built on it passes with the defect live.)
+    _res = verify_citation(idx, "346", "chain resolves and the turn returns to an open state",
+                           None, "CR")
+    check("normative text outranks an Example when narrowing",
+          _res.cite_as == "346", f"narrowed to {_res.cite_as}")
+
+    # A descendant's Example must verify at every ancestor: it used to verify at
+    # the child and be called "paraphrased" one level up.
+    _anc = [rid for rid in ("811.1.d.2.a", "811.1.d.2", "811.1.d", "811.1", "811")
+            if not verify_citation(idx, rid, _sr["examples"][0], None, "CR").ok]
+    check("a descendant Example verifies at every ancestor", not _anc, f"failed at {_anc}")
     check("a fabricated quote is still rejected",
           not verify_citation(idx, "103.2.a.2", "I invented this entirely", None, "CR").ok)
 
@@ -1034,9 +1079,12 @@ def rendered_surfaces(idx):
     _ok = copy.deepcopy(base)
     _ok["holding"]["line"] = _line
     _ok["holding"]["spans"] = [dict(x, note=_ok["notes"][i]["id"]) for i, x in enumerate(_sp)]
-    check("spans the renderer places are not rejected as overlapping",
-          not place_spans(_line, _ok["holding"]["spans"])[1]
-          and not [p for p in verify_answer(_ok, idx)["_problems"] if "overlap" in p])
+    # Asserts NO problems at all, not "no problem containing the word overlap".
+    # Keying on one word let a rejection worded differently sail through while
+    # the answer was still refused.
+    _okp = verify_answer(_ok, idx)["_problems"]
+    check("spans the renderer places are not rejected at all",
+          not place_spans(_line, _ok["holding"]["spans"])[1] and not _okp, str(_okp)[:90])
 
     # A note with NO citations was stamped "● grounded — a rule states this in
     # so many words". Omitting the cite entirely was cheaper than omitting the
@@ -1095,8 +1143,11 @@ def rendered_surfaces(idx):
         _c["rule"] = _c["rule"].split(":")[0] + ":" + _c["rule"].split(":")[1].split(".")[0]
     _rn = verify_answer(_n, idx)
     _narrowed = [c for nn in _rn["notes"] for c in nn.get("cites", []) if c.get("narrowed")]
+    # Requires a narrowed citation to EXIST — all([]) is True, so this passed
+    # when narrowing was disabled entirely and no notice was rendered at all.
+    check("the narrowing case is actually exercised", bool(_narrowed), "nothing narrowed")
     check("a narrowed citation names where it came FROM",
-          all(c["narrowed"] != c["cite_as"].split(":", 1)[1] for c in _narrowed),
+          _narrowed and all(c["narrowed"] != c["cite_as"].split(":", 1)[1] for c in _narrowed),
           f"{[(c['narrowed'], c['cite_as']) for c in _narrowed][:2]}")
 
     # The rulebook must be in numeric id order — one pair was not, putting a set
@@ -1108,9 +1159,18 @@ def rendered_surfaces(idx):
     for _doc in ("CR", "TR"):
         _seq = [r["id"] for r in _rules if r["doc"] == _doc]
         _oo += sum(1 for a2, b2 in zip(_seq, _seq[1:]) if _k(a2) > _k(b2))
-    check("the rulebook renders rules in numeric id order",
-          "id_sort_key" in open(os.path.join(HERE, "render_rulebook.py"), encoding="utf-8").read(),
-          f"{_oo} out-of-order pairs in the raw corpus")
+    # Reads the RENDERED page, not the source. Asserting that the identifier
+    # "id_sort_key" appears in a file passes whether or not the sort is called
+    # — and deleting the call left this green while the committed artifact put
+    # Unleashed's legality date under the Vendetta heading.
+    _emitted = re.findall(r'id="(CR|TR)-([^"]+)"', open(_real_path(), encoding="utf-8").read())
+    _wrong = []
+    for _doc in ("CR", "TR"):
+        _ids = [i for d, i in _emitted if d == _doc]
+        _wrong += [(a2, b2) for a2, b2 in zip(_ids, _ids[1:]) if _k(a2) > _k(b2)]
+    check("the rendered rulebook is in numeric id order", not _wrong,
+          f"out of order: {_wrong[:3]}")
+    check("the ordering check saw a real rulebook", len(_emitted) > 3000, f"{len(_emitted)} ids")
 
     # `render --force` bound the flag as the output path.
     with tempfile.TemporaryDirectory() as d:
@@ -1133,6 +1193,21 @@ def rendered_surfaces(idx):
         check("and the forced report replaces the stale one",
               open(prior, encoding="utf-8").read() != "STALE ALL-GREEN REPORT")
 
+    # Round 6 stopped answer files overriding the vendored card record but added
+    # no check, so the mutation battery found the fix entirely unguarded. This is
+    # the worst reachable shape: Riot's genuine artwork beside an invented
+    # ability, under an errata banner calling the fabrication the CORRECTED text.
+    _ov = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                       encoding="utf-8")))
+    _ov["cards"] = [{"name": "Vi - Hotheaded", "text": "INVENTED ABILITY: draw 9 cards.",
+                     "stats": {"energy": 99}, "rule_sections": "829"}]
+    _ovp = render(verify_answer(_ov, idx), idx)
+    check("an answer cannot override the vendored card text",
+          "INVENTED ABILITY" not in _ovp)
+    check("nor iterate a string field per character",
+          not re.findall(r'rules\.html#CR-(\d)"', _ovp),
+          "rule_sections rendered one link per character")
+
     check("a rail claim is shortened even with no early space",
           len(clip("x" * 100)) <= 60, repr(clip("x" * 100))[:24])
     check("a short claim is left alone", clip("abc") == "abc")
@@ -1150,6 +1225,30 @@ def rendered_surfaces(idx):
         check(f"the {name} print sheet declares a light canvas", "color-scheme:light" in blk)
         gone = [t for t in ("--gold-500", "--slate-300", "--mist-100") if f"{t}:" not in blk]
         check(f"the {name} print sheet remaps the raw palette tokens", not gone, ", ".join(gone))
+
+        # ...and remaps them to something LEGIBLE ON WHITE. Presence of the
+        # declaration was the whole test, so remapping gold-500 to the near-white
+        # mist-100 passed at 1.15:1 — worse than the 2.23:1 that motivated the
+        # remap in the first place.
+        _hex = dict(re.findall(r"(--[a-z0-9-]+):\s*(#[0-9a-fA-F]{6})", css))
+
+        def _lum(h):
+            def _c(v):
+                v /= 255.0
+                return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+            r_, g_, b_ = (int(h[i:i + 2], 16) for i in (1, 3, 5))
+            return 0.2126 * _c(r_) + 0.7152 * _c(g_) + 0.0722 * _c(b_)
+
+        _dim = []
+        for _tok in ("--gold-500", "--slate-300", "--mist-100"):
+            _m = re.search(re.escape(_tok) + r":\s*var\((--[a-z0-9-]+)\)", blk)
+            _target = _hex.get(_m.group(1)) if _m else None
+            if not _target:
+                continue
+            _ratio = (1.05) / (_lum(_target) + 0.05)
+            if _ratio < 4.5:
+                _dim.append(f"{_tok}->{_m.group(1)} {_ratio:.2f}:1")
+        check(f"the {name} print remap is legible on white", not _dim, "; ".join(_dim))
 
     weird = copy.deepcopy(base)
     weird["holding"]["spans"][0]["basis"] = "definitional"
