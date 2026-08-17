@@ -766,8 +766,11 @@ def rendered_surfaces(idx):
 
     check("script bodies do not reach the legend",
           legend_html(f"<p>no symbols here</p><script>{_JS}</script>", idx) == "")
+    # A FIXED hostile stylesheet, not live _CSS: _CSS happens to contain no
+    # bracket tokens, so this passed with <style> stripping removed altogether.
+    _hostile = "@media print{.x{content:'[2]'}}.y::after{content:'[A]'}"
     check("style bodies do not reach the legend",
-          legend_html(f"<style>{_CSS}</style><p>no symbols here</p>", idx) == "")
+          legend_html(f"<style>{_hostile}</style><p>no symbols here</p>", idx) == "")
 
     for sample in ("demo", "viktor", "heron", "flow-counter", "vi-cost"):
         src = os.path.join(HERE, f"{sample}-answer.json")
@@ -775,9 +778,15 @@ def rendered_surfaces(idx):
         page = render(ans, idx)
 
         # Every legend entry must name a symbol the reader can actually see.
+        # The legend's OWN rows have to come out of the haystack first: each row
+        # prints the token it glosses, so comparing the page against itself made
+        # every row its own witness and the check could not fail. That is exactly
+        # the fabrication it was written to catch.
         body = re.sub(r"<(script|style)\b.*?</\1>", " ", page, flags=re.S | re.I)
+        body = re.sub(r'<div class="sym-row">.*?</div>', " ", body, flags=re.S)
         visible = __import__("html").unescape(re.sub(r"<[^>]+>", " ", body))
-        glossed = re.findall(r'class="sym"[^>]*>\[([^\]]+)\]</code>', page)
+        glossed = [__import__("html").unescape(t) for t in
+                   re.findall(r'class="sym"[^>]*>\[([^\]]+)\]</code>', page)]
         missing = [t for t in glossed if f"[{t}]" not in visible]
         check(f"{sample}: every legend entry names a symbol on the page",
               not missing, f"{len(glossed)} rows, fabricated {missing}")
@@ -899,6 +908,23 @@ def rendered_surfaces(idx):
             open(os.path.join(HERE, "vi-cost-answer.json"), encoding="utf-8"))), idx), idx)
     finally:
         card_bridge.CardBridge = _real
+    # The REALISTIC failure is an EMPTY index, not an exception: corpus.load_cards
+    # swallows OSError/ValueError and returns {}, so a deleted or corrupt
+    # cards.json builds a CardBridge that simply knows no cards. The guard added
+    # last round only caught the exception arm, so it passed on a tree with no
+    # cards.json at all — certifying a property the code did not have.
+    class _Empty:
+        cards = {}
+    try:
+        card_bridge.CardBridge = _Empty
+        emptied = render(verify_answer(copy.deepcopy(json.load(
+            open(os.path.join(HERE, "vi-cost-answer.json"), encoding="utf-8"))), idx), idx)
+    finally:
+        card_bridge.CardBridge = _real
+    check("an EMPTY card index is not reported as a missing card",
+          "no card by this name" not in emptied and "did not load" in emptied,
+          "an empty index is a data failure, not 1037 simultaneous typos")
+
     check("unreadable card data is not reported as a missing card",
           "no card by this name" not in broke, "rendered the card as nonexistent")
     check("and says the database failed instead",
@@ -984,6 +1010,129 @@ def rendered_surfaces(idx):
               open(fresh, encoding="utf-8").read() == committed,
               "run `rules_cli.py rulebook` and commit the result")
 
+    # ---- round 6 ----------------------------------------------------------
+    from render_report import place_spans
+    from verify_citations import verify_citation
+
+    # Every one of the corpus's 262 Examples was uncitable: subtree_text includes
+    # them so the quote passed, then the narrowing pass searched only r["text"],
+    # found nothing, and flipped it to "paraphrased". `rules_cli.py rule` PRINTS
+    # those Examples, so the tool invited the quote it then rejected — and a
+    # false rejection is direct pressure toward --force.
+    _ex = [(r["doc"], r["id"], e) for r in idx.rules.values() for e in r.get("examples", [])]
+    _bad = [x for x in _ex if not verify_citation(idx, x[1], x[2], None, x[0]).ok]
+    check("an official Example can be cited verbatim", not _bad,
+          f"{len(_bad)} of {len(_ex)} rejected")
+    check("a fabricated quote is still rejected",
+          not verify_citation(idx, "103.2.a.2", "I invented this entirely", None, "CR").ok)
+
+    # The pairwise overlap guard compared FIRST occurrences while placement uses
+    # a cursor, so it rejected spans the renderer places perfectly.
+    _line = "Yes, so the cost is checked at that point, and the cost stands unchanged."
+    _sp = [{"text": "so the cost is checked at that point", "basis": "grounded", "note": "n1"},
+           {"text": "the cost", "basis": "grounded", "note": "n2"}]
+    _ok = copy.deepcopy(base)
+    _ok["holding"]["line"] = _line
+    _ok["holding"]["spans"] = [dict(x, note=_ok["notes"][i]["id"]) for i, x in enumerate(_sp)]
+    check("spans the renderer places are not rejected as overlapping",
+          not place_spans(_line, _ok["holding"]["spans"])[1]
+          and not [p for p in verify_answer(_ok, idx)["_problems"] if "overlap" in p])
+
+    # A note with NO citations was stamped "● grounded — a rule states this in
+    # so many words". Omitting the cite entirely was cheaper than omitting the
+    # quote, which was already refused.
+    _nc = copy.deepcopy(base)
+    _nc["notes"][1]["basis"] = "grounded"
+    _nc["notes"][1]["cites"] = []
+    _rnc = verify_answer(_nc, idx)
+    check("a grounded note with no citations fails verification",
+          any("cites none" in p for p in _rnc["_problems"]))
+    check("and does not stay verified", _rnc["notes"][1]["verified"] is False)
+
+    # ...but structural may synthesise from the rules its NEIGHBOURS cite, which
+    # is what "it follows from the rules below" means. Requiring a cite here
+    # would reject legitimate reasoning and push the author to --force.
+    _st = copy.deepcopy(base)
+    _st["notes"][1]["basis"] = "structural"
+    _st["notes"][1]["cites"] = []
+    check("a structural note may synthesise without citing",
+          not any("cites none" in p for p in verify_answer(_st, idx)["_problems"]))
+
+    # rules_checked is what licenses a claim that the rules are SILENT.
+    _rc = copy.deepcopy(base)
+    _rc["notes"][0]["rules_checked"] = ["999.9.z"]
+    check("a fabricated rules_checked id fails verification",
+          any("999.9.z" in p for p in verify_answer(_rc, idx)["_problems"]))
+
+    # The weakest link must include gap notes — RANK scores gap lowest for
+    # exactly this comparison, and the page claims "the lowest link".
+    _g = copy.deepcopy(base)
+    _g["notes"][-1]["basis"] = "gap"
+    _g["notes"][-1]["rules_checked"] = ["441"]
+    _g["notes"][-1]["cites"] = []
+    check("a gap note is the weakest link", verify_answer(_g, idx)["_strength"] == "gap")
+
+    # A span may not claim more support than the note it rests on.
+    _up = copy.deepcopy(base)
+    _up["notes"][-1]["basis"] = "gap"
+    _up["notes"][-1]["rules_checked"] = ["441"]
+    _up["notes"][-1]["cites"] = []
+    for _s in _up["holding"]["spans"]:
+        _s["note"] = _up["notes"][-1]["id"]
+        _s["basis"] = "inferred"
+    check("a span cannot claim more support than its note",
+          any("claims inferred" in p for p in verify_answer(_up, idx)["_problems"]))
+
+    # Duplicate note ids: every anchor resolves to the first match.
+    _d = copy.deepcopy(base)
+    _d["notes"][1]["id"] = _d["notes"][0]["id"]
+    check("duplicate note ids fail verification",
+          any("duplicate note id" in p for p in verify_answer(_d, idx)["_problems"]))
+
+    # The narrowed notice must name the ORIGIN; it named the destination.
+    _n = copy.deepcopy(base)
+    for _c in _n["notes"][0]["cites"]:
+        _c["rule"] = _c["rule"].split(":")[0] + ":" + _c["rule"].split(":")[1].split(".")[0]
+    _rn = verify_answer(_n, idx)
+    _narrowed = [c for nn in _rn["notes"] for c in nn.get("cites", []) if c.get("narrowed")]
+    check("a narrowed citation names where it came FROM",
+          all(c["narrowed"] != c["cite_as"].split(":", 1)[1] for c in _narrowed),
+          f"{[(c['narrowed'], c['cite_as']) for c in _narrowed][:2]}")
+
+    # The rulebook must be in numeric id order — one pair was not, putting a set
+    # legality date under the wrong set's heading in the committed artifact.
+    _rules = json.load(open(_corpus.rules_json(), encoding="utf-8"))
+    def _k(rid):
+        return [(0, int(x), "") if x.isdigit() else (1, 0, x) for x in rid.split(".")]
+    _oo = 0
+    for _doc in ("CR", "TR"):
+        _seq = [r["id"] for r in _rules if r["doc"] == _doc]
+        _oo += sum(1 for a2, b2 in zip(_seq, _seq[1:]) if _k(a2) > _k(b2))
+    check("the rulebook renders rules in numeric id order",
+          "id_sort_key" in open(os.path.join(HERE, "render_rulebook.py"), encoding="utf-8").read(),
+          f"{_oo} out-of-order pairs in the raw corpus")
+
+    # `render --force` bound the flag as the output path.
+    with tempfile.TemporaryDirectory() as d:
+        bad = os.path.join(d, "bad.json")
+        outp = os.path.join(d, "out.html")
+        ghost = copy.deepcopy(base)
+        ghost["notes"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+        json.dump(ghost, open(bad, "w", encoding="utf-8"))
+        # The TWO-argument form is the one that broke: `render_report.py bad.json
+        # --force` bound the flag as argv[2], so it wrote a file called "--force"
+        # and left the previous all-green report.html untouched beside it. A
+        # three-arg call cannot see the bug.
+        stray = os.path.join(d, "--force")
+        prior = os.path.join(d, "report.html")
+        open(prior, "w", encoding="utf-8").write("STALE ALL-GREEN REPORT")
+        subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), bad, "--force"],
+                       capture_output=True, text=True, cwd=d)
+        check("--force is not mistaken for the output path",
+              not os.path.exists(stray), "wrote a file literally named --force")
+        check("and the forced report replaces the stale one",
+              open(prior, encoding="utf-8").read() != "STALE ALL-GREEN REPORT")
+
     check("a rail claim is shortened even with no early space",
           len(clip("x" * 100)) <= 60, repr(clip("x" * 100))[:24])
     check("a short claim is left alone", clip("abc") == "abc")
@@ -994,7 +1143,10 @@ def rendered_surfaces(idx):
     # of the verdict line at 2.23:1 and the inferred half at 16.75:1.
     import render_rulebook as _rb
     for name, css in (("report", _CSS), ("rulebook", _rb._CSS)):
-        blk = css[css.index("@media print"):]
+        # Comments stripped: the block's own comment explains the light-canvas
+        # remap by naming `color-scheme:light`, so the probe was satisfied by
+        # the prose describing the rule rather than by the rule.
+        blk = re.sub(r"/\*.*?\*/", " ", css[css.index("@media print"):], flags=re.S)
         check(f"the {name} print sheet declares a light canvas", "color-scheme:light" in blk)
         gone = [t for t in ("--gold-500", "--slate-300", "--mist-100") if f"{t}:" not in blk]
         check(f"the {name} print sheet remaps the raw palette tokens", not gone, ", ".join(gone))

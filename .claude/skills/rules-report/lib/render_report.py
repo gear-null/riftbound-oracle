@@ -84,7 +84,11 @@ def _check(c, idx, where, problems):
     if res.ok and not res.checked:
         problems.append(f"{where}: citation {rid} has no quote — the verbatim check never ran")
     c["cite_as"] = f'{doc}:{res.cite_as}'
-    c["narrowed"] = res.narrowed_to
+    # The ORIGIN, not the destination. `cite_as` is overwritten with the
+    # narrowed id just above, so recording res.narrowed_to here printed
+    # "CR 416.1.b — narrowed from 416.1.b": impossible on its face, and the
+    # vague id the model actually wrote was nowhere on the page.
+    c["narrowed"] = rid if res.narrowed_to else None
     c["problems"] = res.problems
     if not res.ok:
         problems.append(f'{where}: {"; ".join(res.problems)}')
@@ -154,22 +158,11 @@ def _check_holding(ans):
         if text not in line:
             problems.append(f'holding span "{text[:40]}" is not a substring of holding.line')
             continue
-        # Overlapping spans cannot both be placed, so the renderer drops one —
-        # silently, with no link and no superscript. That is the same failure as
-        # the out-of-order crux bug, so it must fail verification rather than
-        # render a claim that looks like unmarked prose.
-        start = line.find(text)
-        end = start + len(text)
-        for other in spans:
-            o = other.get("text", "")
-            if other is sp or not o or o not in line:
-                continue
-            os_, oe = line.find(o), line.find(o) + len(o)
-            if os_ < end and start < oe and (os_, oe) != (start, end):
-                problems.append(
-                    f'holding span "{text[:30]}" overlaps "{o[:30]}" — '
-                    "only one can render; make the spans disjoint")
-                break
+        # No pairwise overlap reasoning here. It compared FIRST occurrences
+        # while placement uses a monotonic cursor, so the two disagreed and it
+        # rejected answers the renderer places perfectly — telling the author to
+        # "make the spans disjoint" when they already were. The place_spans
+        # backstop below is the single authority, as round 3 intended.
         covered += len(text)
 
         note = by_id.get(sp.get("note"))
@@ -177,6 +170,14 @@ def _check_holding(ans):
             problems.append(f'holding span "{text[:30]}" points at unknown note {sp.get("note")}')
             continue
         # A span may not claim more support than the note it rests on.
+        # A span may never claim MORE support than the note it rests on. The
+        # guard used to fire only for `grounded`, so an inferred span over a gap
+        # note rendered "it follows from the rules below" against "the rules are
+        # silent on this" — a RANK 1 -> 2 upgrade on the line everyone reads.
+        if note and RANK.get(sp.get("basis"), 0) > RANK.get(note.get("basis"), 0):
+            problems.append(
+                f'holding span "{text[:30]}" claims {sp.get("basis")} but '
+                f'{note["id"]} is {note.get("basis")}')
         if sp.get("basis") == "grounded":
             if note["basis"] != "grounded":
                 problems.append(
@@ -234,6 +235,23 @@ def verify_answer(ans, idx):
         # the rules are silent must show what it searched.
         if note["basis"] == "gap" and not note.get("rules_checked"):
             problems.append(f'{note["id"]}: gap note must list rules_checked')
+        # GROUNDED specifically. Omitting the quote was already refused as the
+        # cheapest way to defeat the verbatim gate; omitting the whole citation
+        # is cheaper still, and bought the stamp "● grounded — a rule states
+        # this in so many words" on a note showing no rule at all.
+        #
+        # Scoped to `grounded` because the other two bases legitimately assert
+        # without a rule of their own: `structural` means "no single rule says
+        # this; it follows from the rules below", which may be the rules cited
+        # by NEIGHBOURING notes, and `gap` pays for its abstention with
+        # rules_checked above. Grounded has no such out — it is the claim that a
+        # rule says it, so it must show the rule.
+        if note["basis"] == "grounded" and not note.get("cites"):
+            problems.append(
+                f'{note["id"]}: basis \'grounded\' asserts a rule states this, '
+                "but cites none")
+            note_ok = False
+            note["verified"] = False
         if note.get("crux") and not note.get("if_false"):
             problems.append(f'{note["id"]}: crux note must state if_false')
 
@@ -252,8 +270,13 @@ def verify_answer(ans, idx):
     # contradicts the corpus it was verified against is free to detect. With
     # the copy-cite date now reading from the same block, both provenance
     # claims on the page derived from unverified input.
-    stamped = {r.get("version") for r in idx.rules.values() if r.get("version")}
     for key in ("CR", "TR"):
+        # Scoped PER DOCUMENT. Built across both and reused, the union let a
+        # swapped pair validate: CR stamped with TR's date and vice versa, both
+        # wrong for their own document, and the wrong one reaching the copy-cite
+        # string this file elsewhere calls "the artifact a judge pastes".
+        stamped = {r.get("version") for r in idx.rules.values()
+                   if r.get("doc") == key and r.get("version")}
         claimed = ans.get("corpus", {}).get(key)
         if claimed and stamped and claimed not in stamped:
             problems.append(
@@ -270,13 +293,46 @@ def verify_answer(ans, idx):
         if not crid:
             problems.append(f"considered_rejected {i}: no rule id")
             continue
-        found = idx.get(crid, cdoc)
+        # Resolved WITHOUT the doc filter first, so a wrong prefix reports the
+        # real document instead of "does not exist" — `idx.get` already filters
+        # by doc, which made the mismatch branch unreachable.
+        found = idx.get(crid, cdoc) or idx.get(crid, None)
         if not found:
             problems.append(
                 f"considered_rejected {i}: {ref} does not exist at this corpus version")
         elif cdoc and found["doc"] != cdoc:
             problems.append(
                 f'considered_rejected {i}: {ref} is in {found["doc"]}, not {cdoc}')
+        elif not cdoc and found["doc"] != "CR":
+            # Same rule the citation path enforces: 790 ids exist only in TR, and
+            # a bare one reads as CR to every reader of the page.
+            problems.append(
+                f'considered_rejected {i}: {ref} exists only in {found["doc"]} — '
+                f'write it as {found["doc"]}:{ref}')
+
+    # `rules_checked` is the evidence a gap note offers for its abstention, so
+    # a fabricated id here buys the strongest claim in the document: that the
+    # rules do not address something. It was rendered as "Rules searched"
+    # without ever being checked.
+    for note in ans["notes"]:
+        for ref in note.get("rules_checked", []) or []:
+            ref = str(ref)
+            rdoc, rrid = (ref.split(":", 1) if ":" in ref else (None, ref))
+            if not rrid or not idx.get(rrid, rdoc):
+                problems.append(
+                    f'{note["id"]}: rules_checked names {ref}, which does not '
+                    "exist at this corpus version")
+
+    # Every anchor on the page is #<note id>, and a browser resolves a repeated
+    # id to the FIRST match — so a duplicate silently sent every superscript and
+    # rail row to the wrong note, while the verifier validated spans against the
+    # second. Ids are the addressing scheme; they have to be unique.
+    _ids = [n.get("id") for n in ans["notes"]]
+    _dupes = sorted({i for i in _ids if i and _ids.count(i) > 1})
+    if _dupes:
+        problems.append(
+            f"duplicate note id(s) {', '.join(_dupes)} — every link to them "
+            "resolves to the first, so the others are unreachable")
 
     cruxes = [n["id"] for n in ans["notes"] if n.get("crux")]
     if len(cruxes) != 1:
@@ -297,7 +353,13 @@ def verify_answer(ans, idx):
             ans["holding"]["_forced"] = ans["holding"]["disposition"]
             ans["holding"]["disposition"] = "UNSETTLED"
         return ans
-    graded = [n for n in notes if n["basis"] != "gap"] or notes
+    # Gap notes INCLUDED. They were excluded, which made the verdict plate and
+    # the rail both overstate: an answer with nine grounded notes and one gap
+    # reported a grounded weakest link while printing the ○ Gap row beside it.
+    # RANK scores gap below structural for exactly this comparison, and both
+    # SKILL.md and this module's docstring say min() over notes. A gap in the
+    # chain is a gap in the chain.
+    graded = notes
     weakest = min(graded, key=lambda n: RANK[n["basis"]])
     ans["_weakest"] = weakest["id"]
     ans["_strength"] = weakest["basis"]
@@ -465,7 +527,7 @@ def legend_html(page_html, idx):
     Riot's own PDFs unaided, which replacing the shorthand with glyphs would
     quietly prevent.
     """
-    from symbols import build_legend, is_number_token, scan, NUMBER_RULE
+    from symbols import build_legend, is_number_token, number_rule, scan
 
     legend = build_legend(list(idx.rules.values()))
     # Unescape after stripping tags: the keyword marker [>] is written into the
@@ -496,7 +558,11 @@ def legend_html(page_html, idx):
     # key needs no convention of its own to decode.
     for token in sorted((t for t in used if is_number_token(t)), key=int):
         amount = int(token)
-        rows.append(row(token, f"{amount} Energy", NUMBER_RULE, None))
+        # Dropped rather than cited to a rule that no longer defines this.
+        _nr = number_rule(idx)
+        if not _nr:
+            continue
+        rows.append(row(token, f"{amount} Energy", _nr, None))
     for token in sorted(t for t in used if not is_number_token(t)):
         e = legend[token]
         rows.append(row(token, e["meaning"], e["rule"], e["colour"]))
@@ -537,11 +603,22 @@ def resolve_cards(ans):
     try:
         from card_bridge import CardBridge
         bridge = CardBridge()
-    except Exception as err:
+    except (Exception, SystemExit) as err:
         unavailable = f"{type(err).__name__}: {err}"
         print(f"  card data could not be loaded ({unavailable}) — "
               "card panels will say so rather than report the cards missing",
               file=sys.stderr)
+
+    # The realistic failure is not an exception. `corpus.load_cards` swallows
+    # OSError and ValueError and returns {}, so a deleted, empty or corrupt
+    # cards.json builds a CardBridge with an EMPTY index that falls straight
+    # through to "no card by this name" — the guard above never fires. An empty
+    # index is a data failure, not 1037 simultaneous typos.
+    if bridge is not None and not getattr(bridge, "cards", None):
+        unavailable = "card data is missing, empty or unreadable"
+        bridge = None
+        print(f"  {unavailable} — card panels will say so rather than report "
+              "the cards missing", file=sys.stderr)
 
     out = []
     for entry in names:
@@ -560,7 +637,24 @@ def resolve_cards(ans):
         if card:
             resolved = bridge.card_terms(card)
             # Anything explicitly supplied wins; the lookup only fills gaps.
-            resolved.update({k: v for k, v in supplied.items() if v})
+            # FILL, never override. The lookup is exact and the record is
+            # vendored from Riot's data; a supplied field that disagrees is
+            # either stale or invented, and SKILL.md tells the author not to
+            # supply text or images at all ("those are exactly the fields you
+            # would get subtly wrong"). Overriding let an answer render an
+            # invented ability beside genuine artwork, under an errata banner
+            # claiming the fabrication was the corrected wording.
+            for k, v in supplied.items():
+                if not v or resolved.get(k):
+                    continue
+                # Shape matters: `rule_sections` is iterated and `stats` is
+                # keyed, so a string here renders one link per CHARACTER —
+                # "829" became three links to CR-8, CR-2 and CR-9.
+                if k == "stats" and not isinstance(v, dict):
+                    continue
+                if k == "rule_sections" and not isinstance(v, (list, tuple)):
+                    continue
+                resolved[k] = v
             out.append(resolved)
         elif supplied:
             # An object for a card that does not exist is still a nonexistent
@@ -1449,8 +1543,12 @@ def render(ans, idx):
 
 
 def main():
-    src = sys.argv[1] if len(sys.argv) > 1 else "answer.json"
-    out = sys.argv[2] if len(sys.argv) > 2 else "report.html"
+    # Flags filtered out of the positionals. `--force` was bound as argv[2],
+    # so the documented escape hatch wrote to a file called "--force" while
+    # leaving the previous all-green report.html untouched beside it.
+    pos = [a for a in sys.argv[1:] if not a.startswith("--")]
+    src = pos[0] if pos else "answer.json"
+    out = pos[1] if len(pos) > 1 else "report.html"
     ans = json.load(open(src, encoding="utf-8"))
     idx = RuleIndex()
     ans = verify_answer(ans, idx)
@@ -1467,8 +1565,15 @@ def main():
     # which matters most in the re-verify-a-saved-ruling flow, where the file
     # being overwritten is the artifact you were checking.
     html_out = render(ans, idx)
-    with open(out, "w", encoding="utf-8") as fh:
-        fh.write(html_out)
+    tmp = out + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(html_out)
+        os.replace(tmp, out)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
     _cites = all_cites(ans)
     ncites = len(_cites)
     nver = sum(1 for c in _cites if c["verified"])

@@ -1,144 +1,144 @@
 {
- "question": "Astral Heron is played onto a battlefield that the player controls. Does Astral Heron's ability apply to the next card that player plays this turn?",
- "reframe": "does playing Astral Heron itself satisfy its own \"when you play your first card each turn\" condition, given that the condition also requires it to be at a battlefield?",
- "corpus": {
-  "CR": "2026-07-16",
-  "TR": "2026-07-16",
-  "generated": "2026-08-11"
- },
- "holding": {
-  "disposition": "DEPENDS",
-  "line": "Yes if Astral Heron is the first card that player played this turn — its own play satisfies the condition, because a trigger's condition is evaluated after the inciting event has been processed, by which point the Heron has already entered the Board at the battlefield. If some other card was played first this turn, no.",
-  "spans": [
-   {
-    "text": "Yes if Astral Heron is the first card that player played this turn",
-    "basis": "inferred",
-    "note": "n5"
-   },
-   {
-    "text": "a trigger's condition is evaluated after the inciting event has been processed",
-    "basis": "grounded",
-    "note": "n4"
-   },
-   {
-    "text": "the Heron has already entered the Board at the battlefield",
-    "basis": "grounded",
-    "note": "n3"
-   },
-   {
-    "text": "If some other card was played first this turn, no",
-    "basis": "inferred",
-    "note": "n6"
-   }
+  "question": "Astral Heron is played onto a battlefield that the player controls. Does Astral Heron's ability apply to the next card that player plays this turn?",
+  "reframe": "does playing Astral Heron itself satisfy its own \"when you play your first card each turn\" condition, given that the condition also requires it to be at a battlefield?",
+  "corpus": {
+    "CR": "2026-07-16",
+    "TR": "2026-07-16",
+    "generated": "2026-08-11"
+  },
+  "holding": {
+    "disposition": "DEPENDS",
+    "line": "Yes if Astral Heron is the first card that player played this turn — its own play satisfies the condition, because a trigger's condition is evaluated after the inciting event has been processed, by which point the Heron has already entered the Board at the battlefield. If some other card was played first this turn, no.",
+    "spans": [
+      {
+        "text": "Yes if Astral Heron is the first card that player played this turn",
+        "basis": "inferred",
+        "note": "n5"
+      },
+      {
+        "text": "a trigger's condition is evaluated after the inciting event has been processed",
+        "basis": "grounded",
+        "note": "n4"
+      },
+      {
+        "text": "the Heron has already entered the Board at the battlefield",
+        "basis": "grounded",
+        "note": "n3"
+      },
+      {
+        "text": "If some other card was played first this turn, no",
+        "basis": "inferred",
+        "note": "n6"
+      }
+    ]
+  },
+  "notes": [
+    {
+      "id": "n1",
+      "claim": "The current wording comes from the Vendetta errata, and the trigger condition is unchanged by it.",
+      "basis": "structural",
+      "detail": "Riot's Vendetta errata gives NEW TEXT: \"When you play your first card each turn, if I'm at a battlefield, the next card you play this turn costs [2][A][A] less.\" OLD TEXT ended \"...your next card costs [2][A][A] less.\" The errata scopes only the DISCOUNT to this turn; the \"first card each turn\" condition and the \"if I'm at a battlefield\" clause are identical in both. Note our card data (cards-ven.md, Vendetta #44) still carries the OLD text — the errata in rules.md is the authority. The errata is published prose, not a numbered rule, so it is quoted here rather than cited as CR/TR.",
+      "cites": []
+    },
+    {
+      "id": "n2",
+      "claim": "An ability that triggers on a card being played fires only once the play is completed by the card's resolution — not when it is put on the chain.",
+      "basis": "grounded",
+      "cites": [
+        {
+          "rule": "CR:419.4.a",
+          "quote": "Any such triggered abilities trigger when the act of playing the card has been completed by the resolution of the card."
+        },
+        {
+          "rule": "CR:419.4",
+          "quote": "Some Abilities trigger when cards are played or otherwise check whether cards have been played."
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "claim": "A Unit enters the Board at its chosen Location as part of that finalization, so a Heron played to a battlefield is at that battlefield once the play completes.",
+      "basis": "grounded",
+      "cites": [
+        {
+          "rule": "CR:359.2.c",
+          "quote": "If it is a Unit, it enters the Board exhausted at the Location that was chosen."
+        }
+      ]
+    },
+    {
+      "id": "n4",
+      "claim": "A trigger's condition is evaluated only after the inciting event has been processed.",
+      "basis": "grounded",
+      "crux": true,
+      "if_false": "If the condition were instead evaluated at the moment the card was put on the chain, the Heron would not yet be on the Board, 384.2 would bar evaluation, \"if I'm at a battlefield\" would be false, and playing the Heron as your first card would never discount anything. The answer would flip to a flat no in every case.",
+      "detail": "This is what lets the Heron see its own play. The inciting event is the completion of playing the first card; only after that is the condition checked, and by then 359.2.c has already placed the Heron at the battlefield.",
+      "cites": [
+        {
+          "rule": "CR:383.2.c",
+          "quote": "The Condition of a Trigger is evaluated after a potentially inciting event has been processed."
+        },
+        {
+          "rule": "CR:384.2",
+          "quote": "Triggered Abilities of Permanents are only able to have their Conditions evaluated while on the Board."
+        }
+      ]
+    },
+    {
+      "id": "n5",
+      "claim": "Therefore, if the Heron is the first card played that turn, the condition is met and the next card played that turn is discounted.",
+      "basis": "structural",
+      "detail": "No single rule states the composite. It follows from 419.4.a (trigger fires on completion of the play), 359.2.c (Unit is on the Board by then), 383.2.c (condition checked after the event is processed) and 384.2 (evaluation is permitted because it is on the Board).",
+      "cites": []
+    },
+    {
+      "id": "n6",
+      "claim": "If the player already played a different card this turn, the ability does not apply.",
+      "basis": "structural",
+      "detail": "The condition is \"your FIRST card each turn\". That inciting event occurred earlier in the turn, when the Heron was not yet at a battlefield, so \"if I'm at a battlefield\" was false and nothing triggered. Playing the Heron later is not a first card, so the condition cannot be met again this turn.",
+      "cites": [
+        {
+          "rule": "CR:383.2.a",
+          "quote": "The Condition is the clause with When, At, or the Nth Time."
+        }
+      ]
+    }
+  ],
+  "counterargument": [
+    {
+      "reading": "Astral Heron cannot trigger off its own play. When you begin playing it, it is on the chain rather than at a battlefield, so \"if I'm at a battlefield\" is false and 384.2 forbids evaluating the condition at all.",
+      "why_it_loses": "This would be right if the condition were checked when the card is put on the chain, but it is not. 419.4.a defers abilities that trigger on cards being played until \"the act of playing the card has been completed by the resolution of the card\", and 383.2.c evaluates a condition only after the inciting event has been processed. 359.2.c puts the Unit on the Board during that same finalization, so at the moment of evaluation the Heron is at the battlefield and 384.2 is satisfied rather than violated.",
+      "cites": [
+        {
+          "rule": "CR:419.4.a",
+          "quote": "Any such triggered abilities trigger when the act of playing the card has been completed by the resolution of the card."
+        },
+        {
+          "rule": "CR:359.2.c",
+          "quote": "If it is a Unit, it enters the Board exhausted at the Location that was chosen."
+        }
+      ]
+    }
+  ],
+  "considered_rejected": [
+    {
+      "rule": "CR:383.4.a",
+      "why": "Play Effects are \"when you play ME\" abilities. Astral Heron's condition watches the player playing any first card, so it is an ordinary triggered ability, not a Play Effect."
+    },
+    {
+      "rule": "CR:419.4.a.1",
+      "why": "Countering prevents play-triggers from firing — relevant only if the Heron were countered, which the scenario does not include."
+    }
+  ],
+  "open_questions": [
+    "The scenario does not say whether Astral Heron is the player's first card this turn. That single fact decides the answer, so it is stated as a branch rather than assumed.",
+    "Our card data still holds the pre-errata text. The answer here is unaffected because the errata changed only the discount's duration, but any question turning on the discount's scope must use the errata wording, not cards-ven.md."
+  ],
+  "cards": [
+    {
+      "name": "Astral Heron",
+      "text": "7 Energy | 7 Might | Unit | Epic | Calm — Vendetta #44. When you play your first card each turn, if I am at a battlefield, the next card you play this turn costs [2][A][A] less.",
+      "image": null
+    }
   ]
- },
- "notes": [
-  {
-   "id": "n1",
-   "claim": "The current wording comes from the Vendetta errata, and the trigger condition is unchanged by it.",
-   "basis": "grounded",
-   "detail": "Riot's Vendetta errata gives NEW TEXT: \"When you play your first card each turn, if I'm at a battlefield, the next card you play this turn costs [2][A][A] less.\" OLD TEXT ended \"...your next card costs [2][A][A] less.\" The errata scopes only the DISCOUNT to this turn; the \"first card each turn\" condition and the \"if I'm at a battlefield\" clause are identical in both. Note our card data (cards-ven.md, Vendetta #44) still carries the OLD text — the errata in rules.md is the authority. The errata is published prose, not a numbered rule, so it is quoted here rather than cited as CR/TR.",
-   "cites": []
-  },
-  {
-   "id": "n2",
-   "claim": "An ability that triggers on a card being played fires only once the play is completed by the card's resolution — not when it is put on the chain.",
-   "basis": "grounded",
-   "cites": [
-    {
-     "rule": "CR:419.4.a",
-     "quote": "Any such triggered abilities trigger when the act of playing the card has been completed by the resolution of the card."
-    },
-    {
-     "rule": "CR:419.4",
-     "quote": "Some Abilities trigger when cards are played or otherwise check whether cards have been played."
-    }
-   ]
-  },
-  {
-   "id": "n3",
-   "claim": "A Unit enters the Board at its chosen Location as part of that finalization, so a Heron played to a battlefield is at that battlefield once the play completes.",
-   "basis": "grounded",
-   "cites": [
-    {
-     "rule": "CR:359.2.c",
-     "quote": "If it is a Unit, it enters the Board exhausted at the Location that was chosen."
-    }
-   ]
-  },
-  {
-   "id": "n4",
-   "claim": "A trigger's condition is evaluated only after the inciting event has been processed.",
-   "basis": "grounded",
-   "crux": true,
-   "if_false": "If the condition were instead evaluated at the moment the card was put on the chain, the Heron would not yet be on the Board, 384.2 would bar evaluation, \"if I'm at a battlefield\" would be false, and playing the Heron as your first card would never discount anything. The answer would flip to a flat no in every case.",
-   "detail": "This is what lets the Heron see its own play. The inciting event is the completion of playing the first card; only after that is the condition checked, and by then 359.2.c has already placed the Heron at the battlefield.",
-   "cites": [
-    {
-     "rule": "CR:383.2.c",
-     "quote": "The Condition of a Trigger is evaluated after a potentially inciting event has been processed."
-    },
-    {
-     "rule": "CR:384.2",
-     "quote": "Triggered Abilities of Permanents are only able to have their Conditions evaluated while on the Board."
-    }
-   ]
-  },
-  {
-   "id": "n5",
-   "claim": "Therefore, if the Heron is the first card played that turn, the condition is met and the next card played that turn is discounted.",
-   "basis": "structural",
-   "detail": "No single rule states the composite. It follows from 419.4.a (trigger fires on completion of the play), 359.2.c (Unit is on the Board by then), 383.2.c (condition checked after the event is processed) and 384.2 (evaluation is permitted because it is on the Board).",
-   "cites": []
-  },
-  {
-   "id": "n6",
-   "claim": "If the player already played a different card this turn, the ability does not apply.",
-   "basis": "structural",
-   "detail": "The condition is \"your FIRST card each turn\". That inciting event occurred earlier in the turn, when the Heron was not yet at a battlefield, so \"if I'm at a battlefield\" was false and nothing triggered. Playing the Heron later is not a first card, so the condition cannot be met again this turn.",
-   "cites": [
-    {
-     "rule": "CR:383.2.a",
-     "quote": "The Condition is the clause with When, At, or the Nth Time."
-    }
-   ]
-  }
- ],
- "counterargument": [
-  {
-   "reading": "Astral Heron cannot trigger off its own play. When you begin playing it, it is on the chain rather than at a battlefield, so \"if I'm at a battlefield\" is false and 384.2 forbids evaluating the condition at all.",
-   "why_it_loses": "This would be right if the condition were checked when the card is put on the chain, but it is not. 419.4.a defers abilities that trigger on cards being played until \"the act of playing the card has been completed by the resolution of the card\", and 383.2.c evaluates a condition only after the inciting event has been processed. 359.2.c puts the Unit on the Board during that same finalization, so at the moment of evaluation the Heron is at the battlefield and 384.2 is satisfied rather than violated.",
-   "cites": [
-    {
-     "rule": "CR:419.4.a",
-     "quote": "Any such triggered abilities trigger when the act of playing the card has been completed by the resolution of the card."
-    },
-    {
-     "rule": "CR:359.2.c",
-     "quote": "If it is a Unit, it enters the Board exhausted at the Location that was chosen."
-    }
-   ]
-  }
- ],
- "considered_rejected": [
-  {
-   "rule": "CR:383.4.a",
-   "why": "Play Effects are \"when you play ME\" abilities. Astral Heron's condition watches the player playing any first card, so it is an ordinary triggered ability, not a Play Effect."
-  },
-  {
-   "rule": "CR:419.4.a.1",
-   "why": "Countering prevents play-triggers from firing — relevant only if the Heron were countered, which the scenario does not include."
-  }
- ],
- "open_questions": [
-  "The scenario does not say whether Astral Heron is the player's first card this turn. That single fact decides the answer, so it is stated as a branch rather than assumed.",
-  "Our card data still holds the pre-errata text. The answer here is unaffected because the errata changed only the discount's duration, but any question turning on the discount's scope must use the errata wording, not cards-ven.md."
- ],
- "cards": [
-  {
-   "name": "Astral Heron",
-   "text": "7 Energy | 7 Might | Unit | Epic | Calm — Vendetta #44. When you play your first card each turn, if I am at a battlefield, the next card you play this turn costs [2][A][A] less.",
-   "image": null
-  }
- ]
 }

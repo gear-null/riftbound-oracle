@@ -22,6 +22,16 @@ DOC_TITLE = {"CR": "Comprehensive Rules", "TR": "Tournament Rules"}
 # Hoisted: the ordering below indexed into a fresh list(DOC_TITLE) per comparison.
 DOC_ORDER = list(DOC_TITLE)
 
+
+def id_sort_key(rule_id):
+    """Numeric-aware ordering for dotted rule ids: 601.3.c.4.b before 601.3.c.5.a.
+
+    Same shape as `rules_cli._idkey`. Kept here rather than imported because
+    nothing in the answering path may depend on the CLI module.
+    """
+    return [(0, int(seg), "") if seg.isdigit() else (1, 0, seg)
+            for seg in str(rule_id).split(".")]
+
 # Bare ids inside rule text ("see 471.1.b") become links. Requires at least one
 # dot so ordinary numbers — "8 points", "2026" — are left alone.
 INLINE_REF = re.compile(r"\b(\d{3}(?:\.[0-9a-z]+)+)\b")
@@ -105,6 +115,15 @@ def render_rulebook(rules, version="unknown"):
     by_doc = defaultdict(list)
     for r in rules:
         by_doc[r["doc"]].append(r)
+
+    # Sorted by NUMERIC id, not left in input order. One pair arrived out of
+    # order (TR 601.3.c.5.a before 601.3.c.4.b) and rendered in the committed
+    # page as a depth-5 line under the WRONG depth-4 heading — putting
+    # Unleashed's "Rest of world legal date" under Vendetta. Set-legality dates
+    # are exactly what a judge reads off this page, and it is the destination of
+    # every citation link. `rules_cli.py section` already sorts; this did not.
+    for d in by_doc:
+        by_doc[d].sort(key=lambda r: id_sort_key(r["id"]))
 
     # CR before TR; anything else after, alphabetically — deterministic output
     # so regenerating an unchanged corpus produces an unchanged file.

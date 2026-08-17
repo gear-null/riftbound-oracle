@@ -252,11 +252,20 @@ def verify_citation(idx: RuleIndex, rule_id: str, quote: Optional[str] = None,
         # 425.1.a.1 passes, which launders a vague citation as a verified one.
         # Rewrite to the deepest rule whose OWN text carries the quote.
         if quote_ok:
+            # `subtree_text` includes each rule's Examples, so a quote taken
+            # from one passes the haystack test — then this pass searched only
+            # r["text"], found nothing, and flipped quote_ok back to False.
+            # Every one of the corpus's 262 Examples was uncitable: a verbatim
+            # quote came back "paraphrased", and `rules_cli.py rule` PRINTS
+            # those Examples, so the tool invited the quote it then rejected.
+            def _own_text(r):
+                return norm(" ".join([r["text"]] + list(r.get("examples", []))))
+
             own = [
                 r for r in idx.rules.values()
                 if r["doc"] == rule["doc"]
                 and (r["id"] == rule_id or r["id"].startswith(rule_id + "."))
-                and needle in norm(r["text"])
+                and needle in _own_text(r)
             ]
             if own:
                 deepest = max(own, key=lambda r: r["depth"])
