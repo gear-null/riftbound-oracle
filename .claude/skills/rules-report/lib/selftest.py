@@ -1026,7 +1026,7 @@ def rendered_surfaces(idx):
 
     # ---- round 6 ----------------------------------------------------------
     from render_report import place_spans
-    from verify_citations import verify_citation
+    from verify_citations import RuleIndex, verify_citation
 
     # Every one of the corpus's 262 Examples was uncitable: subtree_text includes
     # them so the quote passed, then the narrowing pass searched only r["text"],
@@ -1038,6 +1038,25 @@ def rendered_surfaces(idx):
     check("the corpus actually carries Examples to test", len(_ex) > 200, f"{len(_ex)}")
     check("an official Example can be cited verbatim", _ex and not _bad,
           f"{len(_bad)} of {len(_ex)} rejected")
+
+    # A whitespace-only quote normalises to "" and "" is a substring of
+    # everything, so it verified. `checked` closed "omit the quote"; a single
+    # space was cheaper and reopened it.
+    for _blank in (" ", "\n", "\xa0"):
+        check(f"a whitespace-only quote ({_blank!r}) is refused",
+              not verify_citation(idx, "441.1.a", _blank, None, "CR").ok)
+
+    # Narrowing tightens a VAGUE cite; it must not move an already-exact one.
+    _keep = verify_citation(idx, "124", "changes zones to or from a Non-Board Zone", None, "CR")
+    check("the cited rule keeps its own quote", _keep.cite_as == "124",
+          f"rewritten to {_keep.cite_as}")
+
+    # 143 sentences in the corpus have several equally deep homes; choosing one
+    # by iteration order asserted a fact the corpus does not support.
+    _amb = verify_citation(idx, "602",
+                           "At low OPL, this can be allowed by the head judge.", None, "TR")
+    check("an ambiguous quote home is reported, not guessed",
+          any("appears in" in p for p in _amb.problems), str(_amb.problems)[:70])
 
     # Blocks are matched SEPARATELY, never joined. A quote welded from the end
     # of one block and the start of the next exists nowhere Riot published, and
@@ -1053,15 +1072,35 @@ def rendered_surfaces(idx):
     # restate a NEIGHBOURING rule, so equal ranking attributed a quote to a rule
     # whose own text does not contain it — 383.3.a onto 383.3.a.3, the opposite
     # case, under a banner asserting the quote "lives" there.
-    # A quote living in 346's OWN text that ALSO appears inside 346.1's Example.
-    # Ranked equally, max-by-depth picks the Example's owner, so the page stamps
-    # a rule whose normative text does not contain the quote under a banner
-    # asserting it "lives" there. (383.3.a — the originally reported case — does
-    # NOT exercise this; a check built on it passes with the defect live.)
-    _res = verify_citation(idx, "346", "chain resolves and the turn returns to an open state",
-                           None, "CR")
-    check("normative text outranks an Example when narrowing",
-          _res.cite_as == "346", f"narrowed to {_res.cite_as}")
+    # Normative text must outrank an Example when both could host a quote.
+    # Pinned on a SYNTHETIC index: no arrangement in the real corpus can tell
+    # the two rankings apart once "the cited rule wins if it hosts the quote"
+    # is in place, so a corpus-based check here passes with the ordering
+    # reversed — the mutation battery proved exactly that. The property is a
+    # design decision (Examples restate NEIGHBOURING rules, so they must never
+    # outrank normative text), and it deserves a test that cannot drift with
+    # the corpus.
+    with tempfile.TemporaryDirectory() as d:
+        synth = os.path.join(d, "rules.json")
+        json.dump([
+            {"doc": "CR", "id": "900", "text": "Parent with no quote.", "depth": 1,
+             "parent": None, "section": "900", "section_title": "Synthetic",
+             "version": "test", "examples": [], "see_also": []},
+            {"doc": "CR", "id": "900.1", "text": "the disputed clause lives here",
+             "depth": 2, "parent": "900", "section": "900",
+             "section_title": "Synthetic", "version": "test",
+             "examples": [], "see_also": []},
+            {"doc": "CR", "id": "900.1.a", "text": "Deeper rule, different subject.",
+             "depth": 3, "parent": "900.1", "section": "900",
+             "section_title": "Synthetic", "version": "test",
+             "examples": ["Example: the disputed clause lives here, restated."],
+             "see_also": []},
+        ], open(synth, "w", encoding="utf-8"))
+        _sidx = RuleIndex(synth)
+        _sres = verify_citation(_sidx, "900", "the disputed clause lives here", None, "CR")
+        check("normative text outranks an Example when narrowing",
+              _sres.cite_as == "900.1",
+              f"narrowed to {_sres.cite_as}, not the rule whose own text holds the quote")
 
     # A descendant's Example must verify at every ancestor: it used to verify at
     # the child and be called "paraphrased" one level up.
@@ -1271,6 +1310,66 @@ def rendered_surfaces(idx):
               f"rc={r.returncode}")
 
 
+def research_tools(idx):
+    """The commands an agent NAVIGATES with, before it writes anything.
+
+    These had zero coverage in either gate through eight review rounds, and that
+    is exactly how their defects survived. A renderer bug produces a visibly odd
+    report; a `grep` that hides the second half of a rule produces a CONFIDENT
+    WRONG ANSWER that then cites correctly. Nothing downstream can catch that —
+    the citation verifier checks that a quote is real, not that the reasoning
+    resting on it is.
+    """
+    print("\n=== the tools an agent researches with ===")
+    from retrieve import BadQuery, Retriever
+    r = Retriever(os.path.join(HERE, "rules.db"))
+
+    # FTS5 reads - ' . and brackets as operators. Returning [] for a REJECTED
+    # query made `grep` print "no matches", which is a claim about the RULES.
+    # `Quick-Draw` is CR section 819; its output was byte-identical to a
+    # nonsense word's.
+    for term in ("Quick-Draw", "can't", "471.1.b"):
+        try:
+            hits = r.search(term, 5)
+            check(f"grep finds {term!r}, which exists", bool(hits), "reported as absent")
+        except BadQuery:
+            check(f"grep finds {term!r}, which exists", False, "query rejected")
+    try:
+        check("a genuinely absent term still returns nothing",
+              not r.search("zamboni", 5))
+    except BadQuery:
+        check("a genuinely absent term still returns nothing", False, "rejected instead")
+
+    # Truncation is the quiet one: 142 rules carry a negation past 110 chars.
+    out = subprocess.run(
+        [sys.executable, os.path.join(HERE, "rules_cli.py"), "grep",
+         '"activated ability" AND showdown', "-n", "2"],
+        capture_output=True, text=True, cwd=HERE).stdout
+    check("grep shows the clause that reverses a rule",
+          "not during a Showdown" in out,
+          "CR:145.2 rendered without its negation")
+    check("grep does not clip the section title",
+          "Units may have Activated Abilities" in out)
+
+    # Two tools that disagree about rule order is worse than either being wrong:
+    # CR:323's own text says "in the order described".
+    kids = subprocess.run(
+        [sys.executable, os.path.join(HERE, "rules_cli.py"), "rule", "323"],
+        capture_output=True, text=True, cwd=HERE).stdout
+    seq = re.findall(r"^\s+(323\.\d+)\.", kids, re.M)
+    check("rule lists children in numeric order", seq == sorted(seq, key=_num_key), str(seq[:6]))
+    check("the child-order check saw children", len(seq) > 5, f"{len(seq)}")
+
+    # The retriever's own children() had the same lexicographic bug in SQL.
+    rows = [x["rid"] for x in r.children("CR:465.2.c")]
+    check("the retriever orders children numerically",
+          rows == sorted(rows, key=_num_key), str(rows[:5]))
+
+
+def _num_key(rule_id):
+    return [(0, int(x), "") if x.isdigit() else (1, 0, x) for x in rule_id.split(".")]
+
+
 def main():
     print("rules-report selftest")
     parser_fidelity()
@@ -1283,6 +1382,7 @@ def main():
     topic_blocks(idx)
     attribution_and_spans(idx)
     render_gate()
+    research_tools(idx)
     metric_consistency(idx)
     rendered_surfaces(idx)
     python_floor()

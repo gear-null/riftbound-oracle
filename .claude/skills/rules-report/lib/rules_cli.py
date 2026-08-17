@@ -55,7 +55,7 @@ def cmd_rule(args):
             print(f"{mark} {'  ' * (a['depth'] - 1)}{a['id']}. {a['text']}")
         kids = [x for x in idx.rules.values()
                 if x["doc"] == doc and x["parent"] == rid]
-        for k in sorted(kids, key=lambda x: x["id"]):
+        for k in sorted(kids, key=lambda x: _idkey(x["id"])):
             print(f"   {'  ' * (k['depth'] - 1)}{k['id']}. {k['text']}")
         for ex in r.get("examples", []):
             print(f"   Example: {ex}")
@@ -125,16 +125,37 @@ def cmd_grep(args):
     the hits", and from there concluding the rules are silent on whatever fell
     below the cut — the one wrong answer this system most needs to avoid.
     """
-    from retrieve import Retriever
+    import textwrap
+
+    from retrieve import BadQuery, Retriever
     ensure_index()
     limit = 12
     if "-n" in args:
         i = args.index("-n"); limit = int(args[i + 1]); args = args[:i] + args[i + 2:]
     r = Retriever(RULES_DB)
+    query = " ".join(args)
     # One more than asked for, purely to detect truncation.
-    hits = r.search(" ".join(args), limit + 1)
+    try:
+        hits = r.search(query, limit + 1)
+    except BadQuery as e:
+        # NEVER the no-matches sentence here. That sentence is a claim about the
+        # RULES; this is a fact about the query, and printing the former for the
+        # latter told the agent the rules were silent on terms that exist.
+        print(f"  the search engine rejected that query: {e}")
+        print("  FTS5 reads - ' . : and brackets as operators. Try the bare words,")
+        print('  a quoted phrase ("quick draw"), or navigate by section number.')
+        return
+    # Text is NOT clipped. It was cut at 110 chars with no marker, and 142 rules
+    # carry a "not"/"unless"/"except" AFTER that point — CR:145.2 displayed as
+    # "...during the controlling player's Main Phase during a" when the rule ends
+    # "and not during a Showdown." The agent read the reverse of the rule and
+    # then cited it correctly, which no downstream check can catch. Titles were
+    # clipped to 22 chars too, collapsing Priority (312) and Focus (313) into
+    # the same visible label.
     for h in hits[:limit]:
-        print(f"{h['uid']:18} [{h['section']}. {h['section_title'][:22]:24}] {h['text'][:110]}")
+        print(f"{h['uid']:18} [{h['section']}. {h['section_title']}]")
+        for line in textwrap.wrap(h["text"], width=96) or [""]:
+            print(f"    {line}")
     if not hits:
         print("  no matches — try another term, or navigate by section number")
     elif len(hits) > limit:

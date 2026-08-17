@@ -116,7 +116,7 @@ MUTANTS = [
          repl="            for k, v in supplied.items():\n"
               "                if not v:\n"
               "                    continue",
-         expect="card"),
+         expect="override the vendored card text"),
     dict(name="report an empty card index as a missing card",
          file="render_report.py",
          find='    if bridge is not None and not getattr(bridge, "cards", None):',
@@ -176,6 +176,50 @@ MUTANTS = [
          repl='    src = sys.argv[1] if len(sys.argv) > 1 else "answer.json"\n'
               '    out = sys.argv[2] if len(sys.argv) > 2 else "report.html"',
          expect="mistaken for the output path"),
+    # ---- the research path -------------------------------------------------
+    dict(name="report a rejected FTS query as 'no matches'",
+         file="retrieve.py",
+         find='            words = re.findall(r"\\w+", fts_query)',
+         repl='            words = []',
+         also=("            raise BadQuery(str(e)) from e", "            return []"),
+         expect="which exists"),
+    dict(name="clip rule text at 110 chars again",
+         file="rules_cli.py",
+         find='            print(f"    {line}")',
+         repl='            print(f"    {line[:110]}"); break',
+         expect="clause that reverses a rule"),
+    dict(name="clip the section title to 22 chars again",
+         file="rules_cli.py",
+         find="        print(f\"{h['uid']:18} [{h['section']}. {h['section_title']}]\")",
+         repl="        print(f\"{h['uid']:18} [{h['section']}. {h['section_title'][:22]}]\")",
+         expect="does not clip the section title"),
+    dict(name="order rule children lexicographically again",
+         file="rules_cli.py",
+         find='        for k in sorted(kids, key=lambda x: _idkey(x["id"])):',
+         repl='        for k in sorted(kids, key=lambda x: x["id"]):',
+         expect="children in numeric order"),
+    dict(name="order the retriever's children by SQL rid again",
+         file="retrieve.py",
+         find='            "SELECT * FROM rule WHERE doc=? AND parent=?", (row["doc"], row["rid"])',
+         repl='            "SELECT * FROM rule WHERE doc=? AND parent=? ORDER BY rid",\n            (row["doc"], row["rid"])',
+         also=('        return sorted(rows, key=lambda x: sort_key(x["rid"]))', "        return rows"),
+         expect="retriever orders children numerically"),
+    dict(name="let a whitespace-only quote verify",
+         file="verify_citations.py",
+         find="    if quote is not None and not norm(quote):",
+         repl="    if False:",
+         expect="whitespace"),
+    dict(name="narrow away from a rule that hosts the quote",
+         file="verify_citations.py",
+         find='            if any(r["id"] == rule_id for r in own):\n                own = [r for r in own if r["id"] == rule_id]',
+         repl="            pass",
+         expect="cited rule keeps its own quote"),
+    dict(name="pick one home arbitrarily when several tie",
+         file="verify_citations.py",
+         find="                if len(tied) > 1:",
+         repl="                if False:",
+         expect="ambiguous quote home"),
+
     dict(name="let a rail claim render unclipped",
          file="render_report.py",
          find='    cut = text.rfind(" ", 0, limit)\n'
@@ -191,8 +235,12 @@ def run_one(m):
     """Apply one mutant to a throwaway copy and report which checks caught it."""
     with tempfile.TemporaryDirectory() as d:
         skill = os.path.join(d, "rules-report")
+        # `rules.db` IS copied. Excluding it was a speed optimisation until the
+        # research-path checks arrived: without the index every mutant made the
+        # suite exit at "Rule index missing", which the battery then reported as
+        # a crash rather than as a caught defect — 29 false crashes at once.
         shutil.copytree(SKILL, skill, ignore=shutil.ignore_patterns(
-            "reports", "__pycache__", "*.db", "*.tmp"))
+            "reports", "__pycache__", "*.tmp"))
         lib = os.path.join(skill, "lib")
         path = os.path.join(lib, m["file"])
         src = open(path, encoding="utf-8").read()
@@ -226,7 +274,7 @@ def run_one(m):
 
 def main():
     print("mutation battery — reintroducing defects the suite claims to catch\n")
-    survived, stale = [], []
+    survived, stale, crashes = [], [], []
     for i, m in enumerate(MUTANTS, 1):
         failures, err = run_one(m)
         if err:
@@ -234,11 +282,16 @@ def main():
             print(f"  [STALE] {i:2}. {m['name']}\n           {err}")
             continue
         crashed = [f for f in failures if f.startswith("<suite crashed>")]
-        caught = [f for f in failures if m["expect"] in f]
+        # `caught` is computed over NAMED failures only. Matching it against the
+        # crash text let a traceback containing the expect substring be credited
+        # as a caught mutant, with not one check executed.
+        caught = [f for f in failures
+                  if not f.startswith("<suite crashed>") and m["expect"] in f]
         if crashed and not caught:
             print(f"  [crashed] {i:2}. {m['name']}")
             print(f"            {crashed[0][:110]}")
             print("            detected, but as a crash rather than a named failure")
+            crashes.append(m)
         elif caught:
             print(f"  [caught] {i:2}. {m['name']}")
         else:
@@ -248,11 +301,23 @@ def main():
             print(f"             got: {failures or 'NOTHING — the suite stayed green'}")
 
     print()
+    bad = []
     if stale:
-        print(f"{len(stale)} mutant(s) no longer apply — update them; they prove nothing as-is.")
+        print(f"{len(stale)} mutant(s) no longer apply — an anchor drifted, so they "
+              "test nothing. Update them.")
+        bad += stale
+    if crashes:
+        print(f"{len(crashes)} mutant(s) killed the suite instead of failing a named "
+              "check — the defect is detected, but not by the check it is filed under.")
+        bad += crashes
     if survived:
-        print(f"FAILED: {len(survived)} of {len(MUTANTS)} mutants survived.")
-        print("A surviving mutant means the named check passes while its defect is live.")
+        print(f"{len(survived)} of {len(MUTANTS)} mutants SURVIVED — the named check "
+              "passes while its defect is live.")
+        bad += survived
+    if bad:
+        # Exits non-zero for stale and crashed too. Only `survived` used to
+        # fail, so a battery in which nothing meaningful ran still printed
+        # "every check named here has been observed to fail" and exited 0.
         sys.exit(1)
     print(f"all {len(MUTANTS)} mutants caught — every check named here has been "
           "observed to fail.")

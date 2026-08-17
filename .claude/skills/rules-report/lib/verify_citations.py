@@ -256,6 +256,12 @@ def verify_citation(idx: RuleIndex, rule_id: str, quote: Optional[str] = None,
 
     quote_ok = None
     narrowed_to = None
+    if quote is not None and not norm(quote):
+        # A whitespace-only quote normalises to the empty string, and "" is a
+        # substring of every haystack — so it verified. `checked` was added to
+        # refuse an ABSENT quote; a single space was cheaper and passed.
+        problems.append(f"{rule_id}: quote is empty once normalised")
+        return CitationCheck(rule_id, exists, False, None, problems, None)
     if quote:
         needle = norm(quote)
         # `any` over separate blocks, never `in` on a join.
@@ -281,8 +287,23 @@ def verify_citation(idx: RuleIndex, rule_id: str, quote: Optional[str] = None,
             if not own:
                 own = [r for r in scope
                        if any(needle in norm(e) for e in r.get("examples", []))]
+            # The cited rule wins if it is itself a valid home. Narrowing
+            # exists to tighten a VAGUE citation, not to move an already-exact
+            # one — and moving it printed "quote lives in 124.1, not 124
+            # itself" about a quote that is in 124's own text.
+            if any(r["id"] == rule_id for r in own):
+                own = [r for r in own if r["id"] == rule_id]
             if own:
                 deepest = max(own, key=lambda r: r["depth"])
+                # A tie at max depth means the quote genuinely has several
+                # homes; picking one by iteration order asserted a fact the
+                # corpus does not support. 143 sentences corpus-wide tie.
+                tied = [r["id"] for r in own if r["depth"] == deepest["depth"]]
+                if len(tied) > 1:
+                    problems.append(
+                        f"quote appears in {len(tied)} rules under {rule_id} "
+                        f"({', '.join(sorted(tied)[:4])}) — cite the intended one")
+                    deepest = rule
                 if deepest["id"] != rule_id:
                     narrowed_to = deepest["id"]
                     problems.append(

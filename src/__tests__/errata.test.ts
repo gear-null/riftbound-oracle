@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseErrata, sameWording, wordsOf } from "../errata.js";
+import { countErrataMarkers, parseErrata, sameWording, wordsOf } from "../errata.js";
 import { applyErratum, buildCardIndex } from "../skill-data.js";
 
 const ARTICLE = `# Unleashed Cards
@@ -126,5 +126,87 @@ describe("buildCardIndex with errata", () => {
     ]));
     expect(idx["stalking wolf"].text).toContain("[Ambush]");
     expect(idx["stalking wolf"].errata).toBeDefined();
+  });
+});
+
+// Round 8: the parser was anchored to exactly two hashes, so an entire Riot
+// article was skipped and six cards served text Riot had RETRACTED, with no
+// banner. These pin the shapes the real corpus actually contains.
+const SPIRITFORGED = `# **_Spiritforged Cards_**
+
+# **Tianna Crownguard**
+
+##### **\\[NEW TEXT\\]**
+
+While I'm at a battlefield, opponents can't gain points.
+
+#### **▲**
+
+##### **\\[OLD TEXT\\]**
+
+While I'm at a battlefield, opponents can't score points.
+
+* * *
+
+## Ava Achiever
+
+##### **\\[NEW TEXT\\]**
+
+Deal 2 to a unit.
+
+#### ▲
+
+##### **\\[OLD TEXT\\]**
+
+Deal 3 to a unit.
+`;
+
+describe("parseErrata heading shapes", () => {
+  const parsed = parseErrata(SPIRITFORGED);
+
+  it("reads `# **Card Name**`, not only `## Card Name`", () => {
+    expect(parsed.get("tianna crownguard")?.text)
+      .toBe("While I'm at a battlefield, opponents can't gain points.");
+  });
+
+  it("still reads the two-hash shape", () => {
+    expect(parsed.get("ava achiever")?.text).toBe("Deal 2 to a unit.");
+  });
+
+  it("does not mistake a bold-italic group heading for a card", () => {
+    expect([...parsed.keys()]).not.toContain("_spiritforged cards_");
+    expect(parsed.size).toBe(2);
+  });
+
+  it("stops at a decorated ▲, so no markdown reaches the card text", () => {
+    for (const e of parsed.values()) {
+      expect(e.text).not.toMatch(/▲|#{2,}/);
+    }
+  });
+
+  it("counts the markers so a future heading shape cannot vanish quietly", () => {
+    expect(countErrataMarkers(SPIRITFORGED)).toBe(parsed.size);
+  });
+});
+
+describe("sameWording counts digits", () => {
+  it("a numeric nerf in prose is a real change, not a reprint", () => {
+    expect(sameWording("Deal 4 to a unit.", "Deal 5 to a unit.")).toBe(false);
+    expect(sameWording("Draw 1 card.", "Draw 2 cards.")).toBe(false);
+  });
+
+  it("but notation still does not count", () => {
+    expect(sameWording("[Ambush] I am fast.", "I am fast.")).toBe(true);
+    expect(sameWording("[1][C]: Draw 1.", ":rb_energy_1::rb_calm:: Draw 1.")).toBe(true);
+  });
+
+  // KNOWN LIMIT, pinned so it is a decision rather than a surprise. Bracket
+  // CONTENTS are dropped because the two sources spell the same cost
+  // differently (`[1][C]` vs `:rb_energy_1:`), so a change expressed purely
+  // inside brackets — a cost nerf from [1] to [3] — reads as a reprint and the
+  // erratum is not applied. Closing it means canonicalising both notations
+  // rather than deleting them. No live instance today.
+  it("does NOT yet see a change made only inside notation", () => {
+    expect(sameWording("[1][C]: Draw 1.", "[3][C]: Draw 1.")).toBe(true);
   });
 });

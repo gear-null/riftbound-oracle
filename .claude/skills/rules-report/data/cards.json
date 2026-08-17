@@ -755,7 +755,7 @@
  },
  "arise!": {
   "name": "Arise!",
-  "text": "Play a 2 :rb_might: Sand Soldier unit token for each Equipment you control. Then ready two of them.",
+  "text": "Play a 2 [M] Sand Soldier unit token for each Equipment you control. Then do this: Ready up to two of them.",
   "stats": {
    "energy": 6,
    "might": null,
@@ -767,6 +767,7 @@
     "Order"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/346f4698fea2878dde88470c1793047140c981e3-744x1039.png?accountingTag=RB"
  },
  "armed assailant": {
@@ -907,7 +908,7 @@
  },
  "ava achiever": {
   "name": "Ava Achiever",
-  "text": "When I attack, you may pay [C] to play a card with [Hidden] from your hand, ignoring its cost. If it’s a unit, play it here. #### ▲ #####",
+  "text": "When I attack, you may pay [C] to play a card with [Hidden] from your hand, ignoring its cost. If it’s a unit, play it here.",
   "stats": {
    "energy": 5,
    "might": 4,
@@ -1515,7 +1516,7 @@
  },
  "blood rush": {
   "name": "Blood Rush",
-  "text": "[Action] (Play on your turn or in showdowns.)[Repeat] :rb_energy_1: (You may pay the additional cost to repeat this spell's effect.)Give a unit [Assault 2]. (+2 :rb_might: while it's an attacker.)",
+  "text": "[Action] (Play on your turn or in showdowns.) [Repeat] [1] (You may pay the additional cost to repeat this spell's effect.) Give a unit [Assault 2] this turn. (+2 [M] while it's an attacker.)",
   "stats": {
    "energy": 1,
    "might": null,
@@ -1526,6 +1527,7 @@
     "Fury"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/931b77b9ab56c3abc85686be4d2452c450f9b3e0-744x1039.png?accountingTag=RB"
  },
  "blue sentinel": {
@@ -2163,7 +2165,7 @@
  },
  "clockwork keeper": {
   "name": "Clockwork Keeper",
-  "text": "You may pay [C] as an additional cost to play me. When you play me, if you paid the additional cost, draw 1. #### ▲ #####",
+  "text": "You may pay [C] as an additional cost to play me. When you play me, if you paid the additional cost, draw 1.",
   "stats": {
    "energy": 2,
    "might": 2,
@@ -2775,7 +2777,7 @@
  },
  "dazzling aurora": {
   "name": "Dazzling Aurora",
-  "text": "At the end of your turn, reveal cards from the top of your Main Deck until you reveal a unit and banish it. Play it, ignoring its cost, and recycle the rest. #### ▲ #####",
+  "text": "At the end of your turn, reveal cards from the top of your Main Deck until you reveal a unit and banish it. Play it, ignoring its cost, and recycle the rest.",
   "stats": {
    "energy": 9,
    "might": null,
@@ -2854,7 +2856,7 @@
  },
  "deathgrip": {
   "name": "Deathgrip",
-  "text": "[Reaction] (Play any time, even before spells and abilities resolve.)Kill a friendly unit to give +:rb_might: equal to its Might to another friendly unit this turn. Draw 1.",
+  "text": "[Reaction] (Play any time, even before spells and abilities resolve.) Kill a friendly unit. If you do, give +[M] equal to its Might to another friendly unit this turn. Draw 1.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -2865,6 +2867,7 @@
     "Order"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/695304200c6fd3b287bd319ac564d31936b23d66-744x1039.png?accountingTag=RB"
  },
  "decisive strike": {
@@ -3223,7 +3226,7 @@
  },
  "disintegrate": {
   "name": "Disintegrate",
-  "text": "Action (Play on your turn or in showdowns.) Deal 3 to a unit at a battlefield. If this kills it, do this: draw 1. #### ▲ #####",
+  "text": "Action (Play on your turn or in showdowns.) Deal 3 to a unit at a battlefield. If this kills it, do this: draw 1.",
   "stats": {
    "energy": 4,
    "might": null,
@@ -3465,7 +3468,7 @@
  },
  "dragon's rage": {
   "name": "Dragon's Rage",
-  "text": "Move an enemy unit. Then do this: Choose another enemy unit at its destination. They deal damage equal to their Mights to each other. #### ▲ #####",
+  "text": "Move an enemy unit. Then do this: Choose another enemy unit at its destination. They deal damage equal to their Mights to each other.",
   "stats": {
    "energy": 4,
    "might": null,
@@ -5828,7 +5831,7 @@
  },
  "highlander": {
   "name": "Highlander",
-  "text": "[Reaction] (Play any time, even before spells and abilities resolve.) Choose a friendly unit. The next time it would die this turn, heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.) #### ▲ #####",
+  "text": "[Reaction] (Play any time, even before spells and abilities resolve.) Choose a friendly unit. The next time it would die this turn, heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)",
   "stats": {
    "energy": 4,
    "might": null,
@@ -6919,7 +6922,7 @@
  },
  "kato the arm": {
   "name": "Kato the Arm",
-  "text": "[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)When I move to a battlefield, give a friendly unit my keywords and +:rb_might: equal to my Might this turn.",
+  "text": "[Deflect] (Opponents must pay [A] to choose me with a spell or ability.) When I move to a battlefield, give another friendly unit my keywords and +[M] equal to my Might this turn.",
   "stats": {
    "energy": 4,
    "might": 3,
@@ -6930,6 +6933,7 @@
     "Body"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f4ea4f2f5169a3813d9eb7f0d3d2f41bdddebfc7-744x1039.png?accountingTag=RB"
  },
  "kayle, justified": {
@@ -9470,7 +9474,7 @@
  },
  "pack of wonders": {
   "name": "Pack of Wonders",
-  "text": "[E]: Return another friendly gear, unit, or facedown card to its owner's hand. #### ▲ #####",
+  "text": "[E]: Return another friendly gear, unit, or facedown card to its owner's hand.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -9897,7 +9901,7 @@
  },
  "portal rescue": {
   "name": "Portal Rescue",
-  "text": "[Action] (Play on your turn or in showdowns.) Banish a friendly unit, then its owner plays it to their base, ignoring its cost. #### ▲ #####",
+  "text": "[Action] (Play on your turn or in showdowns.) Banish a friendly unit, then its owner plays it to their base, ignoring its cost.",
   "stats": {
    "energy": 3,
    "might": null,
@@ -10063,7 +10067,7 @@
  },
  "promising future": {
   "name": "Promising Future",
-  "text": "Each player looks at the top 5 cards of their Main Deck, banishes one of them, then recycles the rest. Starting with the next player, each player plays those cards, ignoring Energy costs. (They must still pay Power costs.) #### ▲ #####",
+  "text": "Each player looks at the top 5 cards of their Main Deck, banishes one of them, then recycles the rest. Starting with the next player, each player plays those cards, ignoring Energy costs. (They must still pay Power costs.)",
   "stats": {
    "energy": 5,
    "might": null,
@@ -11444,7 +11448,7 @@
  },
  "salvage": {
   "name": "Salvage",
-  "text": "[Action] (Play on your turn or in showdowns.) You may kill up to one gear. Draw 1. #### ▲ #####",
+  "text": "[Action] (Play on your turn or in showdowns.) You may kill up to one gear. Draw 1.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -12256,7 +12260,7 @@
  },
  "sigil of the storm": {
   "name": "Sigil of the Storm",
-  "text": "When you conquer here, you must recycle one of your runes. (This doesn’t choose anything.) #### ▲ #####",
+  "text": "When you conquer here, you must recycle one of your runes. (This doesn’t choose anything.)",
   "stats": {
    "energy": null,
    "might": null,
@@ -13471,7 +13475,7 @@
  },
  "targon's peak": {
   "name": "Targon's Peak",
-  "text": "When you conquer here, ready up to 2 runes at the end of this turn. #### ▲ #####",
+  "text": "When you conquer here, ready up to 2 runes at the end of this turn.",
   "stats": {
    "energy": null,
    "might": null,
@@ -13793,7 +13797,7 @@
  },
  "the syren": {
   "name": "The Syren",
-  "text": "[1], [E]: Move a friendly unit at a battlefield to its base. #### ▲ #####",
+  "text": "[1], [E]: Move a friendly unit at a battlefield to its base.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -13900,7 +13904,7 @@
  },
  "tianna crownguard": {
   "name": "Tianna Crownguard",
-  "text": "[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)While I'm at a battlefield, opponents can't score points.",
+  "text": "[Deflect] (Opponents must pay [A] to choose me with a spell or ability.) While I'm at a battlefield, opponents can't gain points.",
   "stats": {
    "energy": 7,
    "might": 4,
@@ -13911,6 +13915,7 @@
     "Calm"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2a1876aeedae7310409d0eaaf453507188b0c82b-744x1039.png?accountingTag=RB"
  },
  "tibbers": {
@@ -13931,7 +13936,7 @@
  },
  "tideturner": {
   "name": "Tideturner",
-  "text": "[Hidden] (Hide now for [A] to react with later for [0].) When you play me, you may choose a unit you control at another location. Move me to its location and it to my original location. #### ▲ #####",
+  "text": "[Hidden] (Hide now for [A] to react with later for [0].) When you play me, you may choose a unit you control at another location. Move me to its location and it to my original location.",
   "stats": {
    "energy": 2,
    "might": 2,
@@ -14457,7 +14462,7 @@
  },
  "unlicensed armory": {
   "name": "Unlicensed Armory",
-  "text": "Discard 1, [E]: Choose a friendly unit. The next time it would die this turn, you may pay [C] to heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.) #### ▲ #####",
+  "text": "Discard 1, [E]: Choose a friendly unit. The next time it would die this turn, you may pay [C] to heal it, exhaust it, and recall it instead. (Send it to base. This isn't a move.)",
   "stats": {
    "energy": 2,
    "might": null,
@@ -15022,7 +15027,7 @@
  },
  "void gate": {
   "name": "Void Gate",
-  "text": "Spells and abilities deal 1 Bonus Damage to units here. (Each instance of damage the spell deals to a unit here is increased by 1.) #### ▲ #####",
+  "text": "Spells and abilities deal 1 Bonus Damage to units here. (Each instance of damage the spell deals to a unit here is increased by 1.)",
   "stats": {
    "energy": null,
    "might": null,
@@ -15053,7 +15058,7 @@
  },
  "void rush": {
   "name": "Void Rush",
-  "text": "Reveal the top 2 cards of your Main Deck. You may play one of them, reducing its cost by :rb_energy_2:. Draw any you did not play this way.",
+  "text": "Reveal the top 2 cards of your Main Deck. You may banish one, then play it, reducing its cost by [2]. Draw any you didn't banish.",
   "stats": {
    "energy": 2,
    "might": null,
@@ -15065,6 +15070,7 @@
     "Order"
    ]
   },
+  "errata": "Riot errata (Rules Hub)",
   "image": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ce606f096ae76485cd8dd3cc337629b510f0d1e7-744x1039.png?accountingTag=RB"
  },
  "void seeker": {
@@ -15850,7 +15856,7 @@
  },
  "zhonya's hourglass": {
   "name": "Zhonya's Hourglass",
-  "text": "[Hidden] (Hide now for [A] to react with later for [0].) If a friendly unit would die, kill this instead. Heal that unit, exhaust it, and recall it. (Send it to base. This isn't a move.) #### ▲ #####",
+  "text": "[Hidden] (Hide now for [A] to react with later for [0].) If a friendly unit would die, kill this instead. Heal that unit, exhaust it, and recall it. (Send it to base. This isn't a move.)",
   "stats": {
    "energy": 2,
    "might": null,
