@@ -57,6 +57,23 @@ def cmd_rule(args):
                 if x["doc"] == doc and x["parent"] == rid]
         for k in sorted(kids, key=lambda x: _idkey(x["id"])):
             print(f"   {'  ' * (k['depth'] - 1)}{k['id']}. {k['text']}")
+        # A topic heading owns no children, so everything above prints one word
+        # and stops. SKILL.md sends the agent here after following a `see also`,
+        # and 37 headings are cross-reference targets — an empty result is
+        # indistinguishable from "the rules are silent", which this codebase
+        # calls the most dangerous wrong conclusion it can reach. `cmd_section`
+        # already resolves these; `cmd_rule` simply never asked.
+        if not kids and idx.is_topic_heading(r):
+            block = idx.topic_block(r)
+            if block:
+                print(f"\n   -- {rid} is a heading; its rules are sections "
+                      f"{block[0]['id']}-{block[-1]['id']}. `section {doc}:{rid}` --")
+            else:
+                contents = idx.topic_contents(r)
+                if contents:
+                    print(f"\n   -- {rid} is a chapter heading; it continues with "
+                          f"{', '.join(c['id'] for c in contents[:6])}"
+                          f"{' …' if len(contents) > 6 else ''}. `section {doc}:{rid}` --")
         for ex in r.get("examples", []):
             print(f"   Example: {ex}")
         if r.get("see_also"):
@@ -136,7 +153,7 @@ def cmd_grep(args):
     query = " ".join(args)
     # One more than asked for, purely to detect truncation.
     try:
-        hits = r.search(query, limit + 1)
+        hits, ran = r.search_disclosed(query, limit + 1)
     except BadQuery as e:
         # NEVER the no-matches sentence here. That sentence is a claim about the
         # RULES; this is a fact about the query, and printing the former for the
@@ -152,12 +169,23 @@ def cmd_grep(args):
     # then cited it correctly, which no downstream check can catch. Titles were
     # clipped to 22 chars too, collapsing Priority (312) and Focus (313) into
     # the same visible label.
+    if ran != query:
+        # Never silent. A rewritten query can return the COMPLEMENT of what was
+        # asked, and an agent reading confident hits has no way to know its
+        # operators were dropped.
+        print(f'  -- "{query}" is not valid FTS5 syntax; searched {ran} instead.')
+        print("  -- these hits answer the rewritten query, not the one you typed. --")
     for h in hits[:limit]:
         print(f"{h['uid']:18} [{h['section']}. {h['section_title']}]")
         for line in textwrap.wrap(h["text"], width=96) or [""]:
             print(f"    {line}")
-    if not hits:
+    if not hits and ran == query:
         print("  no matches — try another term, or navigate by section number")
+    elif not hits:
+        # The no-matches sentence is a claim about the RULES. It must never be
+        # printed for a query that never ran as typed.
+        print(f"  the rewritten query {ran} also found nothing — this is not "
+              "evidence that the rules are silent")
     elif len(hits) > limit:
         print(f"\n  -- showing {limit}; more matches exist. `-n {limit * 4}` for more. --")
         print("  -- ranked by lexical overlap: good for locating, never proof of absence. --")
@@ -395,7 +423,14 @@ def main():
     # failure this codebase refuses for near-miss card names.
     args = []
     for a in sys.argv[2:]:
-        args.append(os.path.abspath(a) if a.endswith(".json") and os.path.exists(a) else a)
+        if not a.endswith(".json"):
+            args.append(a)
+            continue
+        full = os.path.abspath(a)
+        if not os.path.exists(full):
+            # Refuse, rather than let chdir(HERE) find a same-named sample.
+            sys.exit(f"no such answer file: {a}")
+        args.append(full)
 
     os.chdir(HERE)
     COMMANDS[sys.argv[1]](args)

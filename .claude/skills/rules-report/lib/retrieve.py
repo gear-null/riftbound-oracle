@@ -119,6 +119,12 @@ class Retriever:
                  WHERE rule_fts MATCH ? ORDER BY score LIMIT ?"""
 
     def search(self, fts_query, limit=12):
+        """Rows only. Prefer `search_disclosed` where the caller shows results
+        to a human or an agent — it also returns the query that RAN, which is
+        not always the one passed in."""
+        return self.search_disclosed(fts_query, limit)[0]
+
+    def search_disclosed(self, fts_query, limit=12):
         """Rows for an FTS5 query.
 
         Raises BadQuery if FTS5 refuses the syntax and a relaxed retry also
@@ -129,7 +135,7 @@ class Retriever:
         with output byte-identical to a genuinely absent term.
         """
         try:
-            return self.con.execute(self._SQL, (fts_query, limit)).fetchall()
+            return self.con.execute(self._SQL, (fts_query, limit)).fetchall(), fts_query
         except sqlite3.OperationalError as e:
             # A missing index is not a bad query. sqlite3.connect happily
             # creates an empty file, so without this the agent sees zero hits
@@ -139,15 +145,18 @@ class Retriever:
                     "Rule index missing or empty. Build it first:\n"
                     "    python3 rules_cli.py build"
                 ) from e
-            # FTS5 treats -, ', . and brackets as syntax. A phrase search over
-            # the bare words means the same thing to a human and parses.
+            # FTS5 treats -, ', . and brackets as syntax. Try the forms closest
+            # to the agent's INTENT first: implicit AND keeps "all these words",
+            # which is what a punctuated multi-word query almost always means. A
+            # phrase search is the last resort because it means something
+            # narrower, and returning phrase hits for an AND query hands back a
+            # confident result set that is not the one asked for.
             words = re.findall(r"\w+", fts_query)
-            if words:
+            for form in ([" ".join(words), '"' + " ".join(words) + '"'] if words else []):
                 try:
-                    return self.con.execute(
-                        self._SQL, ('"' + " ".join(words) + '"', limit)).fetchall()
+                    return self.con.execute(self._SQL, (form, limit)).fetchall(), form
                 except sqlite3.OperationalError:
-                    pass
+                    continue
             raise BadQuery(str(e)) from e
 
     def packet(self, uid):

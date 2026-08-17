@@ -56,6 +56,15 @@ export function sameWording(a: string, b: string): boolean {
   return x.length === y.length && x.every((w, i) => w === y[i]);
 }
 
+/**
+ * One spelling for a card name, so Riot's articles and Riftcodex's database can
+ * be compared. Folds curly apostrophes and collapses whitespace; does NOT touch
+ * the comma/dash difference, which callers handle as an alias.
+ */
+export function normaliseCardName(name: string): string {
+  return name.replace(/[\u2018\u2019]/g, "'").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 /** Every card the crawled errata articles give new text for. */
 export function parseErrata(markdown: string): Map<string, Erratum> {
   const out = new Map<string, Erratum>();
@@ -84,7 +93,11 @@ export function parseErrata(markdown: string): Map<string, Erratum> {
     if (!m) continue;
     const text = unescapeMarkdown(m[1]);
     if (!text) continue;
-    out.set(rawName.trim().toLowerCase(), { name: rawName.trim(), text });
+    // Key NORMALISED. Riot writes Rek\u2019Sai with a curly apostrophe and
+    // Riftcodex writes Rek'Sai with a straight one, so a raw-lowercase key
+    // never met a normalised lookup and three corrections were silently
+    // dropped after the name-shape fix had supposedly closed this.
+    out.set(normaliseCardName(rawName), { name: rawName.trim(), text });
   }
   return out;
 }

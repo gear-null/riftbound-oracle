@@ -12,7 +12,36 @@ from collections import Counter
 
 from corpus import source_corpus_dir
 
+# Fallback only, and only when a document carries no date. Both documents used
+# to derive their version from this ONE literal, which made the per-document
+# corpus-stamp check vacuous by construction — CR and TR could never disagree,
+# so a swapped or stale pair validated cleanly. Riot states the date in each
+# document; read it.
 RULES_VERSION = "2026-07-16"
+
+_DATE = re.compile(r"Last Updated:?\s*(\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{4})", re.I)
+
+
+def source_version(path):
+    """The version Riot states inside a rules document.
+
+    Riot writes `2026-07-16` in the Core Rules and `7/16/2026` in the Tournament
+    Rules; both normalise to ISO. Raises rather than guessing: a wrong version
+    reaches the masthead, the rulebook header and the copy-cite string a judge
+    pastes into a dispute, and a silent fallback is how one literal came to
+    stand for two independent documents.
+    """
+    with open(path, encoding="utf-8") as fh:
+        head = fh.read(4000)
+    m = _DATE.search(head)
+    if not m:
+        raise SystemExit(f"{os.path.basename(path)}: no 'Last Updated' date in the first 4KB — "
+                         "refusing to stamp the corpus with a guess")
+    raw = m.group(1)
+    if "/" in raw:
+        mth, day, yr = raw.split("/")
+        return f"{yr}-{int(mth):02d}-{int(day):02d}"
+    return raw
 
 
 def docs():
@@ -24,9 +53,10 @@ def docs():
     answers questions from the vendored data and never needs this path.
     """
     raw = source_corpus_dir()
+    cr, tr = f"{raw}/core-rules.md", f"{raw}/tournament-rules.md"
     return [
-        ("CR", f"{raw}/core-rules.md", RULES_VERSION),
-        ("TR", f"{raw}/tournament-rules.md", RULES_VERSION),
+        ("CR", cr, source_version(cr)),
+        ("TR", tr, source_version(tr)),
     ]
 
 # A rule starts with a 3-digit section then optional .N / .a levels, then a dot.

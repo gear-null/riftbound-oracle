@@ -15,7 +15,7 @@
 import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { loadErrata, sameWording, type Erratum } from "./errata.js";
+import { normaliseCardName, loadErrata, sameWording, type Erratum } from "./errata.js";
 import { fetchSets, fetchCardsBySet, type RiftcodexCard } from "./riftcodex.js";
 import { decodeEntities } from "./normalize.js";
 
@@ -56,6 +56,57 @@ export function loadOverlays(path = OVERLAY_PATH): Map<string, CardOverlay> {
  * the API sends `:rb_energy_1:`, and rewriting every reprinted card into the
  * other notation would churn the corpus for no gain.
  */
+/**
+ * Riot and Riftcodex do not spell champion names the same way.
+ *
+ * Riot's articles head a card `Jax, Unmatched`; Riftcodex calls it
+ * `Jax - Unmatched`. Riot also drops the champion entirely — `The Boss` for
+ * `Sett - The Boss`. An exact-string lookup therefore parsed 63 errata and
+ * applied 34, and the 29 it dropped served text Riot had RETRACTED with no
+ * marker. The parse count audited itself and reported 63/63, which read as a
+ * green light for a pipeline that then discarded nearly half of them.
+ *
+ * `used` records which errata found a home, so the caller can report the ones
+ * that did not instead of discovering it a rules update later.
+ */
+export function matchErratum(
+  errata: Map<string, Erratum>, display: string, used?: Set<string>
+): Erratum | undefined {
+  const target = normaliseCardName(display);
+  const candidates = [
+    target,
+    // `Jax - Unmatched` <- `Jax, Unmatched`
+    target.replace(/,\s*/g, " - "),
+    target.replace(/\s+-\s+/g, ", "),
+  ];
+  for (const c of candidates) {
+    const hit = errata.get(c);
+    if (hit) {
+      used?.add(c);
+      return hit;
+    }
+  }
+  // `Sett - The Boss` <- `The Boss`: Riot names the subtitle alone.
+  const sub = target.split(/\s+-\s+/)[1];
+  if (sub) {
+    const hit = errata.get(sub);
+    if (hit) {
+      used?.add(sub);
+      return hit;
+    }
+    // `Annie - Dark Child` <- `Dark Child, Starter`: Riot qualifies the
+    // subtitle with a printing. Keyed on the subtitle alone this would be too
+    // loose, so it must match the whole leading segment.
+    for (const [k, v] of errata) {
+      if (k.split(",")[0].trim() === sub) {
+        used?.add(k);
+        return v;
+      }
+    }
+  }
+  return undefined;
+}
+
 export function applyErratum(entry: SkillCard, erratum?: Erratum): SkillCard {
   if (!erratum || sameWording(entry.text, erratum.text)) return entry;
   return { ...entry, text: erratum.text, errata: "Riot errata (Rules Hub)" };
@@ -239,6 +290,7 @@ export function buildCardIndex(
     return (a.riftbound_id ?? a.id ?? "") < (b.riftbound_id ?? b.id ?? "") ? -1 : 1;
   });
 
+  const erratumUsed = new Set<string>();
   for (const card of ordered) {
     const display = card.name.replace(/\s*\(.*?\)\s*$/, "").trim();
     const body = cardText(card);
@@ -247,7 +299,7 @@ export function buildCardIndex(
     if (gap) entry.incomplete = gap;
     // Errata first: it is the authoritative text. An overlay then adds what no
     // text field carries at all (the granted-effect band), so the two compose.
-    entry = applyErratum(entry, errata.get(display.toLowerCase()));
+    entry = applyErratum(entry, matchErratum(errata, display, erratumUsed));
     entry = applyOverlay(entry, overlays.get(display.toLowerCase()));
     const image = card.media?.image_url;
     if (image) entry.image = image;
@@ -270,6 +322,19 @@ export function buildCardIndex(
         existing.stats = entry.stats;
       }
     }
+  }
+
+  // Every parsed erratum must find a home, be judged notation-only, or name a
+  // card the pool genuinely lacks. Silence here is how 29 corrections were
+  // dropped while the parse audit reported 63/63 — a count that measured the
+  // wrong half of the pipeline.
+  const orphans = [...errata.keys()].filter((k) => !erratumUsed.has(k));
+  if (orphans.length) {
+    console.warn(
+      `  errata: ${orphans.length} correction(s) matched no card — they will serve ` +
+      `pre-errata text: ${orphans.slice(0, 6).join(", ")}` +
+      (orphans.length > 6 ? ", …" : "")
+    );
   }
 
   for (const [key, names] of namesFor) {

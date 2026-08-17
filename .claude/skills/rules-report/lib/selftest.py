@@ -1321,6 +1321,8 @@ def research_tools(idx):
     resting on it is.
     """
     print("\n=== the tools an agent researches with ===")
+    import tempfile
+
     from retrieve import BadQuery, Retriever
     r = Retriever(os.path.join(HERE, "rules.db"))
 
@@ -1350,6 +1352,60 @@ def research_tools(idx):
           "CR:145.2 rendered without its negation")
     check("grep does not clip the section title",
           "Units may have Activated Abilities" in out)
+
+    # An answer file that is not where the caller says it is must be REFUSED.
+    # The guard here abspath'd the name only when the file EXISTED, so a missing
+    # one stayed relative, chdir(HERE) resolved it against lib/, and one of the
+    # five shipped samples was verified and delivered instead — "8/8 verified
+    # verbatim", exit 0, for a question nobody asked.
+    with tempfile.TemporaryDirectory() as d:
+        _sub = subprocess.run(
+            [sys.executable, os.path.join(HERE, "rules_cli.py"), "verify", "heron-answer.json"],
+            capture_output=True, text=True, cwd=d)
+        check("a missing answer file is refused, not substituted",
+              _sub.returncode != 0 and "verified" not in _sub.stdout,
+              f"rc={_sub.returncode} {_sub.stdout.strip()[:60]}")
+
+    # A query FTS5 rejects gets rewritten. The rewrite can mean something else
+    # entirely — `combat -damage` became the phrase "combat damage", returning
+    # the complement of the request — so the rewrite must be disclosed.
+    rw = subprocess.run(
+        [sys.executable, os.path.join(HERE, "rules_cli.py"), "grep", "combat -damage"],
+        capture_output=True, text=True, cwd=HERE).stdout
+    check("a rewritten query says so", "searched" in rw and "not the one you typed" in rw,
+          rw.strip()[:80])
+
+    # Disclosure alone is not enough — WHICH rewrite matters. A phrase form
+    # means something narrower than the words typed, so a punctuated multi-word
+    # query must still find the rule containing all of them.
+    _qd = subprocess.run(
+        [sys.executable, os.path.join(HERE, "rules_cli.py"), "grep", "Quick-Draw equipment"],
+        capture_output=True, text=True, cwd=HERE).stdout
+    check("a punctuated multi-word query finds the rule holding both words",
+          "CR:150.3" in _qd, _qd.strip()[:80])
+
+    # The corpus version must be READ from each document, not stamped from one
+    # literal — two documents deriving from a single constant can never disagree,
+    # which made the per-document provenance check vacuous by construction.
+    from parse_rules import source_version
+    with tempfile.TemporaryDirectory() as _d:
+        _f = os.path.join(_d, "doc.md")
+        open(_f, "w", encoding="utf-8").write("# T\n\nLast Updated: 2099-12-31\n\n100. x\n")
+        check("the corpus stamp is read from the document, not hardcoded",
+              source_version(_f) == "2099-12-31", source_version(_f))
+        _g = os.path.join(_d, "us.md")
+        open(_g, "w", encoding="utf-8").write("# T\n\nLast Updated 7/16/2026\n\n100. x\n")
+        check("a US-format date normalises to ISO", source_version(_g) == "2026-07-16",
+              source_version(_g))
+
+    # 37 topic headings are cross-reference targets, and SKILL.md sends the
+    # agent to `rule <id>` after a `see also`. One word with no pointer is
+    # indistinguishable from "the rules are silent".
+    for _rid, _want in (("467", "sections 468-472"), ("463", "chapter heading")):
+        _o = subprocess.run(
+            [sys.executable, os.path.join(HERE, "rules_cli.py"), "rule", _rid],
+            capture_output=True, text=True, cwd=HERE).stdout
+        check(f"rule {_rid} points at where its content lives", _want in _o, _o.strip()[-70:])
 
     # Two tools that disagree about rule order is worse than either being wrong:
     # CR:323's own text says "in the order described".
