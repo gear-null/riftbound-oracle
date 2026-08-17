@@ -38,13 +38,11 @@ Confidence is **`min()` across claims, never an average**. Nine grounded claims 
 structural makes a structural answer. A chain is only as strong as its weakest step, so
 that is what gets reported rather than a flattering summary.
 
-**`gap` notes are excluded from that minimum**, unless every note is a gap. So nine
-grounded claims plus one gap still reports a *grounded* weakest link. This is deliberate
-— a gap note records a question the rules do not answer, which is usually adjacent to the
-holding rather than load-bearing under it, and letting one drag the whole report to `gap`
-would punish an author for being explicit about what they searched. The consequence is
-worth knowing: **a report can carry a `○ gap` note and still headline a grounded weakest
-link**, so read the notes, not only the metric.
+**`gap` notes count.** A gap is the weakest thing a claim can be, so an answer carrying
+one reports `gap` as its weakest link even if every other claim is grounded. Earlier the
+code excluded them and this page said so; the code, this page and `SKILL.md` disagreed
+three ways, and the exclusion was the wrong resolution — it let the verdict plate headline
+a grounded weakest link directly beside a `○ gap` row, under the words "the lowest link".
 
 ## Crux and "if this is wrong"
 
