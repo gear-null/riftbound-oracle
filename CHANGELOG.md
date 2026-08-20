@@ -11,6 +11,28 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ## [Unreleased]
 
+## [1.2.1] — 2026-08-20
+
+### Fixed
+
+- **Questions that are not yes/no questions no longer get a yes/no verdict.**
+  The disposition vocabulary offered `YES | NO | DEPENDS | UNSETTLED` and nothing
+  else, so a shipped example answered *"How much energy does Vi - Hotheaded
+  cost?"* with **YES**. `ANSWER` is the open-question case: the report prints no
+  verdict word and leads with the holding sentence, which is the answer. The
+  other four are unchanged and now appear only where a one-word answer is real,
+  which is what makes them worth reading at a glance.
+- **The disposition is validated.** It is rendered as a CSS class as well as a
+  label, and any string was accepted — so a value containing spaces became
+  several bogus classes (`d-IT DEPENDS ON THE ZONE`) and silently disabled the
+  print sheet keyed on that name. It is now a closed set, refused at
+  verification.
+
+The citation gate is untouched: an open question whose citation fails is still
+forced to `UNSETTLED`, and a check asserts it so a new disposition cannot route
+around the gate.
+
+
 ## [1.2.0] — 2026-08-20
 
 ### Corpus
