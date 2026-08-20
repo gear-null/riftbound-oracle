@@ -41,6 +41,17 @@ BASIS = {
 }
 RANK = {"grounded": 3, "structural": 2, "inferred": 2, "gap": 1}
 
+# The disposition is a CSS class as well as a label, so it is a closed set. It
+# was unvalidated, and a value containing spaces produced several classes at
+# once, quietly disabling the print sheet that is keyed on the same name.
+#
+# ANSWER is the open-question case: "how much?", "what happens?", "in what
+# order?" have no one-word verdict, and forcing one produced a shipped example
+# that answered "How much energy does Vi cost?" with YES. The report leads with
+# the holding line instead, and prints no plate word at all — which is what
+# keeps YES/NO meaningful, because they now only appear where they are real.
+DISPOSITIONS = ("YES", "NO", "DEPENDS", "UNSETTLED", "ANSWER")
+
 
 def esc(s):
     """Escape for HTML, accepting whatever the answer JSON happens to hold.
@@ -353,6 +364,12 @@ def verify_answer(ans, idx):
     # discovered as a KeyError halfway through writing the page. The verifier
     # certifying an answer it cannot render is the two halves disagreeing about
     # what a valid answer is, and rc=0 is what the product sells.
+    _disp = ans.get("holding", {}).get("disposition")
+    if _disp not in DISPOSITIONS:
+        problems.append(
+            f"holding.disposition is {_disp!r}; it must be one of "
+            f"{', '.join(DISPOSITIONS)} — it is a CSS class as well as a label")
+
     for key in ("question", "corpus"):
         if key not in ans:
             problems.append(f"answer is missing required key {key!r}")
@@ -943,7 +960,9 @@ def rail_html(ans, jumps):
     return f'''<aside class="rail" data-od-id="rail" aria-label="Report contents">
   <div class="rail-plate plate">
     <h4>The ruling</h4>
-    <span class="rail-disp">{esc(h["disposition"])}</span>
+    <span class="rail-disp{" is-lead" if h["disposition"] == "ANSWER" else ""}">{
+      esc(clip(h.get("line", ""), 64)) if h["disposition"] == "ANSWER"
+      else esc(h["disposition"])}</span>
     <p class="rail-meta">Weakest link <a class="weakref" href="#{esc(ans["_weakest"])}">note
       {esc(note_number(ans["_weakest"]))}</a> · {esc(ans["_strength"])}</p>
   </div>
@@ -1050,6 +1069,10 @@ h1{margin:.75rem 0 0;font:500 1.5rem/1.34 var(--body);max-width:34ch;color:var(-
  color:var(--muted);white-space:nowrap}
 .tally b{color:var(--fg)}
 .hline{margin:1.15rem 0 0;font-size:1.2rem;line-height:1.55;max-width:68ch}
+/* An open question has no one-word verdict, so the sentence IS the headline and
+   is set at the weight the plate word would have carried. */
+.hline.is-lead{margin-top:.35rem;font-size:clamp(1.24rem,2.6vw,1.5rem);line-height:1.42;
+ color:var(--fg);text-wrap:balance}
 .sp-grounded{color:inherit;text-decoration:none;border-bottom:2px solid var(--gold-500)}
 .sp-inferred{color:inherit;text-decoration:none;border-bottom:2px dotted var(--blue)}
 .sp-gap{color:inherit;text-decoration:none;border-bottom:2px dotted var(--muted)}
@@ -1217,6 +1240,9 @@ ul.plain code{font:600 .84rem/1 var(--plate);letter-spacing:.05em;color:var(--bl
 .rail h4{margin:0 0 .55rem;font:600 .63rem/1 var(--plate);letter-spacing:.17em;
  text-transform:uppercase;color:var(--slate-300)}
 .rail-plate{--ch:8px;padding:.95rem 1rem}
+/* An open question restates its ANSWER as the sentence, not the token — the
+   token never appears anywhere a reader can see it. */
+.rail-disp.is-lead{font:600 .82rem/1.4 var(--body);letter-spacing:.01em;text-transform:none}
 .rail-disp{display:block;font:700 1.15rem/1 var(--display);letter-spacing:.1em;
  text-transform:uppercase;color:var(--fg)}
 .rail-meta{margin:.7rem 0 0;font:500 .73rem/1.6 var(--plate);letter-spacing:.05em;color:var(--muted)}
@@ -1521,11 +1547,11 @@ def render(ans, idx):
 
 <section class="verdict plate d-{esc(disp)}" id="ruling" data-od-id="ruling">
   <div class="verdict-head">
-    <span class="disp {esc(disp)}">{esc(disp)}</span>
+    {"" if disp == "ANSWER" else f'<span class="disp {esc(disp)}">{esc(disp)}</span>'}
     <span class="hairline" aria-hidden="true"></span>
     <span class="tally"><b>{nverified}/{ncites}</b> citations verified verbatim</span>
   </div>
-  <p class="hline">{holding_html(h)}</p>
+  <p class="hline{" is-lead" if disp == "ANSWER" else ""}">{holding_html(h)}</p>
   <div class="strength">
     <span class="metric"><span class="label">Weakest link</span>
       <a class="weakref" href="#{esc(ans["_weakest"])}">note {esc(note_number(ans["_weakest"]))}</a>

@@ -70,6 +70,12 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
    opposite. A reader who has read it will not believe you until you confront it by name.
    If you cannot defeat it on the text, the disposition is `DEPENDS` or `UNSETTLED`.
 
+   **Do not force a yes/no.** Most rules questions are not yes/no questions —
+   "how much?", "what happens?", "in what order?", "who chooses?". For those the
+   disposition is `ANSWER` and the holding line *is* the answer; the report leads
+   with it and shows no verdict word. Reserve `YES` and `NO` for questions that
+   genuinely have one, which is what keeps them worth reading at a glance.
+
 5. **Write `answer.json`** (schema below). Quote **verbatim** — copy from tool output,
    never retype from memory. Cite the **tightest** rule that actually says the thing.
 
@@ -93,7 +99,7 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
   "reframe": "the same question in rules vocabulary (the report prefixes \"As the rules see it:\" — do not repeat it)",
   "corpus": {"CR": "2026-07-16", "TR": "2026-07-16", "generated": "YYYY-MM-DD"},
   "holding": {
-    "disposition": "YES | NO | DEPENDS | UNSETTLED",
+    "disposition": "YES | NO | DEPENDS | UNSETTLED | ANSWER",
     "line": "one sentence",
     "spans": [{"text": "exact substring of line", "basis": "grounded|inferred", "note": "n1"}]
   },

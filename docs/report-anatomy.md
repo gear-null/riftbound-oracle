@@ -103,7 +103,17 @@ as ruled boxes rather than as fills.
 
 ## Dispositions
 
-`YES` · `NO` · `DEPENDS` · `UNSETTLED`.
+`YES` · `NO` · `DEPENDS` · `UNSETTLED` · `ANSWER`.
+
+Most rules questions are not yes/no questions. "How much energy does this cost?"
+has no one-word verdict, and an early version of this skill answered exactly that
+question with **YES** — because the schema offered nothing else. `ANSWER` is that
+case: the report prints no verdict word and leads with the holding sentence
+instead, which is the answer.
+
+That is also what keeps the other four worth reading. A word set in Beaufort at
+the top of the page should mean something, and it only does if it appears where a
+one-word answer is real.
 
 `UNSETTLED` is a real answer, not a failure. When the rules genuinely don't settle a
 question, saying so with the gap named is more useful than a confident answer you

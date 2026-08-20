@@ -816,11 +816,18 @@ def rendered_surfaces(idx):
         seen_rows[0] += len(glossed)
 
         # The rail restates the verdict in its own markup. A desync renders
-        # perfectly and contradicts the plate beside it.
-        rd = re.search(r'class="rail-disp">([^<]+)<', page)
-        check(f"{sample}: the rail restates the verified verdict",
-              bool(rd) and rd.group(1) == ans["holding"]["disposition"],
-              f'rail {rd and rd.group(1)} vs {ans["holding"]["disposition"]}')
+        # perfectly and contradicts the plate beside it. An open question has no
+        # verdict word, so the rail restates the LINE — the token must never
+        # reach a reader's eye.
+        _disp = ans["holding"]["disposition"]
+        rd = re.search(r'class="rail-disp[^"]*">\s*([^<]+)', page)
+        _said = rd.group(1).strip() if rd else ""
+        if _disp == "ANSWER":
+            ok = bool(_said) and "ANSWER" not in _said and _said.split("…")[0][:24] in ans["holding"]["line"]
+        else:
+            ok = _said == _disp
+        check(f"{sample}: the rail restates the verified verdict", ok,
+              f'rail said {_said[:40]!r} for {_disp}')
 
         ids = set(re.findall(r'\sid="([^"]+)"', page))
         dead = sorted(h for h in set(re.findall(r'href="#([^"]+)"', page)) if h not in ids)
@@ -1380,6 +1387,39 @@ def research_tools(idx):
           "CR:145.2 rendered without its negation")
     check("grep does not clip the section title",
           "Units may have Activated Abilities" in out)
+
+    import copy
+
+    from render_report import render, verify_answer
+
+    # The disposition is a CSS class as well as a label, and it was unvalidated —
+    # a value with spaces became several bogus classes and silently disabled the
+    # print sheet keyed on the same name.
+    _dbase = json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8"))
+    _bad = copy.deepcopy(_dbase)
+    _bad["holding"]["disposition"] = "IT DEPENDS ON THE ZONE"
+    check("a disposition outside the vocabulary is refused",
+          any("disposition" in p for p in verify_answer(_bad, idx)["_problems"]))
+
+    # Most rules questions are not yes/no questions. Forcing one produced a
+    # shipped example answering "How much energy does Vi cost?" with YES.
+    _open = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                         encoding="utf-8")))
+    _open["holding"]["disposition"] = "ANSWER"
+    _openp = render(verify_answer(_open, idx), idx)
+    check("an open question prints no verdict word",
+          'class="disp ' not in _openp and ">ANSWER<" not in _openp)
+    check("and leads with the holding line instead", 'class="hline is-lead"' in _openp)
+
+    # The forcing path must still bite. An open question whose citation fails is
+    # UNSETTLED like any other — that is the whole gate, and a new disposition
+    # must not route around it.
+    _openbad = copy.deepcopy(_open)
+    _openbad["notes"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+    _r = verify_answer(_openbad, idx)
+    check("a failed citation still forces UNSETTLED from ANSWER",
+          _r["holding"]["disposition"] == "UNSETTLED" and _r["holding"].get("_forced") == "ANSWER",
+          f'{_r["holding"]["disposition"]} forced from {_r["holding"].get("_forced")}')
 
     # Riot writes illustrations two ways, and only the singular `Example:` was
     # recognised — so six rules absorbed a plural `Examples:` list into their

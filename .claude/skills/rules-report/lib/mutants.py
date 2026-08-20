@@ -571,8 +571,8 @@ MUTANTS = [
          expect='every legend entry names a symbol on the page'),
     dict(name='the rail prints the weakest-link strength where the verdict belongs (a copy-paste from the line directly below it), so the rail contradicts the verdict plate beside it',
          file='render_report.py',
-         find='    <span class="rail-disp">{esc(h["disposition"])}</span>',
-         repl='    <span class="rail-disp">{esc(ans["_strength"].upper())}</span>',
+         find='      else esc(h["disposition"])}</span>',
+         repl='      else esc(ans["_strength"].upper())}</span>',
          expect='the rail restates the verified verdict'),
     dict(name='the legend heading loses its id="symbols" anchor while the rail still emits a #symbols jump — a dead in-page link on every report with a legend',
          file='render_report.py',
@@ -646,6 +646,26 @@ MUTANTS = [
          find='    html_out = render(ans, idx)',
          repl='    open(out, "w").close()\n    html_out = render(ans, idx)',
          expect='crash inside render leaves the previous report intact'),
+
+    # ---- disposition vocabulary ---------------------------------------------
+    dict(name='accept any string as a disposition again, so a value with spaces '
+              'becomes several bogus CSS classes and disables the print sheet',
+         file='render_report.py',
+         find='    if _disp not in DISPOSITIONS:',
+         repl='    if False:',
+         expect='outside the vocabulary is refused'),
+    dict(name='print a verdict word on an open question, so "how much energy?" is '
+              'headlined with a token that means nothing',
+         file='render_report.py',
+         find='    {"" if disp == "ANSWER" else f\'<span class="disp {esc(disp)}">{esc(disp)}</span>\'}',
+         repl='    <span class="disp {esc(disp)}">{esc(disp)}</span>',
+         expect='prints no verdict word'),
+    dict(name='stop promoting the holding line when there is no verdict word, so an '
+              'open question has no headline at all',
+         file='render_report.py',
+         find='  <p class="hline{" is-lead" if disp == "ANSWER" else ""}">{holding_html(h)}</p>',
+         repl='  <p class="hline">{holding_html(h)}</p>',
+         expect='leads with the holding line'),
 
     # ---- round 10: the last two invariant gaps ------------------------------
     dict(name='write the report in place again, so a failure mid-write destroys the previous ruling saved at that path',
