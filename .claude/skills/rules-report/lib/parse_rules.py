@@ -82,7 +82,19 @@ REF_CUE_RE = re.compile(
 )
 # Running-header table rows carry section titles: "| 416. | Recycle |"
 HEADER_RE = re.compile(r"^\|\s*(\d{3})\.\s*\|\s*([^|]+?)\s*\|")
-EXAMPLE_RE = re.compile(r"^\s*Example:\s*(.*)$")
+EXAMPLE_RE = re.compile(r"^\s*Examples?:\s*(.*)$")
+
+# Riot writes examples two ways. `Example: <text>` is one illustration, wrapped
+# across lines by the PDF. `Examples:` alone heads a LIST, each item on its own
+# line and itself sometimes wrapped. Only the singular form was recognised, so
+# ten rules absorbed Riot's illustrations into their normative text — and the
+# verifier then accepted a quote of an example as a quote of the rule, which is
+# a category error a judge would care about.
+#
+# Items cannot be split per line, because they wrap. They can be split on how
+# the next line STARTS: a continuation begins lowercase or with punctuation,
+# a new item begins with a capital or an opening quote.
+_ITEM_START = re.compile(r"^[\"\u201c\u2018(]|^[A-Z0-9]")
 # "See rule 416." / "See 416.1." / "See rule 107.5. Banishment"
 XREF_RE = re.compile(r"[Ss]ee\s+(?:rule\s+|section\s+)?(\d{3}(?:\.[0-9a-z]+)*)")
 
@@ -99,6 +111,8 @@ def parse_doc(doc, path, version):
     cur_example = None    # accumulating example lines
     prev_content = ""     # last non-blank, non-table line — for the cue veto
     vetoed = []           # wrapped cross-refs we refused to treat as rules
+
+    in_example_list = False
 
     def flush_example():
         nonlocal cur_example
@@ -140,6 +154,7 @@ def parse_doc(doc, path, version):
 
         if m:
             flush_example()
+            in_example_list = False
             rid, text = m.group(1), m.group(2).strip()
             # A REPEATED id is a wrapped cross-reference, never a second
             # definition — "…conduct listed in" / "704. Engaging in…" is one
@@ -176,13 +191,25 @@ def parse_doc(doc, path, version):
         ex = EXAMPLE_RE.match(line)
         if ex:
             flush_example()
-            cur_example = [ex.group(1)]
+            head = ex.group(1).strip()
+            # A bare `Examples:` introduces a list; the header itself is not an
+            # example, and each following item is separate. Joining them would
+            # manufacture a sentence Riot never published — which is exactly the
+            # string a verbatim gate must never accept.
+            cur_example = [head] if head else []
+            in_example_list = not head
             prev_content = line
             continue
 
         # Continuation of whatever we're inside.
         if cur_example is not None:
-            cur_example.append(line.strip())
+            stripped = line.strip()
+            if in_example_list and cur_example and _ITEM_START.match(stripped):
+                flush_example()
+                cur_example = [stripped]
+                prev_content = line
+                continue
+            cur_example.append(stripped)
         elif cur:
             rules[cur]["text"] += " " + line.strip()
         prev_content = line

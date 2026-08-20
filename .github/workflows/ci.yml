@@ -49,6 +49,14 @@ jobs:
           cd .claude/skills/rules-report/lib
           python3 mutants.py
 
+      # The release gate. Not "did the suite pass" but "is every promise in
+      # docs/invariants.md still held up by a check that has been SEEN to fail".
+      # Ten review rounds produced checks that passed while the defect they were
+      # named for was live; this is what makes that visible.
+      - name: Every invariant is pinned
+        if: matrix.python == '3.13'
+        run: python3 scripts/check-invariants.py
+
       - name: Corpus and citation checks
         working-directory: .claude/skills/rules-report/lib
         run: python3 rules_cli.py selftest

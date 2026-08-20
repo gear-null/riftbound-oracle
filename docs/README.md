@@ -11,6 +11,13 @@ installing and asking questions, see the [main README](../README.md).
 | [Releasing and the changelog](releasing.md) | How versions, changelog entries and release artifacts are produced |
 | [`banner.html`](banner.html) | Source for the README banner — render at 1200×400 @2x to regenerate `riftbound-oracle.png` |
 
+## Releasing against a fixed bar
+
+| | |
+|---|---|
+| [invariants.md](invariants.md) | The eleven things that must never be false, and the checks that pin them |
+| [known-issues.md](known-issues.md) | Found, reproduced, and deliberately not fixed |
+
 ## Reference
 
 | | |

@@ -36,6 +36,10 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.dirname(HERE)
+# The repo the skill lives in, when it lives in one — `build` parses source
+# markdown from here. A standalone install has neither the sources nor any
+# mutant that needs them.
+REPO_ROOT = os.path.abspath(os.path.join(SKILL, "..", "..", ".."))
 
 
 # Each mutant: reintroduce ONE defect, name the check that must catch it.
@@ -227,6 +231,22 @@ MUTANTS = [
               '    return text[:cut if cut > 0 else limit].rstrip(" ,;:—-") + "…"',
          repl='    return text[:text.rfind(" ", 0, limit)].rstrip(" ,;:—-") + "…"',
          expect="shortened even with no early space"),
+
+    # ---- round 10 -----------------------------------------------------------
+    dict(name="recognise only the singular `Example:`, so a plural list is absorbed "
+              "into the rule's normative text and becomes quotable as the rule",
+         file="parse_rules.py",
+         find='EXAMPLE_RE = re.compile(r"^\\s*Examples?:\\s*(.*)$")',
+         repl='EXAMPLE_RE = re.compile(r"^\\s*Example:\\s*(.*)$")',
+         expect="Examples list as normative text",
+         rebuild=True),
+    dict(name="weld the items of an Examples list into one string, manufacturing a "
+              "sentence Riot never published",
+         file="parse_rules.py",
+         find="            if in_example_list and cur_example and _ITEM_START.match(stripped):",
+         repl="            if False:",
+         expect="each item stands alone",
+         rebuild=True),
 
     # ---- round 9 blockers ---------------------------------------------------
     dict(name="resolve a missing answer file against lib/, delivering a shipped sample",
@@ -593,7 +613,7 @@ MUTANTS = [
          file='render_report.py',
          find='EMBED_ART = os.environ.get("RIFTBOUND_EMBED_ART", "").lower() in ("1", "true", "yes")',
          repl='EMBED_ART = os.environ.get("RIFTBOUND_EMBED_ART", "")',
-         expect='artwork embedding is opt-in'),
+         expect='artwork embedding is off unless'),
     dict(name='look a card up without lowercasing the name, so the vendored lowercase index misses every properly-cased name and real cards render "no card by this name"',
          file='render_report.py',
          find='        card = bridge.cards.get(name.lower()) if bridge else None',
@@ -619,6 +639,41 @@ MUTANTS = [
          find='        if claimed and stamped and claimed not in stamped:',
          repl='        if False and claimed and stamped and claimed not in stamped:',
          expect='corpus stamp contradicting the index'),
+
+    dict(name='truncate the output file before rendering, so a crash inside render '
+              'leaves a 0-byte report where a good one used to be',
+         file='render_report.py',
+         find='    html_out = render(ans, idx)',
+         repl='    open(out, "w").close()\n    html_out = render(ans, idx)',
+         expect='crash inside render leaves the previous report intact'),
+
+    # ---- round 10: the last two invariant gaps ------------------------------
+    dict(name='write the report in place again, so a failure mid-write destroys the previous ruling saved at that path',
+         file='render_report.py',
+         find='    tmp = out + ".tmp"\n    try:\n        with open(tmp, "w", encoding="utf-8") as fh:\n            fh.write(html_out)\n        os.replace(tmp, out)',
+         repl='    tmp = out + ".tmp"\n    try:\n        with open(out, "w", encoding="utf-8") as fh:\n            raise OSError("disk full")',
+         expect='failed write leaves the previous ruling intact'),
+    dict(name='let the committed rulebook drift from its generator, so every report links into a document that no longer matches the code',
+         file='render_rulebook.py',
+         find=' --line:var(--ink-500);',
+         repl=' --line:var(--ink-400);',
+         expect='committed rulebook matches'),
+    # Shrinks the corpus AFTER the parse completes. Mutating mid-parse (deleting
+    # rules, truncating the input) leaves `cur` pointing at a rule that no longer
+    # exists and crashes instead of shrinking — detected, but by a traceback
+    # rather than by the check whose whole job is to notice drift.
+    dict(name='silently drop rules from the corpus after parsing, so the shipped '
+              'index is smaller than the document it claims to represent',
+         file='parse_rules.py',
+         find='        json.dump(rules_list, open(out, "w", encoding="utf-8"), indent=1)',
+         repl='        json.dump(rules_list[:-40], open(out, "w", encoding="utf-8"), indent=1)',
+         expect='matches the recorded corpus exactly', rebuild=True),
+
+    dict(name='point deep rules at a parent that does not exist, orphaning them',
+         file='parse_rules.py',
+         find='                "parent": parent_of(rid),',
+         repl='                "parent": (parent_of(rid) if rid.count(".") < 2 else rid + ".nonexistent"),',
+         expect='orphaned parents', rebuild=True),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)
@@ -648,6 +703,21 @@ def run_one(m):
             src = src.replace(find2, repl2)
         open(path, "w", encoding="utf-8").write(src)
 
+        if m.get("rebuild"):
+            # parse_rules changes only reach the suite through rules.json, and a
+            # rebuild parses SOURCE markdown that deliberately lives outside the
+            # skill folder this sandbox copies. Point it at the real sources via
+            # the documented override; it is read-only, and the only thing it
+            # can affect is the throwaway rules.json inside the sandbox.
+            env = dict(os.environ)
+            src = os.path.join(REPO_ROOT, "output")
+            if os.path.isdir(src):
+                env["RIFTBOUND_CORPUS"] = src
+            rc = subprocess.run([sys.executable, os.path.join(lib, "rules_cli.py"), "build"],
+                                capture_output=True, text=True, cwd=lib, env=env)
+            if rc.returncode != 0:
+                return ["<suite crashed> corpus rebuild failed: "
+                        + (rc.stderr.strip().splitlines() or ["?"])[-1]], None
         if m.get("regen"):
             subprocess.run([sys.executable, os.path.join(lib, "rules_cli.py"), "rulebook"],
                            capture_output=True, text=True, cwd=lib)

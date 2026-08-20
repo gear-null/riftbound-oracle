@@ -93,9 +93,13 @@ def corpus_integrity():
     rules = list(idx.rules.values())
     # `> 3000` against an actual 3316 meant 300 rules could vanish silently.
     EXPECTED = 3316
-    drift = abs(len(rules) - EXPECTED) / EXPECTED
-    check("rule count within 1% of the recorded corpus", drift <= 0.01,
-          f"{len(rules)} rules (expected ~{EXPECTED})")
+    # EXACT, not within 1%. The tolerance was 33 rules — enough for a parser
+    # change to drop or fabricate a dozen and still report healthy. The corpus
+    # is a fixed document; its rule count is known, and a real rules update is
+    # supposed to change this number deliberately.
+    check("rule count matches the recorded corpus exactly", len(rules) == EXPECTED,
+          f"{len(rules)} rules, expected {EXPECTED} — if a rules update landed, "
+          "bump EXPECTED in the same commit")
 
     orphans = [r for r in rules if r["parent"] and f'{r["doc"]}:{r["parent"]}' not in idx.rules]
     check("no orphaned parents", not orphans, f"{len(orphans)} orphans")
@@ -401,10 +405,16 @@ def card_rendering():
     # a linked card shows the offline placeholder even with a working network.
     # Embedding must therefore produce a report with NO remote image refs.
     import render_report as _rr
-    check("artwork embedding is opt-in", _rr.EMBED_ART is False or _rr.EMBED_ART is True)
+    _envval = os.environ.get("RIFTBOUND_EMBED_ART", "")
+    check("artwork embedding is off unless the env var asks for it",
+          _rr.EMBED_ART == (_envval.lower() in ("1", "true", "yes")),
+          f"EMBED_ART={_rr.EMBED_ART} for {_envval!r}")
     check("a failed fetch degrades to None rather than raising",
           _rr.embed_image("https://invalid.invalid/x.png", timeout=3) is None)
-    check("no url embeds to None", _rr.embed_image("") is None)
+    _t0 = __import__("time").monotonic()
+    check("an empty url is refused without a fetch",
+          _rr.embed_image("") is None and (__import__("time").monotonic() - _t0) < 0.05,
+          "returned None, but only after attempting a request")
 
     # Card text comes from a third-party database that lags Riot by months. We
     # crawl Riot's errata ourselves, so holding both and showing the stale one
@@ -503,7 +513,9 @@ def render_gate():
         check("--force renders but marks the citation failed",
               bool(forced) and 'class="stamp bad"' in forced)
         check("--force still forces the verdict to UNSETTLED",
-              bool(forced) and "UNSETTLED" in forced)
+              bool(forced) and 'class="forced"' in forced
+              and re.search(r'class="disp[^"]*"[^>]*>\s*UNSETTLED', forced) is not None,
+              "the word UNSETTLED appears on every page; the banner does not")
 
 
 def attribution_and_spans(idx):
@@ -1294,17 +1306,27 @@ def rendered_surfaces(idx):
     check("an unknown holding-span basis is reported, not silently coerced",
           any("basis" in p for p in verify_answer(weird, idx)["_problems"]))
 
-    # verify_answer never touches `corpus`; render dereferences corpus["CR"].
-    # So this verifies clean and then dies mid-render — the exact shape that
-    # used to truncate the previous report to zero bytes.
+    # A crash INSIDE render, with the previous report already on disk.
+    #
+    # `--force` is load-bearing here and was not always: this used to rely on
+    # verify_answer ignoring `corpus`, so removing that key verified clean and
+    # died in render. A later round made a missing corpus a verification
+    # PROBLEM, which meant the subprocess exited at the gate and never reached
+    # render at all — the check kept passing while proving nothing. That was
+    # predicted as a consequence of adding the corpus check, and it happened.
+    # --force skips the gate so the crash lands where this check aims it.
     with tempfile.TemporaryDirectory() as d:
         src, out = os.path.join(d, "crash.json"), os.path.join(d, "out.html")
         crash = copy.deepcopy(base)
         crash.pop("corpus")
         json.dump(crash, open(src, "w", encoding="utf-8"))
         open(out, "w", encoding="utf-8").write("PREVIOUS GOOD REPORT")
-        r = subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out],
-                           capture_output=True, text=True, cwd=HERE)
+        r = subprocess.run(
+            [sys.executable, os.path.join(HERE, "render_report.py"), src, out, "--force"],
+            capture_output=True, text=True, cwd=HERE)
+        check("the render-crash check actually reaches render",
+              "corpus" in (r.stderr or "") or r.returncode != 0,
+              "the gate refused first, so render never ran")
         check("a crash inside render leaves the previous report intact",
               r.returncode != 0 and open(out, encoding="utf-8").read() == "PREVIOUS GOOD REPORT",
               f"rc={r.returncode}")
@@ -1353,6 +1375,21 @@ def research_tools(idx):
     check("grep does not clip the section title",
           "Units may have Activated Abilities" in out)
 
+    # Riot writes illustrations two ways, and only the singular `Example:` was
+    # recognised — so six rules absorbed a plural `Examples:` list into their
+    # NORMATIVE text, where the verifier accepted a quote of an illustration as
+    # a quote of the rule. The items are separate; joining them would fabricate
+    # a sentence Riot never published.
+    _swallowed = [r for r in idx.rules.values() if "Examples:" in r["text"] and r["doc"] == "CR"]
+    check("no CR rule carries an Examples list as normative text", not _swallowed,
+          f"{[r['id'] for r in _swallowed][:4]}")
+    _listed = idx.get("124.1", "CR")
+    check("a plural Examples list is split into separate items",
+          len(_listed.get("examples", [])) >= 4, f"{_listed.get('examples')}")
+    check("and each item stands alone, not welded to its neighbours",
+          all(e.count(".") <= 2 for e in _listed.get("examples", [])),
+          f"{_listed.get('examples')}")
+
     # An answer file that is not where the caller says it is must be REFUSED.
     # The guard here abspath'd the name only when the file EXISTED, so a missing
     # one stayed relative, chdir(HERE) resolved it against lib/, and one of the
@@ -1365,6 +1402,36 @@ def research_tools(idx):
         check("a missing answer file is refused, not substituted",
               _sub.returncode != 0 and "verified" not in _sub.stdout,
               f"rc={_sub.returncode} {_sub.stdout.strip()[:60]}")
+
+    # A crash DURING THE WRITE, not during render. The check further up forces a
+    # failure inside render(); this one lets render succeed and fails the swap,
+    # which is the case an in-place write destroys. Same invariant: a failure
+    # never leaves a stale artifact looking current.
+    #
+    # Drives render_report.main() itself rather than re-implementing the write
+    # here — a hand-rolled sequence would test this file, not the code.
+    import render_report as _rrw
+    with tempfile.TemporaryDirectory() as _d:
+        _keep = os.path.join(_d, "ruling.html")
+        open(_keep, "w", encoding="utf-8").write("PREVIOUS RULING")
+        _src = os.path.join(_d, "a.json")
+        json.dump(json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8")),
+                  open(_src, "w", encoding="utf-8"))
+        _real_replace, _real_argv = os.replace, sys.argv
+        try:
+            os.replace = lambda *a, **k: (_ for _ in ()).throw(OSError("disk full"))
+            sys.argv = ["render_report.py", _src, _keep]
+            try:
+                _rrw.main()
+            except BaseException:
+                pass
+        finally:
+            os.replace, sys.argv = _real_replace, _real_argv
+        check("a failed write leaves the previous ruling intact",
+              open(_keep, encoding="utf-8").read() == "PREVIOUS RULING",
+              "the saved ruling was destroyed by a failed rewrite")
+        check("and leaves no half-written temp file behind",
+              not os.path.exists(_keep + ".tmp"))
 
     # A query FTS5 rejects gets rewritten. The rewrite can mean something else
     # entirely — `combat -damage` became the phrase "combat damage", returning

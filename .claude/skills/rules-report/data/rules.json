@@ -1648,8 +1648,12 @@
   "depth": 2,
   "parent": "109",
   "section": "109",
-  "text": "The State of all Game Objects in the Play Area is also Public Information. Examples: If a Unit is Buffed If a Gear is Exhausted Etc.",
-  "examples": [],
+  "text": "The State of all Game Objects in the Play Area is also Public Information.",
+  "examples": [
+   "If a Unit is Buffed",
+   "If a Gear is Exhausted",
+   "Etc."
+  ],
   "line_start": 217,
   "section_title": "All Game Objects in the collective Play Areas are Public Information.",
   "see_also": []
@@ -2018,8 +2022,13 @@
   "depth": 2,
   "parent": "124",
   "section": "124",
-  "text": "Whenever a Game Object changes zones to or from a Non-Board Zone, all Temporary Modifications of all kinds cease to be tracked on it in all capacities. Examples: Damage is cleared. Counters are removed. Granted Keywords are no longer granted. Statuses are cleared.",
-  "examples": [],
+  "text": "Whenever a Game Object changes zones to or from a Non-Board Zone, all Temporary Modifications of all kinds cease to be tracked on it in all capacities.",
+  "examples": [
+   "Damage is cleared.",
+   "Counters are removed.",
+   "Granted Keywords are no longer granted.",
+   "Statuses are cleared."
+  ],
   "line_start": 265,
   "section_title": "A Game Object that changes zones to or from a Non-Board Zone becomes a new object for the purposes of tracking that object.",
   "see_also": []
@@ -12872,8 +12881,12 @@
   "depth": 4,
   "parent": "359.3.e",
   "section": "359",
-  "text": "If a target changes Zones to or from a Non-Board Zone and then returns to its original zone, it is no longer a legal target, because it's not treated as the same object. Examples: An enemy unit at a battlefield is no longer a legal target if it is no longer an enemy, no longer a unit, or no longer at a battlefield. A unit with 3 or less Might is no longer a legal target if it is no longer a unit or if its Might is greater than 3. Something that's exhausted is no longer a legal target if it is no longer exhausted. (It can't stop being \"something.\")",
-  "examples": [],
+  "text": "If a target changes Zones to or from a Non-Board Zone and then returns to its original zone, it is no longer a legal target, because it's not treated as the same object.",
+  "examples": [
+   "An enemy unit at a battlefield is no longer a legal target if it is no longer an enemy, no longer a unit, or no longer at a battlefield.",
+   "A unit with 3 or less Might is no longer a legal target if it is no longer a unit or if its Might is greater than 3.",
+   "Something that's exhausted is no longer a legal target if it is no longer exhausted. (It can't stop being \"something.\")"
+  ],
   "line_start": 1935,
   "section_title": "6. Finish finalizing this card and proceed with the card's category of Play.",
   "see_also": []
@@ -13005,8 +13018,17 @@
   "depth": 4,
   "parent": "359.3.e",
   "section": "359",
-  "text": "If the spell checks information about a target that is no longer legal or a card or permanent whose location, zone, or status has changed such that that information is no longer available, that check returns \"null\" and all calculations based on it are ignored. Examples: A unit that is no longer on the board is treated as having null Might, null cost, etc. A unit that is no longer on the board has no location, is neither exhausted nor readied, etc. Baited Hook says \"[1][C], [E]: Kill a friendly unit. Look at the top 5 cards of your Main Deck. You may banish a unit from among them that has Might up to 1 more than the killed unit and play it, ignoring its cost. Then recycle the rest.\" While Baited Hook\u2019s ability is on the chain, an opponent reacts with a spell that returns the friendly unit to its owner's hand. Because the friendly unit is no longer a legal target, it can't be killed and its Might is treated as null. Baited Hook\u2019s controller looks at the top 5 cards of their Main Deck, but can\u2019t choose any unit from among them. Strike Down reads \u201cChoose an equipped friendly unit. It deals damage equal to its Might to an enemy unit. Then detach an Equipment from it.\u201d While Strike Down is on the chain targeting a unit with only one Equipment attached to it, that unit has its Equipment detached via Angle Shot. When Strike Down goes to resolve, the targeted unit is no longer legal, so the unit\u2019s Might will return as \u201cnull\u201d and the instructions related to it are ignored.",
-  "examples": [],
+  "text": "If the spell checks information about a target that is no longer legal or a card or permanent whose location, zone, or status has changed such that that information is no longer available, that check returns \"null\" and all calculations based on it are ignored.",
+  "examples": [
+   "A unit that is no longer on the board is treated as having null Might, null cost, etc.",
+   "A unit that is no longer on the board has no location, is neither exhausted nor readied, etc.",
+   "Baited Hook says \"[1][C], [E]: Kill a friendly unit. Look at the top 5 cards of your Main Deck. You may banish a unit from among them that has Might up to 1 more than the killed unit and play it, ignoring its cost. Then recycle the rest.\" While Baited Hook\u2019s ability is on the chain, an opponent reacts with a spell that returns the friendly unit to its owner's hand. Because the friendly unit is no longer a legal target, it can't be killed and its Might is treated as null. Baited Hook\u2019s controller looks at the top 5 cards of their",
+   "Main Deck, but can\u2019t choose any unit from among them.",
+   "Strike Down reads \u201cChoose an equipped friendly unit. It deals damage equal to its Might to an enemy unit. Then detach an Equipment from it.\u201d",
+   "While Strike Down is on the chain targeting a unit with only one",
+   "Equipment attached to it, that unit has its Equipment detached via Angle",
+   "Shot. When Strike Down goes to resolve, the targeted unit is no longer legal, so the unit\u2019s Might will return as \u201cnull\u201d and the instructions related to it are ignored."
+  ],
   "line_start": 2018,
   "section_title": "6. Finish finalizing this card and proceed with the card's category of Play.",
   "see_also": []
@@ -13161,8 +13183,12 @@
   "depth": 4,
   "parent": "359.3.f",
   "section": "359",
-  "text": "Information referenced in an instruction in this way will be checked on execution of the instruction. Examples: A player moves Yasuo, Remorseful to an occupied enemy battlefield and initiates combat there. In reaction to the Yasuo, Remorseful attack trigger, their opponent plays Fight or Flight from hidden targeting Yasuo, moving him back to base. When the attack trigger resolves, \u201chere\u201d is no longer the battlefield where combat is ongoing and the attack trigger mistargets. In reaction to a Yasuo, Remorseful attack trigger, an opponent plays Stupefy targeting Yasuo. When Yasuo\u2019s attack trigger resolves, it will deal damage equal to his current Might of 5.",
-  "examples": [],
+  "text": "Information referenced in an instruction in this way will be checked on execution of the instruction.",
+  "examples": [
+   "A player moves Yasuo, Remorseful to an occupied enemy battlefield and initiates combat there. In reaction to the Yasuo, Remorseful attack trigger, their opponent plays Fight or Flight from hidden targeting Yasuo, moving him back to base. When the attack trigger resolves, \u201chere\u201d is no longer the battlefield where combat is ongoing and the attack trigger mistargets.",
+   "In reaction to a Yasuo, Remorseful attack trigger, an opponent plays",
+   "Stupefy targeting Yasuo. When Yasuo\u2019s attack trigger resolves, it will deal damage equal to his current Might of 5."
+  ],
   "line_start": 2111,
   "section_title": "6. Finish finalizing this card and proceed with the card's category of Play.",
   "see_also": []
@@ -14196,8 +14222,12 @@
   "depth": 2,
   "parent": "383",
   "section": "383",
-  "text": "Triggered Abilities can usually be recognized by the word \"when\" followed by a game action or event; the word \"at\" followed by a point in time during the turn sequence; or the phrase \u201cthe [Nth] time\u201d followed by a game action or event. Examples: \"When you conquer here, you may spend a buff to draw 1.\" \"At the end of your turn, ready 2 runes.\" \u201cThe first time I move each turn, you may ready something else that's exhausted.\u201d",
-  "examples": [],
+  "text": "Triggered Abilities can usually be recognized by the word \"when\" followed by a game action or event; the word \"at\" followed by a point in time during the turn sequence; or the phrase \u201cthe [Nth] time\u201d followed by a game action or event.",
+  "examples": [
+   "\"When you conquer here, you may spend a buff to draw 1.\"",
+   "\"At the end of your turn, ready 2 runes.\"",
+   "\u201cThe first time I move each turn, you may ready something else that's exhausted.\u201d"
+  ],
   "line_start": 2384,
   "section_title": "Triggered Abilities are repeatable effects that happen when a Condition is met.",
   "see_also": []
