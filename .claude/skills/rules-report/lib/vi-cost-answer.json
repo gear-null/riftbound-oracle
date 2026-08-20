@@ -1,14 +1,30 @@
 {
   "question": "How much energy does Vi - Hotheaded cost?",
   "reframe": "As the rules see it: what numeral sits in the Cost element of Vi - Hotheaded, and is that the whole price of playing her?",
-  "corpus": { "CR": "2026-07-16", "TR": "2026-07-16", "generated": "2026-08-12" },
+  "corpus": {
+    "CR": "2026-07-16",
+    "TR": "2026-07-16",
+    "generated": "2026-08-12"
+  },
   "holding": {
-    "disposition": "YES",
+    "disposition": "ANSWER",
     "line": "Vi - Hotheaded costs 4 Energy, which is the numeral in her Cost element, and that is her whole play cost — the [2][R] on her is a separate activated ability, not part of playing her.",
     "spans": [
-      { "text": "costs 4 Energy", "basis": "grounded", "note": "n1" },
-      { "text": "the numeral in her Cost element", "basis": "grounded", "note": "n2" },
-      { "text": "a separate activated ability, not part of playing her", "basis": "grounded", "note": "n3" }
+      {
+        "text": "costs 4 Energy",
+        "basis": "grounded",
+        "note": "n1"
+      },
+      {
+        "text": "the numeral in her Cost element",
+        "basis": "grounded",
+        "note": "n2"
+      },
+      {
+        "text": "a separate activated ability, not part of playing her",
+        "basis": "grounded",
+        "note": "n3"
+      }
     ]
   },
   "notes": [
@@ -69,5 +85,7 @@
     }
   ],
   "open_questions": [],
-  "cards": ["Vi - Hotheaded"]
+  "cards": [
+    "Vi - Hotheaded"
+  ]
 }
