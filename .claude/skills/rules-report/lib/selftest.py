@@ -1346,6 +1346,12 @@ def research_tools(idx):
     import tempfile
 
     from retrieve import BadQuery, Retriever
+    # The FTS index is a build artifact and gitignored, so a fresh checkout — CI,
+    # or anyone who has never run a search — has none. Every check below then
+    # died on "Rule index missing", taking the suite with it. Building needs
+    # only the committed data/rules.json, not the source markdown.
+    from rules_cli import ensure_index
+    ensure_index()
     r = Retriever(os.path.join(HERE, "rules.db"))
 
     # FTS5 reads - ' . and brackets as operators. Returning [] for a REJECTED
