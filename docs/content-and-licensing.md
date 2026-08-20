@@ -20,9 +20,13 @@ makes an outbound request to `cmsassets.rgpub.io`**. Offline, the card falls bac
 labelled "artwork offline" placeholder and everything else works normally.
 
 **One exception, stated plainly:** `docs/images/report.png` is a screenshot of a rendered
-report, and one card face is visible inside it. It is documentation of the tool, not a
+report, and two card faces are visible inside it. It is documentation of the tool, not a
 usable art asset, but it is a committed image containing Riot artwork and the table above
 would otherwise read as absolute.
+
+The repository banner, `riftbound-oracle.png`, is not an exception: it is drawn from this
+project's own design system by `docs/banner.html`, and the only Riot content on it is one
+rule quotation already committed to the corpus.
 
 ## Community content is neither redistributed nor fetched
 

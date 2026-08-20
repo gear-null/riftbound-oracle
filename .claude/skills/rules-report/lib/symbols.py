@@ -87,9 +87,30 @@ def build_legend(rules):
     return legend
 
 
-# A bare number in brackets is an Energy amount — CR 429.5: '"Add [2]." means
-# "Add 2 Energy."' Matched separately since the amount varies.
-NUMBER_RULE = "429.5"
+# A bare number in brackets is an Energy amount. Matched separately since the
+# amount varies.
+#
+# DERIVED, not pinned. Every other legend row takes its id from the corpus and
+# is therefore immune to a renumber; this was the one citation on the page no
+# check could see. A pinned "429.5" survives a renumber looking exactly like a
+# verified citation while pointing at an unrelated rule (id reused) or a dead
+# anchor (id gone) — and a check that merely asserts the id still exists cannot
+# tell those apart. So find the rule by what it SAYS.
+NUMBER_RULE_PATTERN = r'means\s+.?Add\s+\d+\s+Energy'
+
+
+def number_rule(idx):
+    """The rule defining a bracketed number as an Energy amount, or None.
+
+    None is a real answer: the number rows are dropped rather than cited to a
+    rule that no longer says this.
+    """
+    import re
+    hits = sorted(
+        (r["id"] for r in idx.rules.values()
+         if r.get("doc") == "CR" and re.search(NUMBER_RULE_PATTERN, r.get("text", ""), re.I)),
+    )
+    return hits[0] if len(hits) == 1 else None
 
 
 def is_number_token(token):

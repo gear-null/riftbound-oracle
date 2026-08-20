@@ -58,18 +58,31 @@ class RuleIndex:
             return next((r for r in hits if r["doc"] == doc), None)
         return hits[0] if hits else None
 
-    def subtree_text(self, rule_id, doc=None):
-        """A rule plus its descendants — a quote may span a rule and its children."""
+    def subtree_parts(self, rule_id, doc=None):
+        """Every block a quote could legitimately come from, kept SEPARATE.
+
+        Blocks are the unit Riot publishes, so they are the unit of matching.
+        This used to return one joined string, and joining MANUFACTURES text
+        that was never published: a quote welded from the end of one block and
+        the start of the next matched the concatenation. That is the cheapest
+        possible way to defeat a verbatim gate — a sentence appearing nowhere
+        in the rules, stamped verified.
+
+        Descendants' Examples are included, not just the cited rule's own. They
+        were omitted, so a quote from a child's Example verified at the child
+        and was rejected as "paraphrased" at every ancestor above it.
+        """
         r = self.get(rule_id, doc)
         if not r:
-            return ""
+            return []
         prefix = r["id"] + "."
-        parts = [r["text"]] + [
-            x["text"] for x in self.rules.values()
-            if x["doc"] == r["doc"] and x["id"].startswith(prefix)
-        ]
-        parts += r.get("examples", [])
-        return " ".join(parts)
+        kin = [r] + [x for x in self.rules.values()
+                     if x["doc"] == r["doc"] and x["id"].startswith(prefix)]
+        parts = []
+        for x in kin:
+            parts.append(x["text"])
+            parts.extend(x.get("examples", []))
+        return parts
 
     def ancestry(self, rule_id, doc=None):
         r = self.get(rule_id, doc)
@@ -243,23 +256,54 @@ def verify_citation(idx: RuleIndex, rule_id: str, quote: Optional[str] = None,
 
     quote_ok = None
     narrowed_to = None
+    if quote is not None and not norm(quote):
+        # A whitespace-only quote normalises to the empty string, and "" is a
+        # substring of every haystack — so it verified. `checked` was added to
+        # refuse an ABSENT quote; a single space was cheaper and passed.
+        problems.append(f"{rule_id}: quote is empty once normalised")
+        return CitationCheck(rule_id, exists, False, None, problems, None)
     if quote:
-        hay = norm(idx.subtree_text(rule_id, doc))
         needle = norm(quote)
-        quote_ok = needle in hay
+        # `any` over separate blocks, never `in` on a join.
+        quote_ok = any(needle in norm(p) for p in idx.subtree_parts(rule_id, doc))
 
         # NARROWING. A subtree match is too generous: citing 425.1 while quoting
         # 425.1.a.1 passes, which launders a vague citation as a verified one.
         # Rewrite to the deepest rule whose OWN text carries the quote.
         if quote_ok:
-            own = [
+            # NORMATIVE TEXT WINS; Examples are only a fallback. Examples
+            # routinely restate a NEIGHBOURING rule verbatim, so ranking them
+            # equally let an Example's owner outrank the rule whose own text
+            # carries the quote — 383.3.a narrowed onto 383.3.a.3, which states
+            # the opposite case, under a banner asserting the quote "lives"
+            # there. Two passes, text first, keeps attribution honest while
+            # still letting the 262 official Examples be cited.
+            scope = [
                 r for r in idx.rules.values()
                 if r["doc"] == rule["doc"]
                 and (r["id"] == rule_id or r["id"].startswith(rule_id + "."))
-                and needle in norm(r["text"])
             ]
+            own = [r for r in scope if needle in norm(r["text"])]
+            if not own:
+                own = [r for r in scope
+                       if any(needle in norm(e) for e in r.get("examples", []))]
+            # The cited rule wins if it is itself a valid home. Narrowing
+            # exists to tighten a VAGUE citation, not to move an already-exact
+            # one — and moving it printed "quote lives in 124.1, not 124
+            # itself" about a quote that is in 124's own text.
+            if any(r["id"] == rule_id for r in own):
+                own = [r for r in own if r["id"] == rule_id]
             if own:
                 deepest = max(own, key=lambda r: r["depth"])
+                # A tie at max depth means the quote genuinely has several
+                # homes; picking one by iteration order asserted a fact the
+                # corpus does not support. 143 sentences corpus-wide tie.
+                tied = [r["id"] for r in own if r["depth"] == deepest["depth"]]
+                if len(tied) > 1:
+                    problems.append(
+                        f"quote appears in {len(tied)} rules under {rule_id} "
+                        f"({', '.join(sorted(tied)[:4])}) — cite the intended one")
+                    deepest = rule
                 if deepest["id"] != rule_id:
                     narrowed_to = deepest["id"]
                     problems.append(

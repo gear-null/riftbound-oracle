@@ -18,6 +18,7 @@ with — each one exact, deterministic, and free of model judgement:
     rules verify <json>     mechanical citation gate (report runs this for you)
     rules rulebook          (re)generate the anchored HTML rulebook
     rules selftest          regression harness; run after every rules update
+    rules mutants           proves the selftest can fail — run before a release
     rules render <json>     interactive HTML report
 
 The division of labour: the agent decides WHAT to look at, code decides whether
@@ -54,8 +55,25 @@ def cmd_rule(args):
             print(f"{mark} {'  ' * (a['depth'] - 1)}{a['id']}. {a['text']}")
         kids = [x for x in idx.rules.values()
                 if x["doc"] == doc and x["parent"] == rid]
-        for k in sorted(kids, key=lambda x: x["id"]):
+        for k in sorted(kids, key=lambda x: _idkey(x["id"])):
             print(f"   {'  ' * (k['depth'] - 1)}{k['id']}. {k['text']}")
+        # A topic heading owns no children, so everything above prints one word
+        # and stops. SKILL.md sends the agent here after following a `see also`,
+        # and 37 headings are cross-reference targets — an empty result is
+        # indistinguishable from "the rules are silent", which this codebase
+        # calls the most dangerous wrong conclusion it can reach. `cmd_section`
+        # already resolves these; `cmd_rule` simply never asked.
+        if not kids and idx.is_topic_heading(r):
+            block = idx.topic_block(r)
+            if block:
+                print(f"\n   -- {rid} is a heading; its rules are sections "
+                      f"{block[0]['id']}-{block[-1]['id']}. `section {doc}:{rid}` --")
+            else:
+                contents = idx.topic_contents(r)
+                if contents:
+                    print(f"\n   -- {rid} is a chapter heading; it continues with "
+                          f"{', '.join(c['id'] for c in contents[:6])}"
+                          f"{' …' if len(contents) > 6 else ''}. `section {doc}:{rid}` --")
         for ex in r.get("examples", []):
             print(f"   Example: {ex}")
         if r.get("see_also"):
@@ -124,18 +142,50 @@ def cmd_grep(args):
     the hits", and from there concluding the rules are silent on whatever fell
     below the cut — the one wrong answer this system most needs to avoid.
     """
-    from retrieve import Retriever
+    import textwrap
+
+    from retrieve import BadQuery, Retriever
     ensure_index()
     limit = 12
     if "-n" in args:
         i = args.index("-n"); limit = int(args[i + 1]); args = args[:i] + args[i + 2:]
     r = Retriever(RULES_DB)
+    query = " ".join(args)
     # One more than asked for, purely to detect truncation.
-    hits = r.search(" ".join(args), limit + 1)
+    try:
+        hits, ran = r.search_disclosed(query, limit + 1)
+    except BadQuery as e:
+        # NEVER the no-matches sentence here. That sentence is a claim about the
+        # RULES; this is a fact about the query, and printing the former for the
+        # latter told the agent the rules were silent on terms that exist.
+        print(f"  the search engine rejected that query: {e}")
+        print("  FTS5 reads - ' . : and brackets as operators. Try the bare words,")
+        print('  a quoted phrase ("quick draw"), or navigate by section number.')
+        return
+    # Text is NOT clipped. It was cut at 110 chars with no marker, and 142 rules
+    # carry a "not"/"unless"/"except" AFTER that point — CR:145.2 displayed as
+    # "...during the controlling player's Main Phase during a" when the rule ends
+    # "and not during a Showdown." The agent read the reverse of the rule and
+    # then cited it correctly, which no downstream check can catch. Titles were
+    # clipped to 22 chars too, collapsing Priority (312) and Focus (313) into
+    # the same visible label.
+    if ran != query:
+        # Never silent. A rewritten query can return the COMPLEMENT of what was
+        # asked, and an agent reading confident hits has no way to know its
+        # operators were dropped.
+        print(f'  -- "{query}" is not valid FTS5 syntax; searched {ran} instead.')
+        print("  -- these hits answer the rewritten query, not the one you typed. --")
     for h in hits[:limit]:
-        print(f"{h['uid']:18} [{h['section']}. {h['section_title'][:22]:24}] {h['text'][:110]}")
-    if not hits:
+        print(f"{h['uid']:18} [{h['section']}. {h['section_title']}]")
+        for line in textwrap.wrap(h["text"], width=96) or [""]:
+            print(f"    {line}")
+    if not hits and ran == query:
         print("  no matches — try another term, or navigate by section number")
+    elif not hits:
+        # The no-matches sentence is a claim about the RULES. It must never be
+        # printed for a query that never ran as typed.
+        print(f"  the rewritten query {ran} also found nothing — this is not "
+              "evidence that the rules are silent")
     elif len(hits) > limit:
         print(f"\n  -- showing {limit}; more matches exist. `-n {limit * 4}` for more. --")
         print("  -- ranked by lexical overlap: good for locating, never proof of absence. --")
@@ -240,7 +290,13 @@ def ensure_rulebook():
     the user to discover the gap by clicking.
     """
     from corpus import rulebook_html_path
-    if not os.path.exists(rulebook_html_path()):
+    # Size, not existence. A crash mid-render used to leave a 0-byte rules.html
+    # behind, and an existence test happily accepted it forever — so every
+    # citation link opened an empty page while the report still stamped them
+    # verified. The floor is deliberately crude: any real rulebook is ~MBs, and
+    # anything under a kilobyte is a failed write, not a small corpus.
+    path = rulebook_html_path()
+    if not os.path.exists(path) or os.path.getsize(path) < 1024:
         print("  building the rulebook reports link into (first run)...")
         cmd_rulebook([])
 
@@ -287,11 +343,12 @@ def cmd_report(args):
 
 
 def cmd_verify(args):
-    from render_report import verify_answer
+    from render_report import all_cites, verify_answer
     ans = json.load(open(args[0], encoding="utf-8"))
     ans = verify_answer(ans, _idx())
-    nc = sum(len(n.get("cites", [])) for n in ans["notes"])
-    nv = sum(1 for n in ans["notes"] for c in n.get("cites", []) if c["verified"])
+    cites = all_cites(ans)
+    nc = len(cites)
+    nv = sum(1 for c in cites if c["verified"])
     print(f"disposition : {ans['holding']['disposition']}"
           + (f"  (FORCED from {ans['holding']['_forced']})" if ans["holding"].get("_forced") else ""))
     print(f"citations   : {nv}/{nc} verified verbatim")
@@ -310,6 +367,18 @@ def cmd_render(args):
     out = args[1] if len(args) > 1 else "report.html"
     ensure_rulebook()
     subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
+
+
+def cmd_mutants(args):
+    """Reintroduce each defect the selftest claims to catch, and watch it fail.
+
+    Seven review rounds found the same thing twice: checks that could not fail.
+    A green suite is only evidence if its checks have been observed to go red,
+    so this is the check on the checks. Slower than selftest — it runs the whole
+    suite once per mutant — so it is a pre-release gate, not an inner loop.
+    """
+    sys.exit(subprocess.run([sys.executable, os.path.join(HERE, "mutants.py")],
+                            cwd=HERE).returncode)
 
 
 def cmd_selftest(args):
@@ -338,6 +407,7 @@ def cmd_build(args):
 COMMANDS = {"rule": cmd_rule, "section": cmd_section, "grep": cmd_grep,
             "card": cmd_card, "verify": cmd_verify, "render": cmd_render,
             "build": cmd_build, "selftest": cmd_selftest, "report": cmd_report,
+            "mutants": cmd_mutants,
             "rulebook": cmd_rulebook}
 
 
@@ -353,7 +423,14 @@ def main():
     # failure this codebase refuses for near-miss card names.
     args = []
     for a in sys.argv[2:]:
-        args.append(os.path.abspath(a) if a.endswith(".json") and os.path.exists(a) else a)
+        if not a.endswith(".json"):
+            args.append(a)
+            continue
+        full = os.path.abspath(a)
+        if not os.path.exists(full):
+            # Refuse, rather than let chdir(HERE) find a same-named sample.
+            sys.exit(f"no such answer file: {a}")
+        args.append(full)
 
     os.chdir(HERE)
     COMMANDS[sys.argv[1]](args)

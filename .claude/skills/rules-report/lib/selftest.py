@@ -93,9 +93,13 @@ def corpus_integrity():
     rules = list(idx.rules.values())
     # `> 3000` against an actual 3316 meant 300 rules could vanish silently.
     EXPECTED = 3316
-    drift = abs(len(rules) - EXPECTED) / EXPECTED
-    check("rule count within 1% of the recorded corpus", drift <= 0.01,
-          f"{len(rules)} rules (expected ~{EXPECTED})")
+    # EXACT, not within 1%. The tolerance was 33 rules — enough for a parser
+    # change to drop or fabricate a dozen and still report healthy. The corpus
+    # is a fixed document; its rule count is known, and a real rules update is
+    # supposed to change this number deliberately.
+    check("rule count matches the recorded corpus exactly", len(rules) == EXPECTED,
+          f"{len(rules)} rules, expected {EXPECTED} — if a rules update landed, "
+          "bump EXPECTED in the same commit")
 
     orphans = [r for r in rules if r["parent"] and f'{r["doc"]}:{r["parent"]}' not in idx.rules]
     check("no orphaned parents", not orphans, f"{len(orphans)} orphans")
@@ -264,7 +268,18 @@ def rulebook_and_links():
     # restyling and the overlay silently stops intercepting, so the reader gets
     # navigated out of the report instead of the panel.
     if os.path.exists(src):
-        emitted = set(re.findall(r'<a class="([^"]+)"[^>]*href="\.\./data/rules\.html', html))
+        # Union across every fixture: demo emits only anc-link and
+        # rulebook-link, so dropping `a.card-rule, a.sym-rule` from the
+        # interception selector left this check green while those links
+        # navigated the reader out of the report.
+        emitted = set()
+        for _f in ("demo", "viktor", "heron", "flow-counter", "vi-cost"):
+            _p = os.path.join(HERE, f"{_f}-answer.json")
+            if not os.path.exists(_p):
+                continue
+            _h = render(verify_answer(json.load(open(_p, encoding="utf-8")), idx), idx)
+            emitted |= set(re.findall(
+                r'<a class="([^"]+)"[^>]*href="\.\./data/rules\.html', _h))
         # rb-pop is the panel's own "open full page" link; it is meant to escape
         # the overlay, so it is deliberately not intercepted.
         emitted.discard("rb-pop")
@@ -390,10 +405,16 @@ def card_rendering():
     # a linked card shows the offline placeholder even with a working network.
     # Embedding must therefore produce a report with NO remote image refs.
     import render_report as _rr
-    check("artwork embedding is opt-in", _rr.EMBED_ART is False or _rr.EMBED_ART is True)
+    _envval = os.environ.get("RIFTBOUND_EMBED_ART", "")
+    check("artwork embedding is off unless the env var asks for it",
+          _rr.EMBED_ART == (_envval.lower() in ("1", "true", "yes")),
+          f"EMBED_ART={_rr.EMBED_ART} for {_envval!r}")
     check("a failed fetch degrades to None rather than raising",
           _rr.embed_image("https://invalid.invalid/x.png", timeout=3) is None)
-    check("no url embeds to None", _rr.embed_image("") is None)
+    _t0 = __import__("time").monotonic()
+    check("an empty url is refused without a fetch",
+          _rr.embed_image("") is None and (__import__("time").monotonic() - _t0) < 0.05,
+          "returned None, but only after attempting a request")
 
     # Card text comes from a third-party database that lags Riot by months. We
     # crawl Riot's errata ourselves, so holding both and showing the stale one
@@ -492,7 +513,9 @@ def render_gate():
         check("--force renders but marks the citation failed",
               bool(forced) and 'class="stamp bad"' in forced)
         check("--force still forces the verdict to UNSETTLED",
-              bool(forced) and "UNSETTLED" in forced)
+              bool(forced) and 'class="forced"' in forced
+              and re.search(r'class="disp[^"]*"[^>]*>\s*UNSETTLED', forced) is not None,
+              "the word UNSETTLED appears on every page; the banner does not")
 
 
 def attribution_and_spans(idx):
@@ -683,6 +706,799 @@ def symbols_and_notes():
                   f'{html.count(chr(34) + "noteref" + chr(34))} refs for {len(spans)} spans')
 
 
+def metric_consistency(idx):
+    """Three defects that each rendered a completely normal-looking report.
+
+    None crashed, none changed any fixture's bytes, and the suite was green
+    through all three. That is precisely why they are pinned here: the render
+    gate catches a fabricated citation, but nothing was watching the numbers
+    and notices the reader actually reads.
+    """
+    print("\n=== headline metrics + card notices ===")
+    import tempfile
+    from render_report import all_cites, card_notice, verify_answer
+
+    # 1. The console tally and the report headline are the same quantity and
+    #    must never be computed twice. They were, and had drifted: the
+    #    counterargument's citations are verified like any other, but only the
+    #    headline counted them, so the terminal said 6/6 where the report it had
+    #    just written said 8/8.
+    src = os.path.join(HERE, "flow-counter-answer.json")
+    ans = verify_answer(json.load(open(src, encoding="utf-8")), idx)
+    every = len(all_cites(ans))
+    notes_only = sum(len(n.get("cites", [])) for n in ans["notes"])
+    check("the fixture reaches the counterargument path at all", every > notes_only,
+          f"{every} cites total vs {notes_only} in notes")
+
+    with tempfile.TemporaryDirectory() as d:
+        out = os.path.join(d, "fc.html")
+        r = subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out],
+                           capture_output=True, text=True, cwd=HERE)
+        m = re.search(r"citations\s*:\s*(\d+)/(\d+)", r.stdout)
+        check("the console reports a citation tally", bool(m), r.stdout.strip()[:80])
+        if m:
+            check("and it counts every citation the verifier checked",
+                  int(m.group(2)) == every, f"console {m.group(2)}, actual {every}")
+        html = open(out, encoding="utf-8").read()
+        i = html.find("citations verified verbatim")
+        near = " ".join(re.sub(r"<[^>]+>", " ", html[max(0, i - 200):i]).split())
+        check("the headline agrees with the console", f"{every}/{every}" in near, near[-40:])
+
+    # 2. Errata and incomplete-text are independent; a card can carry both.
+    both = card_notice({"errata": "the 2026-07-16 update", "incomplete": "granted effect"})
+    check("a card that is both erratum'd AND short shows both notices",
+          "card-errata" in both and "card-gap" in both, both[:60])
+    check("a card with neither shows no notice", card_notice({}) == "")
+
+    # 3. An answer that ABSTAINS is not an answer that failed verification. The
+    #    no-notes path set _forced unconditionally, so an author's honest
+    #    UNSETTLED rendered the banner "forced to UNSETTLED (was UNSETTLED)".
+    def _empty(disp):
+        return verify_answer({"notes": [], "holding": {"disposition": disp, "line": "x",
+                                                       "spans": []}}, idx)["holding"]
+    check("an already-UNSETTLED answer with no notes is not marked forced",
+          _empty("UNSETTLED").get("_forced") is None)
+    check("but a YES with no notes still is",
+          _empty("YES").get("_forced") == "YES")
+
+
+def rendered_surfaces(idx):
+    """The surfaces this rebuild actually changed, over ALL five fixtures.
+
+    The harness used to open demo, viktor and heron only — and demo has no
+    cards and produces no symbol legend, so the two surfaces the rebuild
+    touched most were reached by fixtures nothing loaded. The check that the
+    legend placeholder is always substituted passed on demo because the legend
+    was empty and the marker was replaced with the empty string. It had never
+    looked at a rendered legend row.
+    """
+    print("\n=== rendered surfaces (all five fixtures) ===")
+    import copy
+    import tempfile
+    from render_report import BASIS, _CSS, _JS, clip, legend_html, render, verify_answer
+
+    # A legend row is a citation like any other. Every report on main carried a
+    # fabricated "[1] / [2] = that much Energy" row citing CR 429.5, harvested
+    # out of the overlay JS's own `m[1]`/`m[2]`. Ninety-eight checks stayed
+    # green through it, because nothing compared the legend to the visible page.
+    # Counted across the loop below: if the row regex ever stops matching, the
+    # per-fixture check would pass on an empty list and prove nothing. Three of
+    # the five fixtures do render a legend, so zero rows overall is a broken
+    # check rather than a clean report.
+    seen_rows = [0]
+
+    check("script bodies do not reach the legend",
+          legend_html(f"<p>no symbols here</p><script>{_JS}</script>", idx) == "")
+    # A FIXED hostile stylesheet, not live _CSS: _CSS happens to contain no
+    # bracket tokens, so this passed with <style> stripping removed altogether.
+    _hostile = "@media print{.x{content:'[2]'}}.y::after{content:'[A]'}"
+    check("style bodies do not reach the legend",
+          legend_html(f"<style>{_hostile}</style><p>no symbols here</p>", idx) == "")
+
+    for sample in ("demo", "viktor", "heron", "flow-counter", "vi-cost"):
+        src = os.path.join(HERE, f"{sample}-answer.json")
+        ans = verify_answer(json.load(open(src, encoding="utf-8")), idx)
+        page = render(ans, idx)
+
+        # Every legend entry must name a symbol the reader can actually see.
+        # The legend's OWN rows have to come out of the haystack first: each row
+        # prints the token it glosses, so comparing the page against itself made
+        # every row its own witness and the check could not fail. That is exactly
+        # the fabrication it was written to catch.
+        body = re.sub(r"<(script|style)\b.*?</\1>", " ", page, flags=re.S | re.I)
+        body = re.sub(r'<div class="sym-row">.*?</div>', " ", body, flags=re.S)
+        visible = __import__("html").unescape(re.sub(r"<[^>]+>", " ", body))
+        glossed = [__import__("html").unescape(t) for t in
+                   re.findall(r'class="sym"[^>]*>\[([^\]]+)\]</code>', page)]
+        missing = [t for t in glossed if f"[{t}]" not in visible]
+        check(f"{sample}: every legend entry names a symbol on the page",
+              not missing, f"{len(glossed)} rows, fabricated {missing}")
+        seen_rows[0] += len(glossed)
+
+        # The rail restates the verdict in its own markup. A desync renders
+        # perfectly and contradicts the plate beside it.
+        rd = re.search(r'class="rail-disp">([^<]+)<', page)
+        check(f"{sample}: the rail restates the verified verdict",
+              bool(rd) and rd.group(1) == ans["holding"]["disposition"],
+              f'rail {rd and rd.group(1)} vs {ans["holding"]["disposition"]}')
+
+        ids = set(re.findall(r'\sid="([^"]+)"', page))
+        dead = sorted(h for h in set(re.findall(r'href="#([^"]+)"', page)) if h not in ids)
+        check(f"{sample}: every in-page link resolves", not dead, ", ".join(dead[:4]))
+
+        # The copy-cite string is what a judge pastes into a dispute. It used to
+        # hardcode 2026-07-16 while the masthead read corpus.CR, so the next
+        # rules update would have made every button assert a version the report
+        # itself did not claim.
+        stale = sorted(d for d in set(re.findall(r"\d{4}-\d{2}-\d{2}", page))
+                       if d not in ans["corpus"].values())
+        check(f"{sample}: no citation asserts a rules date the corpus disclaims",
+              not stale, f'{stale} not in {sorted(set(ans["corpus"].values()))}')
+
+    # Every fixture's corpus CR is 2026-07-16 — exactly the literal the copy-cite
+    # string used to hardcode — so a whole-report check agrees with the bug and
+    # cannot see it. Exercised at cite_html directly, because the corpus stamp
+    # is now cross-checked against the index and a bogus date is (correctly)
+    # rejected before rendering.
+    from render_report import cite_html
+    base = json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8"))
+    vans = verify_answer(copy.deepcopy(base), idx)
+    a_cite = vans["notes"][0]["cites"][0]
+    frag = cite_html(a_cite, idx, {"CR": "2099-01-02", "TR": "2088-03-04"})
+    # Distinct per document: with both set to the same date, a cite_html that
+    # ignored `doc` and always read corpus["CR"] passed. A TR cite must carry
+    # TR's date.
+    _want = "2099-01-02" if a_cite["cite_as"].startswith("CR") else "2088-03-04"
+    drifted = sorted(d for d in set(re.findall(r"\d{4}-\d{2}-\d{2}", frag)) if d != _want)
+    check("citation dates follow the corpus, not a hardcoded literal",
+          not drifted, f"{drifted} survived a corpus move")
+
+    # And a corpus with no entry for the citation's document must say so rather
+    # than reach for whatever value happens to be first in the dict — `generated`
+    # sits in the same block, so that fallback asserted the report's build date
+    # as the rules version.
+    partial = cite_html(a_cite, idx, {"generated": "2026-08-12"})
+    check("a missing corpus entry reads as unstated, not as another date",
+          "version unstated" in partial and "2026-08-12" not in partial,
+          partial[partial.find("data-cite"):][:90])
+
+    check("the legend row check actually inspected rows", seen_rows[0] > 0,
+          f"{seen_rows[0]} legend rows seen across the five fixtures")
+
+    # The key decodes the marks on the verdict line, but derived itself from the
+    # NOTES. `_check_holding` constrains only grounded spans, so an inferred span
+    # over a grounded note is valid input — and printed a dotted mark on the one
+    # line everyone reads with no row explaining it. No fixture hits this, which
+    # is why it stayed latent; construct it.
+    mark = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                        encoding="utf-8")))
+    mark["holding"]["spans"][0]["basis"] = "inferred"
+    marked = render(verify_answer(mark, idx), idx)
+    # Match the emitted ROW, not the bare token — `k-structural` also appears in
+    # the stylesheet, so a looser probe passes on any page ever rendered.
+    has_row = 'class="key-item k-structural"' in marked
+    check("the key explains every mark the verdict line uses",
+          'class="sp-inferred"' not in marked or has_row,
+          "inferred span rendered with no structural row in the key")
+
+    # Two spans with the SAME text, on a line where it occurs once, passed every
+    # guard: the overlap test exempts identical ranges as harmless, and the
+    # placement cursor then dropped one to unmarked prose with zero problems.
+    dup = copy.deepcopy(json.load(open(os.path.join(HERE, "flow-counter-answer.json"),
+                                       encoding="utf-8")))
+    dup["holding"]["spans"].append({"text": dup["holding"]["spans"][0]["text"],
+                                    "basis": dup["holding"]["spans"][0]["basis"],
+                                    "note": dup["notes"][1]["id"]})
+    rdup = verify_answer(dup, idx)
+    check("a span the renderer would drop fails verification",
+          any("cannot be placed" in p for p in rdup["_problems"]), str(rdup["_problems"])[:70])
+
+    # A `gap` span means "the rules are silent"; it used to be drawn with the
+    # dotted-blue mark that means "it follows from the rules below" — RANK 1
+    # rendered as RANK 2, on the one line everyone reads.
+    gp = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                      encoding="utf-8")))
+    gp["holding"]["spans"][1]["basis"] = "gap"
+    gpage = render(verify_answer(gp, idx), idx)
+    check("a gap span is not drawn as a structural one",
+          'class="sp-gap"' in gpage and 'class="sp-inferred"' not in gpage)
+
+    # Every basis the schema accepts must have a paint. `inferred` did not, so a
+    # note the key printed as Structural rendered in the muted treatment a gap
+    # note gets — the key and the note disagreeing about the same claim.
+    unpainted = [k for k in BASIS if f".b-{k} " not in _CSS]
+    check("every accepted note basis has a stylesheet rule", not unpainted,
+          f"unpainted: {unpainted}")
+
+    # The basis coercion must run before ANYTHING reads note["basis"].
+    nob = copy.deepcopy(base)
+    del nob["notes"][0]["basis"]
+    try:
+        check("a note missing its basis is reported, not crashed",
+              any("basis" in p for p in verify_answer(nob, idx)["_problems"]))
+    except KeyError as e:
+        check("a note missing its basis is reported, not crashed", False, f"KeyError {e}")
+
+    # A failure to LOAD the card data used to render "not found — no card by
+    # this name" on every card: a factual assertion about the corpus, produced
+    # by a tooling failure, with zero problems and the verdict untouched. This
+    # is the exact conversion SKILL.md forbids the model from making.
+    import card_bridge
+    _real = card_bridge.CardBridge
+    try:
+        class _Boom:
+            def __init__(self, *a, **k):
+                raise RuntimeError("card data unreadable")
+        card_bridge.CardBridge = _Boom
+        broke = render(verify_answer(copy.deepcopy(json.load(
+            open(os.path.join(HERE, "vi-cost-answer.json"), encoding="utf-8"))), idx), idx)
+    finally:
+        card_bridge.CardBridge = _real
+    # The REALISTIC failure is an EMPTY index, not an exception: corpus.load_cards
+    # swallows OSError/ValueError and returns {}, so a deleted or corrupt
+    # cards.json builds a CardBridge that simply knows no cards. The guard added
+    # last round only caught the exception arm, so it passed on a tree with no
+    # cards.json at all — certifying a property the code did not have.
+    class _Empty:
+        cards = {}
+    try:
+        card_bridge.CardBridge = _Empty
+        emptied = render(verify_answer(copy.deepcopy(json.load(
+            open(os.path.join(HERE, "vi-cost-answer.json"), encoding="utf-8"))), idx), idx)
+    finally:
+        card_bridge.CardBridge = _real
+    check("an EMPTY card index is not reported as a missing card",
+          "no card by this name" not in emptied and "did not load" in emptied,
+          "an empty index is a data failure, not 1037 simultaneous typos")
+
+    check("unreadable card data is not reported as a missing card",
+          "no card by this name" not in broke, "rendered the card as nonexistent")
+    check("and says the database failed instead",
+          "did not load" in broke)
+
+    # A cite with no quote stamps ✗ UNVERIFIED, but the note stayed "verified"
+    # and the verdict was never downgraded — the two halves of the page
+    # disagreeing. Omitting the quote is the cheapest way to defeat the
+    # verbatim gate; it must not also buy a clean verdict.
+    noq = copy.deepcopy(base)
+    noq["notes"][0]["cites"] = [{"rule": noq["notes"][0]["cites"][0]["rule"]}]
+    rq = verify_answer(noq, idx)
+    check("a quote-less citation downgrades its note",
+          rq["notes"][0]["verified"] is False)
+    check("and forces the verdict", rq["holding"]["disposition"] == "UNSETTLED")
+
+    # "Considered and rejected" reads as evidence of thoroughness, so an id
+    # invented there buys more credibility than one in a note. It was never
+    # verified at all.
+    rej = copy.deepcopy(base)
+    rej["considered_rejected"] = [{"rule": "CR:999.9.z", "why": "invented"}]
+    check("a fabricated considered_rejected id fails verification",
+          any("999.9.z" in p for p in verify_answer(rej, idx)["_problems"]))
+
+    # The masthead's provenance came from the answer file with nothing to check
+    # it against, while every rule in the index carries its own version.
+    stamp = copy.deepcopy(base)
+    stamp["corpus"] = dict(stamp["corpus"], CR="2027-01-01")
+    check("a corpus stamp contradicting the index fails verification",
+          any("2027-01-01" in p for p in verify_answer(stamp, idx)["_problems"]))
+
+    # card_terms carries `ambiguous` and rules_cli shouts about it; the renderer
+    # dropped it, so one printing rendered as though it were the card.
+    amb = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                       encoding="utf-8")))
+    amb["cards"] = ["Ahri"]
+    check("an ambiguous card name says so on the page",
+          "This name matches" in render(verify_answer(amb, idx), idx))
+
+    # render_report already refused to truncate on a mid-render crash; the
+    # RULEBOOK still did, and ensure_rulebook tested only os.path.exists — so a
+    # 0-byte rules.html was accepted forever and every citation link opened an
+    # empty page while the report still stamped them verified.
+    #
+    # Pointed at a temp path, NOT the real rulebook: running this against a
+    # truncating build would otherwise destroy the committed artifact, which is
+    # exactly what happened once while developing the fix.
+    import corpus as _corpus
+    import render_rulebook as _rbmod
+    _real_path = _corpus.rulebook_html_path
+    _real_render = _rbmod.render_rulebook
+    with tempfile.TemporaryDirectory() as d:
+        decoy = os.path.join(d, "rules.html")
+        open(decoy, "w", encoding="utf-8").write("PREVIOUS GOOD RULEBOOK")
+        try:
+            _corpus.rulebook_html_path = lambda: decoy
+            def _boom(*a, **k):
+                raise KeyError("id")
+            _rbmod.render_rulebook = _boom
+            try:
+                _rbmod.main()
+            except Exception:
+                pass
+        finally:
+            _corpus.rulebook_html_path = _real_path
+            _rbmod.render_rulebook = _real_render
+        check("a crash inside the rulebook render leaves the previous one intact",
+              open(decoy, encoding="utf-8").read() == "PREVIOUS GOOD RULEBOOK")
+
+    # data/rules.html is generated and committed, so it can silently fall behind
+    # its generator — it had, by two CSS fixes, until this was written. Every
+    # report links into this file, so a stale copy is a stale rulebook for every
+    # reader of every report.
+    with tempfile.TemporaryDirectory() as d:
+        fresh = os.path.join(d, "rules.html")
+        try:
+            _corpus.rulebook_html_path = lambda: fresh
+            _rbmod.main()
+        finally:
+            _corpus.rulebook_html_path = _real_path
+        committed = open(_real_path(), encoding="utf-8").read()
+        check("the committed rulebook matches what the generator produces",
+              open(fresh, encoding="utf-8").read() == committed,
+              "run `rules_cli.py rulebook` and commit the result")
+
+    # ---- round 6 ----------------------------------------------------------
+    from render_report import place_spans
+    from verify_citations import RuleIndex, verify_citation
+
+    # Every one of the corpus's 262 Examples was uncitable: subtree_text includes
+    # them so the quote passed, then the narrowing pass searched only r["text"],
+    # found nothing, and flipped it to "paraphrased". `rules_cli.py rule` PRINTS
+    # those Examples, so the tool invited the quote it then rejected — and a
+    # false rejection is direct pressure toward --force.
+    _ex = [(r["doc"], r["id"], e) for r in idx.rules.values() for e in r.get("examples", [])]
+    _bad = [x for x in _ex if not verify_citation(idx, x[1], x[2], None, x[0]).ok]
+    check("the corpus actually carries Examples to test", len(_ex) > 200, f"{len(_ex)}")
+    check("an official Example can be cited verbatim", _ex and not _bad,
+          f"{len(_bad)} of {len(_ex)} rejected")
+
+    # A whitespace-only quote normalises to "" and "" is a substring of
+    # everything, so it verified. `checked` closed "omit the quote"; a single
+    # space was cheaper and reopened it.
+    for _blank in (" ", "\n", "\xa0"):
+        check(f"a whitespace-only quote ({_blank!r}) is refused",
+              not verify_citation(idx, "441.1.a", _blank, None, "CR").ok)
+
+    # Narrowing tightens a VAGUE cite; it must not move an already-exact one.
+    _keep = verify_citation(idx, "124", "changes zones to or from a Non-Board Zone", None, "CR")
+    check("the cited rule keeps its own quote", _keep.cite_as == "124",
+          f"rewritten to {_keep.cite_as}")
+
+    # 143 sentences in the corpus have several equally deep homes; choosing one
+    # by iteration order asserted a fact the corpus does not support.
+    _amb = verify_citation(idx, "602",
+                           "At low OPL, this can be allowed by the head judge.", None, "TR")
+    check("an ambiguous quote home is reported, not guessed",
+          any("appears in" in p for p in _amb.problems), str(_amb.problems)[:70])
+
+    # Blocks are matched SEPARATELY, never joined. A quote welded from the end
+    # of one block and the start of the next exists nowhere Riot published, and
+    # matching a concatenation stamped it verified — the cheapest possible way
+    # to defeat a verbatim gate.
+    _sr = idx.get("811.1.d.2.a", "CR")
+    _splice = (" ".join(_sr["text"].split()[-6:]) + " "
+               + " ".join(_sr["examples"][0].split()[:6]))
+    check("a quote spliced across a block boundary is refused",
+          not verify_citation(idx, "811.1.d.2.a", _splice, None, "CR").ok)
+
+    # Normative text outranks Examples when narrowing. Examples routinely
+    # restate a NEIGHBOURING rule, so equal ranking attributed a quote to a rule
+    # whose own text does not contain it — 383.3.a onto 383.3.a.3, the opposite
+    # case, under a banner asserting the quote "lives" there.
+    # Normative text must outrank an Example when both could host a quote.
+    # Pinned on a SYNTHETIC index: no arrangement in the real corpus can tell
+    # the two rankings apart once "the cited rule wins if it hosts the quote"
+    # is in place, so a corpus-based check here passes with the ordering
+    # reversed — the mutation battery proved exactly that. The property is a
+    # design decision (Examples restate NEIGHBOURING rules, so they must never
+    # outrank normative text), and it deserves a test that cannot drift with
+    # the corpus.
+    with tempfile.TemporaryDirectory() as d:
+        synth = os.path.join(d, "rules.json")
+        json.dump([
+            {"doc": "CR", "id": "900", "text": "Parent with no quote.", "depth": 1,
+             "parent": None, "section": "900", "section_title": "Synthetic",
+             "version": "test", "examples": [], "see_also": []},
+            {"doc": "CR", "id": "900.1", "text": "the disputed clause lives here",
+             "depth": 2, "parent": "900", "section": "900",
+             "section_title": "Synthetic", "version": "test",
+             "examples": [], "see_also": []},
+            {"doc": "CR", "id": "900.1.a", "text": "Deeper rule, different subject.",
+             "depth": 3, "parent": "900.1", "section": "900",
+             "section_title": "Synthetic", "version": "test",
+             "examples": ["Example: the disputed clause lives here, restated."],
+             "see_also": []},
+        ], open(synth, "w", encoding="utf-8"))
+        _sidx = RuleIndex(synth)
+        _sres = verify_citation(_sidx, "900", "the disputed clause lives here", None, "CR")
+        check("normative text outranks an Example when narrowing",
+              _sres.cite_as == "900.1",
+              f"narrowed to {_sres.cite_as}, not the rule whose own text holds the quote")
+
+    # A descendant's Example must verify at every ancestor: it used to verify at
+    # the child and be called "paraphrased" one level up.
+    _anc = [rid for rid in ("811.1.d.2.a", "811.1.d.2", "811.1.d", "811.1", "811")
+            if not verify_citation(idx, rid, _sr["examples"][0], None, "CR").ok]
+    check("a descendant Example verifies at every ancestor", not _anc, f"failed at {_anc}")
+    check("a fabricated quote is still rejected",
+          not verify_citation(idx, "103.2.a.2", "I invented this entirely", None, "CR").ok)
+
+    # The pairwise overlap guard compared FIRST occurrences while placement uses
+    # a cursor, so it rejected spans the renderer places perfectly.
+    _line = "Yes, so the cost is checked at that point, and the cost stands unchanged."
+    _sp = [{"text": "so the cost is checked at that point", "basis": "grounded", "note": "n1"},
+           {"text": "the cost", "basis": "grounded", "note": "n2"}]
+    _ok = copy.deepcopy(base)
+    _ok["holding"]["line"] = _line
+    _ok["holding"]["spans"] = [dict(x, note=_ok["notes"][i]["id"]) for i, x in enumerate(_sp)]
+    # Asserts NO problems at all, not "no problem containing the word overlap".
+    # Keying on one word let a rejection worded differently sail through while
+    # the answer was still refused.
+    _okp = verify_answer(_ok, idx)["_problems"]
+    check("spans the renderer places are not rejected at all",
+          not place_spans(_line, _ok["holding"]["spans"])[1] and not _okp, str(_okp)[:90])
+
+    # A note with NO citations was stamped "● grounded — a rule states this in
+    # so many words". Omitting the cite entirely was cheaper than omitting the
+    # quote, which was already refused.
+    _nc = copy.deepcopy(base)
+    _nc["notes"][1]["basis"] = "grounded"
+    _nc["notes"][1]["cites"] = []
+    _rnc = verify_answer(_nc, idx)
+    check("a grounded note with no citations fails verification",
+          any("cites none" in p for p in _rnc["_problems"]))
+    check("and does not stay verified", _rnc["notes"][1]["verified"] is False)
+
+    # ...but structural may synthesise from the rules its NEIGHBOURS cite, which
+    # is what "it follows from the rules below" means. Requiring a cite here
+    # would reject legitimate reasoning and push the author to --force.
+    _st = copy.deepcopy(base)
+    _st["notes"][1]["basis"] = "structural"
+    _st["notes"][1]["cites"] = []
+    check("a structural note may synthesise without citing",
+          not any("cites none" in p for p in verify_answer(_st, idx)["_problems"]))
+
+    # rules_checked is what licenses a claim that the rules are SILENT.
+    _rc = copy.deepcopy(base)
+    _rc["notes"][0]["rules_checked"] = ["999.9.z"]
+    check("a fabricated rules_checked id fails verification",
+          any("999.9.z" in p for p in verify_answer(_rc, idx)["_problems"]))
+
+    # The weakest link must include gap notes — RANK scores gap lowest for
+    # exactly this comparison, and the page claims "the lowest link".
+    _g = copy.deepcopy(base)
+    _g["notes"][-1]["basis"] = "gap"
+    _g["notes"][-1]["rules_checked"] = ["441"]
+    _g["notes"][-1]["cites"] = []
+    check("a gap note is the weakest link", verify_answer(_g, idx)["_strength"] == "gap")
+
+    # A span may not claim more support than the note it rests on.
+    _up = copy.deepcopy(base)
+    _up["notes"][-1]["basis"] = "gap"
+    _up["notes"][-1]["rules_checked"] = ["441"]
+    _up["notes"][-1]["cites"] = []
+    for _s in _up["holding"]["spans"]:
+        _s["note"] = _up["notes"][-1]["id"]
+        _s["basis"] = "inferred"
+    check("a span cannot claim more support than its note",
+          any("claims inferred" in p for p in verify_answer(_up, idx)["_problems"]))
+
+    # Duplicate note ids: every anchor resolves to the first match.
+    _d = copy.deepcopy(base)
+    _d["notes"][1]["id"] = _d["notes"][0]["id"]
+    check("duplicate note ids fail verification",
+          any("duplicate note id" in p for p in verify_answer(_d, idx)["_problems"]))
+
+    # The narrowed notice must name the ORIGIN; it named the destination.
+    _n = copy.deepcopy(base)
+    for _c in _n["notes"][0]["cites"]:
+        _c["rule"] = _c["rule"].split(":")[0] + ":" + _c["rule"].split(":")[1].split(".")[0]
+    _rn = verify_answer(_n, idx)
+    _narrowed = [c for nn in _rn["notes"] for c in nn.get("cites", []) if c.get("narrowed")]
+    # Requires a narrowed citation to EXIST — all([]) is True, so this passed
+    # when narrowing was disabled entirely and no notice was rendered at all.
+    check("the narrowing case is actually exercised", bool(_narrowed), "nothing narrowed")
+    check("a narrowed citation names where it came FROM",
+          _narrowed and all(c["narrowed"] != c["cite_as"].split(":", 1)[1] for c in _narrowed),
+          f"{[(c['narrowed'], c['cite_as']) for c in _narrowed][:2]}")
+
+    # The rulebook must be in numeric id order — one pair was not, putting a set
+    # legality date under the wrong set's heading in the committed artifact.
+    _rules = json.load(open(_corpus.rules_json(), encoding="utf-8"))
+    def _k(rid):
+        return [(0, int(x), "") if x.isdigit() else (1, 0, x) for x in rid.split(".")]
+    _oo = 0
+    for _doc in ("CR", "TR"):
+        _seq = [r["id"] for r in _rules if r["doc"] == _doc]
+        _oo += sum(1 for a2, b2 in zip(_seq, _seq[1:]) if _k(a2) > _k(b2))
+    # Reads the RENDERED page, not the source. Asserting that the identifier
+    # "id_sort_key" appears in a file passes whether or not the sort is called
+    # — and deleting the call left this green while the committed artifact put
+    # Unleashed's legality date under the Vendetta heading.
+    _emitted = re.findall(r'id="(CR|TR)-([^"]+)"', open(_real_path(), encoding="utf-8").read())
+    _wrong = []
+    for _doc in ("CR", "TR"):
+        _ids = [i for d, i in _emitted if d == _doc]
+        _wrong += [(a2, b2) for a2, b2 in zip(_ids, _ids[1:]) if _k(a2) > _k(b2)]
+    check("the rendered rulebook is in numeric id order", not _wrong,
+          f"out of order: {_wrong[:3]}")
+    check("the ordering check saw a real rulebook", len(_emitted) > 3000, f"{len(_emitted)} ids")
+
+    # `render --force` bound the flag as the output path.
+    with tempfile.TemporaryDirectory() as d:
+        bad = os.path.join(d, "bad.json")
+        outp = os.path.join(d, "out.html")
+        ghost = copy.deepcopy(base)
+        ghost["notes"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+        json.dump(ghost, open(bad, "w", encoding="utf-8"))
+        # The TWO-argument form is the one that broke: `render_report.py bad.json
+        # --force` bound the flag as argv[2], so it wrote a file called "--force"
+        # and left the previous all-green report.html untouched beside it. A
+        # three-arg call cannot see the bug.
+        stray = os.path.join(d, "--force")
+        prior = os.path.join(d, "report.html")
+        open(prior, "w", encoding="utf-8").write("STALE ALL-GREEN REPORT")
+        subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), bad, "--force"],
+                       capture_output=True, text=True, cwd=d)
+        check("--force is not mistaken for the output path",
+              not os.path.exists(stray), "wrote a file literally named --force")
+        check("and the forced report replaces the stale one",
+              open(prior, encoding="utf-8").read() != "STALE ALL-GREEN REPORT")
+
+    # Round 6 stopped answer files overriding the vendored card record but added
+    # no check, so the mutation battery found the fix entirely unguarded. This is
+    # the worst reachable shape: Riot's genuine artwork beside an invented
+    # ability, under an errata banner calling the fabrication the CORRECTED text.
+    _ov = copy.deepcopy(json.load(open(os.path.join(HERE, "vi-cost-answer.json"),
+                                       encoding="utf-8")))
+    _ov["cards"] = [{"name": "Vi - Hotheaded", "text": "INVENTED ABILITY: draw 9 cards.",
+                     "stats": {"energy": 99}, "rule_sections": "829"}]
+    _ovp = render(verify_answer(_ov, idx), idx)
+    check("an answer cannot override the vendored card text",
+          "INVENTED ABILITY" not in _ovp)
+    check("nor iterate a string field per character",
+          not re.findall(r'rules\.html#CR-(\d)"', _ovp),
+          "rule_sections rendered one link per character")
+
+    check("a rail claim is shortened even with no early space",
+          len(clip("x" * 100)) <= 60, repr(clip("x" * 100))[:24])
+    check("a short claim is left alone", clip("abc") == "abc")
+
+    # Print is invisible to every other gate: screen rendering, the selftest and
+    # a human reviewer all miss it. Only a judge with a printer finds out — and
+    # the failure this guards inverted the argument, printing the grounded half
+    # of the verdict line at 2.23:1 and the inferred half at 16.75:1.
+    import render_rulebook as _rb
+    for name, css in (("report", _CSS), ("rulebook", _rb._CSS)):
+        # Comments stripped: the block's own comment explains the light-canvas
+        # remap by naming `color-scheme:light`, so the probe was satisfied by
+        # the prose describing the rule rather than by the rule.
+        blk = re.sub(r"/\*.*?\*/", " ", css[css.index("@media print"):], flags=re.S)
+        check(f"the {name} print sheet declares a light canvas", "color-scheme:light" in blk)
+        gone = [t for t in ("--gold-500", "--slate-300", "--mist-100") if f"{t}:" not in blk]
+        check(f"the {name} print sheet remaps the raw palette tokens", not gone, ", ".join(gone))
+
+        # ...and remaps them to something LEGIBLE ON WHITE. Presence of the
+        # declaration was the whole test, so remapping gold-500 to the near-white
+        # mist-100 passed at 1.15:1 — worse than the 2.23:1 that motivated the
+        # remap in the first place.
+        _hex = dict(re.findall(r"(--[a-z0-9-]+):\s*(#[0-9a-fA-F]{6})", css))
+
+        def _lum(h):
+            def _c(v):
+                v /= 255.0
+                return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+            r_, g_, b_ = (int(h[i:i + 2], 16) for i in (1, 3, 5))
+            return 0.2126 * _c(r_) + 0.7152 * _c(g_) + 0.0722 * _c(b_)
+
+        _dim = []
+        for _tok in ("--gold-500", "--slate-300", "--mist-100"):
+            _m = re.search(re.escape(_tok) + r":\s*var\((--[a-z0-9-]+)\)", blk)
+            _target = _hex.get(_m.group(1)) if _m else None
+            if not _target:
+                continue
+            _ratio = (1.05) / (_lum(_target) + 0.05)
+            if _ratio < 4.5:
+                _dim.append(f"{_tok}->{_m.group(1)} {_ratio:.2f}:1")
+        check(f"the {name} print remap is legible on white", not _dim, "; ".join(_dim))
+
+    weird = copy.deepcopy(base)
+    weird["holding"]["spans"][0]["basis"] = "definitional"
+    check("an unknown holding-span basis is reported, not silently coerced",
+          any("basis" in p for p in verify_answer(weird, idx)["_problems"]))
+
+    # A crash INSIDE render, with the previous report already on disk.
+    #
+    # `--force` is load-bearing here and was not always: this used to rely on
+    # verify_answer ignoring `corpus`, so removing that key verified clean and
+    # died in render. A later round made a missing corpus a verification
+    # PROBLEM, which meant the subprocess exited at the gate and never reached
+    # render at all — the check kept passing while proving nothing. That was
+    # predicted as a consequence of adding the corpus check, and it happened.
+    # --force skips the gate so the crash lands where this check aims it.
+    with tempfile.TemporaryDirectory() as d:
+        src, out = os.path.join(d, "crash.json"), os.path.join(d, "out.html")
+        crash = copy.deepcopy(base)
+        crash.pop("corpus")
+        json.dump(crash, open(src, "w", encoding="utf-8"))
+        open(out, "w", encoding="utf-8").write("PREVIOUS GOOD REPORT")
+        r = subprocess.run(
+            [sys.executable, os.path.join(HERE, "render_report.py"), src, out, "--force"],
+            capture_output=True, text=True, cwd=HERE)
+        check("the render-crash check actually reaches render",
+              "corpus" in (r.stderr or "") or r.returncode != 0,
+              "the gate refused first, so render never ran")
+        check("a crash inside render leaves the previous report intact",
+              r.returncode != 0 and open(out, encoding="utf-8").read() == "PREVIOUS GOOD REPORT",
+              f"rc={r.returncode}")
+
+
+def research_tools(idx):
+    """The commands an agent NAVIGATES with, before it writes anything.
+
+    These had zero coverage in either gate through eight review rounds, and that
+    is exactly how their defects survived. A renderer bug produces a visibly odd
+    report; a `grep` that hides the second half of a rule produces a CONFIDENT
+    WRONG ANSWER that then cites correctly. Nothing downstream can catch that —
+    the citation verifier checks that a quote is real, not that the reasoning
+    resting on it is.
+    """
+    print("\n=== the tools an agent researches with ===")
+    import tempfile
+
+    from retrieve import BadQuery, Retriever
+    # The FTS index is a build artifact and gitignored, so a fresh checkout — CI,
+    # or anyone who has never run a search — has none. Every check below then
+    # died on "Rule index missing", taking the suite with it. Building needs
+    # only the committed data/rules.json, not the source markdown.
+    from rules_cli import ensure_index
+    ensure_index()
+    r = Retriever(os.path.join(HERE, "rules.db"))
+
+    # FTS5 reads - ' . and brackets as operators. Returning [] for a REJECTED
+    # query made `grep` print "no matches", which is a claim about the RULES.
+    # `Quick-Draw` is CR section 819; its output was byte-identical to a
+    # nonsense word's.
+    for term in ("Quick-Draw", "can't", "471.1.b"):
+        try:
+            hits = r.search(term, 5)
+            check(f"grep finds {term!r}, which exists", bool(hits), "reported as absent")
+        except BadQuery:
+            check(f"grep finds {term!r}, which exists", False, "query rejected")
+    try:
+        check("a genuinely absent term still returns nothing",
+              not r.search("zamboni", 5))
+    except BadQuery:
+        check("a genuinely absent term still returns nothing", False, "rejected instead")
+
+    # Truncation is the quiet one: 142 rules carry a negation past 110 chars.
+    out = subprocess.run(
+        [sys.executable, os.path.join(HERE, "rules_cli.py"), "grep",
+         '"activated ability" AND showdown', "-n", "2"],
+        capture_output=True, text=True, cwd=HERE).stdout
+    check("grep shows the clause that reverses a rule",
+          "not during a Showdown" in out,
+          "CR:145.2 rendered without its negation")
+    check("grep does not clip the section title",
+          "Units may have Activated Abilities" in out)
+
+    # Riot writes illustrations two ways, and only the singular `Example:` was
+    # recognised — so six rules absorbed a plural `Examples:` list into their
+    # NORMATIVE text, where the verifier accepted a quote of an illustration as
+    # a quote of the rule. The items are separate; joining them would fabricate
+    # a sentence Riot never published.
+    _swallowed = [r for r in idx.rules.values() if "Examples:" in r["text"] and r["doc"] == "CR"]
+    check("no CR rule carries an Examples list as normative text", not _swallowed,
+          f"{[r['id'] for r in _swallowed][:4]}")
+    _listed = idx.get("124.1", "CR")
+    check("a plural Examples list is split into separate items",
+          len(_listed.get("examples", [])) >= 4, f"{_listed.get('examples')}")
+    check("and each item stands alone, not welded to its neighbours",
+          all(e.count(".") <= 2 for e in _listed.get("examples", [])),
+          f"{_listed.get('examples')}")
+
+    # An answer file that is not where the caller says it is must be REFUSED.
+    # The guard here abspath'd the name only when the file EXISTED, so a missing
+    # one stayed relative, chdir(HERE) resolved it against lib/, and one of the
+    # five shipped samples was verified and delivered instead — "8/8 verified
+    # verbatim", exit 0, for a question nobody asked.
+    with tempfile.TemporaryDirectory() as d:
+        _sub = subprocess.run(
+            [sys.executable, os.path.join(HERE, "rules_cli.py"), "verify", "heron-answer.json"],
+            capture_output=True, text=True, cwd=d)
+        check("a missing answer file is refused, not substituted",
+              _sub.returncode != 0 and "verified" not in _sub.stdout,
+              f"rc={_sub.returncode} {_sub.stdout.strip()[:60]}")
+
+    # A crash DURING THE WRITE, not during render. The check further up forces a
+    # failure inside render(); this one lets render succeed and fails the swap,
+    # which is the case an in-place write destroys. Same invariant: a failure
+    # never leaves a stale artifact looking current.
+    #
+    # Drives render_report.main() itself rather than re-implementing the write
+    # here — a hand-rolled sequence would test this file, not the code.
+    import render_report as _rrw
+    with tempfile.TemporaryDirectory() as _d:
+        _keep = os.path.join(_d, "ruling.html")
+        open(_keep, "w", encoding="utf-8").write("PREVIOUS RULING")
+        _src = os.path.join(_d, "a.json")
+        json.dump(json.load(open(os.path.join(HERE, "demo-answer.json"), encoding="utf-8")),
+                  open(_src, "w", encoding="utf-8"))
+        _real_replace, _real_argv = os.replace, sys.argv
+        try:
+            os.replace = lambda *a, **k: (_ for _ in ()).throw(OSError("disk full"))
+            sys.argv = ["render_report.py", _src, _keep]
+            try:
+                _rrw.main()
+            except BaseException:
+                pass
+        finally:
+            os.replace, sys.argv = _real_replace, _real_argv
+        check("a failed write leaves the previous ruling intact",
+              open(_keep, encoding="utf-8").read() == "PREVIOUS RULING",
+              "the saved ruling was destroyed by a failed rewrite")
+        check("and leaves no half-written temp file behind",
+              not os.path.exists(_keep + ".tmp"))
+
+    # A query FTS5 rejects gets rewritten. The rewrite can mean something else
+    # entirely — `combat -damage` became the phrase "combat damage", returning
+    # the complement of the request — so the rewrite must be disclosed.
+    rw = subprocess.run(
+        [sys.executable, os.path.join(HERE, "rules_cli.py"), "grep", "combat -damage"],
+        capture_output=True, text=True, cwd=HERE).stdout
+    check("a rewritten query says so", "searched" in rw and "not the one you typed" in rw,
+          rw.strip()[:80])
+
+    # Disclosure alone is not enough — WHICH rewrite matters. A phrase form
+    # means something narrower than the words typed, so a punctuated multi-word
+    # query must still find the rule containing all of them.
+    _qd = subprocess.run(
+        [sys.executable, os.path.join(HERE, "rules_cli.py"), "grep", "Quick-Draw equipment"],
+        capture_output=True, text=True, cwd=HERE).stdout
+    check("a punctuated multi-word query finds the rule holding both words",
+          "CR:150.3" in _qd, _qd.strip()[:80])
+
+    # The corpus version must be READ from each document, not stamped from one
+    # literal — two documents deriving from a single constant can never disagree,
+    # which made the per-document provenance check vacuous by construction.
+    from parse_rules import source_version
+    with tempfile.TemporaryDirectory() as _d:
+        _f = os.path.join(_d, "doc.md")
+        open(_f, "w", encoding="utf-8").write("# T\n\nLast Updated: 2099-12-31\n\n100. x\n")
+        check("the corpus stamp is read from the document, not hardcoded",
+              source_version(_f) == "2099-12-31", source_version(_f))
+        _g = os.path.join(_d, "us.md")
+        open(_g, "w", encoding="utf-8").write("# T\n\nLast Updated 7/16/2026\n\n100. x\n")
+        check("a US-format date normalises to ISO", source_version(_g) == "2026-07-16",
+              source_version(_g))
+
+    # 37 topic headings are cross-reference targets, and SKILL.md sends the
+    # agent to `rule <id>` after a `see also`. One word with no pointer is
+    # indistinguishable from "the rules are silent".
+    for _rid, _want in (("467", "sections 468-472"), ("463", "chapter heading")):
+        _o = subprocess.run(
+            [sys.executable, os.path.join(HERE, "rules_cli.py"), "rule", _rid],
+            capture_output=True, text=True, cwd=HERE).stdout
+        check(f"rule {_rid} points at where its content lives", _want in _o, _o.strip()[-70:])
+
+    # Two tools that disagree about rule order is worse than either being wrong:
+    # CR:323's own text says "in the order described".
+    kids = subprocess.run(
+        [sys.executable, os.path.join(HERE, "rules_cli.py"), "rule", "323"],
+        capture_output=True, text=True, cwd=HERE).stdout
+    seq = re.findall(r"^\s+(323\.\d+)\.", kids, re.M)
+    check("rule lists children in numeric order", seq == sorted(seq, key=_num_key), str(seq[:6]))
+    check("the child-order check saw children", len(seq) > 5, f"{len(seq)}")
+
+    # The retriever's own children() had the same lexicographic bug in SQL.
+    rows = [x["rid"] for x in r.children("CR:465.2.c")]
+    check("the retriever orders children numerically",
+          rows == sorted(rows, key=_num_key), str(rows[:5]))
+
+
+def _num_key(rule_id):
+    return [(0, int(x), "") if x.isdigit() else (1, 0, x) for x in rule_id.split(".")]
+
+
 def main():
     print("rules-report selftest")
     parser_fidelity()
@@ -695,6 +1511,9 @@ def main():
     topic_blocks(idx)
     attribution_and_spans(idx)
     render_gate()
+    research_tools(idx)
+    metric_consistency(idx)
+    rendered_surfaces(idx)
     python_floor()
 
     print()

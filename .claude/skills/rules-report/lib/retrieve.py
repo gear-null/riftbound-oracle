@@ -19,10 +19,26 @@ Usage:
     python3 retrieve.py query "does a countered flow spell still get banished"
     python3 retrieve.py selftest
 """
-import json, re, sqlite3, sys, textwrap
+import json, os, re, sqlite3, sys, textwrap
 
 from corpus import rules_json
-DB = "rules.db"
+
+# Anchored to this file, not the cwd. With a bare relative name this built or
+# opened a `rules.db` wherever it happened to be invoked from, which silently
+# scattered empty databases (one turned up in `output/`) and meant a standalone
+# `query` could read an index that was not the one `build` had just written.
+#
+# Only the READ path was ever protected: rules_cli.py passes an absolute
+# RULES_DB into `Retriever`. The WRITE path takes no path argument at all and
+# resolves this module-level name, so it was protected purely by `cwd=HERE` on
+# the two subprocess calls in rules_cli.py. Those are load-bearing, not
+# belt-and-braces — do not delete them as redundant.
+DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rules.db")
+
+
+class BadQuery(Exception):
+    """FTS5 refused the query. Distinct from a search that matched nothing —
+    conflating the two lets a syntax error masquerade as `the rules are silent`."""
 
 
 def sort_key(rule_id):
@@ -89,18 +105,37 @@ class Retriever:
         row = self.get(uid)
         if not row:
             return []
-        return self.con.execute(
-            "SELECT * FROM rule WHERE doc=? AND parent=? ORDER BY rid", (row["doc"], row["rid"])
+        # Sorted in Python, not by SQL. `ORDER BY rid` is lexicographic, so
+        # 465.2.c.10 came between .1 and .2 — putting a blanket exemption ahead
+        # of the mandatory rules it exempts. `sort_key` above existed for this
+        # and had no callers.
+        rows = self.con.execute(
+            "SELECT * FROM rule WHERE doc=? AND parent=?", (row["doc"], row["rid"])
         ).fetchall()
+        return sorted(rows, key=lambda x: sort_key(x["rid"]))
+
+    _SQL = """SELECT r.*, bm25(rule_fts, 0, 8.0, 5.0, 2.0, 1.5) AS score
+                 FROM rule_fts JOIN rule r ON r.uid = rule_fts.uid
+                 WHERE rule_fts MATCH ? ORDER BY score LIMIT ?"""
 
     def search(self, fts_query, limit=12):
+        """Rows only. Prefer `search_disclosed` where the caller shows results
+        to a human or an agent — it also returns the query that RAN, which is
+        not always the one passed in."""
+        return self.search_disclosed(fts_query, limit)[0]
+
+    def search_disclosed(self, fts_query, limit=12):
+        """Rows for an FTS5 query.
+
+        Raises BadQuery if FTS5 refuses the syntax and a relaxed retry also
+        fails. It must NOT return [] in that case: the caller prints "no
+        matches", which is a positive claim that the rules do not contain
+        something — the worst wrong answer this system can make. It fired for
+        `Quick-Draw` (a real CR section), `can't`, and every dotted rule id,
+        with output byte-identical to a genuinely absent term.
+        """
         try:
-            return self.con.execute(
-                """SELECT r.*, bm25(rule_fts, 0, 8.0, 5.0, 2.0, 1.5) AS score
-                   FROM rule_fts JOIN rule r ON r.uid = rule_fts.uid
-                   WHERE rule_fts MATCH ? ORDER BY score LIMIT ?""",
-                (fts_query, limit),
-            ).fetchall()
+            return self.con.execute(self._SQL, (fts_query, limit)).fetchall(), fts_query
         except sqlite3.OperationalError as e:
             # A missing index is not a bad query. sqlite3.connect happily
             # creates an empty file, so without this the agent sees zero hits
@@ -110,8 +145,19 @@ class Retriever:
                     "Rule index missing or empty. Build it first:\n"
                     "    python3 rules_cli.py build"
                 ) from e
-            print(f"  (bad FTS query: {e})", file=sys.stderr)
-            return []
+            # FTS5 treats -, ', . and brackets as syntax. Try the forms closest
+            # to the agent's INTENT first: implicit AND keeps "all these words",
+            # which is what a punctuated multi-word query almost always means. A
+            # phrase search is the last resort because it means something
+            # narrower, and returning phrase hits for an AND query hands back a
+            # confident result set that is not the one asked for.
+            words = re.findall(r"\w+", fts_query)
+            for form in ([" ".join(words), '"' + " ".join(words) + '"'] if words else []):
+                try:
+                    return self.con.execute(self._SQL, (form, limit)).fetchall(), form
+                except sqlite3.OperationalError:
+                    continue
+            raise BadQuery(str(e)) from e
 
     def packet(self, uid):
         """Ancestor-closed packet: the unit that is safe to cite from."""

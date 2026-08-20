@@ -23,6 +23,13 @@ sources/**
 !sources/*/
 !sources/*/README.md
 
+# ...except art-references, which is personal tooling rather than a pipeline
+# input: card images plus a script that assembles them into a reference PDF for
+# an external notebook. Its output is card artwork, which this project never
+# redistributes, and the script is useless without the images — so the whole
+# folder stays local, README included.
+sources/art-references/
+
 # Python
 __pycache__/
 *.pyc
@@ -42,3 +49,9 @@ Thumbs.db
 
 # Keys
 .config
+
+# Local agent tooling — scratch from design/skill sessions, never part of the
+# product. `.od-skills/` is OpenDesign's own; `plugin-source/` is where it
+# stages skill folders mid-run.
+.od-skills/
+plugin-source/

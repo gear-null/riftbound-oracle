@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="riftbound-oracle.png" alt="Riftbound Oracle" width="100%" />
+  <img src="riftbound-oracle.png" width="100%"
+       alt="Riftbound Oracle, an unofficial rules companion. Beside the mark, a verified citation of Core Rules 142.4.a: &quot;Lethal Damage is the amount of marked Damage that will cause a unit to die in a cleanup.&quot; — checked by code, not by the model." />
 </p>
 
 # Riftbound Oracle
@@ -17,7 +18,7 @@ This one can't do that. Before a report is rendered, a verifier proves every cit
 and every quote appears verbatim. A citation that fails doesn't get softened — it forces the
 whole answer to `UNSETTLED`.
 
-![A Riftbound Oracle report: a hard two-card ruling, with the verdict decomposed into graded claims](docs/images/report.png)
+![A Riftbound Oracle report: a hard two-card ruling. The verdict is decomposed into graded claims, each with its citations, and the whole argument is indexed in a rail alongside](docs/images/report.png)
 
 ---
 
@@ -77,6 +78,11 @@ scrolled to the exact clause with its cross-references live — without losing y
 argument.
 
 ![The anchored rulebook, opened over the report on the exact clause a claim rests on](docs/images/rulebook-overlay.png)
+
+**The argument stays navigable.** A hard ruling runs long, so it's indexed beside itself — the
+verdict, the weakest link, and every claim in order with the load-bearing one marked. It tracks
+which claim you're reading. Print it and the index drops away, every citation opens, and the
+whole thing inverts to a clean sheet, because judges print these.
 
 **It tells you when it doesn't know.** When the rules genuinely don't settle something, you get
 `UNSETTLED` and a list of what was searched — not a confident guess. Refusal is a rare quality
