@@ -11,6 +11,64 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-08-20
+
+### Corpus
+
+- **52 cards corrected from Riot errata, up from 28.** An entire Riot article was
+  being skipped (its headings use a different depth), and the corrections that
+  did parse were matched to cards by exact name — so `Jax, Unmatched` never met
+  `Jax - Unmatched`. Six cards had been serving text Riot retracted, with no
+  banner: Tianna Crownguard said "opponents can't score points" where Riot now
+  says "can't gain points", and CR 471 splits those.
+- **Riot's illustrations are no longer normative text.** Six rules had absorbed a
+  plural `Examples:` list into their own wording, where a quote of an
+  illustration verified as a quote of the rule. 262 → 286 examples.
+- **The corpus version is read from each document** rather than stamped from one
+  hardcoded literal, so CR and TR can differ — which the provenance check
+  assumed and could never actually detect.
+
+### Added
+
+- **The report and rulebook, rebuilt in the Runeterra visual language** (#6):
+  blue-black ground, aged-gold hairlines, a sticky claim rail that tracks the
+  claim you are reading, and a rulebook overlay that keeps your place. Printing
+  inverts the whole system to a light sheet, because judges print these.
+- **A mutation battery** — `rules_cli.py mutants`. It reintroduces 113 known
+  defects and requires the named check to fail. Two review rounds were spent
+  discovering that checks can pass while the defect they are named for is live;
+  this is what makes that visible.
+- **`docs/invariants.md`** — the eleven statements that must never be false, each
+  pinned by a check that has been observed to fail, enforced in CI by
+  `scripts/check-invariants.py`. It replaces "review until nothing is found",
+  which does not terminate.
+- **`docs/known-issues.md`** — what was found, reproduced, and deliberately not
+  fixed.
+
+### Fixed
+
+- **A quote welded across a block boundary passed the verbatim gate** — a string
+  appearing nowhere in Riot's rules, stamped verified. Blocks are now matched
+  separately and never joined.
+- **A missing answer file was answered with a shipped sample**, printing
+  "8/8 verified verbatim" and exiting 0 for a question nobody asked.
+- **`grep` displayed the opposite of a rule.** Text was clipped at 110 characters
+  with no marker, and 142 rules hide a "not" or "unless" past the cut. It also
+  reported "no matches" for terms that exist, because FTS5 rejected the syntax
+  and the rejection was reported as absence.
+- **`rule <id>` dead-ended on 80 topic headings**, 37 of which are
+  cross-reference targets — indistinguishable from "the rules are silent".
+- Citations are attributed to the rule whose own text carries the quote, ties are
+  reported rather than guessed, and a whitespace-only quote no longer verifies.
+
+### CI
+
+- The mutation battery and the invariant gate both run on every push.
+- don't schedule the watcher — hosted CI cannot reach either upstream (89c9f98)
+- watch upstream daily, propose a regeneration, never publish one (134e0bf)
+- guard main, because main is what `npx skills add` installs (05eeade)
+
+
 ### Added
 
 - **`npm run oracle watch`** — checks Riftcodex for a new set or changed card counts in a
