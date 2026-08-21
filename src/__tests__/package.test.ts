@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -82,6 +83,20 @@ describe("packageSkill", () => {
       expect(listing).not.toContain("__pycache__");
       expect(listing).not.toContain("old.html");
     } finally { rmSync(src, { recursive: true }); rmSync(out, { recursive: true }); }
+  });
+
+  it("ships the licence inside the archive", () => {
+    // The zip and install.sh hand someone the code WITHOUT the repository
+    // around it. Without this they receive an unlicensed copy — the exact
+    // state the licence was added to end, in the path most likely to be
+    // redistributed onward.
+    const out = mkdtempSync(join(tmpdir(), "dist-"));
+    try {
+      packageSkill({ distDir: out, version: "9.9.9" });
+      const list = execFileSync("unzip", ["-Z1", join(out, "riftbound-rules-report-v9.9.9.zip")],
+                                { encoding: "utf-8" });
+      expect(list).toContain("rules-report/LICENSE");
+    } finally { rmSync(out, { recursive: true, force: true }); }
   });
 
   it("refuses to package a skill with no corpus", () => {

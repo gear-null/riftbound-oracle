@@ -109,5 +109,17 @@ no network at all — only the card artwork loads remotely, when you open a repo
 | [Changelog](CHANGELOG.md) | What changed, and which rules version each release ships |
 | [Contributing & design notes](docs/README.md) | How it's built, and what was measured to decide that |
 
-Riftbound is a trademark of Riot Games. This project is **unofficial and not endorsed by Riot**.
-No card artwork is redistributed — reports load it from Riot's CDN.
+## Licence and attribution
+
+The code is **MIT** — use it, fork it, sell something built on it, no attribution
+required. See [LICENSE](LICENSE).
+
+That covers this project's own work only. The Riftbound rules text under `output/`
+and the card text in the skill's data are **Riot Games' copyright**, included so a
+citation can be checked verbatim against the document it quotes, and used under
+Riot's policy for community projects. They travel under Riot's terms, not MIT.
+
+Riftbound is a trademark of Riot Games. This project is **unofficial and not
+endorsed by Riot Games**. No card artwork is redistributed: reports reference
+Riot's CDN by URL, and a reader with no network sees a labelled placeholder.
+[What is committed, and why](docs/content-and-licensing.md).
