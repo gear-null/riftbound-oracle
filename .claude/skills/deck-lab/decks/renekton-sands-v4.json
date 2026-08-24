@@ -1,0 +1,29 @@
+{
+ "name": "Renekton Sands v4",
+ "legend": "Renekton - Butcher of the Sands",
+ "chosen_champion": "Renekton, Brute",
+ "main": [
+  { "name": "Determined Sentry", "qty": 3 },
+  { "name": "Legion Marauder", "qty": 3 },
+  { "name": "Pit Rookie", "qty": 3 },
+  { "name": "Mischievous Marai", "qty": 3 },
+  { "name": "Gem Jammer", "qty": 2 },
+  { "name": "First Mate", "qty": 3 },
+  { "name": "Brutal Hunter", "qty": 3 },
+  { "name": "Grim Apothecary", "qty": 2 },
+  { "name": "Nidalee - Cat Form", "qty": 2 },
+  { "name": "Noxus Hopeful", "qty": 3 },
+  { "name": "Kai'Sa - Survivor", "qty": 2 },
+  { "name": "Rengar, Trophy Hunter", "qty": 2 },
+  { "name": "Renekton, Brute", "qty": 1 },
+  { "name": "Guttural Roar", "qty": 3 },
+  { "name": "Incinerate", "qty": 3 },
+  { "name": "Consuming Curse", "qty": 2 }
+ ],
+ "runes": [ { "name": "Body Rune", "qty": 12 } ],
+ "battlefields": [
+  { "name": "Seat of Power", "qty": 1 },
+  { "name": "Grove of the God-Willow", "qty": 1 },
+  { "name": "Fortified Position", "qty": 1 }
+ ]
+}
