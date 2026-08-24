@@ -1,0 +1,127 @@
+{
+ "name": "Shawn Dhaliwal 1st Place - Regional Qualifier: Houston",
+ "legend": "Annie, Dark Child",
+ "chosenChampion": "Annie, Stubborn",
+ "domains": [
+  "Fury",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Annie, Stubborn",
+   "code": "OGS-010",
+   "qty": 1
+  },
+  {
+   "name": "Darius, Trifarian",
+   "code": "OGN-027",
+   "qty": 3
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "code": "OGN-039",
+   "qty": 3
+  },
+  {
+   "name": "Vi, Destructive",
+   "code": "OGN-036",
+   "qty": 3
+  },
+  {
+   "name": "Pouty Poro",
+   "code": "UNL-220",
+   "qty": 3
+  },
+  {
+   "name": "Sneaky Deckhand",
+   "code": "OGN-176",
+   "qty": 3
+  },
+  {
+   "name": "Traveling Merchant",
+   "code": "OGN-185",
+   "qty": 3
+  },
+  {
+   "name": "Cleave",
+   "code": "OGN-004",
+   "qty": 3
+  },
+  {
+   "name": "Fight or Flight",
+   "code": "OGN-168",
+   "qty": 2
+  },
+  {
+   "name": "Flash",
+   "code": "OGS-011",
+   "qty": 3
+  },
+  {
+   "name": "Gust",
+   "code": "OGN-169",
+   "qty": 1
+  },
+  {
+   "name": "Rebuke",
+   "code": "OGN-172",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "code": "OGN-173",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 3
+  },
+  {
+   "name": "Void Seeker",
+   "code": "OGN-024",
+   "qty": 2
+  },
+  {
+   "name": "Scrapheap",
+   "code": "OGN-182",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 6
+  },
+  {
+   "name": "Fury Rune",
+   "code": "furyrune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "The Arena's Greatest",
+   "code": "OGN-290",
+   "qty": 1
+  },
+  {
+   "name": "The Dreaming Tree",
+   "code": "OGN-292",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "code": "OGN-298",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/bd4532f2-d433-42f2-89c8-594ba27ea0f0",
+  "author": "Piltover Archive (System)",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

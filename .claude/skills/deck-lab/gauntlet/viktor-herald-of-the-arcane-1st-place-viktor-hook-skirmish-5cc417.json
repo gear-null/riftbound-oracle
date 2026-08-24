@@ -1,0 +1,137 @@
+{
+ "name": "1st Place Viktor Hook Skirmish",
+ "legend": "Viktor, Herald of the Arcane",
+ "chosenChampion": "Viktor, Leader",
+ "domains": [
+  "Order",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Viktor, Leader",
+   "code": "OGN-246a",
+   "qty": 1
+  },
+  {
+   "name": "Daring Poro",
+   "code": "UNL-225",
+   "qty": 1
+  },
+  {
+   "name": "Faithful Manufactor",
+   "code": "OGN-211",
+   "qty": 3
+  },
+  {
+   "name": "Lecturing Yordle",
+   "code": "OGN-087",
+   "qty": 3
+  },
+  {
+   "name": "Machine Evangel",
+   "code": "OGN-239",
+   "qty": 2
+  },
+  {
+   "name": "Soaring Scout",
+   "code": "OGN-216",
+   "qty": 3
+  },
+  {
+   "name": "Spectral Matron",
+   "code": "OGN-226",
+   "qty": 3
+  },
+  {
+   "name": "Sprite Mother",
+   "code": "OGN-106",
+   "qty": 3
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "code": "OGN-116",
+   "qty": 1
+  },
+  {
+   "name": "Vanguard Captain",
+   "code": "OGN-218",
+   "qty": 3
+  },
+  {
+   "name": "Wraith of Echoes",
+   "code": "OGN-118",
+   "qty": 1
+  },
+  {
+   "name": "Cull the Weak",
+   "code": "OGN-209",
+   "qty": 2
+  },
+  {
+   "name": "Grand Strategem",
+   "code": "OGN-233",
+   "qty": 2
+  },
+  {
+   "name": "Hidden Blade",
+   "code": "OGN-213",
+   "qty": 3
+  },
+  {
+   "name": "Imperial Decree",
+   "code": "OGN-221",
+   "qty": 2
+  },
+  {
+   "name": "Siphon Power",
+   "code": "OGN-266",
+   "qty": 1
+  },
+  {
+   "name": "Baited Hook",
+   "code": "OGN-242",
+   "qty": 3
+  },
+  {
+   "name": "Seal of Unity",
+   "code": "SFD-238",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Mind Rune",
+   "code": "mindrune",
+   "qty": 4
+  },
+  {
+   "name": "Order Rune",
+   "code": "orderrune",
+   "qty": 8
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "The Candlelit Sanctum",
+   "code": "OGN-291",
+   "qty": 1
+  },
+  {
+   "name": "Trifarian War Camp",
+   "code": "OGN-294",
+   "qty": 1
+  },
+  {
+   "name": "Vilemaw's Lair",
+   "code": "OGN-295",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/30c6ae0f-fe2f-4e54-9e9e-96702863c70e",
+  "author": "Rudnuh",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

@@ -1,0 +1,127 @@
+{
+ "name": "Best of Teemo - 36th Place Houston Regionals",
+ "legend": "Teemo, Swift Scout",
+ "chosenChampion": "Teemo, Scout",
+ "domains": [
+  "Mind",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Dr. Mundo, Expert",
+   "code": "OGN-109",
+   "qty": 3
+  },
+  {
+   "name": "Teemo, Scout",
+   "code": "OGN-197",
+   "qty": 1
+  },
+  {
+   "name": "Ember Monk",
+   "code": "OGN-167",
+   "qty": 3
+  },
+  {
+   "name": "Ravenbloom Student",
+   "code": "OGN-103",
+   "qty": 3
+  },
+  {
+   "name": "Sprite Mother",
+   "code": "OGN-106",
+   "qty": 1
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "code": "OGN-116",
+   "qty": 2
+  },
+  {
+   "name": "Tideturner",
+   "code": "OGN-199",
+   "qty": 3
+  },
+  {
+   "name": "Consult the Past",
+   "code": "OGN-083",
+   "qty": 3
+  },
+  {
+   "name": "Fight or Flight",
+   "code": "OGN-168",
+   "qty": 3
+  },
+  {
+   "name": "Flash",
+   "code": "OGS-011",
+   "qty": 1
+  },
+  {
+   "name": "Gust",
+   "code": "OGN-169",
+   "qty": 3
+  },
+  {
+   "name": "Retreat",
+   "code": "OGN-104",
+   "qty": 3
+  },
+  {
+   "name": "Ride the Wind",
+   "code": "OGN-173",
+   "qty": 3
+  },
+  {
+   "name": "Sprite Call",
+   "code": "OGN-094",
+   "qty": 2
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 3
+  },
+  {
+   "name": "Stupefy",
+   "code": "OGN-095",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 5
+  },
+  {
+   "name": "Mind Rune",
+   "code": "mindrune",
+   "qty": 7
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Grove of the God-Willow",
+   "code": "OGN-280",
+   "qty": 1
+  },
+  {
+   "name": "The Dreaming Tree",
+   "code": "OGN-292",
+   "qty": 1
+  },
+  {
+   "name": "Windswept Hillock",
+   "code": "OGN-297",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/5c1c6789-c00e-45b5-8227-cb0e54f9b1bf",
+  "author": "Alex Gorica",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

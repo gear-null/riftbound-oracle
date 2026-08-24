@@ -1,0 +1,4 @@
+# Deliberately COMMITTED. Copying this folder has to be the entire install, so
+# the skill cannot reach into the repo for card data (ADR 0004). This is the
+# same file `rules-report` vendors, written by the same `oracle skill-data` run
+# so the two can never disagree about what a card says.

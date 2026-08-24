@@ -1,0 +1,2 @@
+# Deliberately COMMITTED. A deck under test needs real opponents on first use,
+# with no network and no maintainer command. Refresh with `oracle decks pull`.

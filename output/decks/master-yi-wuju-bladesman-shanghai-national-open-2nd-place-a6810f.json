@@ -1,0 +1,137 @@
+{
+ "name": "Shanghai National Open - 2nd Place",
+ "legend": "Master Yi, Wuju Bladesman",
+ "chosenChampion": "Master Yi, Honed",
+ "domains": [
+  "Body",
+  "Calm"
+ ],
+ "main": [
+  {
+   "name": "Master Yi, Honed",
+   "code": "OGS-009",
+   "qty": 1
+  },
+  {
+   "name": "Qiyana, Victorious",
+   "code": "OGN-155",
+   "qty": 3
+  },
+  {
+   "name": "Clockwork Keeper",
+   "code": "OGN-044",
+   "qty": 3
+  },
+  {
+   "name": "Deadbloom Predator",
+   "code": "OGN-161",
+   "qty": 1
+  },
+  {
+   "name": "First Mate",
+   "code": "OGN-132",
+   "qty": 2
+  },
+  {
+   "name": "Pit Rookie",
+   "code": "OGN-136",
+   "qty": 3
+  },
+  {
+   "name": "Stalwart Poro",
+   "code": "OGN-052",
+   "qty": 3
+  },
+  {
+   "name": "Tasty Faefolk",
+   "code": "OGN-075",
+   "qty": 2
+  },
+  {
+   "name": "Whiteflame Protector",
+   "code": "OGN-082",
+   "qty": 3
+  },
+  {
+   "name": "Charm",
+   "code": "OGN-043",
+   "qty": 3
+  },
+  {
+   "name": "Confront",
+   "code": "OGN-129",
+   "qty": 1
+  },
+  {
+   "name": "Defy",
+   "code": "OGN-045",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "code": "OGN-058",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "code": "OGN-046",
+   "qty": 2
+  },
+  {
+   "name": "Find Your Center",
+   "code": "OGN-047",
+   "qty": 3
+  },
+  {
+   "name": "Rune Prison",
+   "code": "OGN-050",
+   "qty": 1
+  },
+  {
+   "name": "Sabotage",
+   "code": "OGN-156",
+   "qty": 1
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "code": "OGN-077",
+   "qty": 2
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "code": "bodyrune",
+   "qty": 6
+  },
+  {
+   "name": "Calm Rune",
+   "code": "calmrune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Grove of the God-Willow",
+   "code": "OGN-280",
+   "qty": 1
+  },
+  {
+   "name": "Obelisk of Power",
+   "code": "OGN-284",
+   "qty": 1
+  },
+  {
+   "name": "Vilemaw's Lair",
+   "code": "OGN-295",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/dc4df112-aae2-4c15-b531-836781ab29b7",
+  "author": "Piltover Archive (System)",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

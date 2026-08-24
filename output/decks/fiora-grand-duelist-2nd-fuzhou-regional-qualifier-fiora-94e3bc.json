@@ -1,0 +1,136 @@
+{
+ "name": "2nd Fuzhou Regional Qualifier Fiora",
+ "legend": "Fiora, Grand Duelist",
+ "chosenChampion": null,
+ "domains": [
+  "Body",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Fiora, Victorious",
+   "code": "OGN-232",
+   "qty": 3
+  },
+  {
+   "name": "Fiora, Worthy",
+   "code": "SFD-180",
+   "qty": 1
+  },
+  {
+   "name": "Lucian, Merciless",
+   "code": "SFD-113",
+   "qty": 3
+  },
+  {
+   "name": "Sett, Brawler",
+   "code": "OGN-164",
+   "qty": 3
+  },
+  {
+   "name": "First Mate",
+   "code": "OGN-132",
+   "qty": 2
+  },
+  {
+   "name": "Pit Rookie",
+   "code": "OGN-136",
+   "qty": 3
+  },
+  {
+   "name": "Unsung Hero",
+   "code": "SFD-167",
+   "qty": 3
+  },
+  {
+   "name": "Call to Glory",
+   "code": "OGN-207",
+   "qty": 2
+  },
+  {
+   "name": "Challenge",
+   "code": "OGN-128",
+   "qty": 3
+  },
+  {
+   "name": "Hidden Blade",
+   "code": "OGN-213",
+   "qty": 3
+  },
+  {
+   "name": "Punch First",
+   "code": "SFD-097",
+   "qty": 2
+  },
+  {
+   "name": "Riposte",
+   "code": "SFD-206",
+   "qty": 3
+  },
+  {
+   "name": "Sabotage",
+   "code": "OGN-156",
+   "qty": 1
+  },
+  {
+   "name": "Salvage",
+   "code": "OGN-224",
+   "qty": 1
+  },
+  {
+   "name": "B.F. Sword",
+   "code": "SFD-161",
+   "qty": 3
+  },
+  {
+   "name": "Doran's Blade",
+   "code": "SFD-095",
+   "qty": 3
+  },
+  {
+   "name": "Warmog's Armor",
+   "code": "SFD-108",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "code": "bodyrune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "code": "orderrune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Monastery of Hirana",
+   "code": "OGN-282",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "code": "SFD-218",
+   "qty": 1
+  },
+  {
+   "name": "The Dreaming Tree",
+   "code": "OGN-292",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/b60e8a0b-94be-4b8b-8064-c1c28f6d713e",
+  "author": "challengertcg",
+  "meta": true,
+  "fetched": "2026-08-24"
+ },
+ "championCandidates": [
+  "Fiora, Victorious",
+  "Fiora, Worthy"
+ ]
+}

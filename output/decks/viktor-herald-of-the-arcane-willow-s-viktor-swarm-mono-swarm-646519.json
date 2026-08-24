@@ -1,0 +1,112 @@
+{
+ "name": "Willow's Viktor Swarm [Mono Swarm]",
+ "legend": "Viktor, Herald of the Arcane",
+ "chosenChampion": "Viktor, Leader",
+ "domains": [
+  "Order",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Viktor, Leader",
+   "code": "OGN-246a",
+   "qty": 1
+  },
+  {
+   "name": "Cruel Patron",
+   "code": "OGN-208",
+   "qty": 3
+  },
+  {
+   "name": "Faithful Manufactor",
+   "code": "OGN-211",
+   "qty": 3
+  },
+  {
+   "name": "Harnessed Dragon",
+   "code": "OGN-234",
+   "qty": 3
+  },
+  {
+   "name": "Machine Evangel",
+   "code": "OGN-239",
+   "qty": 3
+  },
+  {
+   "name": "Soaring Scout",
+   "code": "OGN-216",
+   "qty": 3
+  },
+  {
+   "name": "Vanguard Captain",
+   "code": "OGN-218",
+   "qty": 3
+  },
+  {
+   "name": "Watchful Sentry",
+   "code": "OGN-096",
+   "qty": 3
+  },
+  {
+   "name": "Cull the Weak",
+   "code": "OGN-209",
+   "qty": 3
+  },
+  {
+   "name": "Grand Strategem",
+   "code": "OGN-233",
+   "qty": 3
+  },
+  {
+   "name": "Hidden Blade",
+   "code": "OGN-213",
+   "qty": 3
+  },
+  {
+   "name": "Siphon Power",
+   "code": "OGN-266",
+   "qty": 3
+  },
+  {
+   "name": "Stupefy",
+   "code": "OGN-095",
+   "qty": 3
+  },
+  {
+   "name": "Seal of Unity",
+   "code": "SFD-238",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Order Rune",
+   "code": "orderrune",
+   "qty": 12
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Obelisk of Power",
+   "code": "OGN-284",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "code": "OGN-289",
+   "qty": 1
+  },
+  {
+   "name": "Trifarian War Camp",
+   "code": "OGN-294",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/fd0b8aa1-f276-492c-888d-e2f27293267c",
+  "author": "WillowCCG",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

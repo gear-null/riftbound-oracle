@@ -1,0 +1,152 @@
+{
+ "name": "#1 WIN IRELIA UTRECHT / SKIRMISH",
+ "legend": "Irelia, Blade Dancer",
+ "chosenChampion": "Irelia, Fervent",
+ "domains": [
+  "Calm",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Fizz, Trickster",
+   "code": "SFD-140",
+   "qty": 1
+  },
+  {
+   "name": "Irelia, Fervent",
+   "code": "SFD-057",
+   "qty": 1
+  },
+  {
+   "name": "Vex, Apathetic",
+   "code": "UNL-150",
+   "qty": 2
+  },
+  {
+   "name": "Adaptatron",
+   "code": "OGN-056",
+   "qty": 1
+  },
+  {
+   "name": "Scuttle Crab",
+   "code": "UNL-053",
+   "qty": 3
+  },
+  {
+   "name": "Stellacorn Herder",
+   "code": "SFD-048",
+   "qty": 2
+  },
+  {
+   "name": "Tideturner",
+   "code": "OGN-199",
+   "qty": 3
+  },
+  {
+   "name": "Charm",
+   "code": "OGN-043",
+   "qty": 2
+  },
+  {
+   "name": "Defiant Dance",
+   "code": "SFD-196",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "code": "OGN-045",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "code": "OGN-058",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "code": "OGN-046",
+   "qty": 2
+  },
+  {
+   "name": "Flash",
+   "code": "OGS-011",
+   "qty": 1
+  },
+  {
+   "name": "Gust",
+   "code": "OGN-169",
+   "qty": 2
+  },
+  {
+   "name": "Hard Bargain",
+   "code": "SFD-136",
+   "qty": 1
+  },
+  {
+   "name": "Not So Fast",
+   "code": "SFD-045",
+   "qty": 2
+  },
+  {
+   "name": "Rebuke",
+   "code": "OGN-172",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "code": "OGN-173",
+   "qty": 2
+  },
+  {
+   "name": "Boots of Swiftness",
+   "code": "SFD-133",
+   "qty": 2
+  },
+  {
+   "name": "Guardian Angel",
+   "code": "SFD-051",
+   "qty": 2
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "code": "OGN-077",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "code": "calmrune",
+   "qty": 6
+  },
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Abandoned Hall",
+   "code": "UNL-205",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "code": "SFD-218",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "code": "OGN-289",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/a14e8bb0-b9b7-4bf9-b7e7-739f3d31f5ca",
+  "author": "1amshony",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

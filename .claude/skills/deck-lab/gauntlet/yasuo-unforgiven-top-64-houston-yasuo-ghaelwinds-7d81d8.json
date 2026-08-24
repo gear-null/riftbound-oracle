@@ -1,0 +1,142 @@
+{
+ "name": "Top 64 Houston Yasuo - GhaelWinds",
+ "legend": "Yasuo, Unforgiven",
+ "chosenChampion": "Yasuo, Remorseful",
+ "domains": [
+  "Calm",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Yasuo, Remorseful",
+   "code": "OGN-076",
+   "qty": 1
+  },
+  {
+   "name": "Clockwork Keeper",
+   "code": "OGN-044",
+   "qty": 2
+  },
+  {
+   "name": "Mindsplitter",
+   "code": "OGN-192",
+   "qty": 3
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "code": "OGN-195",
+   "qty": 2
+  },
+  {
+   "name": "Stalwart Poro",
+   "code": "OGN-052",
+   "qty": 3
+  },
+  {
+   "name": "Tideturner",
+   "code": "OGN-199",
+   "qty": 2
+  },
+  {
+   "name": "Traveling Merchant",
+   "code": "OGN-185",
+   "qty": 3
+  },
+  {
+   "name": "Wielder of Water",
+   "code": "OGN-055",
+   "qty": 3
+  },
+  {
+   "name": "Charm",
+   "code": "OGN-043",
+   "qty": 1
+  },
+  {
+   "name": "Defy",
+   "code": "OGN-045",
+   "qty": 2
+  },
+  {
+   "name": "Discipline",
+   "code": "OGN-058",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "code": "OGN-046",
+   "qty": 3
+  },
+  {
+   "name": "Fight or Flight",
+   "code": "OGN-168",
+   "qty": 2
+  },
+  {
+   "name": "Gust",
+   "code": "OGN-169",
+   "qty": 2
+  },
+  {
+   "name": "Rebuke",
+   "code": "OGN-172",
+   "qty": 1
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 3
+  },
+  {
+   "name": "Mask of Foresight",
+   "code": "OGN-060",
+   "qty": 1
+  },
+  {
+   "name": "Scrapheap",
+   "code": "OGN-182",
+   "qty": 2
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "code": "OGN-077",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "code": "calmrune",
+   "qty": 6
+  },
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Targon's Peak",
+   "code": "OGN-289",
+   "qty": 1
+  },
+  {
+   "name": "Windswept Hillock",
+   "code": "OGN-297",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "code": "OGN-298",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/f265e0aa-d4e8-4f5f-acca-205219293ec1",
+  "author": "Ghael",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

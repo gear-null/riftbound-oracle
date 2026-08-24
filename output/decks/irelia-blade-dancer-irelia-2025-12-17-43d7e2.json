@@ -1,0 +1,132 @@
+{
+ "name": "Irelia 2025 12 17",
+ "legend": "Irelia, Blade Dancer",
+ "chosenChampion": "Irelia, Fervent",
+ "domains": [
+  "Calm",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Draven, Audacious",
+   "code": "SFD-148A",
+   "qty": 1
+  },
+  {
+   "name": "Irelia, Fervent",
+   "code": "SFD-057",
+   "qty": 3
+  },
+  {
+   "name": "Stellacorn Herder",
+   "code": "SFD-048",
+   "qty": 3
+  },
+  {
+   "name": "Defiant Dance",
+   "code": "SFD-196",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "code": "OGN-045",
+   "qty": 2
+  },
+  {
+   "name": "Discipline",
+   "code": "OGN-058",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "code": "OGN-046",
+   "qty": 3
+  },
+  {
+   "name": "Fight or Flight",
+   "code": "OGN-168",
+   "qty": 3
+  },
+  {
+   "name": "Gust",
+   "code": "OGN-169",
+   "qty": 2
+  },
+  {
+   "name": "Not So Fast",
+   "code": "SFD-045",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "code": "OGN-173",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 3
+  },
+  {
+   "name": "Wind Wall",
+   "code": "OGN-064",
+   "qty": 1
+  },
+  {
+   "name": "Boots of Swiftness",
+   "code": "SFD-133",
+   "qty": 1
+  },
+  {
+   "name": "Guardian Angel",
+   "code": "SFD-051",
+   "qty": 3
+  },
+  {
+   "name": "Heart of Dark Ice",
+   "code": "SFD-052",
+   "qty": 2
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "code": "OGN-077",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "code": "calmrune",
+   "qty": 6
+  },
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Aspirant's Climb",
+   "code": "OGN-276",
+   "qty": 1
+  },
+  {
+   "name": "Ravenbloom Conservatory",
+   "code": "SFD-215",
+   "qty": 1
+  },
+  {
+   "name": "The Dreaming Tree",
+   "code": "OGN-292",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/71708c76-5b3b-4e5c-8cef-14ad53ecbd6e",
+  "author": "Dezmu",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

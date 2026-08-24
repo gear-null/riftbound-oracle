@@ -1,0 +1,151 @@
+{
+ "name": "Leona - 2nd Nanjing City Challenge",
+ "legend": "Leona, Radiant Dawn",
+ "chosenChampion": null,
+ "domains": [
+  "Calm",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Fiora, Victorious",
+   "code": "OGN-232",
+   "qty": 2
+  },
+  {
+   "name": "Leona, Determined",
+   "code": "OGN-238",
+   "qty": 2
+  },
+  {
+   "name": "Leona, Zealot",
+   "code": "OGN-079a",
+   "qty": 2
+  },
+  {
+   "name": "Sett, Kingpin",
+   "code": "OGN-240",
+   "qty": 2
+  },
+  {
+   "name": "Eclipse Herald",
+   "code": "OGN-059",
+   "qty": 1
+  },
+  {
+   "name": "Solari Shieldbearer",
+   "code": "OGN-051",
+   "qty": 3
+  },
+  {
+   "name": "Tasty Faefolk",
+   "code": "OGN-075",
+   "qty": 1
+  },
+  {
+   "name": "Wielder of Water",
+   "code": "OGN-055",
+   "qty": 2
+  },
+  {
+   "name": "Call to Glory",
+   "code": "OGN-207",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "code": "OGN-043",
+   "qty": 1
+  },
+  {
+   "name": "Defy",
+   "code": "OGN-045",
+   "qty": 2
+  },
+  {
+   "name": "Discipline",
+   "code": "OGN-058",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "code": "OGN-046",
+   "qty": 2
+  },
+  {
+   "name": "Find Your Center",
+   "code": "OGN-047",
+   "qty": 1
+  },
+  {
+   "name": "Rune Prison",
+   "code": "OGN-050",
+   "qty": 3
+  },
+  {
+   "name": "Wind Wall",
+   "code": "OGN-064",
+   "qty": 1
+  },
+  {
+   "name": "Zenith Blade",
+   "code": "OGN-262",
+   "qty": 3
+  },
+  {
+   "name": "Mask of Foresight",
+   "code": "OGN-060",
+   "qty": 3
+  },
+  {
+   "name": "Spirit's Refuge",
+   "code": "OGN-063",
+   "qty": 1
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "code": "OGN-077",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "code": "calmrune",
+   "qty": 7
+  },
+  {
+   "name": "Order Rune",
+   "code": "orderrune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Monastery of Hirana",
+   "code": "OGN-282",
+   "qty": 1
+  },
+  {
+   "name": "The Dreaming Tree",
+   "code": "OGN-292",
+   "qty": 1
+  },
+  {
+   "name": "Vilemaw's Lair",
+   "code": "OGN-295",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/82f6aa0a-17be-42a0-88c1-9d6ad4a6a3ab",
+  "author": "moonfox",
+  "meta": true,
+  "fetched": "2026-08-24"
+ },
+ "championCandidates": [
+  "Leona, Determined",
+  "Leona, Zealot"
+ ]
+}

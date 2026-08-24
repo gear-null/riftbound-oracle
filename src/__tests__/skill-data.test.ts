@@ -1,8 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
-import { buildCardIndex, buildSkillData, cardStats, cardText, keysFor } from "../skill-data.js";
+import {
+  buildCardIndex, buildSkillData, cardStats, cardText, keysFor,
+  CARD_DATA_TARGETS, DECK_LAB_CARD_DATA, RULES_REPORT_CARD_DATA,
+} from "../skill-data.js";
 import type { RiftcodexCard } from "../riftcodex.js";
 
 function card(over: Partial<RiftcodexCard> & { name: string }): RiftcodexCard {
@@ -77,6 +80,7 @@ describe("cardText", () => {
     expect(cardText(c)).toBe("When you play your first card each turn...");
     expect(cardStats(c)).toEqual({
       energy: 7, might: 7, power: null, type: "Unit", rarity: "Epic", domain: ["Calm"],
+      supertype: null, tags: [],
     });
   });
 
@@ -187,7 +191,7 @@ describe("buildSkillData", () => {
     try {
       const out = join(dir, "cards.json");
       const opts = {
-        outputPath: out,
+        outputPaths: [out],
         listSets: async () => [{ set_id: "VEN", name: "Vendetta", card_count: 2 }] as never,
         listCards: async () => [
           card({ name: "Zed - Shadow" }),
@@ -213,7 +217,7 @@ describe("buildSkillData", () => {
     try {
       const out = join(dir, "nested", "deeper", "cards.json");
       await buildSkillData({
-        outputPath: out,
+        outputPaths: [out],
         listSets: async () => [{ set_id: "VEN", name: "Vendetta", card_count: 1 }] as never,
         listCards: async () => [card({ name: "Astral Heron" })],
       });
@@ -221,5 +225,76 @@ describe("buildSkillData", () => {
     } finally {
       rmSync(dir, { recursive: true });
     }
+  });
+});
+
+describe("deck legality fields", () => {
+  it("carries supertype and champion tags, which type alone cannot express", () => {
+    // A Chosen Champion must be a champion unit whose champion tag matches the
+    // legend (103.2.a.2), and a deck may hold only 3 Signature cards
+    // (103.2.d). `type` says "Unit" for a champion and a bear alike, so
+    // legality is undecidable without these two fields.
+    const s = cardStats(
+      card({
+        name: "Irelia, Fervent",
+        classification: { type: "Unit", supertype: "Champion", rarity: "Rare", domain: ["Calm"] },
+        tags: ["Irelia", "Ionia"],
+      })
+    );
+    expect(s.supertype).toBe("Champion");
+    expect(s.tags).toContain("Irelia");
+  });
+
+  it("defaults tags to an empty array so consumers never guard for undefined", () => {
+    expect(cardStats(card({ name: "Called Shot" })).tags).toEqual([]);
+  });
+});
+
+
+describe("card data fan-out", () => {
+  // Two skills vendor card data (ADR 0004 forbids either reaching into the
+  // other), and the whole point of writing them from one fetch is that they
+  // cannot disagree about what a card says. Every existing test passed a
+  // single-element array, so both the loop and the constant could be reduced to
+  // one target with the suite still green.
+  it("writes every target from one serialisation, byte for byte", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "fanout-"));
+    const a = join(dir, "a/cards.json");
+    const b = join(dir, "b/cards.json");
+    await buildSkillData({
+      outputPaths: [a, b],
+      listSets: async () => [{ set_id: "OGN", label: "Origins" }] as never,
+      listCards: async () => [card({ name: "Stellacorn Herder" })] as never,
+    });
+    expect(existsSync(a)).toBe(true);
+    expect(existsSync(b)).toBe(true);
+    expect(readFileSync(a, "utf-8")).toBe(readFileSync(b, "utf-8"));
+  });
+
+  it("ships both skills' paths as the default, so neither is left stale", () => {
+    expect(CARD_DATA_TARGETS).toContain(RULES_REPORT_CARD_DATA);
+    expect(CARD_DATA_TARGETS).toContain(DECK_LAB_CARD_DATA);
+    expect(DECK_LAB_CARD_DATA).toMatch(/deck-lab/);
+  });
+
+  it("leaves every target untouched when one of them cannot be written", async () => {
+    // Written in place one after another, a failure between them left one skill
+    // on new card data and the other on old — invisible afterwards, because
+    // both files look intact.
+    const dir = mkdtempSync(join(tmpdir(), "fanout-fail-"));
+    const good = join(dir, "good/cards.json");
+    mkdirSync(dirname(good), { recursive: true });
+    writeFileSync(good, "PREVIOUS", "utf-8");
+    // A path whose parent is a FILE cannot be created.
+    const blocker = join(dir, "blocker");
+    writeFileSync(blocker, "x", "utf-8");
+    await expect(
+      buildSkillData({
+        outputPaths: [good, join(blocker, "nested/cards.json")],
+        listSets: async () => [{ set_id: "OGN", label: "Origins" }] as never,
+        listCards: async () => [card({ name: "Stellacorn Herder" })] as never,
+      })
+    ).rejects.toThrow();
+    expect(readFileSync(good, "utf-8")).toBe("PREVIOUS");
   });
 });

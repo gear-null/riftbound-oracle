@@ -1,0 +1,137 @@
+{
+ "name": "2nd Place Houston Regional Qualifier ChallengerTCG Aurora Yi",
+ "legend": "Master Yi, Wuju Bladesman",
+ "chosenChampion": "Master Yi, Honed",
+ "domains": [
+  "Body",
+  "Calm"
+ ],
+ "main": [
+  {
+   "name": "Master Yi, Honed",
+   "code": "OGS-009",
+   "qty": 1
+  },
+  {
+   "name": "Volibear, Imposing",
+   "code": "OGN-158",
+   "qty": 1
+  },
+  {
+   "name": "Deadbloom Predator",
+   "code": "OGN-161",
+   "qty": 3
+  },
+  {
+   "name": "Mountain Drake",
+   "code": "OGN-142",
+   "qty": 2
+  },
+  {
+   "name": "Tasty Faefolk",
+   "code": "OGN-075",
+   "qty": 3
+  },
+  {
+   "name": "Whiteflame Protector",
+   "code": "OGN-082",
+   "qty": 2
+  },
+  {
+   "name": "Catalyst of Aeons",
+   "code": "OGN-138",
+   "qty": 3
+  },
+  {
+   "name": "Challenge",
+   "code": "OGN-128",
+   "qty": 1
+  },
+  {
+   "name": "Charm",
+   "code": "OGN-043",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "code": "OGN-045",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "code": "OGN-058",
+   "qty": 2
+  },
+  {
+   "name": "Find Your Center",
+   "code": "OGN-047",
+   "qty": 3
+  },
+  {
+   "name": "Mobilize",
+   "code": "OGN-134",
+   "qty": 3
+  },
+  {
+   "name": "Rune Prison",
+   "code": "OGN-050",
+   "qty": 2
+  },
+  {
+   "name": "Sabotage",
+   "code": "OGN-156",
+   "qty": 1
+  },
+  {
+   "name": "Wind Wall",
+   "code": "OGN-064",
+   "qty": 1
+  },
+  {
+   "name": "Dazzling Aurora",
+   "code": "OGN-160",
+   "qty": 3
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "code": "OGN-077",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "code": "bodyrune",
+   "qty": 6
+  },
+  {
+   "name": "Calm Rune",
+   "code": "calmrune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Aspirant's Climb",
+   "code": "OGN-276",
+   "qty": 1
+  },
+  {
+   "name": "Obelisk of Power",
+   "code": "OGN-284",
+   "qty": 1
+  },
+  {
+   "name": "Vilemaw's Lair",
+   "code": "OGN-295",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/4caee392-1648-4f05-ae66-1ab429d4317e",
+  "author": "Challenger TCG",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}
