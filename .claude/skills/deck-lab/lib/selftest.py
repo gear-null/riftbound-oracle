@@ -69,6 +69,14 @@ def fresh(seed=7, first=0):
     return table.Table([a, b], seed=seed, first=first).setup()
 
 
+def _next_random(t):
+    """The next number from t's generator, taken from a copy so t is untouched."""
+    import random as _r
+    clone = _r.Random()
+    clone.setstate(t.rng.getstate())
+    return clone.random()
+
+
 def _attacker_or_none(t, bf):
     """The Attacker, or None when the table cannot say — a failure, not a crash."""
     try:
@@ -240,11 +248,55 @@ def setup_rules():
     check("a different seed deals a different game",
           [p.hand for p in a.players] != [p.hand for p in c.players])
 
+    # A game is played across many commands, each of which reloads the table.
+    # Continuing the SAME stream is what makes a seed reproduce a game.
+    t = fresh(seed=5, first=0)
+    t.mulligan(0, set_aside=[t.player(0).hand[0]])
+    t.begin_turn(0)
+    direct = list(t.player(0).hand)
+    u = fresh(seed=5, first=0)
+    u.mulligan(0, set_aside=[u.player(0).hand[0]])
+    reloaded = table.Table.from_dict(json.loads(json.dumps(u.as_dict())), list(two_decks()))
+    reloaded.begin_turn(0)
+    check("a seeded game survives being saved and reloaded mid-play",
+          reloaded.player(0).hand == direct,
+          "the generator continues where it left off, rather than restarting")
+
     t = fresh()
-    kept = t.player(0).hand[:2]
-    t.mulligan(0, keep=kept)
-    check("a mulligan redraws to the same hand size (117)",
-          len(t.player(0).hand) == 4 and all(k in t.player(0).hand for k in kept))
+    aside = t.player(0).hand[:2]
+    kept = [c for c in t.player(0).hand if c not in aside]
+    t.mulligan(0, set_aside=aside)
+    check("a mulligan redraws to the same hand size (117.2)",
+          len(t.player(0).hand) == 4)
+    check("the cards not set aside are still in hand",
+          all(k in t.player(0).hand for k in kept))
+    check("a mulligan sets aside at most two cards (117.1)",
+          raises(lambda: fresh().mulligan(0, set_aside=fresh().player(0).hand[:3]),
+                 "at most"))
+
+    # 117.2 then 117.3: draw FIRST, recycle after. Shuffling the set-aside cards
+    # back before redrawing let a card you had just thrown away come right back.
+    #
+    # Cutting the deck to a single known card is what makes this decisive: in the
+    # right order the replacement can only be that card, and the set-aside one
+    # ends up in the deck. In the wrong order the deck holds both at draw time
+    # and which one is drawn is a coin flip, so it fails across seeds.
+    came_back = []
+    for seed in range(12):
+        t = fresh(seed=seed)
+        aside = [n for n in t.player(0).hand
+                 if t.player(0).hand.count(n) == 1][:1]
+        if not aside:
+            continue
+        filler = next(n for n in t.player(0).main_deck if n not in t.player(0).hand)
+        t.player(0).main_deck = [filler]
+        t.mulligan(0, set_aside=aside)
+        if aside[0] in t.player(0).hand or filler not in t.player(0).hand:
+            came_back.append(seed)
+    check("a set-aside card cannot be redrawn by the same mulligan (117.2/117.3)",
+          not came_back,
+          f"it goes back to the deck only after the replacement is drawn"
+          if not came_back else f"redrawn on seeds {came_back}")
 
 
 # -- the turn (314-317) --------------------------------------------------
@@ -344,6 +396,31 @@ def paying():
 
     check("an unpayable cost raises rather than going through",
           raises(lambda: t.pay(0, expensive), "cannot pay"))
+
+    # 164.2.b's Power ability costs "Recycle this", not "[E]" — an exhausted
+    # rune can still be recycled for Power. Requiring it readied refused
+    # payments the rules allow.
+    t = fresh(first=0)
+    t.begin_turn()
+    powered = next(
+        (n for n in t.player(0).main_deck
+         if (cards.power_cost(n) or 0) == 1
+         and set(cards.domains(n)) & {r.domain for r in t.runes if r.controller == 0}),
+        None,
+    )
+    if powered is None:
+        check("a Power-costed card exists in this deck to test with", False)
+    else:
+        t.player(0).hand.append(powered)
+        for r in [r for r in t.runes if r.controller == 0]:
+            r.exhausted = True
+        t.add_energy(0, cards.energy_cost(powered) or 0)
+        ok, why = t.can_pay(0, powered)
+        check("Power can be recycled from an EXHAUSTED rune (164.2.b)", ok,
+              why or f"{powered}: exhausted runes still recycle for Power")
+        t.pay(0, powered)
+        check("paying that way actually recycles the rune",
+              powered not in [r.name for r in t.runes])
 
 
 # -- movement and contesting (144, 190.3) --------------------------------
@@ -546,6 +623,9 @@ def scoring():
     t.battlefield(0).controller = 0
     t.score(0, 0, method="Conquer")
     check("scoring gains a point", t.player(0).points == 1)
+    # 469.2: a Hold is scored during the Beginning Phase and nowhere else.
+    check("a Hold outside the Beginning Phase is refused (469.2)",
+          raises(lambda: t.score(0, 1, method="Hold"), "Beginning Phase"))
     check("a battlefield cannot be scored twice in a turn (470)",
           raises(lambda: t.score(0, 0), "already scored"))
 
@@ -725,6 +805,10 @@ def persistence():
         ("scored_by", [b.scored_by for b in back.battlefields]
                       == [b.scored_by for b in t.battlefields]),
         ("next id", back._next_id == t._next_id),
+        # The seed alone does not reproduce a game. Every CLI command reloads
+        # the table, so a generator restarting at position 0 each time replays
+        # numbers the game has already used — same seed, different game.
+        ("rng position", back.rng.random() == _next_random(t)),
     ]
     lost = [name for name, ok in restored if not ok]
     check("a saved game restores every field of its state",
@@ -781,6 +865,30 @@ def privacy():
                   if n not in t.player(0).hand))
     check("a finished game can be reviewed in full",
           all(n in "\n".join(view.log_lines(t, full=True)) for n in t.player(1).hand))
+
+
+def journalling():
+    """Played games are few, so every number carries an n — and no free wins."""
+    import journal as j
+    import tempfile
+    original = j.JOURNAL
+    try:
+        j.JOURNAL = os.path.join(tempfile.mkdtemp(), "j.jsonl")
+        j.record({"deck": "A", "opponent": "A", "winner_deck": "A", "seed": 1})
+        rows = j.matchups("A")
+        check("a mirror match is not counted as a win (it is 50% by construction)",
+              rows and rows[0]["rate"] is None and rows[0]["games"] == 1,
+              str(rows))
+        j.record({"deck": "A", "opponent": "B", "winner_deck": "B", "seed": 2})
+        rows = {r["opponent"]: r for r in j.matchups("A")}
+        check("a real matchup is still counted",
+              rows["B"]["games"] == 1 and rows["B"]["wins"] == 0)
+        low, high = j.wilson(3, 4)
+        check("a 3-1 does not read as a confident 75%",
+              low < 0.4 and high < 1.0,
+              f"95% interval {low:.0%}-{high:.0%}")
+    finally:
+        j.JOURNAL = original
 
 
 def atomicity():
@@ -938,7 +1046,7 @@ def main():
     for section in (
         card_lookup, deck_legality, setup_rules, turn_structure, resources,
         paying, movement, combat, scoring, burn_out, persistence, rendering,
-        privacy, atomicity, documentation, action_scripts,
+        privacy, journalling, atomicity, documentation, action_scripts,
     ):
         print(f"{section.__name__}:")
         section()

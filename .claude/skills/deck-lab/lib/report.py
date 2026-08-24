@@ -21,9 +21,9 @@ REPORTS = os.path.join(os.path.dirname(HERE), "reports")
 CSS = """
 :root{--bg:#fbfaf8;--fg:#1a1a19;--dim:#6b6a66;--line:#e2e0da;--card:#ffffff;
 --accent:#7a5cff;--good:#1f8a5b;--warn:#b4620a;--bad:#b32d2d;--bar:#cfc7f5}
-:root:not([data-theme=light]){@media (prefers-color-scheme:dark){
-:root{--bg:#14140f;--fg:#eceae4;--dim:#98958c;--line:#2e2d27;--card:#1c1b16;
---accent:#a58cff;--good:#4fc08a;--warn:#e0913f;--bad:#e06a6a;--bar:#3b3470}}}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+--bg:#14140f;--fg:#eceae4;--dim:#98958c;--line:#2e2d27;--card:#1c1b16;
+--accent:#a58cff;--good:#4fc08a;--warn:#e0913f;--bad:#e06a6a;--bar:#3b3470}}
 :root[data-theme=dark]{--bg:#14140f;--fg:#eceae4;--dim:#98958c;--line:#2e2d27;
 --card:#1c1b16;--accent:#a58cff;--good:#4fc08a;--warn:#e0913f;--bad:#e06a6a;--bar:#3b3470}
 *{box-sizing:border-box}
@@ -156,6 +156,15 @@ def build(deck, trials=50000, out_path=None):
     else:
         rows_html = []
         for m in played:
+            # A mirror carries no rate — it is 50% by construction — so the row
+            # says so rather than rendering a number it does not have.
+            if m["rate"] is None:
+                rows_html.append(
+                    f"<tr><td>{esc(m['opponent'])}</td><td>—</td><td>—</td>"
+                    f"<td>{esc(m['notes'][0] if m['notes'] else '')}</td>"
+                    f"<td>{m['games']}</td></tr>"
+                )
+                continue
             rows_html.append(
                 f"<tr><td>{esc(m['opponent'])}</td><td>{m['wins']}–{m['games'] - m['wins']}</td>"
                 f"<td>{m['rate']:.0%}</td><td>{m['low']:.0%} – {m['high']:.0%}</td>"

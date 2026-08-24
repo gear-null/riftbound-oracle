@@ -71,7 +71,7 @@ def _act(t, argv):
     if verb == "cleanup":
         return t.cleanup()
     if verb == "mulligan":
-        return t.mulligan(_seat(rest[0]), keep=rest[1:])
+        return t.mulligan(_seat(rest[0]), set_aside=rest[1:])
 
     if verb == "draw":
         return t.draw(_seat(rest[0]), int(rest[1]) if len(rest) > 1 else 1)
@@ -257,7 +257,8 @@ def cmd_new(args):
     session.save(t, name, [args.deck_a, args.deck_b])
     print("\n".join(view.log_lines(t, seat=None)))
     print(f"\ngame '{session.slug(name)}' saved · seat 0 = {decks[0].name} · seat 1 = {decks[1].name}")
-    print("mulligans are next: `do 'mulligan 0 \"Card A\" \"Card B\"'` keeps only those cards")
+    print("mulligans are next: `do 'mulligan 0 \"Card A\"'` sets aside that card, "
+          "draws a replacement, then shuffles it back (117; at most two)")
 
 
 def cmd_state(args):
@@ -432,7 +433,8 @@ def cmd_help(args):
 actions for `do`
   beginturn [seat]             awaken, hold-score, channel, draw, into main phase
   endturn                      heal, expire, empty pools, pass the turn
-  mulligan <seat> [keep...]    keep only the named cards, redraw the rest
+  mulligan <seat> [card...]    set aside up to 2 named cards, draw that many,
+                               then shuffle the set-aside cards back (117)
   cast <seat> <card> [loc]     pay the cost, then resolve or put into play
   put <seat> <card> [loc] [from]  onto the board without paying. `from` is the
                                zone it came from: trash, main_deck, banished,

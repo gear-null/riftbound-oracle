@@ -31,6 +31,17 @@ class RulesError(Exception):
     """An action the rules do not allow. Raised instead of quietly proceeding."""
 
 
+def _jsonable_rng(state):
+    """`random.getstate()` as JSON: its middle element is a tuple of 625 ints."""
+    version, internal, gauss = state
+    return [version, list(internal), gauss]
+
+
+def _rng_from_json(raw):
+    version, internal, gauss = raw
+    return (version, tuple(internal), gauss)
+
+
 class Permanent:
     """A unit or gear on the board (140, 147)."""
 
@@ -264,27 +275,45 @@ class Table:
         self.note(f"victory score is {self.victory_target} — adjust with `target <n>` if a card changes it")
         return self
 
-    def mulligan(self, seat, keep=None):
+    #: 117.1 caps a mulligan at two cards.
+    MULLIGAN_MAX = 2
+
+    def mulligan(self, seat, set_aside=None):
         """Perform seat's mulligan (117).
 
-        `keep` is the cards kept from hand; everything else is shuffled back and
-        redrawn to the same hand size. Called with no argument, nothing is kept.
+        The arguments are the cards SET ASIDE, not the ones kept — 117.1 puts the
+        limit on what you set aside, so keeping is the wrong way round to express
+        it. At most two (117.1); draw that many (117.2); and only THEN recycle
+        the ones set aside (117.3).
+
+        The order matters and was wrong: shuffling them back before redrawing
+        let a card you had just thrown away come straight back, which is not a
+        mulligan the rules describe.
         """
         p = self.player(seat)
-        keep = list(keep or [])
-        for name in keep:
-            if name not in p.hand:
+        set_aside = list(set_aside or [])
+        if len(set_aside) > self.MULLIGAN_MAX:
+            raise RulesError(
+                f"a mulligan sets aside at most {self.MULLIGAN_MAX} cards, "
+                f"not {len(set_aside)} (117.1)"
+            )
+        remaining = list(p.hand)
+        for name in set_aside:
+            if name not in remaining:
                 raise RulesError(f"{name} is not in seat {seat}'s hand")
-        returned = list(p.hand)
-        for name in keep:
-            returned.remove(name)
-        if not returned:
-            return self.note(f"seat {seat} keeps a full hand")
-        p.hand = list(keep)
-        p.main_deck.extend(returned)
+            remaining.remove(name)
+        if not set_aside:
+            return self.note(f"seat {seat} keeps their hand")
+
+        # 117.1 set aside, 117.2 draw as many, 117.3 THEN recycle.
+        p.hand = remaining
+        self.draw(seat, len(set_aside), reason="mulligan")
+        p.main_deck.extend(set_aside)
+        # 431.2.b: cards recycled together are randomised.
         self.rng.shuffle(p.main_deck)
-        self.draw(seat, len(returned), reason="mulligan")
-        return self.note(f"seat {seat} mulligans {len(returned)}, keeps {len(keep)}")
+        return self.note(
+            f"seat {seat} mulligans {len(set_aside)}, keeping {len(remaining)}"
+        )
 
     # -- zone movement (the Game Actions of 413-444) ---------------------
 
@@ -610,18 +639,33 @@ class Table:
         """Is the printed cost payable from the pool plus readied runes?"""
         cost = self.cost_of(name)
         p = self.player(seat)
-        readied = [r for r in self.runes if r.controller == seat and not r.exhausted]
-        # Power must come from recycling a rune of a matching domain, or from
-        # Power already in the pool.
+        mine = [r for r in self.runes if r.controller == seat]
+        readied = [r for r in mine if not r.exhausted]
         usable_power = sum(
-            n for d, n in p.power.items() if not cost["domains"] or d in cost["domains"] or d == "Universal"
+            n for d, n in p.power.items()
+            if not cost["domains"] or d in cost["domains"] or d == "Universal"
         )
-        recyclable = [r for r in readied if not cost["domains"] or r.domain in cost["domains"]]
         power_short = max(cost["power"] - usable_power, 0)
-        if power_short > len(recyclable):
-            return False, f"needs {cost['power']} Power of {'/'.join(cost['domains']) or 'any domain'}"
-        # Each rune recycled for Power is a rune not available for Energy.
-        energy_capacity = p.energy + len(readied) - power_short
+
+        # 164.2.b's Power ability costs "Recycle this", not "[E]" — so an
+        # EXHAUSTED rune can still be recycled for Power. Requiring it to be
+        # readied refused payments the rules allow, which for a table is the
+        # failure that stops it being used.
+        def matching(runes):
+            return [r for r in runes
+                    if not cost["domains"] or r.domain in cost["domains"]]
+
+        spent_runes = matching([r for r in mine if r.exhausted])
+        from_exhausted = min(power_short, len(spent_runes))
+        from_readied = power_short - from_exhausted
+        if from_readied > len(matching(readied)):
+            return False, (
+                f"needs {cost['power']} Power of "
+                f"{'/'.join(cost['domains']) or 'any domain'}"
+            )
+        # Only a READIED rune spent on Power costs you Energy; an exhausted one
+        # had none left to give.
+        energy_capacity = p.energy + len(readied) - from_readied
         if cost["energy"] > energy_capacity:
             return False, f"needs {cost['energy']} Energy, can raise {max(energy_capacity, 0)}"
         return True, ""
@@ -650,11 +694,13 @@ class Table:
                 if not p.power[pooled]:
                     del p.power[pooled]
                 continue
-            rune = next(
-                (r for r in self.runes
-                 if r.controller == seat and not r.exhausted and (not wanted or r.domain in wanted)),
-                None,
-            )
+            # Spend an already-exhausted rune first: it has no Energy left to
+            # give, so recycling it costs the turn nothing else.
+            def usable(exhausted):
+                return [r for r in self.runes
+                        if r.controller == seat and r.exhausted is exhausted
+                        and (not wanted or r.domain in wanted)]
+            rune = next(iter(usable(True) + usable(False)), None)
             if rune is None:
                 raise RulesError(f"seat {seat} has no rune to produce {'/'.join(wanted)} Power")
             self.recycle_rune_for_power(seat, rune.id)
@@ -855,6 +901,12 @@ class Table:
     def score(self, seat, index, method="Conquer"):
         """Score a battlefield for seat, if it has not already scored it (470)."""
         bf = self.battlefield(index)
+        # 469.2: a Hold happens during the player's Beginning Phase. Awarding one
+        # at any other time invents a point the rules never grant.
+        if method == "Hold" and self.phase != BEGINNING:
+            raise RulesError(
+                f"a Hold is scored during the Beginning Phase, not {self.phase} (469.2)"
+            )
         if seat in bf.scored_by:
             raise RulesError(
                 f"seat {seat} already scored {bf.name} this turn — once per battlefield "
@@ -1130,6 +1182,13 @@ class Table:
     def as_dict(self):
         return {
             "seed": self.seed,
+            # The seed alone does not reproduce a game: every command reloads the
+            # table, and a fresh Random(seed) starts at position 0, so the next
+            # shuffle or draw repeats numbers the game has already used. Same
+            # seed, different game, depending on how many processes touched it —
+            # which makes "replay it with the same seed" untrue exactly when it
+            # matters, comparing two decks over the same shuffles.
+            "rng_state": _jsonable_rng(self.rng.getstate()),
             "turn": self.turn,
             "phase": self.phase,
             "turn_player": self.turn_player,
@@ -1157,6 +1216,7 @@ class Table:
         rollback is stale — re-fetch by id.
         """
         other = Table.from_dict(snapshot, [p.deck for p in self.players])
+        self.rng.setstate(other.rng.getstate())
         for field in ("turn", "phase", "turn_player", "first_player", "winner",
                       "victory_target", "second_player_channel_bonus_used",
                       "setup_done", "_next_id", "chain", "log", "text_shown",
@@ -1180,6 +1240,8 @@ class Table:
         t.setup_done = raw.get("setup_done", False)
         t._next_id = raw.get("next_id", 1)
         t.chain = list(raw.get("chain", []))
+        if raw.get("rng_state"):
+            t.rng.setstate(_rng_from_json(raw["rng_state"]))
         t.text_shown = set(raw.get("text_shown", []))
         t.log = list(raw.get("log", []))
         for p, saved in zip(t.players, raw["players"]):

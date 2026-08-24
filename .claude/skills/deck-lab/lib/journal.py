@@ -55,8 +55,16 @@ def wilson(wins, n, z=1.96):
 
 def matchups(deck):
     """Win/loss per opponent for one deck, from whichever seat it played."""
-    table = defaultdict(lambda: {"games": 0, "wins": 0, "seeds": [], "notes": []})
+    table = defaultdict(lambda: {"games": 0, "wins": 0, "seeds": [], "notes": [],
+                                 "mirror": False})
+    mirrors = 0
     for row in entries(deck):
+        # A mirror is 50% by construction: both seats are this deck, so one of
+        # them always wins and `winner_deck == deck` is trivially true. Counting
+        # it reported a 100% win rate against yourself.
+        if row.get("deck") == deck and row.get("opponent") == deck:
+            mirrors += 1
+            continue
         if row.get("deck") == deck:
             opponent, won = row.get("opponent"), row.get("winner_deck") == deck
         elif row.get("opponent") == deck:
@@ -70,6 +78,12 @@ def matchups(deck):
         if row.get("note"):
             cell["notes"].append(row["note"])
     out = []
+    if mirrors:
+        out.append({
+            "opponent": f"{deck} (mirror)", "games": mirrors, "wins": None,
+            "rate": None, "low": None, "high": None, "seeds": [],
+            "notes": ["a mirror is 50% by construction; excluded from the rates"],
+        })
     for opponent, cell in sorted(table.items()):
         low, high = wilson(cell["wins"], cell["games"])
         out.append({

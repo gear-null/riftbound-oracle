@@ -43,14 +43,19 @@ turn** — a game is expensive enough without a research step per decision. The
 rules corpus is for a genuine dispute, or for a card whose interaction you cannot
 settle from its text.
 
+**The mulligan.** Set aside **at most two** cards, draw that many, and only then
+shuffle the set-aside cards back (117). So `mulligan 0 "Card A"` throws that card away
+and draws one replacement — the card you threw cannot come back in the same mulligan.
+
 **The turn.** `beginturn <seat>` runs all of it: ready everything you control →
 Hold-score every battlefield you control (a point each) → channel 2 runes (3 for
 the player going second, on their first turn only) → draw 1 → empty both rune
 pools → Main Phase. `endturn` runs: heal all units → expire "this turn" effects →
 empty both pools → pass. You never perform those by hand.
 
-**Resources.** A rune pays *either* 1 Energy (exhaust it) *or* 1 Power of its
-domain (recycle it to the Rune Deck) — never both. So a card costing 3 Energy
+**Resources.** A rune pays *either* 1 Energy (exhaust it) *or* 1 Power of its domain
+(recycle it to the Rune Deck) — never both. Recycling does not need the rune readied, so
+an already-exhausted rune can still pay Power. So a card costing 3 Energy
 and 1 Power needs four runes, one of them matching a domain. `cast` works this
 out and tells you when it cannot. Pools empty entering the Main Phase and again
 at end of turn; nothing carries.
@@ -67,9 +72,9 @@ amount before any goes to another, and a 0-Might unit's minimum lethal is 1, not
 have units afterwards the attackers are recalled to base. Whoever is left alone
 at the battlefield takes control of it.
 
-**Scoring.** Taking a battlefield you did not already hold is a Conquer; holding
-one at the start of your turn is a Hold. Either scores once per battlefield per
-turn. First to 8 points wins — unless a card changed that number, in which case
+**Scoring.** Taking a battlefield you did not already hold is a Conquer; holding one at
+the start of your turn is a Hold — and a Hold happens in the Beginning Phase and nowhere
+else, which `beginturn` does for you. Either scores once per battlefield per turn. First to 8 points wins — unless a card changed that number, in which case
 `target <n>`. At 7, a Conquer only wins if you scored *every* battlefield that
 turn; otherwise you draw a card instead.
 
