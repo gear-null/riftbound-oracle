@@ -70,6 +70,26 @@ jobs:
           # The gate must refuse a bad citation, not merely report one.
           python3 rules_cli.py report flow-counter-answer.json --no-open
 
+      # The deck-lab table, on the same Python floor. It ships in the same
+      # repo and installs the same way, so it is guarded the same way. It has a
+      # selftest but no mutant harness yet, so its checks are not pinned to the
+      # standard docs/invariants.md holds rules-report to.
+      - name: The deck-lab table holds a game
+        working-directory: .claude/skills/deck-lab/lib
+        run: python3 deck_cli.py selftest
+
+      - name: Deck legality and shuffle math run end to end
+        working-directory: .claude/skills/deck-lab/lib
+        run: |
+          python3 deck_cli.py decks
+          python3 deck_cli.py check irelia-blade-dancer-irelia-2025-12-17
+          python3 deck_cli.py card "Stellacorn Herder"
+          python3 deck_cli.py analyze irelia-blade-dancer-irelia-2025-12-17 --trials 2000
+          # A game the table refuses to start is better than one it gets wrong.
+          python3 deck_cli.py new irelia-blade-dancer-irelia-2025-12-17 \
+            master-yi-wuju-bladesman-shanghai-national-open-2nd-place --seed 1 --first 0 --name ci
+          python3 deck_cli.py do 'beginturn 0' --quiet
+
   pipeline:
     name: pipeline
     runs-on: ubuntu-latest

@@ -50,6 +50,20 @@ python3 rules_cli.py build               # re-parse -> data/rules.json, index, r
 python3 rules_cli.py selftest            # must end "all N checks passed"
 ```
 
+`skill-data` writes card data to **both** skills that vendor it — `rules-report` and
+`deck-lab` — from one fetch, so the two can never end up disagreeing about what a card
+says. Adding a third skill that needs cards means adding it to `CARD_DATA_TARGETS`, not
+copying the file.
+
+The deck-lab gauntlet refreshes on its own cadence, because it tracks tournament results
+rather than Riot releases:
+
+```bash
+npm run oracle decks pull                # tournament decklists     (network)
+cd .claude/skills/deck-lab/lib
+python3 deck_cli.py selftest             # must end "N/N passed"
+```
+
 `build` regenerates `data/rules.json`, the FTS index and `data/rules.html` together.
 They must move as a set: report citations link to `rules.html#CR-<id>`, and a rules
 update renumbers IDs.
@@ -177,6 +191,13 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   invariant 12 is the whole reason a picture is publishable at all. Style 8, the
   closest match to this project's palette, is refused for exactly this reason —
   Fireworks will only hand-craft it.
+- **The deck-lab table must refuse rather than assume.** A permissive table produces
+  confident wrong games, which is worse than no table — see
+  [ADR 0007](adr/0007-the-table-not-the-player.md). When adding an action, decide what it
+  does when the rules forbid it *before* deciding what it does when they allow it.
+- **The table must never interpret card text.** It may print text verbatim and it may
+  refuse; the moment it starts applying an effect, every card it does not handle becomes
+  a silent wrong answer instead of a visible manual step.
 
 ## Repository layout
 
@@ -192,6 +213,14 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   data/                        vendored + committed (~2.6MB)
     diagrams/                  the shipped primers' diagrams, and the IR they came from
   reports/                     generated HTML reports (gitignored)
+
+.claude/skills/deck-lab/       <- THE OTHER PRODUCT. Same deal: copy the folder.
+  SKILL.md                     the procedure for building and testing a deck
+  lib/                         deck_cli.py — table, deck legality, shuffle math
+  data/cards.json              vendored + committed, written by `oracle skill-data`
+  gauntlet/                    tournament decklists, committed
+  decks/                       decks under construction
+  games/, reports/             working artifacts (gitignored)
 
                                --- maintainer side ---
 src/                     TypeScript pipeline (fetch, parse, normalise)
