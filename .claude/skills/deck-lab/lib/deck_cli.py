@@ -410,6 +410,82 @@ def cmd_journal(args):
               f" seed {row.get('seed')} · {row.get('turns')} turns · {row.get('points')}")
 
 
+def cmd_import(args):
+    """Turn a pasted decklist into a gauntlet opponent.
+
+    Four of the six decklist sites measured refuse scripted requests, so the
+    gauntlet cannot be built by scraping alone. Anything a person can copy can
+    be imported here.
+    """
+    import importer
+    text = sys.stdin.read() if args.file == "-" else open(args.file, encoding="utf-8").read()
+    try:
+        deck = importer.build(text, name=args.name, source=args.source,
+                              legend=args.legend, champion=args.champion)
+    except importer.ImportError_ as err:
+        print("could not import this list:")
+        print(err)
+        return 1
+    path = importer.save(deck, slug=args.slug)
+    loaded = deckfile.load(path)
+    result = deckfile.check(loaded)
+    print(f"{deck['name']} → {path}")
+    print(f"  legend    {deck['legend']}")
+    print(f"  champion  {deck['chosen_champion'] or 'UNRESOLVED'}")
+    if deck.get("chosen_champion_note"):
+        print(f"            {deck['chosen_champion_note']}")
+    print(f"  {sum(c['qty'] for c in deck['main'])} main · "
+          f"{sum(c['qty'] for c in deck['runes'])} runes · "
+          f"{sum(c['qty'] for c in deck['battlefields'])} battlefields")
+    print(f"\n{'LEGAL' if result.legal else 'NOT YET LEGAL'} for {deckfile.MODE['name']}")
+    for e in result.errors:
+        print(f"    {e}")
+    return 0 if result.legal else 1
+
+
+def cmd_gauntlet(args):
+    """What the gauntlet covers, and what it does not.
+
+    A gauntlet with no deck in your own domain pair tells you nothing about your
+    own mirror, and that gap is invisible until an analysis is already running.
+    """
+    import collections
+    decks = [deckfile.load(p) for p in deckfile.available()]
+    gauntlet = [d for d in decks if os.sep + "gauntlet" + os.sep in (d.path or "")]
+    by_pair = collections.Counter()
+    illegal = []
+    for d in gauntlet:
+        by_pair["/".join(sorted(d.domain_identity())) or "—"] += 1
+        if not deckfile.check(d).legal:
+            illegal.append(d.name)
+
+    print(f"{len(gauntlet)} deck(s) in the gauntlet\n")
+    print("  by domain identity:")
+    for pair, n in sorted(by_pair.items(), key=lambda x: (-x[1], x[0])):
+        print(f"    {n:>3}  {pair}")
+
+    pairs = sorted(cards.DOMAINS)
+    have = set(by_pair)
+    missing = [f"{a}/{b}" for i, a in enumerate(pairs) for b in pairs[i+1:]
+               if f"{a}/{b}" not in have]
+    print(f"\n{len(have)} of 15 domain pairings represented; missing "
+          f"{len(missing)}:\n{', '.join(missing)}")
+    if illegal:
+        print(f"\n{len(illegal)} NOT PLAYABLE: {', '.join(illegal)}")
+    if args.against:
+        try:
+            mine = deckfile.resolve(args.against)
+        except KeyError as err:
+            print(f"\n{err}")
+            return 1
+        pair = "/".join(sorted(mine.domain_identity()))
+        same = [d.name for d in gauntlet if "/".join(sorted(d.domain_identity())) == pair]
+        print(f"\n{mine.name} is {pair}; the gauntlet holds "
+              f"{len(same)} deck(s) in that pairing"
+              + (f": {', '.join(same)}" if same else " — no mirror to test against"))
+    return 0
+
+
 def cmd_selftest(args):
     import selftest
     return selftest.main()
@@ -425,6 +501,10 @@ def cmd_help(args):
     print(__doc__)
     print("""commands
   decks                        every deck in gauntlet/ and decks/, with legality
+  gauntlet [--against DECK]    what the gauntlet covers, and what it does not
+  import <file|-> [--name X]   paste a decklist from anywhere and make it an
+                               opponent. Most decklist sites block scraping, so
+                               this is how the gauntlet actually gets built
   check <deck>                 deck construction report (103)
   card <name>                  a card's printed text and stats
   analyze <deck>               shuffle math: curve, domain access, stranded cards
@@ -498,6 +578,10 @@ def main(argv=None):
     p.add_argument("--game"); p.add_argument("--quiet", action="store_true")
     p.add_argument("--verbose", action="store_true")
     sub.add_parser("games")
+    p = sub.add_parser("import"); p.add_argument("file")
+    p.add_argument("--name"); p.add_argument("--source"); p.add_argument("--slug")
+    p.add_argument("--legend"); p.add_argument("--champion")
+    p = sub.add_parser("gauntlet"); p.add_argument("--against")
     p = sub.add_parser("record")
     p.add_argument("--game"); p.add_argument("--note"); p.add_argument("--force", action="store_true")
     sub.add_parser("journal")
@@ -510,6 +594,7 @@ def main(argv=None):
         "decks": cmd_decks, "check": cmd_check, "card": cmd_card, "analyze": cmd_analyze,
         "report": cmd_report, "new": cmd_new, "state": cmd_state, "log": cmd_log,
         "do": cmd_do, "games": cmd_games, "record": cmd_record, "journal": cmd_journal,
+        "import": cmd_import, "gauntlet": cmd_gauntlet,
         "selftest": cmd_selftest, "mutants": cmd_mutants, "help": cmd_help,
     }.get(args.command, cmd_help)
     try:

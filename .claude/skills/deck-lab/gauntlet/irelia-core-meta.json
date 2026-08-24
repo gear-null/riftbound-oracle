@@ -1,0 +1,121 @@
+{
+ "name": "IRELIA core meta",
+ "legend": "Irelia - Blade Dancer",
+ "chosen_champion": "Irelia, Fervent",
+ "main": [
+  {
+   "name": "Adaptatron",
+   "qty": 1
+  },
+  {
+   "name": "Akali, Silent",
+   "qty": 1
+  },
+  {
+   "name": "Boots of Swiftness",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 2
+  },
+  {
+   "name": "Defiant Dance",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 2
+  },
+  {
+   "name": "Fizz - Trickster",
+   "qty": 1
+  },
+  {
+   "name": "Flash",
+   "qty": 2
+  },
+  {
+   "name": "Guardian Angel",
+   "qty": 2
+  },
+  {
+   "name": "Irelia, Fervent",
+   "qty": 1
+  },
+  {
+   "name": "Not So Fast",
+   "qty": 1
+  },
+  {
+   "name": "Pyke - Returned",
+   "qty": 1
+  },
+  {
+   "name": "Ride The Wind",
+   "qty": 2
+  },
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 2
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 1
+  },
+  {
+   "name": "Stellacorn Herder",
+   "qty": 3
+  },
+  {
+   "name": "Tideturner",
+   "qty": 3
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  },
+  {
+   "name": "Chaos Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Abandoned Hall",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "imported",
+  "meta": true,
+  "fetched": "2026-08-24",
+  "url": "https://hextechanalytics.com/legends/irelia"
+ }
+}

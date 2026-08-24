@@ -186,7 +186,13 @@ def champion_tags():
 
 
 def champion_tags_of(name):
-    """Just this card's champion tags — its traits and regions dropped."""
+    """Just this card's champion tags — its traits and regions dropped.
+
+    An absent name has no tags rather than raising: a deck under construction may
+    not have a legend yet, and a crash there takes a whole legality report down.
+    """
+    if not name or find(name) is None:
+        return set()
     return {t for t in tags(name) if t in champion_tags()}
 
 

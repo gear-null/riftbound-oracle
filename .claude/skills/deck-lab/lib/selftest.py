@@ -219,13 +219,16 @@ def deck_legality():
                & cards.champion_tags_of("Fizz - Trickster")))
     # Through the legality check itself, not just the helper: a Kennen legend
     # with Fizz — same Yordle trait, different champion — must be refused.
-    wrong = copy.deepcopy(legal[0])
-    wrong.legend = "Yordle, Kennen - Heart of the Tempest"
-    wrong.chosen_champion = "Fizz - Trickster"
-    wrong.main = [("Fizz - Trickster", 1)] + [m for m in wrong.main if m[0] != wrong.main[0][0]]
+    wrong = deckfile.Deck({
+        "name": "kennen legend with a fizz champion",
+        "legend": "Yordle, Kennen - Heart of the Tempest",
+        "chosen_champion": "Fizz - Trickster",
+        "main": [{"name": "Fizz - Trickster", "qty": 3}],
+        "runes": [], "battlefields": [],
+    })
     check("a deck whose champion shares only a trait is rejected (103.2.a.2)",
           any("champion tag" in e for e in deckfile.check(wrong).errors),
-          "; ".join(deckfile.check(wrong).errors)[:90])
+          "both are Yordles; only Kennen is the legend's CHAMPION tag")
 
     # A deck naming a card ambiguously is a different problem from one naming a
     # card that does not exist, and the message has to say which — "not in the
@@ -1016,6 +1019,96 @@ def _puts_from_trash(t):
     return perm in t.permanents and "Stellacorn Herder" not in p.trash
 
 
+def importing():
+    """Most decklist sites refuse scripted requests, so the gauntlet is built by
+    pasting text. That parser is the only route in, and a name it gets wrong is a
+    different card playing every game."""
+    import importer
+
+    LIST = """
+    Legend: Rengar, Pridestalker
+    Champion: Rengar, Trophy Hunter
+    Units (30)
+    3x Pit Rookie
+    3 Inferna
+    Nidalee - Cat Form x3
+    2x Kinkou Initiate [SFD-123]
+    # a comment
+    Spells
+    3x Punch First
+    Runes
+    8x Body Rune
+    4x Fury Rune
+    Battlefields
+    1x Seat of Power
+    """
+    try:
+        d = importer.build(LIST, name="fixture")
+    except importer.ImportError_ as err:
+        check("a well-formed pasted list imports at all", False, str(err)[:90])
+        return
+    qty = {c["name"]: c["qty"] for c in d["main"]}
+    check("every count notation is read the same way",
+          qty.get("Pit Rookie") == 3 and qty.get("Inferna") == 3
+          and qty.get("Nidalee - Cat Form") == 3 and qty.get("Kinkou Initiate") == 2,
+          "'3x N', '3 N' and 'N x3' all appear in lists people actually paste")
+    check("a set code after the name is not part of the name",
+          "Kinkou Initiate" in qty,
+          "bracketed, because cards.find already strips a parenthesised one — "
+          "testing the paren form proves nothing about this parser")
+    check("cards are filed by type, not by the heading above them",
+          [c["name"] for c in d["runes"]] == ["Body Rune", "Fury Rune"]
+          and [c["name"] for c in d["battlefields"]] == ["Seat of Power"],
+          "headings vary between sites; the card's own type does not")
+    check("the legend is taken from its own line and resolved",
+          d["legend"] == "Rengar - Pridestalker",
+          "written 'Rengar, Pridestalker' — the two spellings must meet")
+    check("section headings and comments are not read as cards",
+          all(c["name"] not in ("Units", "Spells", "Runes") for c in d["main"]))
+
+    # A wrong card is worse than a refused import.
+    try:
+        importer.build("Legend: Rengar, Pridestalker\n3x Not A Real Card", name="x")
+        bad = False
+    except importer.ImportError_ as err:
+        bad = "matches no card" in str(err)
+    check("an unknown card name refuses the whole import", bad)
+
+    try:
+        importer.build("Legend: Rengar, Pridestalker\n3x Master Yi", name="x")
+        amb = False
+    except importer.ImportError_ as err:
+        amb = "ambiguous" in str(err)
+    check("an ambiguous card name refuses rather than picking one", amb)
+
+    try:
+        importer.build("3x Pit Rookie", name="x")
+        noleg = False
+    except importer.ImportError_ as err:
+        noleg = "no legend" in str(err)
+    check("a list with no legend is refused (it decides Domain Identity)", noleg)
+
+    # Every problem at once: a list with three bad names should name three.
+    try:
+        importer.build("Legend: Rengar, Pridestalker\n1x Nope One\n1x Nope Two", name="x")
+        both = False
+    except importer.ImportError_ as err:
+        both = str(err).count("matches no card") == 2
+    check("every bad name is reported, not just the first",
+          both, "fixing a pasted list one error per run is why people give up")
+
+    check("an imported deck records its own provenance",
+          d["source"]["site"] == "imported"
+          and bool(re.match(r"^\d{4}-\d{2}-\d{2}$", d["source"].get("fetched", ""))),
+          "a decklist goes stale; without a date you cannot tell a current list "
+          "from one two sets old")
+
+    d2 = importer.build("Legend: Irelia, Blade Dancer\n3x Irelia, Fervent\n3x Irelia, Graceful",
+                        name="ambiguous champion")
+    check("an ambiguous Chosen Champion is left unset and explained",
+          d2["chosen_champion"] is None and "only the pilot knows" in d2.get("chosen_champion_note", ""))
+
+
 def documentation():
     """SKILL.md is the procedure an agent follows. Its examples have to run.
 
@@ -1104,7 +1197,7 @@ def main():
     for section in (
         card_lookup, deck_legality, setup_rules, turn_structure, resources,
         paying, movement, combat, scoring, burn_out, persistence, rendering,
-        privacy, journalling, atomicity, documentation, action_scripts,
+        privacy, journalling, atomicity, importing, documentation, action_scripts,
     ):
         print(f"{section.__name__}:")
         section()

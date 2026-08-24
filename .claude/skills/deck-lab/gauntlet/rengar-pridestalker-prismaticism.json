@@ -1,0 +1,109 @@
+{
+ "name": "Rengar Pridestalker (Prismaticism, Ottawa)",
+ "legend": "Rengar - Pridestalker",
+ "chosen_champion": "Rengar, Trophy Hunter",
+ "main": [
+  {
+   "name": "Darius - Trifarian",
+   "qty": 1
+  },
+  {
+   "name": "Ferrous Forerunner",
+   "qty": 1
+  },
+  {
+   "name": "First Mate",
+   "qty": 2
+  },
+  {
+   "name": "Grim Apothecary",
+   "qty": 2
+  },
+  {
+   "name": "Inferna",
+   "qty": 3
+  },
+  {
+   "name": "Irresistible Faefolk",
+   "qty": 3
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "qty": 3
+  },
+  {
+   "name": "Kinkou Initiate",
+   "qty": 3
+  },
+  {
+   "name": "Nidalee - Cat Form",
+   "qty": 3
+  },
+  {
+   "name": "Noxus Hopeful",
+   "qty": 3
+  },
+  {
+   "name": "Pakaa Cub",
+   "qty": 1
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 3
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Pyke - Dockside Butcher",
+   "qty": 1
+  },
+  {
+   "name": "Rampage",
+   "qty": 2
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 1
+  },
+  {
+   "name": "Sabotage",
+   "qty": 2
+  },
+  {
+   "name": "Thrill of the Hunt",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 8
+  },
+  {
+   "name": "Fury Rune",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Emperor's Dais",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Star Spring",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "imported",
+  "meta": true,
+  "fetched": "2026-08-24",
+  "url": "https://hextechanalytics.com/legends/rengar"
+ }
+}

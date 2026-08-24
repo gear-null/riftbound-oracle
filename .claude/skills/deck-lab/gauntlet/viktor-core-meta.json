@@ -1,0 +1,109 @@
+{
+ "name": "VIKTOR core meta",
+ "legend": "Viktor - Herald of the Arcane",
+ "chosen_champion": "Viktor - Leader",
+ "main": [
+  {
+   "name": "Bellows Breath",
+   "qty": 2
+  },
+  {
+   "name": "Card Sharp",
+   "qty": 3
+  },
+  {
+   "name": "Carrion Dredger",
+   "qty": 3
+  },
+  {
+   "name": "Cull the Weak",
+   "qty": 3
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 3
+  },
+  {
+   "name": "Honest Broker",
+   "qty": 2
+  },
+  {
+   "name": "Imperial Decree",
+   "qty": 3
+  },
+  {
+   "name": "Kennen, Keeper of Balance",
+   "qty": 1
+  },
+  {
+   "name": "Salvage",
+   "qty": 1
+  },
+  {
+   "name": "Shadow's Call",
+   "qty": 2
+  },
+  {
+   "name": "Singularity",
+   "qty": 2
+  },
+  {
+   "name": "Sprite Fountain",
+   "qty": 3
+  },
+  {
+   "name": "Stupefy",
+   "qty": 3
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "qty": 2
+  },
+  {
+   "name": "Time Warp",
+   "qty": 1
+  },
+  {
+   "name": "Vi - Peacekeeper",
+   "qty": 2
+  },
+  {
+   "name": "Viktor - Leader",
+   "qty": 1
+  },
+  {
+   "name": "Wages of Pain",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Mind Rune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forbidding Waste",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Treasure Hoard",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "imported",
+  "meta": true,
+  "fetched": "2026-08-24",
+  "url": "https://hextechanalytics.com/legends/viktor"
+ }
+}

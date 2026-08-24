@@ -180,14 +180,34 @@ Played games are expensive, so samples are small, and small samples lie confiden
   worth acting on. **The game logs are the finding; the percentage is decoration.**
 - Say which cards were never drawn. A card that did not appear was not tested.
 
-## Refreshing the gauntlet
+## Building the gauntlet
 
-From the repo root (maintainer side, needs network):
+**Check what you are actually testing against before you start:**
 
-    npm run oracle decks pull
+    gauntlet --against <your deck>
 
-Pulls current tournament lists into `output/decks/` and this skill's `gauntlet/`.
-Run it on demand, never on a schedule — see `docs/content-and-licensing.md`.
+It reports the gauntlet by domain identity and names the pairings missing. A
+gauntlet with no deck in your own pairing cannot tell you anything about your
+mirror, and that gap is otherwise invisible until an analysis is already running.
+
+Two ways to fill it. Scraping covers one site:
+
+    npm run oracle decks pull        # from the repo root; needs network
+
+**Most decklist sites refuse scripted requests** — four of six measured return a
+403 or reset the connection. So the main route is text:
+
+    import <file|-> --name "Deck" --source <url>
+
+Paste anything a person can copy: a site that blocks scraping, a tournament
+registration sheet, a list someone typed out. `3x Card`, `3 Card` and `Card x3`
+all read the same, headings and comments are ignored, and cards are filed by
+their own type rather than by the heading above them.
+
+It refuses rather than guesses. An unknown name, an ambiguous one ("Darius" is
+three cards), or a missing legend stops the import and names **every** problem at
+once. It also checks legality on the way in — that is how a transcription that
+dropped one card gets caught before it becomes a gauntlet opponent.
 
 Some pulled decks have no `chosen_champion`, because the list legally runs two champion
 units of the legend's tag and only the pilot knows which one sat in the Champion Zone.

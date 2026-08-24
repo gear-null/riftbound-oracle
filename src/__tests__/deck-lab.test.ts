@@ -72,10 +72,14 @@ describe("the pulled gauntlet", () => {
     }
   });
 
-  it("records where every deck came from", () => {
+  it("records where every deck came from and when", () => {
+    // A decklist goes stale. Every deck records its site and the date it
+    // arrived; a URL is optional because a pasted tournament registration
+    // sheet legitimately has none.
     for (const d of decks) {
-      expect(d.source?.url, `${d.name}`).toMatch(/^https:\/\//);
-      expect(d.source?.fetched).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(d.source?.site, `${d.name}`).toBeTruthy();
+      expect(d.source?.fetched, `${d.name}`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      if (d.source?.url) expect(d.source.url, `${d.name}`).toMatch(/^https:\/\//);
     }
   });
 });
