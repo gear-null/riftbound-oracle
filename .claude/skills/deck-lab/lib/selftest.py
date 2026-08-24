@@ -356,6 +356,17 @@ def combat():
           t.battlefield(0).controller == 0 and t.player(0).points == before + 1)
     check("units are healed after combat (466.1.a.1)", winner.damage == 0)
 
+    # 465.2.c.2: lethal is NON-ZERO damage equalling or exceeding Might. A plain
+    # `damage >= might` kills a 0-Might unit that was never assigned anything.
+    t = fresh(first=0)
+    t.begin_turn()
+    zero = stub_unit(t, 1, "Stellacorn Herder", "bf:0")
+    zero.buffs = -zero.base_might
+    stub_unit(t, 0, "Stellacorn Herder", "bf:0").buffs = -3
+    t.resolve_combat(0)
+    check("a 0-Might unit assigned no damage is not lethally damaged (465.2.c.2)",
+          zero in t.permanents)
+
     # Forgetting a unit's text is the one mistake combat makes irreversible:
     # "Stalwart Poro" reads "[Shield] (+1 Might while I'm a defender)" and dies
     # to 3 damage at 2 Might, survives at 3.
@@ -408,6 +419,9 @@ def scoring():
     t.score(0, 0, method="Conquer")
     check("a Conquer at 7 points draws instead of winning when a battlefield is unscored (471.1.b.1)",
           t.player(0).points == 7 and len(t.player(0).hand) == hand_before + 1)
+    check("a Score whose point was withheld still triggers the battlefield (471.2)",
+          any(t.battlefield(0).name in e["text"] and "reads:" in e["text"] for e in t.log)
+          or not cards.text(t.battlefield(0).name).strip())
     t.score(0, 1, method="Conquer")
     check("the final point lands once every battlefield has been scored that turn",
           t.player(0).points == 8)
@@ -415,12 +429,49 @@ def scoring():
     check("a finished game refuses to start another turn",
           raises(lambda: t.begin_turn(), "game is over"))
 
+    # 196: the game ends on the win, mid-phase. Continuing to channel and draw
+    # produces a final state that never legally existed.
+    t = fresh(first=0)
+    t.begin_turn()
+    stub_unit(t, 1, "Irelia, Fervent", "bf:0")
+    t.battlefield(0).controller = 1
+    t.player(1).points = 7
+    runes_before = len([r for r in t.runes if r.controller == 1])
+    hand_before = len(t.player(1).hand)
+    t.end_turn()
+    t.begin_turn()
+    check("a win during the Scoring Step stops the turn there (196)",
+          t.winner == 1
+          and len([r for r in t.runes if r.controller == 1]) == runes_before
+          and len(t.player(1).hand) == hand_before)
+
     t = fresh(first=0)
     t.begin_turn()
     t.battlefield(0).controller = 1
     t.cleanup()
     check("control is lost when no units remain there (190.4.c)",
           t.battlefield(0).controller is None)
+
+    # Moving in alone is the commonest way this game is scored, and it does not
+    # go through combat — nothing established control, so the point never came.
+    t = fresh(first=0)
+    t.begin_turn()
+    lone = stub_unit(t, 0, "Irelia, Fervent", "base:0")
+    t.standard_move(lone.id, "bf:0")
+    t.cleanup()
+    check("moving alone onto an empty battlefield takes control and Conquers (466.5.d)",
+          t.battlefield(0).controller == 0 and t.player(0).points == 1
+          and not t.battlefield(0).contested)
+
+    # 190.4.b: while both sides are present a cleanup settles nothing.
+    t = fresh(first=0)
+    t.begin_turn()
+    a = stub_unit(t, 0, "Irelia, Fervent", "base:0")
+    stub_unit(t, 1, "Irelia, Fervent", "bf:0")
+    t.standard_move(a.id, "bf:0")
+    t.cleanup()
+    check("a cleanup does not hand control to either side while a combat is staged (190.4.b)",
+          t.battlefield(0).controller is None and t.battlefield(0).contested)
 
     # "Aspirant's Climb" reads "Increase the points needed to win the game by 1".
     # A hard-coded 8 would hand the game over a full point early.

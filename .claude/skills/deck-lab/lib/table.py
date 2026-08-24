@@ -653,6 +653,12 @@ class Table:
         for bf in self.battlefields:
             if bf.controller == seat:
                 self.score(seat, bf.index, method="Hold")
+        if self.winner is not None:
+            # 196: when a player wins, the game ends — it does not finish the
+            # phase. Channelling and drawing past the win leaves a final state
+            # that never legally existed.
+            self.note("the game ended during the Scoring Step; no further steps run")
+            return self.phase
 
         # 315.3 Channel — 2 runes, plus one for the player going second on their
         # first turn of the game (485.7).
@@ -696,7 +702,7 @@ class Table:
         return self.turn_player
 
     def cleanup(self):
-        """A Cleanup (318): lose uncontested control, clear stale contests, check victory."""
+        """A Cleanup (318): settle control at every battlefield, then check victory."""
         for bf in self.battlefields:
             here = self.units_at(bf.location)
             controllers = {u.controller for u in here}
@@ -704,8 +710,19 @@ class Table:
                 # 190.4.c: no units there and the turn is open → control is lost.
                 self.note(f"seat {bf.controller} loses control of {bf.name} (190.4.c)")
                 bf.controller = None
-            if bf.contested and len(controllers) <= 1:
-                bf.contested = False
+            if not bf.contested or len(controllers) > 1:
+                # Two players present is a staged combat, not something a
+                # cleanup settles — control cannot change until the steps of
+                # combat say so (190.4.b).
+                continue
+            bf.contested = False
+            if len(controllers) == 1:
+                # A unit moved onto a battlefield nobody was holding, and the
+                # showdown closed with only that player present: they establish
+                # control, which is a Conquer (466.5, 469.1). Leaving this to be
+                # done by hand loses a point every time it is forgotten, and
+                # moving in alone is the commonest way the game is scored at all.
+                self.establish_control(next(iter(controllers)), bf.index)
         self.check_victory()
 
     # -- scoring (467-472) -----------------------------------------------
@@ -734,16 +751,22 @@ class Table:
                     "this turn — draws a card instead of the final point (471.1.b.1)"
                 )
                 self.draw(seat, 1, reason="final point denied")
+                # 471.2: the Score happened, so the battlefield's Score
+                # abilities trigger — only the point was withheld.
+                self._note_score_trigger(bf)
                 return p.points
         else:
             p.points += 1
             self.note(f"seat {seat} SCORES {bf.name} by {method} → {p.points} point(s)")
 
+        self._note_score_trigger(bf)
+        self.check_victory()
+        return p.points
+
+    def _note_score_trigger(self, bf):
         trigger = cards.text(bf.name) if cards.find(bf.name) else ""
         if trigger:
             self.note(f"  {bf.name} reads: {trigger}")
-        self.check_victory()
-        return p.points
 
     def establish_control(self, seat, index):
         """Give seat control of a battlefield, Conquering it if not yet scored (466.5)."""
@@ -898,8 +921,10 @@ class Table:
                 perm.damage += amount
                 self.note(f"  {perm.name} [{oid}] takes {amount} damage ({perm.damage}/{perm.might})")
 
-        # Lethal damage kills (428). Simultaneous, so both sides can die.
-        dead = [u for u in attackers + defenders if u.damage >= u.might and u.might >= 0]
+        # Lethal damage kills (428), and lethal is NON-ZERO damage equalling or
+        # exceeding Might (465.2.c.2) — so a 0-Might unit that was assigned
+        # nothing survives, where a plain `damage >= might` kills it.
+        dead = [u for u in attackers + defenders if u.damage > 0 and u.damage >= u.might]
         for unit in dead:
             self.to_trash(unit.id, reason="lethal combat damage")
 

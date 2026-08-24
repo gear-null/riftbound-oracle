@@ -65,6 +65,11 @@ def act(t, argv):
         # Pay, then put it where it goes. A spell's text is printed for the
         # reader to apply; a unit or gear arrives on the board.
         seat, name = _seat(rest[0]), rest[1]
+        # The destination is checked BEFORE the cost is paid. Validating it
+        # afterwards meant a typo'd location left the runes spent and the card
+        # nowhere — a state no sequence of actions could undo.
+        if len(rest) > 2:
+            t._require_location(_loc(rest[2]))
         t.pay(seat, name)
         if cards.card_type(name) == cards.SPELL:
             return f"{name}: {t.play_spell(seat, name)}"

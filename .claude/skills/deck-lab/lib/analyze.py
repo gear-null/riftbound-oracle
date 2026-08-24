@@ -65,7 +65,8 @@ def simulate(deck, turns=8, trials=20000, on_the_play=True, seed=1, mode=MODE):
     castable_count = [0] * (turns + 1)
     hand_size = [0] * (turns + 1)
     stranded = [0] * (turns + 1)
-    domain_online = {d: [0] * (turns + 1) for d in set(cards.domains(n) and cards.domains(n)[0] for n in runes if cards.domains(n))}
+    rune_domains_in_deck = {cards.domains(n)[0] for n in runes if cards.domains(n)}
+    domain_online = {d: [0] * (turns + 1) for d in rune_domains_in_deck}
     power_denied = [0] * (turns + 1)
 
     for _ in range(trials):
@@ -81,8 +82,9 @@ def simulate(deck, turns=8, trials=20000, on_the_play=True, seed=1, mode=MODE):
             take = per_turn + (extra if turn == 1 else 0)
             board_runes.extend(rune_order[len(board_runes):len(board_runes) + take])
             rune_domains = [cards.domains(r)[0] if cards.domains(r) else None for r in board_runes]
-            hand.append(deck_order[drawn]) if drawn < len(deck_order) else None
-            drawn = min(drawn + 1, len(deck_order))
+            if drawn < len(deck_order):
+                hand.append(deck_order[drawn])
+                drawn += 1
 
             playable = [n for n in hand if castable(n, rune_domains, reqs[n])]
             any_play[turn] += 1 if playable else 0
