@@ -151,6 +151,45 @@ def text(name):
     return require(name).get("text", "")
 
 
+_CHAMPION_TAGS = None
+
+
+def champion_tags():
+    """The tags that name a champion, as opposed to a trait or a region.
+
+    103.2.a.2 binds a Chosen Champion to its Legend by CHAMPION tag, and 103.2.d.2
+    scopes Signature cards the same way. Matching on any shared tag was too
+    loose: a Kennen legend is tagged ['Yordle', 'Kennen'], so Fizz — also a
+    Yordle — passed as a legal Chosen Champion for it.
+
+    Derived rather than listed: a champion tag is one that is also the name a
+    champion card is printed under ("Kennen" is the base of "Kennen - Heart of
+    the Tempest"; "Yordle" is the base of nothing). That keeps working when a
+    set adds champions, which a hardcoded list would not.
+    """
+    global _CHAMPION_TAGS
+    if _CHAMPION_TAGS is None:
+        bases = set()
+        for entry in pool().values():
+            # "Kennen, Keeper of Balance" has no space before its comma, and
+            # "Ahri, Nine-Tailed Fox" has a hyphen with no space after it — so
+            # the separator is punctuation followed by whitespace.
+            base = re.split(r"\s*[-,]\s+", entry["name"])[0].strip()
+            if entry["stats"].get("supertype") == "Champion" and base:
+                bases.add(base)
+        _CHAMPION_TAGS = {
+            t for entry in pool().values()
+            for t in (entry["stats"].get("tags") or [])
+            if t in bases
+        }
+    return _CHAMPION_TAGS
+
+
+def champion_tags_of(name):
+    """Just this card's champion tags — its traits and regions dropped."""
+    return {t for t in tags(name) if t in champion_tags()}
+
+
 def is_champion(name):
     return supertype(name) == "Champion"
 

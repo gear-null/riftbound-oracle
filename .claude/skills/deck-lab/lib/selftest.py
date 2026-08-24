@@ -48,6 +48,14 @@ def raises(fn, fragment=""):
 
 # -- fixtures ------------------------------------------------------------
 
+def _lookup_message(name):
+    try:
+        cards.require(name)
+    except KeyError as err:
+        return str(err)
+    return ""
+
+
 def _ambiguity_message_names_options():
     try:
         cards.require("Master Yi")
@@ -162,14 +170,13 @@ def deck_legality():
     decks = [deckfile.load(p) for p in deckfile.available()]
     results = [(d, deckfile.check(d)) for d in decks]
     legal = [d for d, r in results if r.legal]
-    check(
-        "the pulled gauntlet is legal apart from unresolved champions",
-        all(
-            r.legal or all("103.2.a.1" in e for e in r.errors)
-            for _, r in results
-        ),
-        f"{len(legal)}/{len(results)} fully legal",
-    )
+    # Every shipped deck must be playable. Tolerating unresolved champions meant
+    # 5 of 24 shipped unusable and nothing said so.
+    illegal = [(d.name, r.errors[:1]) for d, r in results if not r.legal]
+    check("every deck that ships is legal and playable",
+          not illegal,
+          f"{len(legal)}/{len(results)} legal"
+          + ("" if not illegal else f" — {illegal[0][0]}: {illegal[0][1]}"))
 
     d = copy.deepcopy(legal[0])
     d.main = [(n, 4 if i == 0 else q) for i, (n, q) in enumerate(d.main)]
@@ -183,13 +190,53 @@ def deck_legality():
 
     d = copy.deepcopy(legal[0])
     d.chosen_champion = None
+    # Cite the rule, not merely the field name: with the 103.2.a.1 branch removed
+    # the code still errors — "chosen_champion None is not in the card pool" —
+    # so matching on the field name passed while the rule was gone.
     check("a deck with no Chosen Champion is rejected (103.2.a.1)",
-          any("chosen_champion" in e for e in deckfile.check(d).errors))
+          any("103.2.a.1" in e for e in deckfile.check(d).errors),
+          "; ".join(deckfile.check(d).errors)[:80])
 
     d = copy.deepcopy(legal[0])
     d.battlefields = [(d.battlefields[0][0], 3)]
     check("duplicate battlefield names are rejected (103.4.c)",
           any("distinct names" in e for e in deckfile.check(d).errors))
+
+    # 103.2.a.2 binds by CHAMPION tag. A legend also carries traits and regions —
+    # a Kennen legend is tagged ['Yordle', 'Kennen'] — so matching on any shared
+    # tag let Fizz, also a Yordle, pass as its Chosen Champion.
+    ct = cards.champion_tags()
+    check("champion tags are told apart from traits and regions (103.2.a.2)",
+          "Yordle" not in ct and "Kennen" in ct,
+          f"{len(ct)} champion tags derived")
+    check("every legend in the pool has a derivable champion tag",
+          not [v for v in cards.pool().values()
+               if v["stats"]["type"] == cards.LEGEND
+               and not (set(v["stats"].get("tags") or []) & ct)],
+          "a legend with none would accept any champion at all")
+    check("a champion sharing only a trait is not a legal Chosen Champion",
+          not (cards.champion_tags_of("Yordle, Kennen - Heart of the Tempest")
+               & cards.champion_tags_of("Fizz - Trickster")))
+    # Through the legality check itself, not just the helper: a Kennen legend
+    # with Fizz — same Yordle trait, different champion — must be refused.
+    wrong = copy.deepcopy(legal[0])
+    wrong.legend = "Yordle, Kennen - Heart of the Tempest"
+    wrong.chosen_champion = "Fizz - Trickster"
+    wrong.main = [("Fizz - Trickster", 1)] + [m for m in wrong.main if m[0] != wrong.main[0][0]]
+    check("a deck whose champion shares only a trait is rejected (103.2.a.2)",
+          any("champion tag" in e for e in deckfile.check(wrong).errors),
+          "; ".join(deckfile.check(wrong).errors)[:90])
+
+    # A deck naming a card ambiguously is a different problem from one naming a
+    # card that does not exist, and the message has to say which — "not in the
+    # card pool" sent the reader looking for a data problem that is not there.
+    amb = copy.deepcopy(legal[0])
+    amb.main = [("Master Yi", 1)] + amb.main[1:]
+    amb_errors = deckfile.check(amb).errors
+    check("a deck naming an ambiguous card says so, not 'not in the card pool'",
+          any("ambiguous" in e for e in amb_errors)
+          and not any("not in the card pool" in e and "Master Yi" in e for e in amb_errors),
+          "; ".join(amb_errors)[:90])
 
     check("format legality is reported as unchecked, not as a pass",
           any("103.2.e" in u for u in deckfile.check(legal[0]).unchecked))

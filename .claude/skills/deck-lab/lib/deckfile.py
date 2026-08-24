@@ -156,10 +156,28 @@ def check(deck, mode=MODE):
     """Check a deck against rule 103, for the given mode of play."""
     r = Legality()
 
-    unknown = [n for n, _ in deck.main + deck.runes + deck.battlefields if not cards.find(n)]
-    if not cards.find(deck.legend):
-        unknown.append(deck.legend)
-    if unknown:
+    named = [n for n, _ in deck.main + deck.runes + deck.battlefields] + [deck.legend]
+    unknown, ambiguous = [], []
+    for n in named:
+        if cards.find(n):
+            continue
+        # "not in the card pool" for a name that IS in the pool — just under
+        # several cards — sends the reader looking for a data problem that is
+        # not there. The two cases get different messages.
+        options = cards.candidates(n)
+        (ambiguous if options else unknown).append(
+            f"{n} (could be {', '.join(options)})" if options else n
+        )
+    if ambiguous:
+        r.errors.append(
+            "ambiguous card name(s) — say which printing the deck runs: "
+            + "; ".join(sorted(set(ambiguous)))
+        )
+    if unknown or ambiguous:
+        if unknown:
+            r.errors.append(f"not in the card pool: {', '.join(sorted(set(unknown)))}")
+        return r
+    if False:
         # Every later check reads stats off the pool, so an unknown card makes
         # the rest of this report meaningless rather than merely incomplete.
         r.errors.append(f"not in the card pool: {', '.join(sorted(set(unknown)))}")
@@ -206,13 +224,15 @@ def check(deck, mode=MODE):
             )
 
     # 103.2.d — at most 3 Signature cards, all bearing the legend's champion tag.
-    legend_tags = set(cards.tags(deck.legend))
+    # CHAMPION tags only: a legend also carries traits and regions, and matching
+    # on those let any Yordle champion pass as a Kennen legend's Chosen Champion.
+    legend_tags = cards.champion_tags_of(deck.legend)
     signatures = [(n, q) for n, q in deck.main if cards.is_signature(n)]
     sig_total = sum(_tally(signatures).values())
     if sig_total > mode["max_signature"]:
         r.errors.append(f"{sig_total} Signature cards, limit is {mode['max_signature']} (103.2.d.1)")
     for name, _ in signatures:
-        if legend_tags and not (set(cards.tags(name)) & legend_tags):
+        if legend_tags and not (cards.champion_tags_of(name) & legend_tags):
             r.errors.append(
                 f"{name} is a Signature card without the legend's champion tag "
                 f"({'/'.join(sorted(legend_tags))}) (103.2.d.2)"
@@ -228,7 +248,7 @@ def check(deck, mode=MODE):
         else:
             if not cards.is_champion(cc) or cards.card_type(cc) != cards.UNIT:
                 r.errors.append(f"{cc} is not a champion unit (103.2.a.2)")
-            if legend_tags and not (set(cards.tags(cc)) & legend_tags):
+            if legend_tags and not (cards.champion_tags_of(cc) & legend_tags):
                 r.errors.append(
                     f"{cc} does not carry the legend's champion tag "
                     f"({'/'.join(sorted(legend_tags))}) (103.2.a.2)"

@@ -131,7 +131,7 @@ card that suits its plan.
 
 So the report keeps its two halves apart, and says which is which:
 
-- **Shuffle math** at 50,000 hands — curve reachability, domain access, cards stranded in
+- **Shuffle math** at 50,000 hands in the report — curve reachability, domain access, cards stranded in
   hand, hands blocked on Power rather than Energy. No decisions are involved, so it is
   exact and it is cheap.
 - **Played games** at the sample size games are actually played at, with `n` and a Wilson

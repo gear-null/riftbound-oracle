@@ -86,17 +86,40 @@ jobs:
         working-directory: .claude/skills/deck-lab/lib
         run: python3 deck_cli.py selftest
 
-      - name: Deck legality and shuffle math run end to end
+      # Copying the folder has to be the whole install (ADR 0004), so this runs
+      # the skill with the repo out of reach. `rules-report` has an equivalent
+      # gate; deck-lab had none, and an import reaching into the repo would have
+      # passed CI and failed on a user's first command.
+      - name: The skill works with the repo out of reach
+        run: |
+          cp -R .claude/skills/deck-lab "$RUNNER_TEMP/deck-lab"
+          cd "$RUNNER_TEMP/deck-lab/lib"
+          python3 deck_cli.py selftest
+          python3 deck_cli.py decks
+          python3 deck_cli.py card "Stellacorn Herder"
+          DECK=$(python3 -c "import deckfile,os; print(os.path.splitext(os.path.basename(sorted(deckfile.available())[0]))[0])")
+          python3 deck_cli.py analyze "$DECK" --trials 2000
+          python3 deck_cli.py report "$DECK" --trials 2000 --out /tmp/r.html
+          test -s /tmp/r.html
+
+      # Every shipped gauntlet deck must be playable. The previous version
+      # checked one deck by name and passed while 5 of 24 were unusable.
+      - name: Every shipped deck is legal and playable
         working-directory: .claude/skills/deck-lab/lib
         run: |
-          python3 deck_cli.py decks
-          python3 deck_cli.py check irelia-blade-dancer-irelia-2025-12-17
-          python3 deck_cli.py card "Stellacorn Herder"
-          python3 deck_cli.py analyze irelia-blade-dancer-irelia-2025-12-17 --trials 2000
-          # A game the table refuses to start is better than one it gets wrong.
-          python3 deck_cli.py new irelia-blade-dancer-irelia-2025-12-17 \
-            master-yi-wuju-bladesman-shanghai-national-open-2nd-place --seed 1 --first 0 --name ci
-          python3 deck_cli.py do 'beginturn 0' --quiet
+          python3 - <<'PY'
+          import sys, deckfile
+          bad = []
+          for path in deckfile.available():
+              d = deckfile.load(path)
+              r = deckfile.check(d)
+              if not r.legal:
+                  bad.append((d.name, r.errors[:2]))
+          for name, errs in bad:
+              print(f"ILLEGAL {name}: {errs}")
+          print(f"{len(deckfile.available()) - len(bad)}/{len(deckfile.available())} decks legal")
+          sys.exit(1 if bad else 0)
+          PY
 
   pipeline:
     name: pipeline

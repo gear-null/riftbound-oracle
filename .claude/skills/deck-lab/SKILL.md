@@ -1,6 +1,6 @@
 ---
 name: deck-lab
-description: Build and test a Riftbound deck against real tournament decks — deck legality (103), shuffle math over 100k hands, and a game table that holds board state while you play games out move by move. Use whenever the user wants to build, tune, critique or test a Riftbound deck, asks whether a card or a ratio is worth running, wants to know how a deck plays against the current meta, or wants to play out a game or a matchup.
+description: Build and test a Riftbound deck against real tournament decks — deck legality (103), shuffle math over tens of thousands of hands, and a game table that holds board state while you play games out move by move. Use whenever the user wants to build, tune, critique or test a Riftbound deck, asks whether a card or a ratio is worth running, wants to know how a deck plays against the current meta, or wants to play out a game or a matchup.
 ---
 
 # Riftbound deck lab
@@ -91,7 +91,8 @@ lookup available.
 2. **`check <deck>`** — legality against rule 103. Fix errors before anything else; an
    illegal deck does not fail loudly during a game, it just quietly plays a card it
    should not have.
-3. **`analyze <deck>`** — shuffle math at 20k+ hands. Read it for:
+3. **`analyze <deck>`** — shuffle math, 20,000 hands by default (`--trials N`).
+   `report` uses 50,000. Read it for:
    - `has a play` below ~90% on turns 1-2 → the curve is too high to function.
    - `stranded in hand` staying high → cards the deck cannot deploy.
    - `blocked on power` → a fixing problem, not a curve problem. Different fix:

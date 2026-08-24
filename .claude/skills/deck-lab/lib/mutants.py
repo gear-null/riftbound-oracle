@@ -79,6 +79,22 @@ MUTANTS = [
          repl="            if False:\n                copies -= 1\n                removed = True",
          expect="not shuffled into the Main Deck"),
 
+    dict(name="match a legend's traits and regions as champion tags",
+         file="cards.py",
+         find="            if t in bases",
+         repl="            if True",
+         expect="told apart from traits"),
+    dict(name="bind the Chosen Champion by any shared tag",
+         file="deckfile.py",
+         find="            if legend_tags and not (cards.champion_tags_of(cc) & legend_tags):",
+         repl="            if legend_tags and not (set(cards.tags(cc)) & set(cards.tags(deck.legend))):",
+         expect="shares only a trait is rejected"),
+    dict(name="report an ambiguous card name as missing from the pool",
+         file="deckfile.py",
+         find="        (ambiguous if options else unknown).append(",
+         repl="        (unknown if True else ambiguous).append(",
+         expect="says so, not"),
+
     # ---- setup and determinism -----------------------------------------
     dict(name="deal an opening hand of 3",
          file="table.py",
