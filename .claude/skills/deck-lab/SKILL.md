@@ -199,7 +199,10 @@ report which one you picked.
 - **The Chain is not modelled.** Reactions, counters and the FEPR process are yours to
   narrate; `note` them. The table tracks no priority.
 - **Showdowns are not modelled as a window.** A non-combat showdown resolves at the next
-  cleanup, where whoever is alone at a contested battlefield takes it.
+  cleanup, where whoever is alone at a contested battlefield takes it. The point lands
+  either way; what is missing is the chance to act in between.
+- **Four smaller fidelity gaps** are listed in `docs/known-issues.md`, each a place the
+  table is less precise than the rules rather than more permissive.
 - **Card text is never executed.** In a typical tournament deck ~100% of shuffled cards
   have rules text, so almost every card in a game is applied by hand.
 - **Power cost splits are approximate** for cards with two domains and a power cost —

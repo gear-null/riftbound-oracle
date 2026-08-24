@@ -57,3 +57,39 @@ topic block`. Neither can be made to fail by a single-site edit.
 
 If something here bites you, it should become an invariant rather than a patch.
 See [`invariants.md`](invariants.md#adding-one).
+
+## deck-lab
+
+Four fidelity gaps left open after the pre-merge review of #9 fixed the other 50.
+Each is a place the table is *less* precise than the rules, never more permissive
+in a way that hands out points.
+
+**Victory is decided the moment a point is gained, not at the next cleanup.**
+472 places the check at a cleanup, and 323.1 makes it that cleanup's first task;
+the table checks immediately. The difference is visible only if something would
+have removed the winning point between the gain and the cleanup, which nothing
+in the modelled subset does. 431.3.c.1 already requires the immediate form for
+burn-out points, so both behaviours exist in the rules and the table implements
+one of them everywhere.
+
+**A caller-supplied damage assignment is applied without checking it is legal.**
+`resolve_combat(index, attacker_assignment=…)` exists so an effect that modifies
+damage — Prevent (437) is the plain case — can be expressed, and 465.2.c's
+lethal-first and minimum-lethal constraints are not re-checked against it. The
+computed assignment the table produces on its own IS checked, and is what every
+ordinary combat uses. Validating an arbitrary override means deciding which of
+465.2.c.5-c.9's replacement and priority interactions the override represents,
+which is not recoverable from a dict of numbers.
+
+**A non-combat Showdown resolves at the following cleanup rather than as a
+window.** A unit alone at a contested battlefield takes control there (466.5),
+which is where the point lands either way. What is missing is the window itself:
+neither player gets a chance to act between contesting and resolving. The Chain
+is not modelled either, so there would be nothing to do in that window — see
+[ADR 0007](adr/0007-the-table-not-the-player.md).
+
+**Healing after combat is not staged as a cleanup.** 466.1.a inserts "3c. Heal
+all Units" into a Combat Special Cleanup whose step 3b kills lethally damaged
+units; the table kills and then heals directly. The order is right and the
+outcome matches, but an effect keying off that cleanup would have nothing to key
+off.
