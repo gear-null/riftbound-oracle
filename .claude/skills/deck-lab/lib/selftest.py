@@ -99,6 +99,11 @@ def card_lookup():
         and cards.candidates("Definitely Not A Card") == [],
     )
     check(
+        "an absent name is no card, not a crash",
+        cards.find(None) is None and cards.find("") is None,
+        "a deck with no Chosen Champion set is a legality error, not a traceback",
+    )
+    check(
         "colorless is domainless, not a seventh domain",
         cards.domains("The Dreaming Tree") == []
         and "Colorless" in cards.printed_domains("The Dreaming Tree"),
@@ -238,19 +243,18 @@ def resources():
     check("a recycled rune returns to the Rune Deck, not the Main Deck (161.2.b)",
           rune.name in t.player(0).rune_deck and rune.name not in t.player(0).main_deck)
 
+    # 316.3 empties EVERY player's pool entering the Main Phase, including the
+    # player whose turn it is not. Routing this through end_turn proved nothing:
+    # 317.2.e empties the pools too, so the check passed with 316.3 deleted.
     t = fresh(first=0)
     t.begin_turn()
-    t.add_energy(0, 5)
-    t.phase = table.MAIN
-    check("the rune pool is emptied entering the Main Phase (316.3)",
-          _pool_emptied_on_main(t))
-
-
-def _pool_emptied_on_main(t):
-    t.add_energy(0, 4)
     t.end_turn()
+    t.add_energy(0, 5)
+    t.add_energy(1, 5)
     t.begin_turn()
-    return t.player(0).energy == 0
+    check("the rune pool is emptied entering the Main Phase (316.3)",
+          t.player(0).energy == 0 and t.player(1).energy == 0,
+          "both players, not just the turn player")
 
 
 def paying():
@@ -337,14 +341,25 @@ def combat():
     check("equal Might trades both units simultaneously (465.2.c.1.a)",
           t.units_at("bf:0") == [] and result["result"] == "mutual destruction")
 
+    # The attacker must SURVIVE for this to test a recall at all — an attacker
+    # that dies satisfies "not standing at the battlefield" without any recall
+    # happening, which is how the previous version of this check stayed green
+    # with 466.1.a.2 deleted.
+    #
+    # Both sides surviving cannot happen on unmodified damage: each deals its
+    # full summed Might, so the larger side always wipes the smaller. The branch
+    # is reachable only once an effect changes the damage — Prevent (437) is the
+    # plain case — which is what the explicit assignment arguments are for.
     t = fresh(first=0)
     t.begin_turn()
-    attacker = stub_unit(t, 0, "Stellacorn Herder", "bf:0")
+    attacker = stub_unit(t, 0, "Irelia, Fervent", "bf:0")
     defender = stub_unit(t, 1, "Irelia, Fervent", "bf:0")
-    t.resolve_combat(0)
-    check("a repelled attacker is recalled rather than left standing (466.1.a.2)",
-          defender in t.permanents and attacker not in t.permanents
-          or attacker.location == "base:0")
+    result = t.resolve_combat(0, attacker_assignment={}, defender_assignment={})
+    check("a repelled attacker is recalled to base, not left standing (466.1.a.2)",
+          attacker in t.permanents and attacker.location == "base:0"
+          and defender.location == "bf:0",
+          f"damage prevented, so both survive and only a recall clears the "
+          f"battlefield — {result['result']}")
 
     t = fresh(first=0)
     t.begin_turn()
@@ -426,6 +441,17 @@ def scoring():
     check("the final point lands once every battlefield has been scored that turn",
           t.player(0).points == 8)
     check("reaching the Victory Score wins the game (472)", t.winner == 0)
+
+    # 472 is "greater than or equal to the Victory Score, AND more points than
+    # any opponent". Nothing covered the second half.
+    tied = fresh(first=0)
+    tied.begin_turn()
+    tied.player(0).points = 8
+    tied.player(1).points = 8
+    tied.check_victory()
+    check("a tie at the Victory Score wins for nobody (472)",
+          tied.winner is None,
+          "reaching 8 is not enough; it must beat every opponent")
     check("a finished game refuses to start another turn",
           raises(lambda: t.begin_turn(), "game is over"))
 
@@ -508,11 +534,42 @@ def persistence():
     stub_unit(t, 0, "Irelia, Fervent", "bf:0")
     t.battlefield(0).controller = 0
     t.player(0).points = 3
+    t.set_target(9, reason="a card said so")
+    t.permanents[0].damage = 2
+    t.permanents[0].buffs = 1
+    t.permanents[0].note = "stunned"
+    t.player(0).power = {"Calm": 2}
     raw = json.loads(json.dumps(t.as_dict()))
     back = table.Table.from_dict(raw, list(two_decks()))
-    check("a saved game restores identically",
-          back.as_dict() == t.as_dict(),
-          "a game spans many turns and many sessions; drift here is invisible")
+
+    # Read the restored OBJECT, never as_dict() against as_dict(): comparing a
+    # serialiser with itself passes just as happily when a field is dropped from
+    # both sides, which is exactly how a lost victory_target went unnoticed.
+    restored = [
+        ("turn", back.turn == t.turn),
+        ("phase", back.phase == t.phase),
+        ("turn_player", back.turn_player == t.turn_player),
+        ("first_player", back.first_player == t.first_player),
+        ("victory_target", back.victory_target == 9),
+        ("winner", back.winner == t.winner),
+        ("points", [p.points for p in back.players] == [p.points for p in t.players]),
+        ("power pool", back.player(0).power == {"Calm": 2}),
+        ("hands", [p.hand for p in back.players] == [p.hand for p in t.players]),
+        ("deck order", [p.main_deck for p in back.players] == [p.main_deck for p in t.players]),
+        ("permanent damage", back.permanents[0].damage == 2),
+        ("permanent buffs", back.permanents[0].buffs == 1),
+        ("permanent note", back.permanents[0].note == "stunned"),
+        ("permanent location", back.permanents[0].location == t.permanents[0].location),
+        ("battlefield control", [b.controller for b in back.battlefields]
+                                == [b.controller for b in t.battlefields]),
+        ("scored_by", [b.scored_by for b in back.battlefields]
+                      == [b.scored_by for b in t.battlefields]),
+        ("next id", back._next_id == t._next_id),
+    ]
+    lost = [name for name, ok in restored if not ok]
+    check("a saved game restores every field of its state",
+          not lost,
+          f"lost: {', '.join(lost)}" if lost else f"{len(restored)} fields checked")
 
 
 def action_scripts():

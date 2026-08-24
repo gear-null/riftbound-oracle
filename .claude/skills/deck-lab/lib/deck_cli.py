@@ -371,6 +371,12 @@ def cmd_selftest(args):
     return selftest.main()
 
 
+def cmd_mutants(args):
+    """Prove the selftest can fail. Slow; a pre-merge gate, not an inner loop."""
+    import mutants
+    return mutants.main()
+
+
 def cmd_help(args):
     print(__doc__)
     print("""commands
@@ -387,6 +393,8 @@ def cmd_help(args):
   record [--note "..."]        log the current game's result to the journal
   journal                      every recorded result
   selftest                     regression harness
+  mutants                      reintroduce each defect the selftest claims to
+                               catch, and prove the right check goes red
 
 actions for `do`
   beginturn [seat]             awaken, hold-score, channel, draw, into main phase
@@ -443,6 +451,7 @@ def main(argv=None):
     p.add_argument("--game"); p.add_argument("--note"); p.add_argument("--force", action="store_true")
     sub.add_parser("journal")
     sub.add_parser("selftest")
+    sub.add_parser("mutants")
     sub.add_parser("help")
 
     args = parser.parse_args(argv)
@@ -450,7 +459,7 @@ def main(argv=None):
         "decks": cmd_decks, "check": cmd_check, "card": cmd_card, "analyze": cmd_analyze,
         "report": cmd_report, "new": cmd_new, "state": cmd_state, "log": cmd_log,
         "do": cmd_do, "games": cmd_games, "record": cmd_record, "journal": cmd_journal,
-        "selftest": cmd_selftest, "help": cmd_help,
+        "selftest": cmd_selftest, "mutants": cmd_mutants, "help": cmd_help,
     }.get(args.command, cmd_help)
     try:
         return handler(args) or 0

@@ -94,6 +94,11 @@ class Deck:
 
 
 def _same(a, b):
+    # Either side can be absent — a deck under construction legitimately has no
+    # Chosen Champion yet, and crashing on it turns a reportable legality error
+    # into a traceback that takes the whole check down.
+    if not a or not b:
+        return False
     ca, cb = cards.find(a), cards.find(b)
     if ca and cb:
         return ca["name"] == cb["name"]

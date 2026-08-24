@@ -47,6 +47,11 @@ def _variants(name):
     worse than returning none: the wrong card gets shuffled into the deck and
     played as if the list had named it.
     """
+    if not name:
+        # A lookup of "no name" is "no card". Raising here turned a reportable
+        # legality error — a deck with no Chosen Champion set — into a traceback
+        # that took the whole check down with it.
+        return []
     base = re.sub(r"\s*\(.*?\)\s*$", "", name).strip().lower()
     seen, out = set(), []
     for v in (base, base.replace(", ", " - "), base.replace(" - ", ", ")):

@@ -70,10 +70,18 @@ jobs:
           # The gate must refuse a bad citation, not merely report one.
           python3 rules_cli.py report flow-counter-answer.json --no-open
 
+      # Proves deck-lab's suite can fail. A pre-merge review found 54 defects
+      # shipping past a green 71/71, because the checks tested the
+      # implementation rather than the rules — deleting the 466.1.a.2 recall or
+      # the 316.3 pool emptying left the suite green. Same reasoning as the
+      # rules-report battery above, same gate.
+      - name: The deck-lab selftest can fail
+        if: matrix.python == '3.13'
+        working-directory: .claude/skills/deck-lab/lib
+        run: python3 mutants.py
+
       # The deck-lab table, on the same Python floor. It ships in the same
-      # repo and installs the same way, so it is guarded the same way. It has a
-      # selftest but no mutant harness yet, so its checks are not pinned to the
-      # standard docs/invariants.md holds rules-report to.
+      # repo and installs the same way, so it is guarded the same way.
       - name: The deck-lab table holds a game
         working-directory: .claude/skills/deck-lab/lib
         run: python3 deck_cli.py selftest

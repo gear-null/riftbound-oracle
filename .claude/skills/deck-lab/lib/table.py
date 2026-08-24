@@ -737,7 +737,7 @@ class Table:
             )
         bf.scored_by.add(seat)
         p = self.player(seat)
-        target = self.victory_target
+        target = self.victory_target  # the Victory Score in force, not the mode's default
 
         # 471.1.b: a Conquer that would take a player to the Victory Score only
         # does so if they scored EVERY battlefield this turn; otherwise they draw.
@@ -912,8 +912,18 @@ class Table:
 
         # 465.2.c: attacker assigns first, but damage is DEALT simultaneously,
         # so both assignments are computed before either is applied.
-        onto_defenders = attacker_assignment or self.assign_damage(attackers, defenders)
-        onto_attackers = defender_assignment or self.assign_damage(defenders, attackers)
+        # `or` was wrong here: an empty dict is falsy, so an explicit "no damage
+        # is dealt" assignment — a Prevent effect (437), the plain way both sides
+        # survive a combat — was silently replaced by the computed damage, and
+        # the 466.1.a.2 recall branch became unreachable.
+        onto_defenders = (
+            self.assign_damage(attackers, defenders)
+            if attacker_assignment is None else dict(attacker_assignment)
+        )
+        onto_attackers = (
+            self.assign_damage(defenders, attackers)
+            if defender_assignment is None else dict(defender_assignment)
+        )
 
         for oid, amount in list(onto_defenders.items()) + list(onto_attackers.items()):
             if amount:
