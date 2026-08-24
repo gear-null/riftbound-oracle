@@ -20,6 +20,20 @@ import { fetchSets, fetchCardsBySet, type RiftcodexCard } from "./riftcodex.js";
 import { decodeEntities } from "./normalize.js";
 
 export const SKILL_DATA_DIR = ".claude/skills/rules-report/data";
+export const DECK_LAB_DATA_DIR = ".claude/skills/deck-lab/data";
+
+/**
+ * Every skill that ships card data gets its own copy.
+ *
+ * ADR 0004 forbids a skill reaching outside its own folder at import time, so
+ * two skills needing cards means two vendored files, not one shared one. They
+ * are written from a single fetch so they cannot drift into disagreeing about
+ * what a card says.
+ */
+export const CARD_DATA_TARGETS = [
+  `${SKILL_DATA_DIR}/cards.json`,
+  `${DECK_LAB_DATA_DIR}/cards.json`,
+];
 export const OVERLAY_PATH = "manifests/card-overlays.yaml";
 
 /** Hand-transcribed text the API does not carry. See the file's header. */
@@ -134,6 +148,20 @@ export interface CardStats {
   type: string | null;
   rarity: string | null;
   domain: string[];
+  /**
+   * "Champion", "Signature", or null. Deck legality depends on it: rule
+   * 103.2.a.2 requires the Chosen Champion to be a champion unit, and 103.2.d
+   * caps a deck at three Signature cards. Neither is decidable from `type`,
+   * which only says Unit/Spell/Gear.
+   */
+  supertype: string | null;
+  /**
+   * Champion tags ("Irelia"), keyword tags ("Equipment"), and the rest. The
+   * champion tag is what binds a Chosen Champion to its Legend (103.2.a.2) and
+   * what scopes the Signature limit (103.2.d.2) — name matching is a guess,
+   * this is the actual relation.
+   */
+  tags: string[];
 }
 
 export interface SkillCard {
@@ -247,6 +275,8 @@ export function cardStats(card: RiftcodexCard): CardStats {
     type: card.classification?.type ?? null,
     rarity: card.classification?.rarity ?? null,
     domain: card.classification?.domain ?? [],
+    supertype: card.classification?.supertype ?? null,
+    tags: card.tags ?? [],
   };
 }
 
@@ -344,7 +374,8 @@ export function buildCardIndex(
 }
 
 export interface BuildSkillDataOptions {
-  outputPath?: string;
+  /** Defaults to every skill that vendors card data. */
+  outputPaths?: string[];
   onProgress?: (message: string) => void;
   /** Injectable so tests never hit the network. */
   listSets?: typeof fetchSets;
@@ -355,7 +386,7 @@ export async function buildSkillData(opts: BuildSkillDataOptions = {}) {
   const onProgress = opts.onProgress ?? (() => {});
   const listSets = opts.listSets ?? fetchSets;
   const listCards = opts.listCards ?? fetchCardsBySet;
-  const outputPath = resolve(opts.outputPath ?? `${SKILL_DATA_DIR}/cards.json`);
+  const outputPaths = (opts.outputPaths ?? CARD_DATA_TARGETS).map((p) => resolve(p));
 
   const sets = await listSets();
   const all: RiftcodexCard[] = [];
@@ -375,14 +406,17 @@ export async function buildSkillData(opts: BuildSkillDataOptions = {}) {
   );
   const withArt = Object.values(index).filter((c) => c.image).length;
 
-  mkdirSync(dirname(outputPath), { recursive: true });
   // Sorted keys so an unchanged corpus regenerates byte-identically and a real
   // change shows up as a reviewable diff rather than a reshuffle.
   const sorted = Object.fromEntries(Object.entries(index).sort(([a], [b]) => a.localeCompare(b)));
-  writeFileSync(outputPath, JSON.stringify(sorted, null, 1), "utf-8");
+  const serialised = JSON.stringify(sorted, null, 1);
+  for (const target of outputPaths) {
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, serialised, "utf-8");
+  }
 
   return {
-    outputPath,
+    outputPaths,
     cards: all.length,
     keys: Object.keys(index).length,
     withArt,

@@ -1,0 +1,127 @@
+{
+ "name": "Ghael's Budget Jinx",
+ "legend": "Jinx, Loose Cannon",
+ "chosenChampion": "Jinx, Demolitionist",
+ "domains": [
+  "Fury",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Darius, Trifarian",
+   "code": "OGN-027",
+   "qty": 2
+  },
+  {
+   "name": "Jinx, Demolitionist",
+   "code": "OGN-030",
+   "qty": 1
+  },
+  {
+   "name": "Nocturne, Horrifying",
+   "code": "OGN-194",
+   "qty": 3
+  },
+  {
+   "name": "Vi, Destructive",
+   "code": "OGN-036",
+   "qty": 3
+  },
+  {
+   "name": "Chemtech Enforcer",
+   "code": "OGN-003",
+   "qty": 3
+  },
+  {
+   "name": "Dangerous Duo",
+   "code": "OGN-016",
+   "qty": 3
+  },
+  {
+   "name": "Flame Chompers",
+   "code": "OGN-006",
+   "qty": 3
+  },
+  {
+   "name": "Mystic Poro",
+   "code": "UNL-224",
+   "qty": 2
+  },
+  {
+   "name": "Noxus Hopeful",
+   "code": "OGN-012",
+   "qty": 3
+  },
+  {
+   "name": "Pouty Poro",
+   "code": "UNL-220",
+   "qty": 3
+  },
+  {
+   "name": "Traveling Merchant",
+   "code": "OGN-185",
+   "qty": 3
+  },
+  {
+   "name": "Falling Star",
+   "code": "OGN-029",
+   "qty": 1
+  },
+  {
+   "name": "Gust",
+   "code": "OGN-169",
+   "qty": 3
+  },
+  {
+   "name": "Ride the Wind",
+   "code": "OGN-173",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 3
+  },
+  {
+   "name": "Sun Disc",
+   "code": "OGN-021",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 3
+  },
+  {
+   "name": "Fury Rune",
+   "code": "furyrune",
+   "qty": 9
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Reaver's Row",
+   "code": "OGN-285",
+   "qty": 1
+  },
+  {
+   "name": "The Arena's Greatest",
+   "code": "OGN-290",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "code": "OGN-298",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/3e848647-3721-49bf-93e4-b13336d0e7ec",
+  "author": "Ghael",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

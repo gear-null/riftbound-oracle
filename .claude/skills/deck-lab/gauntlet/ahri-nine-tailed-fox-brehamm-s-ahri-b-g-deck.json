@@ -1,0 +1,136 @@
+{
+ "name": "Brehamm's Ahri B-G DECK",
+ "legend": "Ahri, Nine-Tailed Fox",
+ "chosenChampion": null,
+ "domains": [
+  "Calm",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Ahri, Alluring",
+   "code": "OGN-066-p",
+   "qty": 2
+  },
+  {
+   "name": "Ahri, Inquisitive",
+   "code": "OGN-119",
+   "qty": 3
+  },
+  {
+   "name": "Blitzcrank, Impassive",
+   "code": "OGN-067",
+   "qty": 2
+  },
+  {
+   "name": "Clockwork Keeper",
+   "code": "OGN-044",
+   "qty": 2
+  },
+  {
+   "name": "Ravenbloom Student",
+   "code": "OGN-103",
+   "qty": 3
+  },
+  {
+   "name": "Stalwart Poro",
+   "code": "OGN-052",
+   "qty": 3
+  },
+  {
+   "name": "Sunlit Guardian",
+   "code": "OGN-054",
+   "qty": 3
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "code": "OGN-116",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "code": "OGN-043",
+   "qty": 2
+  },
+  {
+   "name": "Consult the Past",
+   "code": "OGN-083",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "code": "OGN-045",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "code": "OGN-058",
+   "qty": 3
+  },
+  {
+   "name": "Fox-Fire",
+   "code": "OGN-256",
+   "qty": 2
+  },
+  {
+   "name": "Retreat",
+   "code": "OGN-104",
+   "qty": 2
+  },
+  {
+   "name": "Singularity",
+   "code": "OGN-105",
+   "qty": 1
+  },
+  {
+   "name": "Stupefy",
+   "code": "OGN-095",
+   "qty": 3
+  },
+  {
+   "name": "Wind Wall",
+   "code": "OGN-064",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "code": "calmrune",
+   "qty": 7
+  },
+  {
+   "name": "Mind Rune",
+   "code": "mindrune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Fortified Position",
+   "code": "OGN-279",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "code": "OGN-289",
+   "qty": 1
+  },
+  {
+   "name": "The Arena's Greatest",
+   "code": "OGN-290",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/91f8b2b1-208d-4f4a-a591-fb47891ed5e3",
+  "author": "Brihamsio Manzano Quintero",
+  "meta": true,
+  "fetched": "2026-08-24"
+ },
+ "championCandidates": [
+  "Ahri, Alluring",
+  "Ahri, Inquisitive"
+ ]
+}

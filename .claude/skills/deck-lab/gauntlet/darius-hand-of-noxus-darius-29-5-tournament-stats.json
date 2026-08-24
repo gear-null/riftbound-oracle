@@ -1,0 +1,132 @@
+{
+ "name": "Darius 29 - 5 tournament stats",
+ "legend": "Darius, Hand of Noxus",
+ "chosenChampion": "Darius, Trifarian",
+ "domains": [
+  "Fury",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Darius, Trifarian",
+   "code": "OGN-027",
+   "qty": 3
+  },
+  {
+   "name": "Draven, Showboat",
+   "code": "OGN-028",
+   "qty": 3
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "code": "OGN-039",
+   "qty": 2
+  },
+  {
+   "name": "Vayne, Hunter",
+   "code": "OGN-035",
+   "qty": 1
+  },
+  {
+   "name": "Daring Poro",
+   "code": "UNL-225",
+   "qty": 1
+  },
+  {
+   "name": "Faithful Manufactor",
+   "code": "OGN-211",
+   "qty": 3
+  },
+  {
+   "name": "Noxus Hopeful",
+   "code": "OGN-012",
+   "qty": 2
+  },
+  {
+   "name": "Pouty Poro",
+   "code": "UNL-220",
+   "qty": 3
+  },
+  {
+   "name": "Spectral Matron",
+   "code": "OGN-226",
+   "qty": 3
+  },
+  {
+   "name": "Trifarian Gloryseeker",
+   "code": "OGN-217",
+   "qty": 3
+  },
+  {
+   "name": "Vanguard Captain",
+   "code": "OGN-218",
+   "qty": 3
+  },
+  {
+   "name": "Cleave",
+   "code": "OGN-004",
+   "qty": 1
+  },
+  {
+   "name": "Cull the Weak",
+   "code": "OGN-209",
+   "qty": 1
+  },
+  {
+   "name": "Falling Star",
+   "code": "OGN-029",
+   "qty": 2
+  },
+  {
+   "name": "Hidden Blade",
+   "code": "OGN-213",
+   "qty": 3
+  },
+  {
+   "name": "Baited Hook",
+   "code": "OGN-242",
+   "qty": 3
+  },
+  {
+   "name": "Seal of Unity",
+   "code": "SFD-238",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Fury Rune",
+   "code": "furyrune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "code": "orderrune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "The Arena's Greatest",
+   "code": "OGN-290",
+   "qty": 1
+  },
+  {
+   "name": "Trifarian War Camp",
+   "code": "OGN-294",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "code": "OGN-298",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/d3cf2fce-e174-41ec-80ad-404735027918",
+  "author": "Batsu",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

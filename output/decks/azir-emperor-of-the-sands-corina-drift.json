@@ -1,0 +1,136 @@
+{
+ "name": "Corina Drift",
+ "legend": "Azir, Emperor of the Sands",
+ "chosenChampion": null,
+ "domains": [
+  "Calm",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Azir, Ascendant",
+   "code": "SFD-050",
+   "qty": 1
+  },
+  {
+   "name": "Azir, Sovereign",
+   "code": "SFD-177A",
+   "qty": 2
+  },
+  {
+   "name": "Corina Veraza",
+   "code": "SFD-179",
+   "qty": 1
+  },
+  {
+   "name": "Legion Quartermaster",
+   "code": "SFD-044",
+   "qty": 3
+  },
+  {
+   "name": "Stellacorn Herder",
+   "code": "SFD-048",
+   "qty": 2
+  },
+  {
+   "name": "Arise!",
+   "code": "SFD-198",
+   "qty": 3
+  },
+  {
+   "name": "Deathgrip",
+   "code": "SFD-163",
+   "qty": 2
+  },
+  {
+   "name": "Defy",
+   "code": "OGN-045",
+   "qty": 2
+  },
+  {
+   "name": "Desert's Call",
+   "code": "SFD-031",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "code": "OGN-058",
+   "qty": 3
+  },
+  {
+   "name": "Emperor's Divide",
+   "code": "SFD-043",
+   "qty": 2
+  },
+  {
+   "name": "Hidden Blade",
+   "code": "OGN-213",
+   "qty": 2
+  },
+  {
+   "name": "B.F. Sword",
+   "code": "SFD-161",
+   "qty": 3
+  },
+  {
+   "name": "Brutalizer",
+   "code": "SFD-042",
+   "qty": 3
+  },
+  {
+   "name": "Doran's Shield",
+   "code": "SFD-033",
+   "qty": 3
+  },
+  {
+   "name": "Eye of the Herald",
+   "code": "SFD-153",
+   "qty": 3
+  },
+  {
+   "name": "Guardian Angel",
+   "code": "SFD-051",
+   "qty": 2
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "code": "calmrune",
+   "qty": 7
+  },
+  {
+   "name": "Order Rune",
+   "code": "orderrune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Hall of Legends",
+   "code": "SFD-210",
+   "qty": 1
+  },
+  {
+   "name": "Ornn's Forge",
+   "code": "SFD-213",
+   "qty": 1
+  },
+  {
+   "name": "Trifarian War Camp",
+   "code": "OGN-294",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/a4220e6f-a1d2-4894-befc-89ddc6328987",
+  "author": "Reign Batista",
+  "meta": true,
+  "fetched": "2026-08-24"
+ },
+ "championCandidates": [
+  "Azir, Ascendant",
+  "Azir, Sovereign"
+ ]
+}

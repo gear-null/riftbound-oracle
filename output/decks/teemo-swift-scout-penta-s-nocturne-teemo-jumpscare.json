@@ -1,0 +1,131 @@
+{
+ "name": "Penta's Nocturne Teemo JUMPSCARE",
+ "legend": "Teemo, Swift Scout",
+ "chosenChampion": null,
+ "domains": [
+  "Mind",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Dr. Mundo, Expert",
+   "code": "OGN-109",
+   "qty": 2
+  },
+  {
+   "name": "Nocturne, Horrifying",
+   "code": "OGN-194",
+   "qty": 3
+  },
+  {
+   "name": "Teemo, Scout",
+   "code": "OGN-197",
+   "qty": 1
+  },
+  {
+   "name": "Teemo, Strategist",
+   "code": "OGN-121",
+   "qty": 3
+  },
+  {
+   "name": "Blastcone Fae",
+   "code": "OGN-097",
+   "qty": 2
+  },
+  {
+   "name": "Ember Monk",
+   "code": "OGN-167",
+   "qty": 3
+  },
+  {
+   "name": "Mystic Poro",
+   "code": "UNL-224",
+   "qty": 3
+  },
+  {
+   "name": "Sprite Mother",
+   "code": "OGN-106",
+   "qty": 3
+  },
+  {
+   "name": "Tideturner",
+   "code": "OGN-199",
+   "qty": 3
+  },
+  {
+   "name": "Consult the Past",
+   "code": "OGN-083",
+   "qty": 2
+  },
+  {
+   "name": "Fight or Flight",
+   "code": "OGN-168",
+   "qty": 3
+  },
+  {
+   "name": "Gust",
+   "code": "OGN-169",
+   "qty": 3
+  },
+  {
+   "name": "Singularity",
+   "code": "OGN-105",
+   "qty": 3
+  },
+  {
+   "name": "Sprite Call",
+   "code": "OGN-094",
+   "qty": 2
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 3
+  },
+  {
+   "name": "Time Warp",
+   "code": "OGN-122",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 3
+  },
+  {
+   "name": "Mind Rune",
+   "code": "mindrune",
+   "qty": 9
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Bandle Tree",
+   "code": "OGN-278",
+   "qty": 1
+  },
+  {
+   "name": "Hallowed Tomb",
+   "code": "OGN-281",
+   "qty": 1
+  },
+  {
+   "name": "The Candlelit Sanctum",
+   "code": "OGN-291",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/52cb589b-9892-4d96-9232-65c39702bfe5",
+  "author": "Pentestag TCG",
+  "meta": true,
+  "fetched": "2026-08-24"
+ },
+ "championCandidates": [
+  "Teemo, Scout",
+  "Teemo, Strategist"
+ ]
+}

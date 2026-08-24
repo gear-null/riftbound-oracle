@@ -1,0 +1,132 @@
+{
+ "name": "1st place group A (Ascension League - Stage 6) - 27/10/2025",
+ "legend": "Kai'Sa, Daughter of the Void",
+ "chosenChampion": "Kai'Sa, Survivor",
+ "domains": [
+  "Fury",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Darius, Trifarian",
+   "code": "OGN-027",
+   "qty": 3
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "code": "OGN-039",
+   "qty": 1
+  },
+  {
+   "name": "Dangerous Duo",
+   "code": "OGN-016",
+   "qty": 2
+  },
+  {
+   "name": "Lecturing Yordle",
+   "code": "OGN-087",
+   "qty": 2
+  },
+  {
+   "name": "Noxus Hopeful",
+   "code": "OGN-012",
+   "qty": 3
+  },
+  {
+   "name": "Pouty Poro",
+   "code": "UNL-220",
+   "qty": 2
+  },
+  {
+   "name": "Ravenbloom Student",
+   "code": "OGN-103",
+   "qty": 3
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "code": "OGN-116",
+   "qty": 2
+  },
+  {
+   "name": "Watchful Sentry",
+   "code": "OGN-096",
+   "qty": 3
+  },
+  {
+   "name": "Cleave",
+   "code": "OGN-004",
+   "qty": 2
+  },
+  {
+   "name": "Falling Star",
+   "code": "OGN-029",
+   "qty": 3
+  },
+  {
+   "name": "Hextech Ray",
+   "code": "OGN-009",
+   "qty": 3
+  },
+  {
+   "name": "Retreat",
+   "code": "OGN-104",
+   "qty": 2
+  },
+  {
+   "name": "Smoke Screen",
+   "code": "OGN-093",
+   "qty": 2
+  },
+  {
+   "name": "Stupefy",
+   "code": "OGN-095",
+   "qty": 3
+  },
+  {
+   "name": "Time Warp",
+   "code": "OGN-122",
+   "qty": 1
+  },
+  {
+   "name": "Void Seeker",
+   "code": "OGN-024",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Fury Rune",
+   "code": "furyrune",
+   "qty": 6
+  },
+  {
+   "name": "Mind Rune",
+   "code": "mindrune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Reaver's Row",
+   "code": "OGN-285",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "code": "OGN-289",
+   "qty": 1
+  },
+  {
+   "name": "The Dreaming Tree",
+   "code": "OGN-292",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/516cf815-a593-4195-8f93-8b7500c16009",
+  "author": "Targon's Peak - Meta Report",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

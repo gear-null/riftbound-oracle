@@ -1,0 +1,137 @@
+{
+ "name": "1st Place Runes League Zesty Draven Gianluca Di Clemente(Dicle)",
+ "legend": "Draven, Glorious Executioner",
+ "chosenChampion": "Draven, Vanquisher",
+ "domains": [
+  "Fury",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Draven, Vanquisher",
+   "code": "SFD-020",
+   "qty": 1
+  },
+  {
+   "name": "Ezreal, Prodigy",
+   "code": "SFD-149",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "code": "SFD-140",
+   "qty": 2
+  },
+  {
+   "name": "Vi, Destructive",
+   "code": "OGN-036",
+   "qty": 1
+  },
+  {
+   "name": "Battering Ram",
+   "code": "SFD-012",
+   "qty": 3
+  },
+  {
+   "name": "Overzealous Fan",
+   "code": "SFD-128",
+   "qty": 2
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "code": "OGN-195",
+   "qty": 3
+  },
+  {
+   "name": "Traveling Merchant",
+   "code": "OGN-185",
+   "qty": 3
+  },
+  {
+   "name": "Treasure Hunter",
+   "code": "SFD-130",
+   "qty": 3
+  },
+  {
+   "name": "Bushwhack",
+   "code": "SFD-004",
+   "qty": 1
+  },
+  {
+   "name": "Called Shot",
+   "code": "SFD-122",
+   "qty": 3
+  },
+  {
+   "name": "Falling Star",
+   "code": "OGN-029",
+   "qty": 1
+  },
+  {
+   "name": "Fight or Flight",
+   "code": "OGN-168",
+   "qty": 2
+  },
+  {
+   "name": "Rebuke",
+   "code": "OGN-172",
+   "qty": 2
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 3
+  },
+  {
+   "name": "Last Rites",
+   "code": "SFD-150",
+   "qty": 1
+  },
+  {
+   "name": "Scrapheap",
+   "code": "OGN-182",
+   "qty": 3
+  },
+  {
+   "name": "Seal of Discord",
+   "code": "SFD-234",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 8
+  },
+  {
+   "name": "Fury Rune",
+   "code": "furyrune",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Minefield",
+   "code": "SFD-212",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "code": "OGN-289",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "code": "OGN-298",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/578cb09d-58d8-49c1-a1d2-ca978d155bd2",
+  "author": "Challenger TCG",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

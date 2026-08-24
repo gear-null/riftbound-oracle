@@ -77,6 +77,7 @@ describe("cardText", () => {
     expect(cardText(c)).toBe("When you play your first card each turn...");
     expect(cardStats(c)).toEqual({
       energy: 7, might: 7, power: null, type: "Unit", rarity: "Epic", domain: ["Calm"],
+      supertype: null, tags: [],
     });
   });
 
@@ -187,7 +188,7 @@ describe("buildSkillData", () => {
     try {
       const out = join(dir, "cards.json");
       const opts = {
-        outputPath: out,
+        outputPaths: [out],
         listSets: async () => [{ set_id: "VEN", name: "Vendetta", card_count: 2 }] as never,
         listCards: async () => [
           card({ name: "Zed - Shadow" }),
@@ -213,7 +214,7 @@ describe("buildSkillData", () => {
     try {
       const out = join(dir, "nested", "deeper", "cards.json");
       await buildSkillData({
-        outputPath: out,
+        outputPaths: [out],
         listSets: async () => [{ set_id: "VEN", name: "Vendetta", card_count: 1 }] as never,
         listCards: async () => [card({ name: "Astral Heron" })],
       });
@@ -221,5 +222,27 @@ describe("buildSkillData", () => {
     } finally {
       rmSync(dir, { recursive: true });
     }
+  });
+});
+
+describe("deck legality fields", () => {
+  it("carries supertype and champion tags, which type alone cannot express", () => {
+    // A Chosen Champion must be a champion unit whose champion tag matches the
+    // legend (103.2.a.2), and a deck may hold only 3 Signature cards
+    // (103.2.d). `type` says "Unit" for a champion and a bear alike, so
+    // legality is undecidable without these two fields.
+    const s = cardStats(
+      card({
+        name: "Irelia, Fervent",
+        classification: { type: "Unit", supertype: "Champion", rarity: "Rare", domain: ["Calm"] },
+        tags: ["Irelia", "Ionia"],
+      })
+    );
+    expect(s.supertype).toBe("Champion");
+    expect(s.tags).toContain("Irelia");
+  });
+
+  it("defaults tags to an empty array so consumers never guard for undefined", () => {
+    expect(cardStats(card({ name: "Called Shot" })).tags).toEqual([]);
   });
 });

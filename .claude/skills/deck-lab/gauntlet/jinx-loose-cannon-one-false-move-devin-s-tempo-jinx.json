@@ -1,0 +1,162 @@
+{
+ "name": "One False Move (Devin's Tempo Jinx)",
+ "legend": "Jinx, Loose Cannon",
+ "chosenChampion": "Jinx, Rebel",
+ "domains": [
+  "Fury",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Fizz, Trickster",
+   "code": "SFD-140",
+   "qty": 1
+  },
+  {
+   "name": "Jinx, Rebel",
+   "code": "OGN-202",
+   "qty": 1
+  },
+  {
+   "name": "Vex, Apathetic",
+   "code": "UNL-150",
+   "qty": 2
+  },
+  {
+   "name": "Vi, Destructive",
+   "code": "OGN-036",
+   "qty": 2
+  },
+  {
+   "name": "Zed, From the Shadows",
+   "code": "VEN-023",
+   "qty": 2
+  },
+  {
+   "name": "Dunebreaker",
+   "code": "SFD-027",
+   "qty": 2
+  },
+  {
+   "name": "Noxus Hopeful",
+   "code": "OGN-012",
+   "qty": 2
+  },
+  {
+   "name": "Punching Poro",
+   "code": "VEN-007",
+   "qty": 3
+  },
+  {
+   "name": "Shadow Order Disciple",
+   "code": "VEN-095",
+   "qty": 3
+  },
+  {
+   "name": "Traveling Merchant",
+   "code": "OGN-185",
+   "qty": 3
+  },
+  {
+   "name": "Brittle Steel",
+   "code": "VEN-003",
+   "qty": 1
+  },
+  {
+   "name": "Falling Star",
+   "code": "OGN-029",
+   "qty": 2
+  },
+  {
+   "name": "Flash",
+   "code": "OGS-011",
+   "qty": 1
+  },
+  {
+   "name": "Perfect Execution",
+   "code": "VEN-012",
+   "qty": 2
+  },
+  {
+   "name": "Ride the Wind",
+   "code": "OGN-173",
+   "qty": 1
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 2
+  },
+  {
+   "name": "Star-Crossed",
+   "code": "UNL-128",
+   "qty": 2
+  },
+  {
+   "name": "Super Mega Death Rocket!",
+   "code": "OGN-252",
+   "qty": 3
+  },
+  {
+   "name": "Up from the Deep",
+   "code": "VEN-100",
+   "qty": 2
+  },
+  {
+   "name": "Vault Breaker",
+   "code": "UNL-010",
+   "qty": 1
+  },
+  {
+   "name": "Long Sword",
+   "code": "SFD-022",
+   "qty": 2
+  },
+  {
+   "name": "Seal of Rage",
+   "code": "SFD-222",
+   "qty": 2
+  },
+  {
+   "name": "Unlicensed Armory",
+   "code": "OGN-023",
+   "qty": 2
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 5
+  },
+  {
+   "name": "Fury Rune",
+   "code": "furyrune",
+   "qty": 7
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Minefield",
+   "code": "SFD-212",
+   "qty": 1
+  },
+  {
+   "name": "Void Gate",
+   "code": "OGN-296",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "code": "OGN-298",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/653feb68-93c1-4949-84ee-f1bd72b69753",
+  "author": "deuceishiphop",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}

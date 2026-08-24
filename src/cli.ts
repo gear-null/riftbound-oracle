@@ -18,6 +18,7 @@ import {
 } from "./manifest.js";
 import { fetchSets, fetchCardsBySet, cardsToMarkdown, fetchSetLabel } from "./riftcodex.js";
 import { buildSkillData, SKILL_DATA_DIR } from "./skill-data.js";
+import { pullMetaDecks } from "./decks.js";
 import { normalize } from "./normalize.js";
 import { downloadPrintCards } from "./print.js";
 import { syncToVault, resolveVaultDir } from "./vault.js";
@@ -57,6 +58,9 @@ async function main() {
     case "skill-data":
       await handleSkillData();
       break;
+    case "decks":
+      await handleDecks();
+      break;
     case "vault-sync":
       await handleVaultSync();
       break;
@@ -79,6 +83,7 @@ ${color.bold("Commands:")}
   ${color.cyan("print --set=X")}      Download card images for printing
   ${color.cyan("extract")}            Extract downloaded rulebook PDFs to markdown
   ${color.cyan("skill-data")}         Rebuild the skill's vendored card data (needs network)
+  ${color.cyan("decks pull")}         Pull competitive decklists into the deck-lab gauntlet (needs network)
   ${color.cyan("gear-gaps")}          Collect artwork + a YAML stub for cards the API can't supply
   ${color.cyan("package")}            Build the distributable skill archive into dist/
   ${color.cyan("changelog")}          Draft the next changelog entry from git + the corpus
@@ -494,7 +499,8 @@ async function handleSkillData() {
     const result = await buildSkillData({ onProgress: (m) => s.message(`Fetching ${m}`) });
     s.stop(
       `${result.cards} cards → ${result.keys} lookup names ` +
-        `(${result.withArt} with artwork) → ${color.cyan(result.outputPath)}`
+        `(${result.withArt} with artwork) → ` +
+        result.outputPaths.map((path) => color.cyan(path)).join(", ")
     );
     if (result.withArt === 0) {
       p.log.warning("No artwork URLs returned — reports will render placeholders");
@@ -524,6 +530,41 @@ async function handleSkillData() {
   } catch (err) {
     s.error("skill-data failed — the committed cards.json is unchanged");
     p.log.error(String(err));
+  }
+}
+
+/**
+ * Refresh the gauntlet a deck under construction is tested against.
+ *
+ * Run on demand, never on a schedule — the same etiquette the Rules Hub
+ * processor follows. See docs/content-and-licensing.md.
+ */
+async function handleDecks() {
+  if (process.argv[3] && process.argv[3] !== "pull") {
+    p.log.error(`Unknown decks subcommand: ${process.argv[3]}`);
+    return;
+  }
+  const limitArg = process.argv.find((a) => a.startsWith("--limit="))?.split("=")[1];
+  const s = p.spinner();
+  s.start("Pulling competitive decklists");
+  try {
+    const result = await pullMetaDecks({
+      limit: limitArg ? Number.parseInt(limitArg, 10) : undefined,
+      onProgress: (m) => s.message(m),
+    });
+    s.stop(`${result.decks.length} deck(s) → ${result.written.length} file(s)`);
+    const meta = result.decks.filter((d) => d.source?.meta).length;
+    p.log.info(`${meta} flagged as tournament/meta lists by the source`);
+    // A deck whose Chosen Champion did not resolve is still written, because a
+    // gauntlet entry with a named gap is more useful than a missing one — but
+    // it cannot be played until the field is filled in by hand.
+    if (result.warnings.length) {
+      p.log.warning(`${result.warnings.length} warning(s):`);
+      p.log.message(result.warnings.join("\n"));
+    }
+  } catch (err) {
+    s.error("decks pull failed — committed decks are unchanged");
+    p.log.error(String(err instanceof Error ? err.message : err));
   }
 }
 

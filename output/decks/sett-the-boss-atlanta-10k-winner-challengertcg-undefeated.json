@@ -1,0 +1,127 @@
+{
+ "name": "Atlanta 10k WINNER ChallengerTCG Undefeated!",
+ "legend": "Sett, The Boss",
+ "chosenChampion": "Sett, Kingpin",
+ "domains": [
+  "Body",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Fiora, Victorious",
+   "code": "OGN-232",
+   "qty": 3
+  },
+  {
+   "name": "Lee Sin, Centered",
+   "code": "OGN-151",
+   "qty": 2
+  },
+  {
+   "name": "Qiyana, Victorious",
+   "code": "OGN-155",
+   "qty": 2
+  },
+  {
+   "name": "Sett, Kingpin",
+   "code": "OGN-240",
+   "qty": 3
+  },
+  {
+   "name": "Cithria of Cloudfield",
+   "code": "OGN-139",
+   "qty": 3
+  },
+  {
+   "name": "Daring Poro",
+   "code": "UNL-225",
+   "qty": 1
+  },
+  {
+   "name": "First Mate",
+   "code": "OGN-132",
+   "qty": 3
+  },
+  {
+   "name": "Kinkou Monk",
+   "code": "OGN-141",
+   "qty": 2
+  },
+  {
+   "name": "Pit Rookie",
+   "code": "OGN-136",
+   "qty": 3
+  },
+  {
+   "name": "Call to Glory",
+   "code": "OGN-207",
+   "qty": 3
+  },
+  {
+   "name": "Challenge",
+   "code": "OGN-128",
+   "qty": 3
+  },
+  {
+   "name": "Hidden Blade",
+   "code": "OGN-213",
+   "qty": 2
+  },
+  {
+   "name": "Primal Strength",
+   "code": "OGN-154",
+   "qty": 2
+  },
+  {
+   "name": "Sabotage",
+   "code": "OGN-156",
+   "qty": 2
+  },
+  {
+   "name": "Showstopper",
+   "code": "OGN-270",
+   "qty": 3
+  },
+  {
+   "name": "Arena Bar",
+   "code": "OGN-124",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "code": "bodyrune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "code": "orderrune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Grove of the God-Willow",
+   "code": "OGN-280",
+   "qty": 1
+  },
+  {
+   "name": "Monastery of Hirana",
+   "code": "OGN-282",
+   "qty": 1
+  },
+  {
+   "name": "The Dreaming Tree",
+   "code": "OGN-292",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/7cd92bf5-626f-41b4-abfc-2e0c7d55acdb",
+  "author": "Challenger TCG",
+  "meta": true,
+  "fetched": "2026-08-24"
+ }
+}
