@@ -8,9 +8,16 @@ shows the opponent's hand as a count and never shows either deck's order.
 
 That redaction is the point. One mind playing both seats cannot un-know what it
 saw, but it can at least be shown, at the moment it decides, only what that seat
-would have in front of it — and the log records which view a decision was made
-from. A view that leaked the opponent's hand would make every game a
-perfect-information game, and every conclusion drawn from it worthless.
+would have in front of it. A view that leaked the opponent's hand would make
+every game a perfect-information game, and every conclusion drawn from it
+worthless.
+
+What the record can and cannot do is worth stating exactly, because this file
+used to claim more than it delivered. `do --seat N` writes a line into the log
+saying which seat was acting, so the sequence of declared viewpoints is
+auditable afterwards. Nothing verifies that the declaration was honest, and
+nothing can: a mind holding both hands cannot be made to forget one. The
+redaction removes the excuse, not the possibility.
 """
 import cards
 import table as tbl
@@ -47,6 +54,13 @@ def _cost(name):
 
 
 def hand_lines(t, seat, show_text=True):
+    """The hand, with a card's text printed the first time it is seen.
+
+    Reprinting every card's full text on every render was about half of a turn's
+    output, and none of it was new — the reader had just been shown it. Text
+    appears once per game, when the card first reaches a hand or the board;
+    `card <name>` fetches it again on demand.
+    """
     p = t.player(seat)
     out = []
     for name in sorted(p.hand):
@@ -56,7 +70,7 @@ def hand_lines(t, seat, show_text=True):
         if cards.might(name) is not None:
             line += f"  [{cards.might(name)}M]"
         out.append(line)
-        if show_text and cards.has_text(name):
+        if cards.has_text(name) and (show_text is True and t.first_sight(name) or show_text == "always"):
             for chunk in _wrap(cards.text(name), 62):
                 out.append(f"                  {chunk}")
         if not payable:
@@ -77,8 +91,11 @@ def _wrap(text, width):
     return out
 
 
-def render(t, seat=None, full=False):
-    """The table as one seat sees it, or the whole thing when `full`."""
+def render(t, seat=None, full=False, verbose=False):
+    """The table as one seat sees it, or the whole thing when `full`.
+
+    `verbose` re-prints card text that has already been shown this game.
+    """
     lines = [BAR]
     header = f"turn {t.turn} · {t.phase or 'setup'} · seat {t.turn_player} to act"
     if t.winner is not None:
@@ -117,7 +134,9 @@ def render(t, seat=None, full=False):
         if bf.scored_by:
             status.append(f"scored this turn by {', '.join(f'seat {s}' for s in sorted(bf.scored_by))}")
         lines.append(f"{bf.name}  (bf:{bf.index})  —  {'; '.join(status)}")
-        if cards.find(bf.name) and cards.has_text(bf.name):
+        # Printed once, like a card's. It is in the setup log too, and it does
+        # not change; `--verbose` brings it back.
+        if cards.find(bf.name) and cards.has_text(bf.name) and (verbose or t.first_sight(bf.name)):
             for chunk in _wrap(cards.text(bf.name), 66):
                 lines.append(f"    {chunk}")
         here = t.at(bf.location)
@@ -137,10 +156,10 @@ def render(t, seat=None, full=False):
     if full:
         for p in t.players:
             lines.append(f"seat {p.seat} hand ({len(p.hand)}):")
-            lines.extend(hand_lines(t, p.seat))
+            lines.extend(hand_lines(t, p.seat, show_text=verbose or True))
     elif seat is not None:
         lines.append(f"your hand ({len(t.player(seat).hand)}):")
-        lines.extend(hand_lines(t, seat))
+        lines.extend(hand_lines(t, seat, show_text="always" if verbose else True))
         other = t.opponent(seat)
         lines.append(f"seat {other} holds {len(t.player(other).hand)} card(s) — contents hidden")
     else:
@@ -153,9 +172,23 @@ def render(t, seat=None, full=False):
     return "\n".join(lines)
 
 
-def log_lines(t, last=None):
+def log_lines(t, last=None, seat=None, full=False):
+    """The log as one seat may see it.
+
+    Entries marked private to another seat keep their headline and lose their
+    detail, so the shape of the game stays readable — "seat 1 draws 1" — without
+    naming a card that seat is not entitled to know. `full` is for reviewing a
+    finished game, never for playing one.
+    """
     entries = t.log[-last:] if last else t.log
-    return [
-        f"  t{e['turn']:>2} {(e['phase'] or 'setup')[:6]:6}  {e['text']}"
-        for e in entries
-    ]
+    out = []
+    for e in entries:
+        text = e["text"]
+        owner = e.get("private_to")
+        if e.get("detail"):
+            if full or owner == seat:
+                text = f"{text}: {e['detail']}"
+            else:
+                text = f"{text} (hidden)"
+        out.append(f"  t{e['turn']:>2} {(e['phase'] or 'setup')[:6]:6}  {text}")
+    return out

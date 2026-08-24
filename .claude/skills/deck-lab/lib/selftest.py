@@ -13,6 +13,7 @@ Exit 0 = the table can be trusted to hold a game.
 import copy
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -650,9 +651,39 @@ def scoring():
 def burn_out():
     t = fresh(first=0)
     t.player(0).main_deck = []
+    t.player(0).trash = ["Called Shot"]
     t.draw(0, 1)
     check("drawing from an empty Main Deck reports a Burn Out (431)",
           any("BURNS OUT" in entry["text"] for entry in t.log))
+
+    # 431.2 is a sequence, not a notification. It used to be the log line alone,
+    # which made a decked-out player immortal — 431.2.c is the only mechanism by
+    # which such a game ever ends.
+    t = fresh(first=0)
+    p = t.player(0)
+    p.trash = list(p.main_deck)[:35]
+    p.main_deck = []
+    hand_before = len(p.hand)
+    opp_before = t.player(1).points
+    t.draw(0, 1, reason="draw phase")
+    check("burning out recycles the trash into the Main Deck (431.2.b)",
+          len(p.main_deck) == 34 and p.trash == [],
+          "35 recycled, one of them then drawn")
+    check("burning out gives an opponent a point (431.2.c)",
+          t.player(1).points == opp_before + 1)
+    check("the draw that caused the burn out still completes (431.2.d, 315.4.b.2)",
+          len(p.hand) == hand_before + 1)
+
+    # 431.3.a: with the trash empty too, it repeats until someone wins.
+    t = fresh(first=0)
+    t.player(0).main_deck = []
+    t.player(0).trash = []
+    t.draw(0, 1)
+    check("an empty deck AND an empty trash hands the game to the opponent (431.3.a)",
+          t.winner == 1 and t.player(1).points >= t.victory_target,
+          f"seat 1 reached {t.player(1).points}")
+    check("that win is immediate, without waiting for a cleanup (431.3.c.1)",
+          t.winner == 1)
 
 
 # -- persistence ---------------------------------------------------------
@@ -699,6 +730,57 @@ def persistence():
     check("a saved game restores every field of its state",
           not lost,
           f"lost: {', '.join(lost)}" if lost else f"{len(restored)} fields checked")
+
+
+def rendering():
+    """A render costs tokens, and a game is many renders.
+
+    Reprinting every card's full text on every render was about half a turn's
+    output and told the reader nothing they had not just been told.
+    """
+    import view
+    t = fresh(first=0)
+    t.begin_turn()
+    first = view.render(t, seat=0)
+    second = view.render(t, seat=0)
+    check("a card's printed text appears the first time it is rendered",
+          any(cards.text(n)[:24] in first for n in t.player(0).hand if cards.has_text(n)))
+    check("the same render twice does not repeat the text",
+          len(second) < len(first),
+          f"{len(first)} chars then {len(second)}")
+    check("--verbose brings the text back",
+          len(view.render(t, seat=0, verbose=True)) > len(second))
+    check("what is hidden is the TEXT, never the card's presence",
+          all(n in second for n in t.player(0).hand),
+          "every card in hand is still listed, with its cost and payability")
+
+    # The saving must survive the game being saved and reloaded, or every
+    # command starts over and the reprints come back.
+    import json as _json
+    back = table.Table.from_dict(_json.loads(_json.dumps(t.as_dict())), list(two_decks()))
+    check("what has been seen survives a save and reload",
+          back.text_shown == t.text_shown and len(view.render(back, seat=0)) == len(second))
+
+
+def privacy():
+    """108.7.c: a hand is Private Information."""
+    import view
+    t = fresh(first=0)
+    public = "\n".join(view.log_lines(t))
+    check("the public log does not name the cards anyone drew (108.7.c)",
+          not any(n in public for p in t.players for n in p.hand),
+          "`new` printed this log, so both opening hands were on screen before "
+          "the first mulligan decision")
+    check("the log still shows that a draw happened",
+          "draws 4" in public and "(hidden)" in public)
+    own = "\n".join(view.log_lines(t, seat=0))
+    check("a seat sees its own draws in full",
+          all(n in own for n in t.player(0).hand))
+    check("and still not the opponent's",
+          not any(n in own for n in t.player(1).hand
+                  if n not in t.player(0).hand))
+    check("a finished game can be reviewed in full",
+          all(n in "\n".join(view.log_lines(t, full=True)) for n in t.player(1).hand))
 
 
 def atomicity():
@@ -768,6 +850,73 @@ def _puts_from_trash(t):
     return perm in t.permanents and "Stellacorn Herder" not in p.trash
 
 
+def documentation():
+    """SKILL.md is the procedure an agent follows. Its examples have to run.
+
+    The review found a documented `precombat` example that was not runnable and
+    a setup message telling every reader to use an action that did not exist.
+    Prose drifts from code silently; this makes it fail loudly.
+    """
+    import deck_cli
+    skill_md = os.path.join(os.path.dirname(HERE), "SKILL.md")
+    text = open(skill_md, encoding="utf-8").read()
+
+    t = fresh(first=0)
+    t.begin_turn()
+    commands = {"decks", "check", "card", "analyze", "report", "new", "state",
+                "do", "log", "games", "record", "journal", "selftest", "mutants", "help"}
+
+    # The verbs the CLI's own help advertises must all be real.
+    help_text = deck_cli.__doc__ or ""
+    import io, contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        deck_cli.cmd_help(None)
+    # Scan only the action reference; verbs appear both at line start and
+    # paired mid-line there, and the usage header above it is not a verb list.
+    section = buf.getvalue().split("actions for `do`", 1)[-1]
+    advertised = set(re.findall(r"\b([a-z]+) [<\[]", section)) - commands
+    unknown = []
+    for verb in sorted(advertised):
+        try:
+            deck_cli._act(t, [verb])
+        except RulesError as err:
+            if "unknown action" in str(err):
+                unknown.append(verb)
+        except Exception:
+            pass  # wrong arity is fine; the verb exists
+    check("every action the CLI advertises exists", not unknown,
+          f"missing: {', '.join(unknown)}" if unknown else f"{len(advertised)} verbs")
+
+    # Every `do '...'` example in SKILL.md must parse and name real verbs.
+    examples = re.findall(r"do '([^']+)'", text)
+    bad = []
+    for example in examples:
+        for argv in deck_cli.split_actions(example):
+            if argv and argv[0] not in advertised:
+                bad.append(argv[0])
+    check("every action in SKILL.md's own examples is real", not bad,
+          f"{len(examples)} example(s); unknown: {', '.join(bad)}" if bad
+          else f"{len(examples)} example(s) checked")
+
+    # Anything the table tells a reader to run must also be real. The setup
+    # message told every reader to use `set-target`, which never existed.
+    told = set(re.findall(r"`([a-z][a-z-]+)", "\n".join(e["text"] for e in t.log)))
+    bogus = sorted(v for v in told if v not in commands and v not in advertised)
+    check("the table never tells the reader to run something that does not exist",
+          not bogus, f"log mentions: {', '.join(bogus)}" if bogus else "")
+
+    for phrase, ok in (
+        ("channel 2 runes", MODE_CHANNEL == 2),
+        ("first to 8 points", deckfile.MODE["victory_score"] == 8),
+        ("opening hand of 4", deckfile.MODE["opening_hand"] == 4),
+    ):
+        check(f"SKILL.md's numbers match the mode: {phrase}", ok)
+
+
+MODE_CHANNEL = deckfile.MODE["channel_per_turn"]
+
+
 def action_scripts():
     import deck_cli
     check(
@@ -788,8 +937,8 @@ def main():
     print("deck-lab selftest\n")
     for section in (
         card_lookup, deck_legality, setup_rules, turn_structure, resources,
-        paying, movement, combat, scoring, burn_out, persistence, atomicity,
-        action_scripts,
+        paying, movement, combat, scoring, burn_out, persistence, rendering,
+        privacy, atomicity, documentation, action_scripts,
     ):
         print(f"{section.__name__}:")
         section()

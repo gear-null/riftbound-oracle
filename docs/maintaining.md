@@ -62,7 +62,13 @@ rather than Riot releases:
 npm run oracle decks pull                # tournament decklists     (network)
 cd .claude/skills/deck-lab/lib
 python3 deck_cli.py selftest             # must end "N/N passed"
+python3 deck_cli.py mutants              # must end "N/N mutants caught"
 ```
+
+`mutants` is the gate that makes `selftest` mean something: it reintroduces each defect
+the suite claims to catch and asserts the named check goes red. A surviving mutant is a
+check that is lying about what it covers. It is slow — a full suite run per mutant — so
+it is a pre-merge gate, not an inner loop.
 
 `build` regenerates `data/rules.json`, the FTS index and `data/rules.html` together.
 They must move as a set: report citations link to `rules.html#CR-<id>`, and a rules
@@ -198,6 +204,13 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
 - **The table must never interpret card text.** It may print text verbatim and it may
   refuse; the moment it starts applying an effect, every card it does not handle becomes
   a silent wrong answer instead of a visible manual step.
+- **Every deck-lab behaviour needs a mutant, not just a check.** Adding a rule to the
+  table means adding a check to `selftest.py` AND a mutant to `mutants.py` that has been
+  seen to make that check fail. The first run of the battery found five checks that
+  passed while the behaviour they named was deleted.
+- **A turn must stay cheap.** Card text prints once per game, batches are one round trip,
+  and SKILL.md carries everything a normal turn needs so playing never requires a rules
+  lookup. Count the tool calls a feature costs before counting the rules it covers.
 
 ## Repository layout
 

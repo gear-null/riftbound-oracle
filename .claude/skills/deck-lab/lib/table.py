@@ -178,6 +178,10 @@ class Table:
         #: would declare a winner a full point early.
         self.victory_target = mode["victory_score"]
         self.log = []
+        #: Cards whose printed text has already been put in front of the reader
+        #: this game. Re-printing it on every render was ~48% of a turn's output
+        #: and told them nothing they had not just been told.
+        self.text_shown = set()
         self._next_id = 1
         self.setup_done = False
 
@@ -188,9 +192,27 @@ class Table:
         self._next_id += 1
         return oid
 
-    def note(self, message):
-        self.log.append({"turn": self.turn, "phase": self.phase, "text": message})
+    def note(self, message, private_to=None, detail=""):
+        """Record something that happened.
+
+        `private_to` marks an entry as visible only to that seat — a draw names
+        cards, and rule 108.7.c makes a hand Private Information. The entry is
+        still recorded in full so the game can be reviewed afterwards; `detail`
+        carries the part a seat view redacts.
+        """
+        entry = {"turn": self.turn, "phase": self.phase, "text": message}
+        if private_to is not None:
+            entry["private_to"] = private_to
+            entry["detail"] = detail
+        self.log.append(entry)
         return message
+
+    def first_sight(self, name):
+        """True the first time a card's text is worth printing this game."""
+        if name in self.text_shown:
+            return False
+        self.text_shown.add(name)
+        return True
 
     def player(self, seat):
         return self.players[seat]
@@ -239,7 +261,7 @@ class Table:
         for bf in self.battlefields:
             if cards.find(bf.name) and cards.text(bf.name).strip():
                 self.note(f"  {bf.name} reads: {cards.text(bf.name)}")
-        self.note(f"victory score is {self.victory_target} — adjust with `set-target` if a card changes it")
+        self.note(f"victory score is {self.victory_target} — adjust with `target <n>` if a card changes it")
         return self
 
     def mulligan(self, seat, keep=None):
@@ -267,23 +289,70 @@ class Table:
     # -- zone movement (the Game Actions of 413-444) ---------------------
 
     def draw(self, seat, n=1, reason=""):
-        """Draw n (413). Reports a Burn Out rather than silently drawing air."""
+        """Draw n (413), burning out where the deck runs short (431.1.a)."""
         p = self.player(seat)
         drawn = []
-        for _ in range(n):
-            if not p.main_deck:
-                # 431 Burn Out — the player has run out of Main Deck.
-                self.note(f"seat {seat} BURNS OUT — no cards left to draw (431)")
+        remaining = n
+        # A player whose trash is also empty burns out again on the next attempt
+        # (431.3), handing over a point each time until someone wins. The bound
+        # is the Victory Score, so this always terminates.
+        for _ in range(self.victory_target + 2):
+            take = min(remaining, len(p.main_deck))
+            for _ in range(take):
+                drawn.append(p.main_deck.pop(0))
+            remaining -= take
+            if remaining <= 0:
                 break
-            drawn.append(p.main_deck.pop(0))
+            self.burn_out(seat)
+            if self.winner is not None:
+                break
         p.hand.extend(drawn)
         if drawn:
+            # The card names are private to the drawing seat (108.7.c). They used
+            # to sit in the public log, and `new` printed that log unfiltered —
+            # so both opening hands were on screen before the first mulligan
+            # decision, which is the one leak a reader cannot recover from.
             self.note(
-                f"seat {seat} draws {len(drawn)}"
-                + (f" ({reason})" if reason else "")
-                + f": {', '.join(drawn)}"
+                f"seat {seat} draws {len(drawn)}" + (f" ({reason})" if reason else ""),
+                private_to=seat,
+                detail=", ".join(drawn),
             )
         return drawn
+
+    def burn_out(self, seat):
+        """Run the Burn Out sequence (431.2).
+
+        This used to be a log line and nothing else, which made a decked-out
+        player immortal: 431.2.c is a point award, and 431.3.a's "burning out
+        repeatedly, giving 1 point to an opponent each time, until an opponent
+        passes the Victory Score" is the only way such a game ever ends. Twenty
+        turns of an empty deck left both players on zero and no winner.
+
+        The caller performs 431.2.a and 431.2.d — as much of the action as
+        possible, then the remainder — because only it knows what the action was.
+        """
+        p = self.player(seat)
+        opponent = self.opponent(seat)
+        self.note(f"seat {seat} BURNS OUT (431)")
+
+        # 431.2.b: recycle the trash into the Main Deck, randomised.
+        if p.trash:
+            recycled = len(p.trash)
+            p.main_deck.extend(p.trash)
+            p.trash = []
+            self.rng.shuffle(p.main_deck)
+            self.note(f"  seat {seat} recycles {recycled} card(s) from trash into their Main Deck (431.2.b)")
+        else:
+            self.note(f"  seat {seat}'s trash is empty; the Main Deck stays empty (431.3)")
+
+        # 431.2.c: an opponent gains a point. Not a Score — 471.1's restrictions
+        # are about Scoring, and this is a plain point gain.
+        self.player(opponent).points += 1
+        self.note(f"  seat {opponent} gains 1 point from the burn out → "
+                  f"{self.player(opponent).points} (431.2.c)")
+        # 431.3.c.1: a win from this is immediate, without waiting for a cleanup.
+        self.check_victory()
+        return self.player(opponent).points
 
     def channel(self, seat, n=1, exhausted=False):
         """Channel n runes from the top of the Rune Deck onto the board (430)."""
@@ -1075,6 +1144,7 @@ class Table:
             "permanents": [p.as_dict() for p in self.permanents],
             "runes": [r.as_dict() for r in self.runes],
             "chain": list(self.chain),
+            "text_shown": sorted(self.text_shown),
             "log": list(self.log),
         }
 
@@ -1089,7 +1159,7 @@ class Table:
         other = Table.from_dict(snapshot, [p.deck for p in self.players])
         for field in ("turn", "phase", "turn_player", "first_player", "winner",
                       "victory_target", "second_player_channel_bonus_used",
-                      "setup_done", "_next_id", "chain", "log",
+                      "setup_done", "_next_id", "chain", "log", "text_shown",
                       "permanents", "runes", "battlefields"):
             setattr(self, field, getattr(other, field))
         for mine, theirs in zip(self.players, other.players):
@@ -1110,6 +1180,7 @@ class Table:
         t.setup_done = raw.get("setup_done", False)
         t._next_id = raw.get("next_id", 1)
         t.chain = list(raw.get("chain", []))
+        t.text_shown = set(raw.get("text_shown", []))
         t.log = list(raw.get("log", []))
         for p, saved in zip(t.players, raw["players"]):
             for field in ("champion_zone", "hand", "main_deck", "rune_deck", "trash", "banished"):

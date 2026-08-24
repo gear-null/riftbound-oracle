@@ -255,19 +255,27 @@ def cmd_new(args):
     t = table.Table(decks, seed=args.seed, first=args.first).setup()
     name = args.name or f"{args.deck_a[:20]}-vs-{args.deck_b[:20]}-s{args.seed}"
     session.save(t, name, [args.deck_a, args.deck_b])
-    print("\n".join(view.log_lines(t)))
+    print("\n".join(view.log_lines(t, seat=None)))
     print(f"\ngame '{session.slug(name)}' saved · seat 0 = {decks[0].name} · seat 1 = {decks[1].name}")
     print("mulligans are next: `do 'mulligan 0 \"Card A\" \"Card B\"'` keeps only those cards")
 
 
 def cmd_state(args):
-    name, t, _ = session.load(args.game)
-    print(view.render(t, seat=args.seat, full=args.full))
+    name, t, refs = session.load(args.game)
+    out = view.render(t, seat=args.seat, full=args.full, verbose=args.verbose)
+    # `first_sight` is state: showing a card's text is what marks it as seen, so
+    # the render has to be saved or the next one repeats everything.
+    session.save(t, name, refs)
+    print(out)
 
 
 def cmd_log(args):
     name, t, _ = session.load(args.game)
-    print("\n".join(view.log_lines(t, last=args.last)))
+    if args.full and t.winner is None:
+        print("refusing --full on a game still in progress: it would show both hands.")
+        print("finish the game, or pass --seat N to read it from one seat.")
+        return 1
+    print("\n".join(view.log_lines(t, last=args.last, seat=args.seat, full=args.full)))
 
 
 def split_actions(script):
@@ -306,6 +314,10 @@ def cmd_do(args):
     except ValueError as err:
         print(f"error: could not parse the action script — {err}")
         return 1
+    if args.seat is not None:
+        t.note(f"— seat {args.seat} acting —")
+    else:
+        t.note("— acting with no seat declared —")
     results = []
     for argv in batches:
         chunk = " ".join(shlex.quote(a) if " " in a else a for a in argv)
@@ -326,7 +338,7 @@ def cmd_do(args):
             print(f"        {result}")
     if not args.quiet:
         print()
-        print(view.render(t, seat=args.seat, full=args.full))
+        print(view.render(t, seat=args.seat, full=args.full, verbose=args.verbose))
 
 
 def cmd_games(args):
@@ -405,9 +417,11 @@ def cmd_help(args):
   analyze <deck>               shuffle math: curve, domain access, stranded cards
   report <deck>                the same, as a self-contained HTML page
   new <deckA> <deckB>          start a game (--seed, --first, --name)
-  state                        the table (--seat N to see that hand, --full for both)
+  state --seat N               the table from that seat. Card text prints once,
+                               the first time you see the card; --verbose repeats it
   do "<action>; <action>"      apply actions, then show the table
-  log                          the game log (--last N)
+  log [--seat N]               the game log; another seat's draws stay hidden.
+                               --full needs a finished game
   games                        saved games; * marks the current one
   record [--note "..."]        log the current game's result to the journal
   journal                      every recorded result
@@ -462,11 +476,13 @@ def main(argv=None):
     p.add_argument("--name")
     p = sub.add_parser("state")
     p.add_argument("--seat", type=int); p.add_argument("--full", action="store_true")
-    p.add_argument("--game")
+    p.add_argument("--game"); p.add_argument("--verbose", action="store_true")
     p = sub.add_parser("log"); p.add_argument("--last", type=int); p.add_argument("--game")
+    p.add_argument("--seat", type=int); p.add_argument("--full", action="store_true")
     p = sub.add_parser("do"); p.add_argument("actions", nargs="+")
     p.add_argument("--seat", type=int); p.add_argument("--full", action="store_true")
     p.add_argument("--game"); p.add_argument("--quiet", action="store_true")
+    p.add_argument("--verbose", action="store_true")
     sub.add_parser("games")
     p = sub.add_parser("record")
     p.add_argument("--game"); p.add_argument("--note"); p.add_argument("--force", action="store_true")
