@@ -91,7 +91,8 @@ class Rune:
 class Battlefield:
     """A battlefield in the Battlefield Zone (169), and who holds it (190)."""
 
-    __slots__ = ("index", "name", "provided_by", "controller", "contested", "scored_by")
+    __slots__ = ("index", "name", "provided_by", "controller", "contested",
+                 "contested_by", "scored_by")
 
     def __init__(self, index, name, provided_by):
         self.index = index
@@ -99,6 +100,10 @@ class Battlefield:
         self.provided_by = provided_by
         self.controller = None
         self.contested = False
+        #: The seat whose unit applied Contested. 464.2.c.1 makes that player
+        #: the Attacker, and 323.11 makes contested removal depend on whether
+        #: they still have units here — neither is recoverable from a bool.
+        self.contested_by = None
         #: Seats that have already Scored here this turn (470).
         self.scored_by = set()
 
@@ -617,9 +622,14 @@ class Table:
         return self.note(f"{perm.name} [{oid}] is recalled to base")
 
     def _apply_contested(self, perm):
+        # 190.3.a: Contested is applied by a UNIT becoming present. Gear moving
+        # to a battlefield does not contest it.
+        if not perm.is_unit:
+            return
         bf = self.battlefield(perm.location.split(":")[1])
         if bf.controller != perm.controller and not bf.contested:
             bf.contested = True
+            bf.contested_by = perm.controller
             self.note(f"{bf.name} becomes CONTESTED by seat {perm.controller} (190.3.a.1)")
 
     # -- phases (314-317) ------------------------------------------------
@@ -702,7 +712,18 @@ class Table:
         return self.turn_player
 
     def cleanup(self):
-        """A Cleanup (318): settle control at every battlefield, then check victory."""
+        """A Cleanup, in the order rule 323 lists its tasks."""
+        # 323.1 is the victory check; it runs again at the end, once the board
+        # has settled, because killing a unit can lose someone a battlefield.
+        self.check_victory()
+
+        # 323.5 (3b): every unit with lethal damage marked on it is killed.
+        # Nothing did this outside combat, so a unit damaged by a spell simply
+        # sat there until the Ending Phase healed it.
+        for perm in list(self.permanents):
+            if perm.is_unit and perm.damage > 0 and perm.damage >= perm.might:
+                self.to_trash(perm.id, reason="lethal damage marked (323.5)")
+
         for bf in self.battlefields:
             here = self.units_at(bf.location)
             controllers = {u.controller for u in here}
@@ -715,7 +736,10 @@ class Table:
                 # cleanup settles — control cannot change until the steps of
                 # combat say so (190.4.b).
                 continue
+            # 323.11: Contested is removed from a battlefield with no units
+            # controlled by the player who applied it and no combat ongoing.
             bf.contested = False
+            bf.contested_by = None
             if len(controllers) == 1:
                 # A unit moved onto a battlefield nobody was holding, and the
                 # showdown closed with only that player present: they establish
@@ -802,6 +826,22 @@ class Table:
 
     # -- combat (459-466) ------------------------------------------------
 
+    def attacker_at(self, bf):
+        """The Attacker at a battlefield: whoever's unit applied Contested (464.2.c.1).
+
+        Assuming the turn player was wrong in both directions. A non-turn player
+        can contest — a unit becoming present during a Showdown does it — and the
+        designation decides which side a defender's "while I'm a defender" text
+        applies to, and which side 466.1.a.2 recalls. Getting it backwards loses
+        a battlefield its controller was holding.
+        """
+        if bf.contested_by is None:
+            raise RulesError(
+                f"{bf.name} has no recorded Attacker — nothing applied Contested to it, "
+                "so there is no combat here to resolve (464.2.c.1)"
+            )
+        return bf.contested_by
+
     def staged_combats(self):
         """Battlefields where units of two opposing players are present (461)."""
         out = []
@@ -825,11 +865,20 @@ class Table:
         for target in defenders:
             if pool <= 0:
                 break
-            lethal = max(target.might - target.damage, 0)
-            give = min(pool, lethal)
-            assignment[target.id] = give
+            # 142.4.b: lethal is a NON-ZERO amount equalling or exceeding Might,
+            # so the minimum lethal assignment for a 0-Might unit is 1, not 0.
+            # Treating it as 0 assigned nothing, walked past a unit that could
+            # still legally be assigned damage, and then dumped the excess on the
+            # last defender — which 465.2.c.3 and 465.2.c.4 both forbid.
+            already_lethal = target.damage > 0 and target.damage >= target.might
+            need = 0 if already_lethal else max(target.might - target.damage, 1)
+            give = min(pool, need)
+            if give:
+                assignment[target.id] = give
             pool -= give
-        # 465.2.c.4: the excess may exceed lethal only once nothing else is left.
+        # 465.2.c.4: more than the minimum lethal is allowed only once no further
+        # unit remains to be assigned damage — i.e. every defender already has
+        # its full lethal, which is the only way `pool` survives the loop.
         if pool > 0 and defenders:
             last = defenders[-1]
             assignment[last.id] = assignment.get(last.id, 0) + pool
@@ -848,7 +897,7 @@ class Table:
         Nothing here is applied. Buffs and modifiers are the reader's to add.
         """
         bf = self.battlefield(index)
-        attacker_seat = self.turn_player
+        attacker_seat = self.attacker_at(bf)
         defender_seat = self.opponent(attacker_seat)
         attackers = self.units_at(bf.location, attacker_seat)
         defenders = self.units_at(bf.location, defender_seat)
@@ -891,8 +940,7 @@ class Table:
         if len(seats) != 2:
             raise RulesError(f"no combat staged at {bf.name} — needs units from two players (461)")
 
-        # The attacker is the seat that contested; in practice the turn player.
-        attacker_seat = self.turn_player
+        attacker_seat = self.attacker_at(bf)
         defender_seat = self.opponent(attacker_seat)
         attackers = self.units_at(bf.location, attacker_seat)
         defenders = self.units_at(bf.location, defender_seat)
@@ -950,24 +998,31 @@ class Table:
         defenders = self.units_at(bf.location, defender_seat)
 
         # 466.1.a.2: attackers still present when defenders remain are recalled.
-        if attackers and defenders:
+        repelled = bool(attackers and defenders)
+        if repelled:
             for unit in list(attackers):
                 self.recall(unit.id)
             self.note(f"attackers repelled at {bf.name} — no result (466.3.d)")
-            bf.contested = False
-            return {"result": "no result", "battlefield": bf.name}
 
+        bf.contested = False
+        bf.contested_by = None
         remaining = self.units_at(bf.location)
         if not remaining:
-            bf.contested = False
             if bf.controller is not None:
                 self.note(f"{bf.name} becomes uncontrolled (466.5.b)")
                 bf.controller = None
-            return {"result": "mutual destruction", "battlefield": bf.name}
+            # 466.3.d calls this No Result: neither side was the only one left.
+            return {"result": "no result", "battlefield": bf.name, "reason": "both sides destroyed"}
 
+        # 466.5 runs whether or not the attackers were repelled: with no Showdown
+        # or Combat still staged, whoever has units here establishes control, and
+        # that is a Conquer if they had not scored it this turn. Returning early
+        # on a repel meant a defender who had just held off an attack — and who
+        # may not have controlled the battlefield before it — never took it.
         winner = remaining[0].controller
         self.establish_control(winner, bf.index)
-        return {"result": "control established", "battlefield": bf.name, "winner": winner}
+        result = "attackers repelled" if repelled else "control established"
+        return {"result": result, "battlefield": bf.name, "winner": winner}
 
     # -- serialisation ---------------------------------------------------
 
@@ -1015,6 +1070,7 @@ class Table:
             bf = Battlefield(saved["index"], saved["name"], saved["provided_by"])
             bf.controller = saved["controller"]
             bf.contested = saved["contested"]
+            bf.contested_by = saved.get("contested_by")
             bf.scored_by = set(saved["scored_by"])
             t.battlefields.append(bf)
         t.permanents = []

@@ -68,10 +68,46 @@ def fresh(seed=7, first=0):
     return table.Table([a, b], seed=seed, first=first).setup()
 
 
+def _attacker_or_none(t, bf):
+    """The Attacker, or None when the table cannot say — a failure, not a crash."""
+    try:
+        return t.attacker_at(bf)
+    except RulesError:
+        return None
+
+
+def _resolve(t, index, **kw):
+    """Resolve a combat, turning a refusal into a reportable result.
+
+    A check that dies takes the whole suite with it and reports nothing — which
+    is indistinguishable from the suite never having run. Every combat check
+    goes through here so a refusal shows up as a named failure instead.
+    """
+    try:
+        return t.resolve_combat(index, **kw)
+    except RulesError as err:
+        return {"result": f"<refused> {err}", "battlefield": None}
+
+
+def _roles_or_empty(t, index):
+    try:
+        return {u["id"]: u["role"] for u in t.combat_preview(index)["units"]}
+    except RulesError:
+        return {}
+
+
 def stub_unit(t, seat, name, location, exhausted=False):
+    """Put a unit somewhere, through the same arrival path real play uses.
+
+    It used to append straight to `t.permanents`, which skipped `_apply_contested`
+    — so every combat test ran against a battlefield that nothing had contested,
+    and none of them exercised the Attacker designation at all.
+    """
     perm = table.Permanent(t._oid("u"), name, seat, location)
     perm.exhausted = exhausted
     t.permanents.append(perm)
+    if location.startswith(table.BATTLEFIELD):
+        t._apply_contested(perm)
     return perm
 
 
@@ -324,6 +360,23 @@ def combat():
           assignment[d1.id] == d1.might and assignment.get(d2.id, 0) == 8 - d1.might,
           str(assignment))
 
+    # 465.2.c.3 + 142.4.b: a 0-Might unit's minimum lethal is 1, not 0. Reading
+    # it as 0 assigned it nothing, walked past a unit that could still legally be
+    # assigned damage, and dumped the excess on the last defender instead — which
+    # 465.2.c.4 forbids while any unit is still owed its lethal.
+    t = fresh(first=0)
+    t.begin_turn()
+    hitter = stub_unit(t, 0, "Irelia, Fervent", "bf:0")      # 4 Might
+    zero = stub_unit(t, 1, "Scuttle Crab", "bf:0")           # printed 0 Might
+    other = stub_unit(t, 1, "Stalwart Poro", "bf:0")         # 2 Might
+    a = t.assign_damage([hitter], [zero, other])
+    check("a 0-Might unit is assigned its minimum lethal of 1, not skipped (142.4.b)",
+          a.get(zero.id) == 1,
+          f"assigned {a}")
+    check("the excess is not dumped while a unit is still owed lethal (465.2.c.4)",
+          a.get(other.id, 0) <= other.might + 1,
+          f"assigned {a}")
+
     t = fresh(first=0)
     t.begin_turn()
     big = stub_unit(t, 0, "Irelia, Fervent", "bf:0")   # 4 Might
@@ -337,9 +390,10 @@ def combat():
     t.begin_turn()
     stub_unit(t, 0, "Irelia, Fervent", "bf:0")
     stub_unit(t, 1, "Irelia, Fervent", "bf:0")
-    result = t.resolve_combat(0)
+    result = _resolve(t, 0)
     check("equal Might trades both units simultaneously (465.2.c.1.a)",
-          t.units_at("bf:0") == [] and result["result"] == "mutual destruction")
+          t.units_at("bf:0") == [] and result["result"] == "no result",
+          "466.3.d: neither side was the only one left, so it is No Result")
 
     # The attacker must SURVIVE for this to test a recall at all — an attacker
     # that dies satisfies "not standing at the battlefield" without any recall
@@ -354,7 +408,7 @@ def combat():
     t.begin_turn()
     attacker = stub_unit(t, 0, "Irelia, Fervent", "bf:0")
     defender = stub_unit(t, 1, "Irelia, Fervent", "bf:0")
-    result = t.resolve_combat(0, attacker_assignment={}, defender_assignment={})
+    result = _resolve(t, 0, attacker_assignment={}, defender_assignment={})
     check("a repelled attacker is recalled to base, not left standing (466.1.a.2)",
           attacker in t.permanents and attacker.location == "base:0"
           and defender.location == "bf:0",
@@ -366,7 +420,7 @@ def combat():
     winner = stub_unit(t, 0, "Irelia, Fervent", "bf:0")
     stub_unit(t, 1, "Stellacorn Herder", "bf:0")
     before = t.player(0).points
-    t.resolve_combat(0)
+    _resolve(t, 0)
     check("winning a combat establishes control and Conquers (466.5.d)",
           t.battlefield(0).controller == 0 and t.player(0).points == before + 1)
     check("units are healed after combat (466.1.a.1)", winner.damage == 0)
@@ -378,7 +432,7 @@ def combat():
     zero = stub_unit(t, 1, "Stellacorn Herder", "bf:0")
     zero.buffs = -zero.base_might
     stub_unit(t, 0, "Stellacorn Herder", "bf:0").buffs = -3
-    t.resolve_combat(0)
+    _resolve(t, 0)
     check("a 0-Might unit assigned no damage is not lethally damaged (465.2.c.2)",
           zero in t.permanents)
 
@@ -400,12 +454,62 @@ def combat():
     # Lethal is damage EQUALLING or exceeding Might, so +1 does not save a
     # 2-Might unit from 3 damage — it takes +2 to change the outcome.
     poro.buffs += 2
-    t.resolve_combat(0)
+    _resolve(t, 0)
     check("a Might change applied before combat changes who dies",
           poro in t.permanents,
           "at 4 Might the Poro survives the 3 damage that killed it at 2")
     check("combat logs the text of the units that fought, so it can be audited",
           any("reads:" in e["text"] and "Shield" in e["text"] for e in t.log))
+
+    # 464.2.c.1: the Attacker is whoever's unit applied Contested, which need not
+    # be the turn player. Assuming the turn player swapped the designations, so a
+    # defender's "while I'm a defender" text was applied to the wrong side and
+    # 466.1.a.2 recalled the wrong units.
+    t = fresh(first=0)
+    t.begin_turn()
+    holder = stub_unit(t, 0, "Stalwart Poro", "bf:0")
+    t.battlefield(0).controller = 0
+    t.battlefield(0).contested = False
+    t.battlefield(0).contested_by = None
+    intruder = t.put_into_play(1, "Stalwart Poro", "bf:0")
+    check("the Attacker is whoever applied Contested, not the turn player (464.2.c.1)",
+          _attacker_or_none(t, t.battlefield(0)) == 1,
+          "seat 0 is the turn player; seat 1 moved in and contested")
+    roles = _roles_or_empty(t, 0)
+    check("the preview labels the resident unit the defender",
+          roles.get(holder.id) == "defender" and roles.get(intruder.id) == "attacker")
+
+    # 466.5 runs even when the attackers were repelled: the defender is the only
+    # player left there, so they establish control — and Conquer if they had not
+    # already scored it. Returning early on a repel skipped that entirely.
+    t = fresh(first=0)
+    t.begin_turn()
+    t.put_into_play(0, "Stalwart Poro", "bf:0")   # seat 0 contests an empty bf
+    defender = stub_unit(t, 1, "Stalwart Poro", "bf:0")
+    t.battlefield(0).controller = None
+    before = t.player(1).points
+    result = _resolve(t, 0, attacker_assignment={}, defender_assignment={})
+    check("a repelled attack still leaves the defender establishing control (466.5)",
+          result["result"] == "attackers repelled"
+          and t.battlefield(0).controller == 1 and t.player(1).points == before + 1)
+
+    # 323.5: a unit with lethal damage marked on it is killed at the next
+    # cleanup. Nothing did that outside combat, so a unit damaged by a spell sat
+    # there until the Ending Phase healed it.
+    t = fresh(first=0)
+    t.begin_turn()
+    hurt = stub_unit(t, 0, "Stalwart Poro", "base:0")
+    hurt.damage = hurt.might
+    t.cleanup()
+    check("a unit with lethal damage marked is killed at a cleanup (323.5)",
+          hurt not in t.permanents)
+
+    # 190.3.a: Contested is applied by a UNIT becoming present.
+    t = fresh(first=0)
+    t.begin_turn()
+    gear = t.put_into_play(0, "Zhonya's Hourglass", "bf:0")
+    check("gear arriving at a battlefield does not contest it (190.3.a)",
+          not gear.is_unit and not t.battlefield(0).contested)
 
 
 # -- scoring (467-472) ---------------------------------------------------
