@@ -100,12 +100,99 @@ describe("parseDeckPage", () => {
   it("refuses a page with no legend rather than emitting a deck that cannot be played", () => {
     expect(() => parseDeckPage("<html><body></body></html>", "u", "2026-08-24")).toThrow(/no legend/);
   });
+
+  it("never emits a NaN quantity from an unreadable count badge", () => {
+    // parseInt("x6") is NaN, JSON.stringify turns NaN into null, and the Python
+    // loader's int(c["qty"]) then raises on a file that looks fine — a failure
+    // three layers away from its cause.
+    const html = page({
+      sections: section("Units", 6, tile("SFD-048", "Stellacorn Herder", 3).replace(">3<", ">many<")),
+    });
+    const { deck, structural } = parseDeckPage(html, "u", "2026-08-24");
+    expect(deck.main.every((c) => Number.isFinite(c.qty))).toBe(true);
+    expect(structural.join(" ")).toMatch(/unreadable count badge/);
+  });
+
+  it("still reads a badge that carries a prefix around its digits", () => {
+    // "x3" is a rendering variant, not a failure — the digits are right there.
+    const html = page({
+      sections: section("Units", 3, tile("SFD-048", "Stellacorn Herder", 3).replace(">3<", ">x3<")),
+    });
+    expect(parseDeckPage(html, "u", "2026-08-24").deck.main[0].qty).toBe(3);
+  });
+
+  it("reads a two-digit count, not just its first digit", () => {
+    const html = page({ sections: section("Runes", 12, tile("calmrune", "Calm Rune", 12)) });
+    expect(parseDeckPage(html, "u", "2026-08-24").deck.runes[0].qty).toBe(12);
+  });
+
+  it("reads every section sharing a heading, not just the first", () => {
+    // A prefix match took the first "Units" section and silently dropped the
+    // rest of the deck's units.
+    const html = page({
+      sections:
+        section("Units", 1, tile("SFD-048", "Stellacorn Herder")) +
+        section("Units", 1, tile("OGN-046", "Called Shot")),
+    });
+    const { deck } = parseDeckPage(html, "u", "2026-08-24");
+    expect(deck.main.map((c) => c.name).sort()).toEqual(["Called Shot", "Stellacorn Herder"]);
+  });
+
+  it("does not absorb a different section whose heading starts with the same word", () => {
+    // The heading must genuinely share the prefix for this to test anything —
+    // "Unit Tokens" does not start with "Units", so an earlier version of this
+    // check passed against the prefix-matching bug it was named for.
+    const html = page({
+      sections:
+        section("Units", 1, tile("SFD-048", "Stellacorn Herder")) +
+        section("Units (sideboard)", 1, tile("OGN-046", "Called Shot")),
+    });
+    const { deck } = parseDeckPage(html, "u", "2026-08-24");
+    expect(deck.main.map((c) => c.name)).toEqual(["Stellacorn Herder"]);
+  });
+
+  it("flags a missing mandatory section instead of reporting an empty one", () => {
+    // Every legal list has runes and battlefields (103.3.a, 103.4.a), so their
+    // absence is a rendering failure, never a property of the deck.
+    const html = page({ sections: section("Units", 1, tile("SFD-048", "Stellacorn Herder")) });
+    const { structural } = parseDeckPage(html, "u", "2026-08-24");
+    expect(structural).toContain("Runes: section not found on the page");
+    expect(structural).toContain("Battlefields: section not found on the page");
+  });
+
+  it("does not treat an unreadable declared count as agreement", () => {
+    // The guard against a half-rendered page used to switch itself off in
+    // exactly the case it exists to catch.
+    const html = page({
+      sections: section("Units", 3, tile("SFD-048", "Stellacorn Herder")).replace(
+        '<span class="deck-section-count">3</span>',
+        '<span class="deck-section-count">—</span>'
+      ),
+    });
+    const { structural } = parseDeckPage(html, "u", "2026-08-24");
+    expect(structural.join(" ")).toMatch(/no declared count/);
+  });
 });
 
 describe("parseDeckIndex", () => {
   it("collects deck ids once each", () => {
     const html = `<a href="/meta/aaa"></a><a href="/meta/bbb"></a><a href="/meta/aaa"></a><a href="/decks"></a>`;
     expect(parseDeckIndex(html)).toEqual(["aaa", "bbb"]);
+  });
+
+  it("treats a fragment or query on the same deck as the same deck", () => {
+    // Raw hrefs made /meta/aaa and /meta/aaa#comments two ids that both
+    // survived the Set and were both fetched — a wasted request against a site
+    // this pulls from politely, and a duplicate deck written twice.
+    const html = `<a href="/meta/aaa"></a><a href="/meta/aaa#comments"></a><a href="/meta/aaa?ref=x"></a>`;
+    expect(parseDeckIndex(html)).toEqual(["aaa"]);
+  });
+
+  it("ignores non-deck pages that also live under /meta/", () => {
+    // The index links tier lists and archetype hubs there too; fetching one as
+    // a deck throws "no legend found" and eats a request.
+    const html = `<a href="/meta/aaa"></a><a href="/meta/tier-list/aggro"></a>`;
+    expect(parseDeckIndex(html)).toEqual(["aaa"]);
   });
 });
 
@@ -173,9 +260,23 @@ describe("lookupCard", () => {
 });
 
 describe("deckSlug", () => {
-  it("is stable and filesystem-safe so a re-pull overwrites rather than accumulates", () => {
-    const d = { legend: "Irelia, Blade Dancer", name: "Irelia 2025 12 17" } as Deck;
-    expect(deckSlug(d)).toBe("irelia-blade-dancer-irelia-2025-12-17");
+  const withUrl = (legend: string, name: string, url: string) =>
+    ({ legend, name, source: { url } } as unknown as Deck);
+
+  it("is stable across runs, so a re-pull overwrites rather than accumulates", () => {
+    const d = withUrl("Irelia, Blade Dancer", "Irelia 2025 12 17", "https://x/meta/a");
+    expect(deckSlug(d)).toBe(deckSlug(d));
+    expect(deckSlug(d)).toMatch(/^irelia-blade-dancer-irelia-2025-12-17-[0-9a-f]{6}$/);
+  });
+
+  it("keeps two long, similarly-named decks apart", () => {
+    // Three of the 24 decks currently pulled already hit the truncation limit,
+    // so two lists whose names differ only past it would slugify identically
+    // and the second would overwrite the first while both were counted written.
+    const long = "1st Place Regional Qualifier Houston Enormous Event Name That Runs Very Long Indeed";
+    const a = withUrl("Master Yi, Wuju Bladesman", `${long} Alpha`, "https://x/meta/a");
+    const b = withUrl("Master Yi, Wuju Bladesman", `${long} Beta`, "https://x/meta/b");
+    expect(deckSlug(a)).not.toBe(deckSlug(b));
   });
 });
 
@@ -198,6 +299,26 @@ describe("pullMetaDecks", () => {
     expect(result.decks).toHaveLength(1);
     expect(result.decks[0].chosenChampion).toBe("Irelia, Fervent");
     expect(result.written).toHaveLength(2);
+    expect(result.quarantined).toEqual([]);
+  });
+
+  it("refuses to write a deck whose page did not parse cleanly", async () => {
+    // Overwriting a good committed gauntlet deck with a half-rendered one loses
+    // data that was correct, and the CLI would still have counted it written.
+    const tmp = `/tmp/decks-test-${process.pid}-q`;
+    const result = await pullMetaDecks({
+      delayMs: 0,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+      fetchText: async (url) =>
+        url.endsWith("/decks")
+          ? `<a href="/meta/short"></a>`
+          : page({ sections: section("Units", 1, tile("SFD-048", "Stellacorn Herder")) }),
+    });
+    expect(result.decks).toHaveLength(0);
+    expect(result.written).toHaveLength(0);
+    expect(result.quarantined[0].reasons.join(" ")).toMatch(/Runes: section not found/);
   });
 
   it("keeps going when one deck page fails, and says which", async () => {

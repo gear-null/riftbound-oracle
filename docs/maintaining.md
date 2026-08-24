@@ -152,7 +152,8 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
                                --- maintainer side ---
 src/                     TypeScript pipeline (fetch, parse, normalise)
   processors/            one per source type: riftcodex, rules-hub, pdf, html, url
-  skill-data.ts          builds data/cards.json
+  skill-data.ts          builds cards.json for every skill that vendors it
+  decks.ts               pulls decklists into output/decks/
 manifests/sources.yaml   prescriptive: what gets fetched and where it lands
 output/                  intermediate corpus the skill data is built from
 scripts/pdf-extract.py   pdfplumber PDF -> text

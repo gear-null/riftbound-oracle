@@ -18,6 +18,7 @@ manifests/        → Prescriptive source config + processing state (sources.yam
 src/              → TypeScript pipeline
   ├── cli.ts              Main CLI entrypoint (clack-based)
   ├── riftcodex.ts        Riftcodex API client + card→markdown
+  ├── decks.ts            Pulls competitive decklists from rift-atlas
   ├── manifest.ts         Read/write sources.yaml
   ├── normalize.ts        Common markdown cleanup + entity decoding
   ├── print.ts            Downloads card images for proxy printing
@@ -81,9 +82,10 @@ Type-specific fields:
 3. `npm run oracle process` — processes all entries from the manifest
 4. `npm run oracle process -- --only=rules` — filter by category or output path
 5. `npm run oracle extract` — turns downloaded rulebook PDFs into markdown in `output/`
-6. `npm run oracle skill-data` — rebuilds the skill's vendored card data (needs network)
-7. `npm run oracle vault-sync` — optional; mirrors `output/` into an Obsidian wiki's `raw/`
-8. Answer questions via the `rules-report` skill (see `.claude/skills/rules-report/SKILL.md`)
+6. `npm run oracle skill-data` — rebuilds every skill's vendored card data (needs network)
+7. `npm run oracle decks pull` — pulls current tournament decklists into `output/decks/`
+8. `npm run oracle vault-sync` — optional; mirrors `output/` into an Obsidian wiki's `raw/`
+9. Answer questions via the `rules-report` skill (see `.claude/skills/rules-report/SKILL.md`)
 
 ## Environment Variables
 

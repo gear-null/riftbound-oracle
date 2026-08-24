@@ -12,7 +12,7 @@
  * copied skill silently lost card lookup entirely and every report rendered an
  * artwork placeholder.
  */
-import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync, renameSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { normaliseCardName, loadErrata, sameWording, type Erratum } from "./errata.js";
@@ -30,10 +30,9 @@ export const DECK_LAB_DATA_DIR = ".claude/skills/deck-lab/data";
  * are written from a single fetch so they cannot drift into disagreeing about
  * what a card says.
  */
-export const CARD_DATA_TARGETS = [
-  `${SKILL_DATA_DIR}/cards.json`,
-  `${DECK_LAB_DATA_DIR}/cards.json`,
-];
+export const RULES_REPORT_CARD_DATA = `${SKILL_DATA_DIR}/cards.json`;
+export const DECK_LAB_CARD_DATA = `${DECK_LAB_DATA_DIR}/cards.json`;
+export const CARD_DATA_TARGETS = [RULES_REPORT_CARD_DATA, DECK_LAB_CARD_DATA];
 export const OVERLAY_PATH = "manifests/card-overlays.yaml";
 
 /** Hand-transcribed text the API does not carry. See the file's header. */
@@ -410,10 +409,18 @@ export async function buildSkillData(opts: BuildSkillDataOptions = {}) {
   // change shows up as a reviewable diff rather than a reshuffle.
   const sorted = Object.fromEntries(Object.entries(index).sort(([a], [b]) => a.localeCompare(b)));
   const serialised = JSON.stringify(sorted, null, 1);
+  // Staged, then renamed. Writing the targets in place one after another means
+  // a failure or a kill between them leaves one skill on new card data and the
+  // other on old — the precise drift the single-fetch design exists to prevent,
+  // and invisible afterwards because both files look intact.
+  const staged: [string, string][] = [];
   for (const target of outputPaths) {
     mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, serialised, "utf-8");
+    const tmp = `${target}.tmp-${process.pid}`;
+    writeFileSync(tmp, serialised, "utf-8");
+    staged.push([tmp, target]);
   }
+  for (const [tmp, target] of staged) renameSync(tmp, target);
 
   return {
     outputPaths,

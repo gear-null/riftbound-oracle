@@ -553,6 +553,14 @@ async function handleDecks() {
       onProgress: (m) => s.message(m),
     });
     s.stop(`${result.decks.length} deck(s) → ${result.written.length} file(s)`);
+    // A quarantined deck is a hole in the gauntlet with a name on it, which is
+    // the point — the alternative is a half-parsed list overwriting a good one.
+    if (result.quarantined.length) {
+      p.log.error(`${result.quarantined.length} deck(s) NOT written — the page did not parse cleanly:`);
+      for (const q of result.quarantined) {
+        p.log.message(`${q.name}\n  ${q.reasons.join("\n  ")}`);
+      }
+    }
     const meta = result.decks.filter((d) => d.source?.meta).length;
     p.log.info(`${meta} flagged as tournament/meta lists by the source`);
     // A deck whose Chosen Champion did not resolve is still written, because a

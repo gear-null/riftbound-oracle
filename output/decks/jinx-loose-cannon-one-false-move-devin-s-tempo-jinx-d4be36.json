@@ -73,14 +73,14 @@
    "qty": 1
   },
   {
-   "name": "Perfect Execution",
-   "code": "VEN-012",
+   "name": "Gust",
+   "code": "OGN-169",
    "qty": 2
   },
   {
-   "name": "Ride the Wind",
-   "code": "OGN-173",
-   "qty": 1
+   "name": "Perfect Execution",
+   "code": "VEN-012",
+   "qty": 2
   },
   {
    "name": "Stacked Deck",
@@ -100,7 +100,7 @@
   {
    "name": "Up from the Deep",
    "code": "VEN-100",
-   "qty": 2
+   "qty": 1
   },
   {
    "name": "Vault Breaker",

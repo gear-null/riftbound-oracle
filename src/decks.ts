@@ -13,10 +13,11 @@
  * that is missing its spells.
  */
 import { JSDOM } from "jsdom";
+import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { CardIndex } from "./skill-data.js";
-import { CARD_DATA_TARGETS } from "./skill-data.js";
+import { DECK_LAB_CARD_DATA } from "./skill-data.js";
 
 const SITE = "rift-atlas.com";
 const INDEX_URL = `https://${SITE}/decks`;
@@ -69,43 +70,117 @@ function textOf(el: Element | null): string {
 }
 
 /**
- * Cards in one `<section class="deck-section">`.
+ * A section's heading text without the count badge glued onto it.
+ *
+ * `textOf(h2)` returns "Units 3" because the count lives in a child span, which
+ * is why the original match had to be a prefix match — and a prefix match takes
+ * the FIRST section whose heading merely starts with the word, so a second
+ * "Units" section is dropped and an unrelated "Unit Tokens" section is absorbed
+ * into the Main Deck. Removing the badge lets the comparison be exact.
+ */
+function headingOf(section: Element): string {
+  const h2 = section.querySelector("h2");
+  if (!h2) return "";
+  const count = textOf(h2.querySelector(".deck-section-count"));
+  const full = textOf(h2);
+  return (count && full.endsWith(count) ? full.slice(0, -count.length) : full).trim();
+}
+
+/** Every section under one heading — plural, because duplicates must not vanish. */
+function sectionsFor(doc: Document, heading: string): Element[] {
+  return [...doc.querySelectorAll("section.deck-section")].filter(
+    (s) => headingOf(s) === heading
+  );
+}
+
+/**
+ * The first integer in a count badge, or null when there is not one.
+ *
+ * `parseInt` was the wrong tool twice over: it returns NaN for a badge rendered
+ * with any non-digit prefix, and NaN then flowed all the way into the written
+ * JSON as `null`, where the Python loader's `int(c["qty"])` raises. A count that
+ * cannot be read is reported, never guessed at and never emitted.
+ */
+function readCount(text: string): number | null {
+  const digits = /\d+/.exec(text);
+  if (!digits) return null;
+  const n = Number.parseInt(digits[0], 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+interface SectionParse {
+  cards: DeckCard[];
+  warnings: string[];
+  /** Distinguishes "this deck runs no gear" from "the section is not there". */
+  present: boolean;
+}
+
+/**
+ * Cards under one heading.
  *
  * Quantity lives in a `deck-card-count` badge that is only rendered above 1, so
  * a missing badge means one copy — not zero. Reading it as zero silently drops
  * every singleton in the deck.
  */
-function sectionCards(doc: Document, heading: string): DeckCard[] | null {
-  const sections = [...doc.querySelectorAll("section.deck-section")];
-  const section = sections.find((s) => textOf(s.querySelector("h2")).startsWith(heading));
-  if (!section) return null;
-  return [...section.querySelectorAll("a.deck-card-tile")].map((tile) => {
-    const badge = textOf(tile.querySelector(".deck-card-count"));
-    return {
-      name: (tile.getAttribute("title") ?? "").trim(),
-      code: (tile.getAttribute("href") ?? "").replace(/^\/atlas\//, ""),
-      qty: badge ? Number.parseInt(badge, 10) : 1,
-    };
-  });
-}
+function sectionCards(doc: Document, heading: string): SectionParse {
+  const sections = sectionsFor(doc, heading);
+  if (!sections.length) return { cards: [], warnings: [], present: false };
 
-/**
- * A declared section count that disagrees with the tiles means the page did not
- * fully render — the deck is short, not small. Returned as a warning rather
- * than thrown so one bad list does not abort a whole pull.
- */
-function sectionMismatch(doc: Document, heading: string, cards: DeckCard[]): string | null {
-  const sections = [...doc.querySelectorAll("section.deck-section")];
-  const section = sections.find((s) => textOf(s.querySelector("h2")).startsWith(heading));
-  const declared = Number.parseInt(textOf(section?.querySelector(".deck-section-count") ?? null), 10);
-  if (!Number.isFinite(declared)) return null;
+  const cards: DeckCard[] = [];
+  const warnings: string[] = [];
+  let declaredTotal = 0;
+  let sawDeclared = false;
+
+  for (const section of sections) {
+    const declared = readCount(textOf(section.querySelector(".deck-section-count")));
+    if (declared === null) {
+      // The one guard against a half-rendered page used to switch itself off in
+      // exactly the situation it exists to catch: an unreadable count returned
+      // "no mismatch", which reads as a pass.
+      warnings.push(`${heading}: no declared count to check the tiles against`);
+    } else {
+      sawDeclared = true;
+      declaredTotal += declared;
+    }
+    for (const tile of section.querySelectorAll("a.deck-card-tile")) {
+      const name = (tile.getAttribute("title") ?? "").trim();
+      const badgeText = textOf(tile.querySelector(".deck-card-count"));
+      const qty = badgeText ? readCount(badgeText) : 1;
+      if (qty === null) {
+        warnings.push(`${heading}: ${name || "a tile"} has an unreadable count badge ${JSON.stringify(badgeText)}`);
+        continue;
+      }
+      cards.push({
+        name,
+        code: (tile.getAttribute("href") ?? "").replace(/^\/atlas\//, ""),
+        qty,
+      });
+    }
+  }
+
+  if (sections.length > 1) {
+    warnings.push(`${heading}: ${sections.length} sections share this heading — all were read`);
+  }
+
+  // A declared count that disagrees with the tiles means the page did not fully
+  // render: the deck is short, not small.
   const actual = cards.reduce((n, c) => n + c.qty, 0);
-  return actual === declared ? null : `${heading}: page declares ${declared}, tiles total ${actual}`;
+  if (sawDeclared && actual !== declaredTotal) {
+    warnings.push(`${heading}: page declares ${declaredTotal}, tiles total ${actual}`);
+  }
+  return { cards, warnings, present: true };
 }
 
 export interface ParsedDeck {
   deck: Deck;
   warnings: string[];
+  /**
+   * Warnings that mean the PARSE is untrustworthy, as opposed to facts about
+   * the deck itself. A deck whose Chosen Champion is genuinely ambiguous is
+   * still a real decklist; one whose Runes section did not render is not, and
+   * writing it over a good committed copy loses data that was correct.
+   */
+  structural: string[];
 }
 
 export function parseDeckPage(html: string, url: string, fetched: string): ParsedDeck {
@@ -115,23 +190,26 @@ export function parseDeckPage(html: string, url: string, fetched: string): Parse
   const legend = textOf(doc.querySelector(".deck-meta-row strong"));
   if (!legend) throw new Error(`no legend found — page layout may have changed: ${url}`);
 
+  const structural: string[] = [];
   const main: DeckCard[] = [];
   for (const heading of MAIN_DECK_SECTIONS) {
-    const cards = sectionCards(doc, heading);
-    // Not every deck runs gear; an absent section is legitimate, an empty one
-    // after a layout change is not — the count check below catches that.
-    if (!cards) continue;
-    const mismatch = sectionMismatch(doc, heading, cards);
-    if (mismatch) warnings.push(mismatch);
-    main.push(...cards);
+    // Not every deck runs gear, so an absent optional section is legitimate.
+    const parsed = sectionCards(doc, heading);
+    structural.push(...parsed.warnings);
+    main.push(...parsed.cards);
   }
 
-  const runes = sectionCards(doc, "Runes") ?? [];
-  const battlefields = sectionCards(doc, "Battlefields") ?? [];
-  for (const [heading, cards] of [["Runes", runes], ["Battlefields", battlefields]] as const) {
-    const mismatch = sectionMismatch(doc, heading, cards);
-    if (mismatch) warnings.push(mismatch);
+  // Runes and Battlefields are mandatory in every legal list (103.3.a, 103.4.a),
+  // so their absence is a rendering failure, never a property of the deck.
+  const runeParse = sectionCards(doc, "Runes");
+  const bfParse = sectionCards(doc, "Battlefields");
+  for (const [heading, parsed] of [["Runes", runeParse], ["Battlefields", bfParse]] as const) {
+    structural.push(...parsed.warnings);
+    if (!parsed.present) structural.push(`${heading}: section not found on the page`);
   }
+  const runes = runeParse.cards;
+  const battlefields = bfParse.cards;
+  warnings.push(...structural);
 
   const deck: Deck = {
     name: textOf(doc.querySelector(".deck-title")) || "untitled",
@@ -149,15 +227,27 @@ export function parseDeckPage(html: string, url: string, fetched: string): Parse
       fetched,
     },
   };
-  return { deck, warnings };
+  return { deck, warnings, structural };
 }
 
-/** Deck ids linked from the meta index. */
+/**
+ * Deck ids linked from the meta index.
+ *
+ * The href is normalised before deduping: `/meta/aaa` and `/meta/aaa#comments`
+ * are the same deck, and taking the raw remainder made them two ids that both
+ * survived `new Set` and were both fetched. Anything with a further path
+ * segment is not a deck page — the index also links tier lists and archetype
+ * hubs under `/meta/` — so those are dropped rather than fetched as decks.
+ */
 export function parseDeckIndex(html: string): string[] {
   const doc = new JSDOM(html).window.document;
   const ids = [...doc.querySelectorAll('a[href^="/meta/"]')]
-    .map((a) => (a.getAttribute("href") ?? "").replace("/meta/", "").trim())
-    .filter(Boolean);
+    .map((a) => {
+      const href = (a.getAttribute("href") ?? "").trim();
+      const path = href.split(/[?#]/)[0].replace(/^\/meta\//, "").replace(/\/+$/, "");
+      return path;
+    })
+    .filter((id) => id && !id.includes("/"));
   return [...new Set(ids)];
 }
 
@@ -212,20 +302,33 @@ export function resolveChosenChampion(deck: Deck, cards: CardIndex): Pick<Deck, 
 }
 
 export function loadCardIndex(path?: string): CardIndex {
-  const target = resolve(path ?? CARD_DATA_TARGETS[1]);
+  const target = resolve(path ?? DECK_LAB_CARD_DATA);
   if (!existsSync(target)) {
     throw new Error(`no card data at ${target} — run \`oracle skill-data\` first`);
   }
   return JSON.parse(readFileSync(target, "utf-8")) as CardIndex;
 }
 
-/** Stable, filesystem-safe name for a deck file. */
+/**
+ * Stable, filesystem-safe, collision-free name for a deck file.
+ *
+ * The readable part is truncated to 72 characters, and three of the 24 decks
+ * currently pulled already reach that limit — so two tournament lists with
+ * similarly long names would slugify identically and the second would silently
+ * overwrite the first on disk, while both were still counted as written. The
+ * suffix is a short digest of the deck's source URL, which is unique per deck,
+ * so the name stays readable and the path stays distinct.
+ */
 export function deckSlug(deck: Deck): string {
   const base = `${deck.legend} ${deck.name}`
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return base.slice(0, 80) || "deck";
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 72)
+    .replace(/-+$/, "");
+  const identity = deck.source?.url ?? `${deck.legend}/${deck.name}`;
+  const digest = createHash("sha256").update(identity).digest("hex").slice(0, 6);
+  return `${base || "deck"}-${digest}`;
 }
 
 export interface PullOptions {
@@ -253,6 +356,8 @@ export interface PullResult {
   decks: Deck[];
   warnings: string[];
   written: string[];
+  /** Parsed but NOT written, because the parse itself was untrustworthy. */
+  quarantined: { name: string; reasons: string[] }[];
 }
 
 export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult> {
@@ -270,6 +375,7 @@ export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult>
   const decks: Deck[] = [];
   const warnings: string[] = [];
   const written: string[] = [];
+  const quarantined: { name: string; reasons: string[] }[] = [];
 
   for (const [i, id] of ids.entries()) {
     // Paced, and never scheduled — see docs/content-and-licensing.md.
@@ -285,6 +391,12 @@ export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult>
         );
       }
       warnings.push(...parsed.warnings.map((w) => `${parsed.deck.name}: ${w}`));
+      if (parsed.structural.length) {
+        // Writing a half-parsed deck over a good committed one loses data that
+        // was correct. A named gap in the gauntlet beats silent corruption.
+        quarantined.push({ name: parsed.deck.name, reasons: parsed.structural });
+        continue;
+      }
       decks.push(parsed.deck);
       onProgress(`${parsed.deck.legend} — ${parsed.deck.name}`);
     } catch (err) {
@@ -292,15 +404,25 @@ export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult>
     }
   }
 
+  const claimed = new Set<string>();
   for (const deck of decks) {
     const body = JSON.stringify(deck, null, 1);
+    const slug = deckSlug(deck);
+    if (claimed.has(slug)) {
+      // Cannot happen while the slug carries a per-URL digest, which is exactly
+      // why it is checked: a future change to `deckSlug` must fail loudly here
+      // rather than start overwriting decks again.
+      warnings.push(`${deck.name}: slug ${slug} already written this run — not overwriting`);
+      continue;
+    }
+    claimed.add(slug);
     for (const dir of [outputDir, gauntletDir]) {
-      const path = resolve(dir, `${deckSlug(deck)}.json`);
+      const path = resolve(dir, `${slug}.json`);
       mkdirSync(dirname(path), { recursive: true });
       writeFileSync(path, body, "utf-8");
       written.push(path);
     }
   }
 
-  return { decks, warnings, written };
+  return { decks, warnings, written, quarantined };
 }
