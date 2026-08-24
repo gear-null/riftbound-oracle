@@ -144,6 +144,12 @@ MUTANTS = [
          repl="        self.phase = MAIN\n        for p in []:\n            self.empty_pool(p.seat)",
          expect="emptied entering the Main Phase"),
 
+    dict(name="let a turn begin while another is still running",
+         file="table.py",
+         find="        if self.setup_done and self.phase not in (None, ENDING):",
+         repl="        if False:",
+         expect="cannot begin while another"),
+
     # ---- resources ------------------------------------------------------
     dict(name="let an exhausted rune be tapped again",
          file="table.py",

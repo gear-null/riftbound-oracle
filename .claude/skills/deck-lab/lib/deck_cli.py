@@ -5,6 +5,7 @@
 Run `python3 deck_cli.py help` for the command list.
 """
 import argparse
+import hashlib
 import json
 import os
 import shlex
@@ -253,7 +254,18 @@ def cmd_new(args):
                 print(f"  {e}")
             return 1
     t = table.Table(decks, seed=args.seed, first=args.first).setup()
-    name = args.name or f"{args.deck_a[:20]}-vs-{args.deck_b[:20]}-s{args.seed}"
+    # Truncating each deck name to 20 characters made two different pairings
+    # collide on one filename, and the second game overwrote the first with no
+    # warning. The digest is short, stable, and distinguishes the full pairing.
+    default = f"{args.deck_a[:20]}-vs-{args.deck_b[:20]}-s{args.seed}"
+    digest = hashlib.sha256(
+        f"{args.deck_a}|{args.deck_b}|{args.seed}".encode()
+    ).hexdigest()[:6]
+    name = args.name or f"{default}-{digest}"
+    if os.path.exists(session.path_for(name)) and not args.force:
+        print(f"a game called '{session.slug(name)}' already exists — pass --force to "
+              "start over, or --name to keep both.")
+        return 1
     session.save(t, name, [args.deck_a, args.deck_b])
     print("\n".join(view.log_lines(t, seat=None)))
     print(f"\ngame '{session.slug(name)}' saved · seat 0 = {decks[0].name} · seat 1 = {decks[1].name}")
@@ -475,7 +487,7 @@ def main(argv=None):
     p.add_argument("deck_a"); p.add_argument("deck_b")
     p.add_argument("--seed", type=int, default=1)
     p.add_argument("--first", type=int, default=None)
-    p.add_argument("--name")
+    p.add_argument("--name"); p.add_argument("--force", action="store_true")
     p = sub.add_parser("state")
     p.add_argument("--seat", type=int); p.add_argument("--full", action="store_true")
     p.add_argument("--game"); p.add_argument("--verbose", action="store_true")

@@ -382,6 +382,17 @@ def turn_structure():
     t.end_turn()
     check("unspent Energy is lost at end of turn (317.2.e)", t.player(0).energy == 0)
 
+    # 317.3 hands the turn over from the Ending Phase. Starting one from the
+    # middle of another skipped healing, expiry and pool emptying, and the log
+    # then read as though they had happened.
+    t = fresh(first=0)
+    t.begin_turn()
+    check("a turn cannot begin while another is still running (317)",
+          raises(lambda: t.begin_turn(1), "endturn"))
+    t.end_turn()
+    t.begin_turn(1)
+    check("and begins normally once the previous one ended", t.turn == 2)
+
 
 # -- resources (163-168) -------------------------------------------------
 

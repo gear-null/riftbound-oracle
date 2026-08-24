@@ -790,6 +790,14 @@ class Table:
         """
         if self.winner is not None:
             raise RulesError(f"the game is over — seat {self.winner} has won")
+        # 317.3 hands the turn over from the Ending Phase. Starting a turn from
+        # the middle of another one skipped end-of-turn healing, expiry and pool
+        # emptying — and the log then read as if they had happened.
+        if self.setup_done and self.phase not in (None, ENDING):
+            raise RulesError(
+                f"turn {self.turn} is still in its {self.phase} phase — `endturn` "
+                "first, or the healing, expiry and pool emptying it does never happen (317)"
+            )
         if seat is not None:
             self.turn_player = seat
         self.turn += 1
