@@ -40,6 +40,28 @@ def _loc(v):
 
 
 def act(t, argv):
+    """Apply one action, or leave the table exactly as it was.
+
+    Several verbs mutate before they can refuse — `cast` pays a cost before the
+    card can turn out not to be in hand, `standard_move` exhausts before the
+    destination is checked — and `cmd_do` then saved the half-applied state
+    while printing "nothing after the refusal was applied". That message was
+    false, and the resulting state was one no legal sequence of actions could
+    have produced.
+
+    Hoisting every precondition above every mutation would have to be redone for
+    each new verb and silently forgotten once. Snapshotting is one guarantee in
+    one place, and it holds for verbs nobody has written yet.
+    """
+    before = t.as_dict()
+    try:
+        return _act(t, argv)
+    except Exception:
+        t.restore(before)
+        raise
+
+
+def _act(t, argv):
     verb, rest = argv[0], argv[1:]
 
     if verb == "beginturn":
@@ -65,11 +87,6 @@ def act(t, argv):
         # Pay, then put it where it goes. A spell's text is printed for the
         # reader to apply; a unit or gear arrives on the board.
         seat, name = _seat(rest[0]), rest[1]
-        # The destination is checked BEFORE the cost is paid. Validating it
-        # afterwards meant a typo'd location left the runes spent and the card
-        # nowhere — a state no sequence of actions could undo.
-        if len(rest) > 2:
-            t._require_location(_loc(rest[2]))
         t.pay(seat, name)
         if cards.card_type(name) == cards.SPELL:
             return f"{name}: {t.play_spell(seat, name)}"
@@ -80,7 +97,9 @@ def act(t, argv):
         return t.play_spell(_seat(rest[0]), rest[1])
     if verb == "put":
         return t.put_into_play(
-            _seat(rest[0]), rest[1], _loc(rest[2]) if len(rest) > 2 else None
+            _seat(rest[0]), rest[1],
+            _loc(rest[2]) if len(rest) > 2 else None,
+            source=rest[3] if len(rest) > 3 else None,
         ).id
 
     if verb == "move":
@@ -401,7 +420,9 @@ actions for `do`
   endturn                      heal, expire, empty pools, pass the turn
   mulligan <seat> [keep...]    keep only the named cards, redraw the rest
   cast <seat> <card> [loc]     pay the cost, then resolve or put into play
-  put <seat> <card> [loc]      onto the board without paying
+  put <seat> <card> [loc] [from]  onto the board without paying. `from` is the
+                               zone it came from: trash, main_deck, banished,
+                               or elsewhere for a token
   play <seat> <card>           a spell to the trash; its text is printed back
   pay <seat> <card>            pay a cost on its own
   draw <seat> [n]              channel <seat> [n] [exhausted]

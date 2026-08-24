@@ -184,6 +184,31 @@ def deck_legality():
 
     check("format legality is reported as unchecked, not as a pass",
           any("103.2.e" in u for u in deckfile.check(legal[0]).unchecked))
+    check("the Domain exception is reported as unchecked too (103.1.b.5)",
+          any("103.1.b.5" in u for u in deckfile.check(legal[0]).unchecked),
+          "silence there reads as 'checked and fine'")
+
+    # Every legality rule counts CARDS. Counting the deck's JSON entries let
+    # three separate rules pass things they forbid.
+    d = copy.deepcopy(legal[0])
+    first = d.main[0][0]
+    d.main = [(first, 3), (first, 3)] + d.main[1:]
+    check("the copy limit counts a card across every entry naming it (103.2.b)",
+          any("6x" in e and "3-copy" in e for e in deckfile.check(d).errors),
+          "two entries of three is six copies, not two legal threes")
+
+    d = copy.deepcopy(legal[0])
+    bf = d.battlefields[0][0]
+    d.battlefields = [(bf, 1), (bf, 1), (d.battlefields[1][0], 1)]
+    check("the same battlefield listed twice is caught (103.4.c)",
+          any("distinct names" in e for e in deckfile.check(d).errors))
+
+    d = copy.deepcopy(legal[0])
+    cc = d.chosen_champion
+    d.main = [(cc, 1), (cc, 2)] + [m for m in d.main if m[0] != cc]
+    check("exactly one Chosen Champion copy leaves the deck, however it is listed (112)",
+          sum(1 for n in d.main_cards() if n == cc) == 2,
+          "removing one per matching entry silently deleted a card from the deck")
 
     d = legal[0]
     check(
@@ -471,7 +496,7 @@ def combat():
     t.battlefield(0).controller = 0
     t.battlefield(0).contested = False
     t.battlefield(0).contested_by = None
-    intruder = t.put_into_play(1, "Stalwart Poro", "bf:0")
+    intruder = t.put_into_play(1, "Stalwart Poro", "bf:0", source="elsewhere")
     check("the Attacker is whoever applied Contested, not the turn player (464.2.c.1)",
           _attacker_or_none(t, t.battlefield(0)) == 1,
           "seat 0 is the turn player; seat 1 moved in and contested")
@@ -484,7 +509,7 @@ def combat():
     # already scored it. Returning early on a repel skipped that entirely.
     t = fresh(first=0)
     t.begin_turn()
-    t.put_into_play(0, "Stalwart Poro", "bf:0")   # seat 0 contests an empty bf
+    t.put_into_play(0, "Stalwart Poro", "bf:0", source="elsewhere")   # seat 0 contests an empty bf
     defender = stub_unit(t, 1, "Stalwart Poro", "bf:0")
     t.battlefield(0).controller = None
     before = t.player(1).points
@@ -507,7 +532,7 @@ def combat():
     # 190.3.a: Contested is applied by a UNIT becoming present.
     t = fresh(first=0)
     t.begin_turn()
-    gear = t.put_into_play(0, "Zhonya's Hourglass", "bf:0")
+    gear = t.put_into_play(0, "Zhonya's Hourglass", "bf:0", source="elsewhere")
     check("gear arriving at a battlefield does not contest it (190.3.a)",
           not gear.is_unit and not t.battlefield(0).contested)
 
@@ -676,6 +701,73 @@ def persistence():
           f"lost: {', '.join(lost)}" if lost else f"{len(restored)} fields checked")
 
 
+def atomicity():
+    """An action either happens or does not. Half-applied states are unreachable
+    by any legal sequence of play, so the table must never produce one."""
+    import deck_cli
+    t = fresh(first=0)
+    t.begin_turn()
+    name = next(n for n in t.player(0).main_deck
+                if (cards.energy_cost(n) or 0) <= 2 and not cards.power_cost(n))
+    readied = len([r for r in t.runes if r.controller == 0 and not r.exhausted])
+    hand = list(t.player(0).hand)
+    # `cast` pays before the card can turn out not to be in hand.
+    try:
+        deck_cli.act(t, ["cast", "0", name])
+    except RulesError:
+        pass
+    check("a refused `cast` does not spend the runes it had already paid",
+          len([r for r in t.runes if r.controller == 0 and not r.exhausted]) == readied
+          and t.player(0).hand == hand,
+          "the cost was paid before the card was found missing from hand")
+
+    t = fresh(first=0)
+    t.begin_turn()
+    oid = stub_unit(t, 0, "Stellacorn Herder", "base:0").id
+    try:
+        deck_cli.act(t, ["smove", oid, "bf:9"])
+    except (RulesError, KeyError):
+        pass
+    # Re-fetch by id: a rollback rebuilds the board, so any reference taken
+    # before it is stale. Every CLI command reloads the table, so this only bites
+    # callers holding objects across an action — like this check did.
+    unit = t.permanent(oid)
+    check("a refused move does not leave the unit exhausted",
+          not unit.exhausted and unit.location == "base:0",
+          "`standard_move` exhausts before it validates the destination")
+
+    t = fresh(first=0)
+    t.begin_turn()
+    before = t.as_dict()
+    try:
+        deck_cli.act(t, ["cast", "0", "Definitely Not A Card"])
+    except (RulesError, KeyError):
+        pass
+    check("a refused action leaves the table byte-identical",
+          t.as_dict() == before)
+
+    # A card has to come from somewhere.
+    t = fresh(first=0)
+    t.begin_turn()
+    # A card that is genuinely in no zone of this player's — not merely one the
+    # random opening hand happened not to deal.
+    absent = next(n for n in t.player(0).main_deck
+                  if n not in t.player(0).hand and n not in t.player(0).champion_zone)
+    check("a card in no zone cannot be put into play",
+          raises(lambda: t.put_into_play(0, absent, "base:0"), "not in seat"))
+    check("a name that is not a card at all is refused",
+          raises(lambda: t.put_into_play(0, "Not A Real Card", "base:0"), "not a card"))
+    check("an effect may put a card into play from a named zone",
+          _puts_from_trash(t))
+
+
+def _puts_from_trash(t):
+    p = t.player(0)
+    p.trash.append("Stellacorn Herder")
+    perm = t.put_into_play(0, "Stellacorn Herder", "base:0", source="trash")
+    return perm in t.permanents and "Stellacorn Herder" not in p.trash
+
+
 def action_scripts():
     import deck_cli
     check(
@@ -696,7 +788,8 @@ def main():
     print("deck-lab selftest\n")
     for section in (
         card_lookup, deck_legality, setup_rules, turn_structure, resources,
-        paying, movement, combat, scoring, burn_out, persistence, action_scripts,
+        paying, movement, combat, scoring, burn_out, persistence, atomicity,
+        action_scripts,
     ):
         print(f"{section.__name__}:")
         section()

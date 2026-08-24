@@ -11,6 +11,7 @@ not checkable is reported as unchecked rather than passed silently; see
 import glob
 import json
 import os
+from collections import Counter
 
 import cards
 
@@ -58,10 +59,15 @@ class Deck:
         during setup, so it is never shuffled into the deck and never drawn.
         """
         out = []
+        # Exactly ONE copy comes out, however many entries name the card. Doing
+        # it per entry deleted a card from any deck that listed its champion
+        # twice.
+        removed = not self.chosen_champion
         for name, qty in self.main:
             copies = qty
-            if self.chosen_champion and _same(name, self.chosen_champion):
+            if not removed and _same(name, self.chosen_champion):
                 copies -= 1
+                removed = True
             out.extend([name] * max(copies, 0))
         return out
 
@@ -91,6 +97,27 @@ class Deck:
             "battlefields": [{"name": n, "qty": q} for n, q in self.battlefields],
             "source": self.source,
         }
+
+
+def canonical(name):
+    """The card's own name, so two spellings of one card collapse to one key.
+
+    Every legality rule below counts CARDS. Counting the deck's JSON entries
+    instead let three separate rules pass things they forbid: two entries of
+    three became six legal copies, two entries of one battlefield became two
+    legal copies of the same battlefield, and the Chosen Champion was removed
+    once per matching entry — silently deleting a card from the deck.
+    """
+    card = cards.find(name)
+    return card["name"] if card else (name or "").strip().lower()
+
+
+def _tally(entries):
+    """{canonical card name: total copies} across every entry naming that card."""
+    total = Counter()
+    for name, qty in entries:
+        total[canonical(name)] += qty
+    return total
 
 
 def _same(a, b):
@@ -147,8 +174,8 @@ def check(deck, mode=MODE):
     if total_main < mode["main_deck_min"]:
         r.errors.append(f"Main Deck has {total_main} cards, minimum is {mode['main_deck_min']} (103.2)")
 
-    # 103.2.b — at most 3 copies of a name.
-    for name, qty in deck.main:
+    # 103.2.b — at most 3 copies of a name, counted across every entry naming it.
+    for name, qty in sorted(_tally(deck.main).items()):
         if qty > mode["max_copies"]:
             r.errors.append(f"{qty}x {name} exceeds the {mode['max_copies']}-copy limit (103.2.b)")
 
@@ -163,7 +190,7 @@ def check(deck, mode=MODE):
         r.errors.append(
             f"{total_bf} battlefields, mode requires {mode['battlefields_per_deck']} (103.4.a)"
         )
-    for name, qty in deck.battlefields:
+    for name, qty in sorted(_tally(deck.battlefields).items()):
         if qty > 1:
             r.errors.append(f"{qty}x {name}: battlefields must have distinct names (103.4.c)")
 
@@ -181,7 +208,7 @@ def check(deck, mode=MODE):
     # 103.2.d — at most 3 Signature cards, all bearing the legend's champion tag.
     legend_tags = set(cards.tags(deck.legend))
     signatures = [(n, q) for n, q in deck.main if cards.is_signature(n)]
-    sig_total = sum(q for _, q in signatures)
+    sig_total = sum(_tally(signatures).values())
     if sig_total > mode["max_signature"]:
         r.errors.append(f"{sig_total} Signature cards, limit is {mode['max_signature']} (103.2.d.1)")
     for name, _ in signatures:
@@ -209,9 +236,13 @@ def check(deck, mode=MODE):
             if not any(_same(n, cc) for n, _ in deck.main):
                 r.errors.append(f"{cc} is the Chosen Champion but is not in the Main Deck (103.2)")
 
-    # Format legality (103.2.e) depends on a banned/restricted list this corpus
-    # does not carry. Saying nothing would read as "checked and fine".
+    # What this data cannot decide is listed, so it is not mistaken for a pass.
     r.unchecked.append("card legality for a specific Format (103.2.e) — no ban list in the corpus")
+    r.unchecked.append(
+        "cards added irrespective of Domain by a game effect (103.1.b.5) — the "
+        "deck file records no such grant, so any card outside the identity is "
+        "reported as an error rather than allowed"
+    )
     return r
 
 

@@ -315,7 +315,7 @@ class Table:
         p.trash.append(name)
         return self.note(f"seat {seat} discards {name}")
 
-    def put_into_play(self, seat, name, location=None, exhausted=False):
+    def put_into_play(self, seat, name, location=None, exhausted=False, source=None):
         """Put a unit or gear onto the board and return it.
 
         This is the physical half of playing a card. Paying for it is a separate
@@ -323,10 +323,42 @@ class Table:
         be made for something that is not a card.
         """
         p = self.player(seat)
-        if name in p.hand:
-            p.hand.remove(name)
-        elif name in p.champion_zone:
-            p.champion_zone.remove(name)
+        if cards.find(name) is None:
+            options = cards.candidates(name)
+            raise RulesError(
+                f"{name!r} is not a card this table knows"
+                + (f" — did you mean {', '.join(options)}?" if options else "")
+            )
+        # A card has to come from somewhere. Accepting one that was in no zone
+        # conjured a permanent out of nothing and left the zone it should have
+        # come from unchanged — a board state no sequence of legal plays reaches.
+        # Effects do put units into play from the trash or the deck, so that is
+        # said explicitly rather than left as a hole anything can walk through.
+        if source in (None, "hand", "champion") :
+            if name in p.hand:
+                p.hand.remove(name)
+            elif name in p.champion_zone:
+                p.champion_zone.remove(name)
+            else:
+                raise RulesError(
+                    f"{name} is not in seat {seat}'s hand or Champion Zone — pass a "
+                    "source (trash, main_deck, banished, elsewhere) if an effect is "
+                    "putting it into play from somewhere else"
+                )
+        elif source == "elsewhere":
+            # Deliberately unaccounted for: a token, or a zone this table does
+            # not model. Logged so the gap is visible in the record.
+            self.note(f"seat {seat} puts {name} into play from outside any tracked zone")
+        else:
+            zone = getattr(p, source, None)
+            if zone is None:
+                raise RulesError(
+                    f"{source!r} is not a zone — use hand, trash, main_deck, "
+                    "rune_deck, banished or elsewhere"
+                )
+            if name not in zone:
+                raise RulesError(f"{name} is not in seat {seat}'s {source}")
+            zone.remove(name)
         location = location or f"{BASE}:{seat}"
         self._require_location(location)
         perm = Permanent(self._oid("u"), name, seat, location)
@@ -1045,6 +1077,26 @@ class Table:
             "chain": list(self.chain),
             "log": list(self.log),
         }
+
+    def restore(self, snapshot):
+        """Roll this table back to a snapshot taken by `as_dict`.
+
+        Restores in place rather than returning a new object, because the caller
+        is holding this instance and a replacement would not reach it. The board
+        is rebuilt though, so a `Permanent` or `Rune` reference taken before a
+        rollback is stale — re-fetch by id.
+        """
+        other = Table.from_dict(snapshot, [p.deck for p in self.players])
+        for field in ("turn", "phase", "turn_player", "first_player", "winner",
+                      "victory_target", "second_player_channel_bonus_used",
+                      "setup_done", "_next_id", "chain", "log",
+                      "permanents", "runes", "battlefields"):
+            setattr(self, field, getattr(other, field))
+        for mine, theirs in zip(self.players, other.players):
+            for field in ("champion_zone", "hand", "main_deck", "rune_deck",
+                          "trash", "banished", "points", "energy", "power"):
+                setattr(mine, field, getattr(theirs, field))
+        return self
 
     @classmethod
     def from_dict(cls, raw, decks):
