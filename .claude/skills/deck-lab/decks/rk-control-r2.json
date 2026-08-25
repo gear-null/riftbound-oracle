@@ -1,0 +1,28 @@
+{
+  "name": "rk-control-r2",
+  "legend": "Renekton - Butcher of the Sands",
+  "chosen_champion": "Renekton, Brute",
+  "main": [
+    {"name": "Gemhand Hunter", "qty": 3},
+    {"name": "Inferna", "qty": 3},
+    {"name": "Forsaken Baccai", "qty": 3},
+    {"name": "Demacian Diplomat", "qty": 3},
+    {"name": "Grim Apothecary", "qty": 3},
+    {"name": "Nidalee - Cat Form", "qty": 3},
+    {"name": "Master Yi - Tempered", "qty": 2},
+    {"name": "Rengar, Trophy Hunter", "qty": 2},
+    {"name": "Renekton, Brute", "qty": 2},
+    {"name": "Ruin Runner", "qty": 3},
+    {"name": "Cleave", "qty": 2},
+    {"name": "Incinerate", "qty": 3},
+    {"name": "Consuming Curse", "qty": 3},
+    {"name": "Ruthless Strike", "qty": 3},
+    {"name": "Confront", "qty": 2}
+  ],
+  "runes": [{"name": "Body Rune", "qty": 12}],
+  "battlefields": [
+    {"name": "Startipped Peak", "qty": 1},
+    {"name": "Grove of the God-Willow", "qty": 1},
+    {"name": "Fortified Position", "qty": 1}
+  ]
+}

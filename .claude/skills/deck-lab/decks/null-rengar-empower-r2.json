@@ -1,0 +1,87 @@
+{
+ "name": "Pridestalker null hypothesis (rk-empower-r2 shell)",
+ "legend": "Rengar - Pridestalker",
+ "chosen_champion": "Rengar, Trophy Hunter",
+ "main": [
+  {
+   "name": "Repulse",
+   "qty": 3
+  },
+  {
+   "name": "Determined Sentry",
+   "qty": 2
+  },
+  {
+   "name": "Inferna",
+   "qty": 3
+  },
+  {
+   "name": "Punching Poro",
+   "qty": 3
+  },
+  {
+   "name": "Legion Marauder",
+   "qty": 3
+  },
+  {
+   "name": "Forsaken Baccai",
+   "qty": 3
+  },
+  {
+   "name": "Guttural Roar",
+   "qty": 3
+  },
+  {
+   "name": "Challenge",
+   "qty": 2
+  },
+  {
+   "name": "Grim Apothecary",
+   "qty": 3
+  },
+  {
+   "name": "Nidalee - Cat Form",
+   "qty": 3
+  },
+  {
+   "name": "Brutal Hunter",
+   "qty": 2
+  },
+  {
+   "name": "Baccai Witherclaw",
+   "qty": 3
+  },
+  {
+   "name": "Ambessa, The Wolf",
+   "qty": 2
+  },
+  {
+   "name": "Oasis Raider",
+   "qty": 2
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 12
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Startipped Peak",
+   "qty": 1
+  },
+  {
+   "name": "Trifarian War Camp",
+   "qty": 1
+  },
+  {
+   "name": "Threshold of the Gray",
+   "qty": 1
+  }
+ ]
+}

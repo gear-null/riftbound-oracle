@@ -1,0 +1,29 @@
+{
+  "name": "Renekton Armory",
+  "legend": "Renekton - Butcher of the Sands",
+  "chosen_champion": "Renekton, Brute",
+  "main": [
+    { "name": "Warmog's Armor", "qty": 3 },
+    { "name": "Doran's Blade", "qty": 3 },
+    { "name": "Hexdrinker", "qty": 2 },
+    { "name": "Boneshiver", "qty": 2 },
+    { "name": "Trinity Force", "qty": 3 },
+
+    { "name": "Veteran Poro", "qty": 3 },
+    { "name": "Sentinel Adept", "qty": 3 },
+    { "name": "Lucian - Merciless", "qty": 3 },
+    { "name": "Repair Specialist", "qty": 3 },
+    { "name": "Rell - Magnetic", "qty": 3 },
+    { "name": "Combat Chef", "qty": 3 },
+    { "name": "Renekton, Brute", "qty": 3 },
+
+    { "name": "Angle Shot", "qty": 3 },
+    { "name": "Confront", "qty": 3 }
+  ],
+  "runes": [ { "name": "Body Rune", "qty": 12 } ],
+  "battlefields": [
+    { "name": "Ornn's Forge", "qty": 1 },
+    { "name": "Forge of the Fluft", "qty": 1 },
+    { "name": "Trifarian War Camp", "qty": 1 }
+  ]
+}

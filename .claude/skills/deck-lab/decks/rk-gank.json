@@ -1,0 +1,91 @@
+{
+  "name": "Renekton Gank",
+  "legend": "Renekton - Butcher of the Sands",
+  "chosen_champion": "Renekton, Brute",
+  "main": [
+    {
+      "name": "Vi - Destructive",
+      "qty": 3
+    },
+    {
+      "name": "Inferna",
+      "qty": 3
+    },
+    {
+      "name": "Gem Jammer",
+      "qty": 3
+    },
+    {
+      "name": "Laurent Bladekeeper",
+      "qty": 3
+    },
+    {
+      "name": "Nilah - Joyful Ascetic",
+      "qty": 3
+    },
+    {
+      "name": "Brutal Hunter",
+      "qty": 2
+    },
+    {
+      "name": "Grim Apothecary",
+      "qty": 3
+    },
+    {
+      "name": "Oasis Raider",
+      "qty": 3
+    },
+    {
+      "name": "Renekton, Brute",
+      "qty": 1
+    },
+    {
+      "name": "Rengar, Trophy Hunter",
+      "qty": 3
+    },
+    {
+      "name": "Upstage Comedy",
+      "qty": 3
+    },
+    {
+      "name": "Stare Down",
+      "qty": 3
+    },
+    {
+      "name": "Consuming Curse",
+      "qty": 3
+    },
+    {
+      "name": "Confront",
+      "qty": 2
+    },
+    {
+      "name": "Dominus",
+      "qty": 2
+    }
+  ],
+  "runes": [
+    {
+      "name": "Body Rune",
+      "qty": 6
+    },
+    {
+      "name": "Fury Rune",
+      "qty": 6
+    }
+  ],
+  "battlefields": [
+    {
+      "name": "Windswept Hillock",
+      "qty": 1
+    },
+    {
+      "name": "Back-Alley Bar",
+      "qty": 1
+    },
+    {
+      "name": "Amateur Recital",
+      "qty": 1
+    }
+  ]
+}

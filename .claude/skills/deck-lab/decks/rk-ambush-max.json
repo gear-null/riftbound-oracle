@@ -1,0 +1,87 @@
+{
+ "legend": "Renekton - Butcher of the Sands",
+ "chosen_champion": "Renekton, Brute",
+ "main": [
+  {
+   "name": "Inferna",
+   "qty": 3
+  },
+  {
+   "name": "Grim Apothecary",
+   "qty": 3
+  },
+  {
+   "name": "Nidalee - Cat Form",
+   "qty": 3
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Lord Broadmane",
+   "qty": 3
+  },
+  {
+   "name": "Morgana, Vindictive",
+   "qty": 3
+  },
+  {
+   "name": "Dragonsoul Sage",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 3
+  },
+  {
+   "name": "Legion Marauder",
+   "qty": 3
+  },
+  {
+   "name": "Punching Poro",
+   "qty": 3
+  },
+  {
+   "name": "Mischievous Marai",
+   "qty": 3
+  },
+  {
+   "name": "Guttural Roar",
+   "qty": 3
+  },
+  {
+   "name": "Cleave",
+   "qty": 3
+  },
+  {
+   "name": "Renekton, Brute",
+   "qty": 1
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Trifarian War Camp",
+   "qty": 1
+  },
+  {
+   "name": "Threshold of the Gray",
+   "qty": 1
+  },
+  {
+   "name": "Startipped Peak",
+   "qty": 1
+  }
+ ],
+ "name": "Renekton Max-Ambush (proposal, unplayed)",
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 6
+  },
+  {
+   "name": "Fury Rune",
+   "qty": 6
+  }
+ ]
+}

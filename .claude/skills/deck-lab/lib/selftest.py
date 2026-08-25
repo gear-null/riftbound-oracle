@@ -183,8 +183,12 @@ def deck_legality():
     check("a 4th copy of a card is rejected (103.2.b)",
           any("3-copy" in e for e in deckfile.check(d).errors))
 
+    # Drop a COPY, not an entry. Slicing entries assumed the fixture deck spread
+    # its runes over two names; a deck running a single "12x Body Rune" entry
+    # kept all 12 after the slice, so this check silently stopped testing
+    # anything the moment such a deck sorted first.
     d = copy.deepcopy(legal[0])
-    d.runes = d.runes[:1]
+    d.runes = [(d.runes[0][0], d.runes[0][1] - 1)] + d.runes[1:]
     check("a rune deck that is not exactly 12 is rejected (103.3.a)",
           any("Rune Deck has" in e for e in deckfile.check(d).errors))
 
