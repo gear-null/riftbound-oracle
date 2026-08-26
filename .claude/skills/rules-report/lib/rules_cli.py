@@ -411,8 +411,13 @@ def cmd_verify(args):
               + (f"  (FORCED from {ans['holding']['_forced']})"
                  if ans["holding"].get("_forced") else ""))
     print(f"citations   : {nv}/{nc} verified verbatim")
-    label = "weakest step" if kind == "primer" else "weakest link"
-    print(f"{label}: {ans['_weakest']} ({ans['_strength']})")
+    # The same words the page uses. This printed the raw anchor id — "weakest
+    # step: s2" — beside a page reading "Weakest link · transition 4", which is
+    # the two halves describing one answer differently.
+    what = ans.get("_weakest_label") or ans["_weakest"]
+    print(f"weakest link: {what} in {ans['_weakest']} ({ans['_strength']})"
+          if kind == "primer" else
+          f"weakest link: {ans['_weakest']} ({ans['_strength']})")
     # Narrowing is worth surfacing on both paths: it means the id written was
     # vaguer than the rule that actually says the thing.
     for src_item in _cite_sources(ans, kind):

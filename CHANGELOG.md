@@ -30,8 +30,15 @@ This project follows [Semantic Versioning](https://semver.org/) and
   is one of them and every one of them is an arrow — numbered to match the prose beneath.
   There is no field an author can draw an edge in. Recorded as invariant 12 and pinned by
   nine checks, each proven by a mutant.
-- **`rules_cli.py graph`** emits the same graph as Mermaid source, and refuses on an
-  unverified primer.
+- **`rules_cli.py graph`** exports the derived graph for surfaces the report does not
+  reach. The default is [Fireworks Tech Graph](https://github.com/yizhiyanhua-ai/fireworks-tech-graph)
+  IR — a structured document of nodes and arrows, never a prompt, so the diagram stays
+  derived — which Fireworks renders as a standalone SVG. `--format=mermaid` still emits
+  Mermaid for GitHub markdown. Both refuse on an unverified primer, and the exported
+  picture carries its own corpus version and an "unofficial" mark, because it travels
+  away from the citations that back it.
+- **Three shipped primers**: HOT FEPR (CR 332–340), Showdowns (CR 341–348) and Combat
+  (CR 459–466) — 104 citations between them, every one verbatim.
 - **Invariant 12** — *a diagram draws exactly the transitions the document declares,
   no more and no fewer*. An arrow is absorbed at a glance and audited by nobody, so
   the map is computed from the declared transitions and shows which kind of claim

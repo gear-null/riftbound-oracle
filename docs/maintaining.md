@@ -150,6 +150,11 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   node or a label — see [ADR 0008](adr/0008-two-document-kinds.md). The same rule
   governs anything downstream: `graph` refuses on an unverified primer so that a
   picture can never travel further than its citations.
+- **Re-verify every shipped primer after a rules update.** `selftest` does it —
+  each `lib/*-primer.json` is asserted whole: every citation verbatim, the
+  transitions still a procedure, and the report, the map and the export still
+  agreeing on every transition number. A renumbering invalidates a committed
+  document silently, and these are the documents a reader opens first.
 - **The IR is the product; the renderer is not.** Fireworks Tech Graph lives outside
   the skill folder, so nothing here may require it. `graph` always writes the IR —
   self-contained, checkable, diffable — and renders an SVG only if an install is

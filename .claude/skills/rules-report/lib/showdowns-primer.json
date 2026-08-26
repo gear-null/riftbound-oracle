@@ -1,0 +1,248 @@
+{
+  "kind": "primer",
+  "topic": "Showdowns",
+  "question": "How do Showdowns work?",
+  "reframe": "the Window of Opportunity rule 342 calls a Showdown — how it opens at a contested Battlefield, who acts, how Focus moves between players, and what closes it.",
+  "corpus": {
+    "CR": "2026-07-16",
+    "TR": "2026-07-16",
+    "generated": "2026-08-26"
+  },
+  "in_one_line": "A Showdown is an alternating window at a contested Battlefield: whoever contested it takes Focus and acts first, Focus moves on each time a Chain closes, and the window shuts only once every player has passed in sequence without playing anything.",
+  "steps": [
+    {
+      "id": "s1",
+      "heading": "Open — the Battlefield is contested",
+      "basis": "grounded",
+      "body": "A Showdown opens at a Battlefield whose Control is Contested, during a Cleanup, while the turn is in a Neutral Open State. The player whose units applied that Contested status takes Focus, so the contester acts first. From here the turn is in a Showdown State, and that is a real restriction: by default neither cards nor card abilities can be played at all while one is in progress.",
+      "cites": [
+        {
+          "rule": "CR:344",
+          "quote": "A Showdown begins when Control of a Battlefield is Contested during a Cleanup and the turn is in a Neutral Open State."
+        },
+        {
+          "rule": "CR:345",
+          "quote": "As a Showdown begins, the player who applied Contested status to the Battlefield gains Focus."
+        },
+        {
+          "rule": "CR:342",
+          "quote": "A Showdown is a Window of Opportunity in which Players have an Open State in which they may play Spells in an alternating fashion."
+        },
+        {
+          "rule": "CR:343.1.a",
+          "quote": "Cards of all Categories, by default, cannot be played during a Showdown State."
+        },
+        {
+          "rule": "CR:343.1.b",
+          "quote": "Card abilities, by default, cannot be played during a Showdown State."
+        }
+      ],
+      "exits": [
+        {
+          "when": "the Showdown has opened and the contester holds Focus",
+          "goto": "s2",
+          "cites": [
+            {
+              "rule": "CR:345",
+              "quote": "As a Showdown begins, the player who applied Contested status to the Battlefield gains Focus."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "heading": "Act — the player with Focus chooses",
+      "basis": "grounded",
+      "body": "The player with Focus has exactly two options, and the rules give them as a closed list: play a card or activated ability that is legally timed, or pass. \"Legally timed\" is doing the work — a Showdown State blocks cards and abilities by default, so what is playable here is generally something with Reaction.",
+      "cites": [
+        {
+          "rule": "CR:347",
+          "quote": "During a Showdown, the player with Focus may do one of the following:"
+        },
+        {
+          "rule": "CR:347.1",
+          "quote": "Play a Card or Activated Ability that is legally timed."
+        },
+        {
+          "rule": "CR:347.2",
+          "quote": "Pass."
+        }
+      ],
+      "exits": [
+        {
+          "when": "the player with Focus plays a card or activated ability",
+          "goto": "s3",
+          "cites": [
+            {
+              "rule": "CR:347.1",
+              "quote": "Play a Card or Activated Ability that is legally timed."
+            },
+            {
+              "rule": "CR:347.1.a",
+              "quote": "The card or activated ability will start a Chain as normal."
+            }
+          ]
+        },
+        {
+          "when": "the player with Focus passes, and not every player has passed yet — Focus simply moves along",
+          "goto": "s2",
+          "cites": [
+            {
+              "rule": "CR:347.2.b",
+              "quote": "Otherwise, Focus passes to the next Player in Turn Order."
+            }
+          ]
+        },
+        {
+          "when": "the player with Focus passes and that completes a full sequence of passes",
+          "goto": "s4",
+          "cites": [
+            {
+              "rule": "CR:347.2.a",
+              "quote": "If all Players have passed once in sequence, the Showdown ends."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "heading": "Resolve — the Chain runs",
+      "basis": "grounded",
+      "body": "A spell played into a Showdown is not special: it creates a Chain as normal and is worked through by the ordinary HOT FEPR process. The Showdown does not reconsider Focus until the last item on that Chain has resolved and the turn is back in an Open State.",
+      "cites": [
+        {
+          "rule": "CR:342.1",
+          "quote": "Each spell played this way creates a Chain as normal."
+        },
+        {
+          "rule": "CR:346",
+          "quote": "When the last item on the chain resolves and the turn returns to an Open State during a Showdown, Focus passes, and the next Player gains both Focus and Priority."
+        }
+      ],
+      "exits": [
+        {
+          "when": "the Chain closes in the ordinary way — Focus passes to the next player in turn order",
+          "goto": "s2",
+          "cites": [
+            {
+              "rule": "CR:347.1.b",
+              "quote": "When that Chain closes, Focus passes to the next Player in Turn Order."
+            }
+          ]
+        },
+        {
+          "when": "the Chain opened because a triggered ability or an Add ability went on it — Focus does not pass, and the same player acts again",
+          "goto": "s2",
+          "cites": [
+            {
+              "rule": "CR:346.1",
+              "quote": "Focus will not pass in this way if the chain opened as a result of a triggered ability being added to the chain, nor if it opened as a result of an Add ability being added to the chain."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "heading": "Close — everyone has passed",
+      "basis": "grounded",
+      "body": "The Showdown closes only when every player has passed once in sequence without playing a spell or activating an ability. A single pass does not do it; it takes a full round of them.",
+      "cites": [
+        {
+          "rule": "CR:348",
+          "quote": "If all players pass Focus without playing a spell or activating an ability, then the Showdown Closes."
+        },
+        {
+          "rule": "CR:347.2.a",
+          "quote": "If all Players have passed once in sequence, the Showdown ends."
+        }
+      ],
+      "exits": [
+        {
+          "when": "it was a Combat Showdown — the remaining steps of Combat now resolve the phase",
+          "cites": [
+            {
+              "rule": "CR:348.1",
+              "quote": "If it is a Combat Showdown, proceed with the remaining steps of Combat to resolve the phase. See rule 463. The Steps of Combat for more information."
+            }
+          ]
+        },
+        {
+          "when": "it was a Non-Combat Showdown — Control of the Battlefield is settled, and that may be a Conquer",
+          "cites": [
+            {
+              "rule": "CR:348.2",
+              "quote": "If it is a Non-Combat Showdown, do the following:"
+            },
+            {
+              "rule": "CR:348.2.a",
+              "quote": "If only one player’s Units remain at the Battlefield, and if that player does not already Control the Battlefield, that player establishes Control over the Battlefield."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "misconceptions": [
+    {
+      "belief": "Passing during a Showdown ends it.",
+      "why_wrong": "It ends only if that pass completes a full sequence — every player passing once, in turn, with nothing played in between. Otherwise passing just hands Focus to the next player and the window stays open.",
+      "cites": [
+        {
+          "rule": "CR:347.2.a",
+          "quote": "If all Players have passed once in sequence, the Showdown ends."
+        },
+        {
+          "rule": "CR:347.2.b",
+          "quote": "Otherwise, Focus passes to the next Player in Turn Order."
+        }
+      ]
+    },
+    {
+      "belief": "A Showdown is a window in which you can finally play the card you have been holding.",
+      "why_wrong": "The opposite, by default. A Showdown puts the turn in a Showdown State, and in that state cards and card abilities cannot be played at all unless something makes them legally timed — which in practice means Reaction.",
+      "cites": [
+        {
+          "rule": "CR:343.1.a",
+          "quote": "Cards of all Categories, by default, cannot be played during a Showdown State."
+        },
+        {
+          "rule": "CR:343.1.b",
+          "quote": "Card abilities, by default, cannot be played during a Showdown State."
+        },
+        {
+          "rule": "CR:347.1",
+          "quote": "Play a Card or Activated Ability that is legally timed."
+        }
+      ]
+    },
+    {
+      "belief": "Whenever your spell resolves, Focus goes to your opponent.",
+      "why_wrong": "Not if the Chain was opened by a triggered ability or by an ability that Adds resources. In that case Focus does not pass, and the player who had it keeps it.",
+      "cites": [
+        {
+          "rule": "CR:346.1",
+          "quote": "Focus will not pass in this way if the chain opened as a result of a triggered ability being added to the chain, nor if it opened as a result of an Add ability being added to the chain."
+        }
+      ]
+    }
+  ],
+  "considered_rejected": [
+    {
+      "rule": "CR:336",
+      "why": "FEPR is the machinery that runs the Chain a Showdown spell creates — what happens inside step 3, not a step of the Showdown itself."
+    },
+    {
+      "rule": "CR:459",
+      "why": "Combat is a separate procedure that a Showdown can become the first step of; the Showdown's own steps end at 348."
+    },
+    {
+      "rule": "CR:313",
+      "why": "Defines that one player holds Focus at a time; the Showdown rules say who, and when it moves."
+    }
+  ],
+  "open_questions": [],
+  "cards": []
+}

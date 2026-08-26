@@ -1266,6 +1266,49 @@ def primer_invariants(idx):
           and sr["_weakest"] in {st["id"] for st in sr["steps"]})
 
 
+def shipped_primers(idx):
+    """Every primer this skill ships still verifies against the current corpus.
+
+    This is the check a rules update is run for. A renumbering — Movement
+    440->445, Scoring 462-467->467-472 in the 2026-07-16 update — silently
+    invalidates citations in a committed document, and the shipped primers are
+    the ones a reader is most likely to open first. Each is asserted whole:
+    every citation verbatim, the transitions still form a procedure, and the
+    derived export still matches.
+    """
+    print("\n=== the shipped primers ===")
+    import glob
+    import fireworks_ir
+    import flowgraph
+    from render_primer import all_cites, render, verify_primer
+
+    found = sorted(glob.glob(os.path.join(HERE, "*-primer.json")))
+    check("the skill ships primers at all", bool(found),
+          "a primer nobody wrote is a format nobody uses")
+    for path in found:
+        name = os.path.basename(path).replace("-primer.json", "")
+        ans = verify_primer(json.load(open(path, encoding="utf-8")), idx)
+        cites = all_cites(ans)
+        ok = check(f"{name}: verifies clean against this corpus",
+                   not ans["_problems"] and bool(cites)
+                   and all(c["verified"] for c in cites),
+                   "; ".join(ans["_problems"][:2])
+                   or f'{len(cites)} citations, all verbatim')
+        if not ok:
+            continue
+        page = render(ans, idx)
+        _nodes, edges = flowgraph.build(ans["steps"])
+        drawn = [e for e in edges if e["kind"] != "broken"]
+        ir = fireworks_ir.build(ans)
+        written = sorted(int(n) for n in
+                         re.findall(r'class="exit-n">(\d+)</span>', page))
+        check(f"{name}: the report, the map and the export agree on every transition",
+              written == sorted(e["n"] for e in drawn)
+              == sorted(int(a["label"]) for a in ir["arrows"]),
+              f'{len(written)} in prose, {len(drawn)} on the map, '
+              f'{len(ir["arrows"])} exported')
+
+
 def fireworks_export(idx):
     """The exported diagram, which travels away from the citations that back it.
 
@@ -2554,6 +2597,7 @@ def main():
     metric_consistency(idx)
     rendered_surfaces(idx)
     primer_invariants(idx)
+    shipped_primers(idx)
     fireworks_export(idx)
     cli_output_paths()
     python_floor()
