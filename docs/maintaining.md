@@ -178,6 +178,7 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
     flowgraph.py               derives a primer's diagram from its cited transitions
     fireworks_ir.py            the same graph as Fireworks IR, for export
   data/                        vendored + committed (~2.6MB)
+    diagrams/                  the shipped primers' diagrams, and the IR they came from
   reports/                     generated HTML reports (gitignored)
 
                                --- maintainer side ---

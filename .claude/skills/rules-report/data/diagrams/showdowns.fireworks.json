@@ -1,0 +1,143 @@
+{
+ "schema_version": 1,
+ "mode": "architecture",
+ "template_type": "flowchart",
+ "style": 3,
+ "quality_profile": {
+  "profile": "standard",
+  "max_route_stretch": 60.0,
+  "max_bridged_crossings": 40
+ },
+ "width": 1206,
+ "height": 948,
+ "title": "Showdowns",
+ "subtitle": "derived from the transitions this primer declares · Comprehensive Rules 2026-07-16 · unofficial",
+ "nodes": [
+  {
+   "id": "s1",
+   "kind": "rect",
+   "x": 96,
+   "y": 132,
+   "width": 320,
+   "height": 72,
+   "type_label": "STEP 1",
+   "label": "Open — the Battlefield is contested"
+  },
+  {
+   "id": "s2",
+   "kind": "rect",
+   "x": 96,
+   "y": 336,
+   "width": 320,
+   "height": 72,
+   "type_label": "STEP 2",
+   "label": "Act — the player with Focus chooses"
+  },
+  {
+   "id": "s3",
+   "kind": "rect",
+   "x": 96,
+   "y": 540,
+   "width": 320,
+   "height": 72,
+   "type_label": "STEP 3",
+   "label": "Resolve — the Chain runs"
+  },
+  {
+   "id": "s4",
+   "kind": "rect",
+   "x": 96,
+   "y": 744,
+   "width": 320,
+   "height": 72,
+   "type_label": "STEP 4",
+   "label": "Close — everyone has passed"
+  },
+  {
+   "id": "__procedure_ends",
+   "kind": "rect",
+   "x": 936,
+   "y": 438,
+   "width": 210,
+   "height": 72,
+   "type_label": "EXIT",
+   "label": "procedure ends"
+  }
+ ],
+ "arrows": [
+  {
+   "id": "t1",
+   "source": "s1",
+   "target": "s2",
+   "flow": "control",
+   "label": "1"
+  },
+  {
+   "id": "t2",
+   "source": "s2",
+   "target": "s3",
+   "flow": "control",
+   "label": "2"
+  },
+  {
+   "id": "t3",
+   "source": "s2",
+   "target": "s2",
+   "flow": "control",
+   "label": "3",
+   "source_port": "right",
+   "target_port": "right",
+   "route_points": [
+    [
+     506,
+     354
+    ],
+    [
+     506,
+     390
+    ]
+   ]
+  },
+  {
+   "id": "t4",
+   "source": "s2",
+   "target": "s4",
+   "flow": "control",
+   "label": "4"
+  },
+  {
+   "id": "t5",
+   "source": "s3",
+   "target": "s2",
+   "flow": "control",
+   "label": "5"
+  },
+  {
+   "id": "t6",
+   "source": "s3",
+   "target": "s2",
+   "flow": "control",
+   "label": "6"
+  },
+  {
+   "id": "t7",
+   "source": "s4",
+   "target": "__procedure_ends",
+   "flow": "control",
+   "label": "7"
+  },
+  {
+   "id": "t8",
+   "source": "s4",
+   "target": "__procedure_ends",
+   "flow": "control",
+   "label": "8"
+  }
+ ],
+ "legend": [
+  {
+   "flow": "control",
+   "label": "a rule states this outright"
+  }
+ ]
+}

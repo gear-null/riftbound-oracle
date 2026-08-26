@@ -1309,6 +1309,53 @@ def shipped_primers(idx):
               f'{len(ir["arrows"])} exported')
 
 
+def committed_diagrams(idx):
+    """A shipped diagram must still be the one this code and corpus produce.
+
+    `data/diagrams/` holds rendered pictures so they are ready to use without a
+    Fireworks install — which means they are a copy, and a copy drifts. The
+    same failure the rulebook has a check for: a shipped artifact that no
+    longer matches its generator goes on looking current, and here it would go
+    on asserting a procedure the rules have since renumbered.
+
+    The IR is compared, not the SVG: the IR is what this project derives and
+    stands behind, while the SVG is Fireworks' rendering of it and would differ on
+    any version bump of theirs. Maintainer-side only — a standalone install has
+    no repo around it and nothing to compare.
+    """
+    print("\n=== committed diagrams ===")
+    import glob
+    import fireworks_ir
+    from render_primer import verify_primer
+
+    # INSIDE the skill folder. These first went to docs/diagrams/, which put
+    # them out of reach of the mutation battery — it sandboxes the skill — and
+    # out of reach of anyone who copies the folder, which ADR 0004 says is the
+    # product. One location, shipped with the thing it describes.
+    shipped = os.path.join(HERE, "..", "data", "diagrams")
+    shipped = os.path.normpath(shipped)
+    if not check("the shipped diagrams directory is present", os.path.isdir(shipped),
+                 "a primer whose diagram is not shipped is a diagram nobody has"):
+        return
+
+    stale = []
+    for path in sorted(glob.glob(os.path.join(HERE, "*-primer.json"))):
+        name = os.path.basename(path).replace("-primer.json", "")
+        committed = os.path.join(shipped, f"{name}.fireworks.json")
+        if not os.path.exists(committed):
+            stale.append(f"{name}: never committed")
+            continue
+        ans = verify_primer(json.load(open(path, encoding="utf-8")), idx)
+        fresh = fireworks_ir.build(ans)
+        saved = json.load(open(committed, encoding="utf-8"))
+        if fresh != saved:
+            diffs = [k for k in set(fresh) | set(saved) if fresh.get(k) != saved.get(k)]
+            stale.append(f"{name}: {', '.join(sorted(diffs))} differ")
+    check("every committed diagram matches what this corpus now produces",
+          not stale, "; ".join(stale[:3])
+          or "regenerate with `rules_cli.py graph <primer> ../data/diagrams/<name>.svg`")
+
+
 def fireworks_export(idx):
     """The exported diagram, which travels away from the citations that back it.
 
@@ -2599,6 +2646,7 @@ def main():
     primer_invariants(idx)
     shipped_primers(idx)
     fireworks_export(idx)
+    committed_diagrams(idx)
     cli_output_paths()
     python_floor()
 

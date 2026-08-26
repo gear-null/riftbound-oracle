@@ -51,6 +51,7 @@ INVARIANTS = {
         "failed write leaves the previous ruling intact",
         "rulebook render leaves the previous one intact",
         "committed rulebook matches", "crash inside render leaves the previous report intact",
+        "committed diagram matches what this corpus now produces",
         "leaves no page behind", "failed write leaves the previous primer intact"],
     "11. The corpus is structurally whole": [
         "matches the recorded corpus exactly", "orphaned parents",

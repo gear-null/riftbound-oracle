@@ -1031,6 +1031,12 @@ MUTANTS = [
          find='            "label": str(edge["n"]),',
          repl='            "label": str(edge["from"] + 1),',
          expect='exported arrows carry the same numbers as the prose'),
+    dict(name='let a committed diagram drift from its generator, so a picture shipped '
+              'in docs/ goes on asserting a procedure the corpus no longer describes',
+         file='fireworks_ir.py',
+         find='    END_GAP = 520' if False else '''BOX_H = 72''',
+         repl='''BOX_H = 73''',
+         expect='committed diagram matches what this corpus now produces'),
     dict(name='export a diagram edge in its declared class even when its citation '
               'failed, so the picture that travels looks fully verified',
          file='fireworks_ir.py',
