@@ -74,7 +74,7 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 | `report <answer.json>` | **How you finish.** Verify + render + open, in one step |
 | `verify <answer.json>` | The citation gate alone. Exit 1 if anything fails |
 | `render <answer.json> [out]` | Render alone; prefer `report` |
-| `graph <primer.json> [out.mmd]` | A primer's step graph as Mermaid source, derived from its verified transitions |
+| `graph <primer.json> [out]` | A primer's step graph as a diagram, derived from its verified transitions. `--format=mermaid` for GitHub |
 
 `card`, `rule`, `section` and `grep` are how you research either document. `report`,
 `verify`, `render` and `graph` read the file's `kind` and route themselves — you never
@@ -281,9 +281,24 @@ Rules the verifier enforces, so write to them:
   most prominent sentence on the page, and there is no mechanical backstop behind it
   at all.
 
-Once it renders, `rules_cli.py graph <primer.json>` emits the same graph as Mermaid
-source for the website and for diagramming tools. It refuses on an unverified primer,
-so a diagram can never travel further than its citations.
+Once it renders, `rules_cli.py graph <primer.json>` exports the same graph for a
+website, a deck, or anywhere else the report itself does not go.
+
+| | |
+|---|---|
+| `graph <primer.json>` | Fireworks Tech Graph IR, plus a rendered SVG if Fireworks is installed |
+| `graph <primer.json> out.svg` | the same, named |
+| `graph <primer.json> --format=mermaid` | Mermaid source, for GitHub markdown |
+
+Fireworks is the default because it draws these far better than this project would,
+and it is safe to use because it takes a **structured document rather than a prompt**
+— nothing ever describes the procedure to it in words. Mermaid stays as a secondary
+because GitHub renders it inline and an SVG cannot.
+
+Both refuse on an unverified primer, so a diagram can never travel further than its
+citations. The **IR is what this project produces and stands behind**; rendering it is
+optional, and a machine with no Fireworks install still gets a complete, renderable
+document.
 
 ## Two ways to wrongly conclude the rules are silent
 

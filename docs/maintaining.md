@@ -150,6 +150,16 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   node or a label — see [ADR 0008](adr/0008-two-document-kinds.md). The same rule
   governs anything downstream: `graph` refuses on an unverified primer so that a
   picture can never travel further than its citations.
+- **The IR is the product; the renderer is not.** Fireworks Tech Graph lives outside
+  the skill folder, so nothing here may require it. `graph` always writes the IR —
+  self-contained, checkable, diffable — and renders an SVG only if an install is
+  found (`$RIFTBOUND_FIREWORKS` overrides the search). A missing install must cost a
+  picture, never an answer. Do not add a hard dependency on it.
+- **Do not hand Fireworks a prompt.** It accepts natural language, and that path is
+  closed here on purpose: a described diagram is a model-authored diagram, and
+  invariant 12 is the whole reason a picture is publishable at all. Style 8, the
+  closest match to this project's palette, is refused for exactly this reason —
+  Fireworks will only hand-craft it.
 
 ## Repository layout
 
@@ -161,6 +171,7 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
     render_report.py           a RULING, plus the checks and chrome both kinds share
     render_primer.py           a PRIMER: steps, transitions, misconceptions
     flowgraph.py               derives a primer's diagram from its cited transitions
+    fireworks_ir.py            the same graph as Fireworks IR, for export
   data/                        vendored + committed (~2.6MB)
   reports/                     generated HTML reports (gitignored)
 

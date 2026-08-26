@@ -1266,6 +1266,139 @@ def primer_invariants(idx):
           and sr["_weakest"] in {st["id"] for st in sr["steps"]})
 
 
+def fireworks_export(idx):
+    """The exported diagram, which travels away from the citations that back it.
+
+    Invariant 12 does not stop at the report. A Fireworks SVG ends up on a
+    website, in a deck, on a phone — everywhere the prose and the ✓ VERIFIED
+    stamps are not. It is derived from the same `flowgraph.build` the in-report
+    map is, and these assert the derivation survives the trip in both
+    directions: nothing drawn that was not declared, nothing declared that is
+    not drawn.
+
+    The IR is what this project produces and stands behind. Fireworks itself
+    lives outside the skill folder, so nothing here may require it.
+    """
+    print("\n=== primer: the exported diagram ===")
+    import copy
+    import tempfile
+    import fireworks_ir
+    import flowgraph
+    from render_primer import verify_primer
+
+    src = os.path.join(HERE, "hot-fepr-primer.json")
+    if not check("the primer fixture is present for the export checks",
+                 os.path.exists(src)):
+        return
+    base = json.load(open(src, encoding="utf-8"))
+    ans = verify_primer(copy.deepcopy(base), idx)
+    ir = fireworks_ir.build(ans)
+
+    nodes, edges = flowgraph.build(ans["steps"])
+    drawn = [e for e in edges if e["kind"] != "broken"]
+    step_ids = {s["id"] for s in ans["steps"]}
+    ir_ids = {n["id"] for n in ir["nodes"]}
+
+    check("every node in the export is a declared step",
+          ir_ids - {fireworks_ir._END_ID} == step_ids,
+          f"extra: {sorted(ir_ids - step_ids - {fireworks_ir._END_ID})}")
+    check("every arrow in the export is a declared transition, and none is missing",
+          len(ir["arrows"]) == len(drawn) and len(drawn) > 0,
+          f'{len(ir["arrows"])} arrows / {len(drawn)} drawable transitions')
+    check("and every arrow joins two nodes the export declares",
+          all(a["source"] in ir_ids and a["target"] in ir_ids for a in ir["arrows"]))
+
+    # The number on the exported arrow is the number in the prose. They come
+    # from one counter in flowgraph, and this is what keeps them from drifting
+    # if a second one is ever introduced.
+    exported = sorted(int(a["label"]) for a in ir["arrows"])
+    # A transition whose goto names no step keeps its NUMBER but cannot be
+    # placed. The export must omit the arrow and leave every other number
+    # where it was — drawing it would put a move on the picture that the
+    # document itself could not locate, and renumbering would break the one
+    # thing tying the picture to the prose.
+    dangling = copy.deepcopy(base)
+    dangling["steps"][1]["exits"][2]["goto"] = "nowhere"
+    dr = verify_primer(dangling, idx)
+    dir_ = fireworks_ir.build(dr)
+    d_labels = sorted(int(a["label"]) for a in dir_["arrows"])
+    check("a transition that cannot be placed is not exported, and renumbers nothing",
+          len(d_labels) == len(drawn) - 1 and 5 not in d_labels
+          and d_labels == [n for n in range(1, len(drawn) + 1) if n != 5],
+          f"exported {d_labels}")
+
+    check("the exported arrows carry the same numbers as the prose",
+          exported == sorted(e["n"] for e in drawn),
+          f"{exported[:6]}…")
+
+    # Fireworks names its edge classes by role; this project names them by
+    # basis. A basis with no mapping would silently fall through to "neutral" —
+    # the class this diagram's own legend calls "the rules do not settle it".
+    from render_report import RANK
+    check("every basis maps to an edge class, so none silently reads as a gap",
+          set(RANK) <= set(fireworks_ir.FLOW_FOR_BASIS),
+          f"unmapped: {sorted(set(RANK) - set(fireworks_ir.FLOW_FOR_BASIS))}")
+
+    # A failed citation must not travel as a confident arrow. The in-report map
+    # inverts it; the export has to say so too, in Fireworks' own vocabulary.
+    broken = copy.deepcopy(base)
+    broken["steps"][0]["exits"][0]["cites"][0]["quote"] = "not in rule 336 at all"
+    br = verify_primer(broken, idx)
+    bir = fireworks_ir.build(br)
+    flows = {a["id"]: a["flow"] for a in bir["arrows"]}
+    check("an unverified transition is exported in the failed class, not its declared one",
+          flows.get("t1") == fireworks_ir.FLOW_UNVERIFIED
+          and any(r["flow"] == fireworks_ir.FLOW_UNVERIFIED for r in bir["legend"]),
+          f'transition 1 exported as {flows.get("t1")!r}')
+
+    # Same rule as the report's basis key: a legend row for a style that does
+    # not appear is a line the reader holds for nothing.
+    check("the legend lists only the edge classes actually drawn",
+          {r["flow"] for r in ir["legend"]} == {a["flow"] for a in ir["arrows"]},
+          f'legend {[r["flow"] for r in ir["legend"]]}')
+
+    # This artifact leaves the report behind, so it has to carry its own
+    # provenance — which corpus, and that it is unofficial.
+    corpus_version = (ans.get("corpus") or {}).get("CR", "")
+    check("the exported diagram carries its corpus version and says it is unofficial",
+          corpus_version in ir["subtitle"] and "unofficial" in ir["subtitle"],
+          ir["subtitle"][:70])
+
+    print("\n=== primer: the export refuses what the report refuses ===")
+    cli = os.path.join(HERE, "rules_cli.py")
+    with tempfile.TemporaryDirectory() as d:
+        bad = os.path.join(d, "bad-primer.json")
+        json.dump(broken, open(bad, "w", encoding="utf-8"))
+        for fmt in ("fireworks", "mermaid"):
+            run = subprocess.run([sys.executable, cli, "graph", bad, f"--format={fmt}"],
+                                 capture_output=True, text=True, cwd=d)
+            wrote = [f for f in os.listdir(d) if f != "bad-primer.json"]
+            check(f"`graph --format={fmt}` refuses an unverified primer",
+                  run.returncode != 0 and not wrote,
+                  f"rc={run.returncode}, wrote {wrote}")
+            for f in wrote:
+                os.remove(os.path.join(d, f))
+
+    # Fireworks lives outside the skill folder and ADR 0004 forbids depending on
+    # anything out there. A missing install must cost a picture, never the IR.
+    with tempfile.TemporaryDirectory() as d:
+        good = os.path.join(d, "ok-primer.json")
+        json.dump(base, open(good, "w", encoding="utf-8"))
+        env = dict(os.environ, RIFTBOUND_FIREWORKS=os.path.join(d, "nowhere"))
+        env["HOME"] = d          # so the default search paths miss too
+        run = subprocess.run([sys.executable, cli, "graph", good, os.path.join(d, "x.svg")],
+                             capture_output=True, text=True, cwd=d, env=env)
+        ir_file = os.path.join(d, "x.fireworks.json")
+        check("with no Fireworks install the IR is still written, and says how to render it",
+              run.returncode == 0 and os.path.exists(ir_file)
+              and "render architecture" in run.stdout,
+              f"rc={run.returncode}")
+        check("and that IR is complete on its own",
+              os.path.exists(ir_file) and all(
+                  k in json.load(open(ir_file, encoding="utf-8"))
+                  for k in ("schema_version", "mode", "nodes", "arrows")))
+
+
 def cli_output_paths():
     """Where a report actually lands when the caller names a relative path.
 
@@ -2421,6 +2554,7 @@ def main():
     metric_consistency(idx)
     rendered_surfaces(idx)
     primer_invariants(idx)
+    fireworks_export(idx)
     cli_output_paths()
     python_floor()
 

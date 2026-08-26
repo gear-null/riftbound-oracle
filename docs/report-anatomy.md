@@ -162,9 +162,15 @@ not declare. A solid gold arrow is a move a rule states outright, a dashed blue 
 follows from the rules cited, a dashed grey one is unsettled, and a heavy inverted one
 failed verification. It is [invariant 12](invariants.md).
 
-`rules_cli.py graph <primer.json>` emits the same graph as Mermaid source, for the
-website and for diagramming tools. It refuses on an unverified primer, so a diagram
-can never travel further than its citations.
+`rules_cli.py graph <primer.json>` exports the same graph for surfaces the report does
+not reach. The default is [Fireworks Tech Graph](https://github.com/yizhiyanhua-ai/fireworks-tech-graph)
+IR — a structured document of nodes and arrows, never a prompt — which Fireworks
+renders as a standalone SVG in its Blueprint style. `--format=mermaid` emits Mermaid
+instead, for GitHub markdown, which renders it inline where an SVG cannot.
+
+Both refuse on an unverified primer. The exported diagram carries its own provenance
+in the subtitle — which corpus it was derived from, and that it is unofficial —
+because it travels away from the citations that back it.
 
 **A failed citation means no page.** A ruling downgrades to `UNSETTLED` and says so;
 a primer has no verdict to downgrade, so the only honest response is to publish

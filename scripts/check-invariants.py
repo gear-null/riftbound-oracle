@@ -67,7 +67,17 @@ INVARIANTS = {
         "lands on a step the primer declares", "numbered in the prose beside it",
         "draws no dashed arrow", "structural transition draws a dashed one",
         "names only real steps", "goto naming no step is refused",
-        "refuses to emit a diagram for it too"],
+        "refuses to emit a diagram for it too",
+        # The invariant does not stop at the report. An exported diagram travels
+        # to a website and a deck, away from the prose and the ✓ VERIFIED stamps.
+        "every node in the export is a declared step",
+        "cannot be placed is not exported",
+        "exported arrows carry the same numbers as the prose",
+        "every basis maps to an edge class",
+        "exported in the failed class",
+        "legend lists only the edge classes actually drawn",
+        "carries its corpus version and says it is unofficial",
+        "the IR is still written"],
 }
 
 

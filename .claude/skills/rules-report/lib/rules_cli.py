@@ -459,19 +459,64 @@ def cmd_render(args):
                    + [a for a in args if a.startswith("-")], check=True)
 
 
+FIREWORKS_HOMES = (
+    "~/.claude/skills/fireworks-tech-graph",
+    "~/.agents/skills/fireworks-tech-graph",
+    "~/.config/agents/skills/fireworks-tech-graph",
+)
+
+
+def find_fireworks():
+    """Locate a Fireworks Tech Graph install, or None.
+
+    Deliberately soft. Fireworks lives OUTSIDE the skill folder, and ADR 0004
+    says nothing here may depend on anything outside it — so the IR is what this
+    project produces and stands behind, and rendering it is a bonus. A missing
+    install costs a picture, never an answer, and `graph` still writes a
+    document any Fireworks install can render later.
+
+    $RIFTBOUND_FIREWORKS overrides, for an install somewhere else entirely.
+    """
+    candidates = [os.environ.get("RIFTBOUND_FIREWORKS")] + list(FIREWORKS_HOMES)
+    for candidate in candidates:
+        if not candidate:
+            continue
+        script = os.path.join(os.path.expanduser(candidate), "scripts", "fireworks.py")
+        if os.path.exists(script):
+            return script
+    return None
+
+
 def cmd_graph(args):
-    """Emit a primer's step graph as Mermaid source.
+    """Emit a primer's step graph for something else to draw.
 
     Derived from the same verified transitions the report draws, so a diagram
     produced from this cannot assert an edge the document does not. That is the
-    point of having it: the website and any restyling pass work from the graph,
-    not from a fresh reading of the prose.
+    point of having it: a website, a deck or a restyling pass works from the
+    graph, never from a fresh reading of the prose.
+
+        graph <primer.json>                    Fireworks IR, and an SVG if it is installed
+        graph <primer.json> out.svg            same, named
+        graph <primer.json> --format=mermaid   Mermaid source instead
+
+    Fireworks is the default because it draws these far better than anything
+    here would, and it is safe to use because it takes a structured document
+    rather than a prompt — no description of the procedure is handed to
+    anything. Mermaid stays because GitHub renders it inline in markdown, which
+    an SVG cannot do.
     """
     src = args[0]
+    fmt = "fireworks"
+    for a in args[1:]:
+        if a.startswith("--format="):
+            fmt = a.split("=", 1)[1].strip().lower()
+    if fmt not in ("fireworks", "mermaid"):
+        raise SystemExit(f"unknown --format={fmt}; use fireworks or mermaid")
+
     raw = json.load(open(src, encoding="utf-8"))
     if _kind(raw, src) != "primer":
         raise SystemExit(f"{src}: `graph` needs a primer — a ruling has no step graph.")
-    # Verified first. Emitting the graph from an unchecked file would hand the
+    # Verified first. Emitting the graph from an unchecked file would hand a
     # website a diagram this project never stood behind.
     from render_primer import verify_primer
     ans = verify_primer(raw, _idx())
@@ -480,15 +525,50 @@ def cmd_graph(args):
         for pb in ans["_problems"]:
             print(f"  ! {pb}", file=sys.stderr)
         sys.exit(1)
-    import flowgraph
-    text = flowgraph.mermaid(ans["steps"], ans.get("topic", "Procedure"))
-    if len(args) > 1 and not args[1].startswith("-"):
-        dest = _out_path(args[1])
-        with open(dest, "w", encoding="utf-8") as fh:
-            fh.write(text)
-        print(f"wrote {dest}")
-    else:
-        print(text, end="")
+
+    explicit = next((a for a in args[1:] if not a.startswith("-")), None)
+    slug = os.path.splitext(os.path.basename(src))[0].replace("-primer", "")
+
+    if fmt == "mermaid":
+        import flowgraph
+        text = flowgraph.mermaid(ans["steps"], ans.get("topic", "Procedure"))
+        if explicit:
+            dest = _out_path(explicit)
+            with open(dest, "w", encoding="utf-8") as fh:
+                fh.write(text)
+            print(f"wrote {dest}")
+        else:
+            print(text, end="")
+        return
+
+    import fireworks_ir
+    ir = fireworks_ir.build(ans)
+    svg_out = _out_path(explicit) if explicit else os.path.join(REPORTS, f"{slug}.svg")
+    ir_out = os.path.splitext(svg_out)[0] + ".fireworks.json"
+    os.makedirs(os.path.dirname(os.path.abspath(ir_out)), exist_ok=True)
+    with open(ir_out, "w", encoding="utf-8") as fh:
+        json.dump(ir, fh, indent=1, ensure_ascii=False)
+        fh.write("\n")
+    print(f"wrote {ir_out}")
+    print(f"  {len(ir['nodes'])} nodes, {len(ir['arrows'])} arrows, style {ir['style']}")
+
+    fireworks = find_fireworks()
+    if not fireworks:
+        print("\nno Fireworks Tech Graph install found — the IR above is complete and\n"
+              "any install can render it:\n"
+              f"  python3 <fireworks>/scripts/fireworks.py render architecture {ir_out} out.svg\n"
+              "  (npx skills add yizhiyanhua-ai/fireworks-tech-graph, or set "
+              "$RIFTBOUND_FIREWORKS)")
+        return
+    run = subprocess.run([sys.executable, fireworks, "render", "architecture",
+                          ir_out, svg_out], capture_output=True, text=True)
+    if run.returncode != 0:
+        # Reported, not raised. The IR is written and valid either way, and the
+        # renderer's own message is more useful than anything paraphrased here.
+        print(f"\nFireworks could not render it: {(run.stdout or run.stderr).strip()[:300]}",
+              file=sys.stderr)
+        sys.exit(1)
+    print(f"wrote {svg_out}")
 
 
 def cmd_mutants(args):

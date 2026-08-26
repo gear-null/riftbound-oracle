@@ -1009,6 +1009,64 @@ MUTANTS = [
          find='    undrawable = declared_exits and not diagram',
          repl='    undrawable = False',
          expect='undrawable map says so rather than disappearing'),
+
+    # ---- the exported diagram ------------------------------------------------
+    # Invariant 12 does not stop at the report: a Fireworks SVG travels to a
+    # website and a deck, away from the prose and the ✓ VERIFIED stamps.
+    dict(name='export an arrow for a transition that cannot be drawn, so the picture '
+              'shows a move the document could not place',
+         file='fireworks_ir.py',
+         find='    drawn = [e for e in edges if e["kind"] != "broken"]',
+         repl='    drawn = list(edges)',
+         expect='cannot be placed is not exported'),
+    dict(name='rename the nodes on the way out, so the exported picture names steps '
+              'the document does not declare',
+         file='fireworks_ir.py',
+         find='            "id": node["id"],\n            "kind": "rect",',
+         repl='            "id": node["id"] + "_x",\n            "kind": "rect",',
+         expect='every node in the export is a declared step'),
+    dict(name='number the exported arrows by their source step instead of by the '
+              'transition, so the picture and the prose stop agreeing',
+         file='fireworks_ir.py',
+         find='            "label": str(edge["n"]),',
+         repl='            "label": str(edge["from"] + 1),',
+         expect='exported arrows carry the same numbers as the prose'),
+    dict(name='export a diagram edge in its declared class even when its citation '
+              'failed, so the picture that travels looks fully verified',
+         file='fireworks_ir.py',
+         find='''def _flow(edge):
+    if not edge.get("verified", True):
+        return FLOW_UNVERIFIED''',
+         repl='''def _flow(edge):
+    if False:
+        return FLOW_UNVERIFIED''',
+         expect='exported in the failed class'),
+    dict(name='drop a basis from the export mapping, so a structural transition is '
+              'drawn in the class the legend calls "the rules do not settle it"',
+         file='fireworks_ir.py',
+         find='    "structural": "read",\n    "inferred": "read",',
+         repl='    "inferred": "read",',
+         expect='every basis maps to an edge class'),
+    dict(name='print the whole legend regardless of what was drawn, so a reader holds '
+              'three rules for a diagram that uses one',
+         file='fireworks_ir.py',
+         find='    used = {_flow(e) for e in edges if e["kind"] != "broken"}\n'
+              '    return [{"flow": flow, "label": label} for flow, label in rows if flow in used]',
+         repl='    return [{"flow": flow, "label": label} for flow, label in rows]',
+         expect='legend lists only the edge classes actually drawn'),
+    dict(name='strip the provenance from the exported subtitle, so a diagram that '
+              'leaves the report cannot say which corpus it came from',
+         file='fireworks_ir.py',
+         find='''    return ("derived from the transitions this primer declares"
+            f"{stamp} · unofficial")''',
+         repl='''    return "derived from the transitions this primer declares"''',
+         expect='carries its corpus version and says it is unofficial'),
+    dict(name='require a Fireworks install before writing the IR, so a machine '
+              'without one gets nothing instead of a renderable document',
+         file='rules_cli.py',
+         find='    fireworks = find_fireworks()\n    if not fireworks:',
+         repl='    fireworks = find_fireworks()\n    if not fireworks:\n        sys.exit(1)\n    if False:',
+         expect='the IR is still written'),
     dict(name='test only whether a step is named by something, so a disconnected '
               'island of steps that name each other passes',
          file='render_primer.py',
