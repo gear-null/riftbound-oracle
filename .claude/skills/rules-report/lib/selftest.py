@@ -647,6 +647,51 @@ def primer_invariants(idx):
           len(br["_problems"]) >= 2 and bool(bpage),
           "; ".join(br["_problems"][:2]))
 
+    # Every model-authored field, malformed. --force exists to look at exactly
+    # these documents, so a renderer that crashes on them has no escape hatch
+    # at all — and the crash replaces the problem list the author needs.
+    #
+    # Table-driven because these were found one at a time: heading, then body,
+    # then rules_checked, then belief, then corpus. Fixing a class beats fixing
+    # five instances and waiting for the sixth.
+    malformations = {
+        "a misconception with no belief": lambda a: a["misconceptions"][0].pop("belief"),
+        "a misconception that is a string": lambda a: a["misconceptions"].insert(0, "x"),
+        "misconceptions that are all strings": lambda a: a.__setitem__("misconceptions", ["a"]),
+        "no corpus block at all": lambda a: a.pop("corpus"),
+        "considered_rejected as bare strings": lambda a: a.__setitem__(
+            "considered_rejected", ["CR:305"]),
+        "open_questions as a bare string": lambda a: a.__setitem__("open_questions", "xyz"),
+        "cards as a bare string": lambda a: a.__setitem__("cards", "Astral Heron"),
+        "a step that is not an object": lambda a: a["steps"].append("junk"),
+        "every one of them at once": lambda a: (
+            a["misconceptions"].insert(0, "x"), a.pop("corpus"),
+            a.__setitem__("cards", "X"), a["steps"][1].pop("heading")),
+    }
+    crashed = []
+    for label, mutate in malformations.items():
+        bad = copy.deepcopy(base)
+        mutate(bad)
+        try:
+            got = verify_primer(bad, idx)
+            render(got, idx)
+            if not got["_problems"]:
+                crashed.append(f"{label} (verified clean)")
+        except Exception as exc:
+            crashed.append(f"{label} ({type(exc).__name__})")
+    check("every malformed field is reported, and --force still renders",
+          not crashed, "; ".join(crashed[:3]))
+
+    # A bare string where a list belongs is iterated one character at a time:
+    # `"cards": "Astral Heron"` rendered twelve cards, each "not found".
+    strung = copy.deepcopy(base)
+    strung["cards"] = "Astral Heron"
+    spage = safely(lambda: render(verify_primer(strung, idx), idx), "",
+                   "render with cards as a string")
+    check("nor is a string field iterated one character at a time",
+          bool(spage) and spage.count("<figure") == 0,
+          f'{spage.count("<figure")} cards rendered from a 12-character string')
+
     print("\n=== primer: the procedure has to be a procedure ===")
     import flowgraph as flowgraph_mod
     dangling = copy.deepcopy(base)

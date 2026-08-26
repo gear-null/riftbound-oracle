@@ -182,11 +182,16 @@ def verify_primer(ans, idx):
     for s in steps:
         check_rules_checked(s.get("exits", []) or [], idx, problems)
 
+    # Dropped after being reported, like a malformed step: `continue` alone left
+    # the bad entry in the list, and every later pass over misconceptions —
+    # `all_cites`, the renderer — met a string where it expected an object.
+    kept_misc = []
     for i, m in enumerate(ans.get("misconceptions", []) or [], 1):
         if not isinstance(m, dict):
             problems.append(f"misconception {i}: expected an object with `belief` "
                             f"and `why_wrong`, got {type(m).__name__}")
             continue
+        kept_misc.append(m)
         for key in ("belief", "why_wrong"):
             if not m.get(key):
                 problems.append(f"misconception {i}: no {key}")
@@ -194,6 +199,19 @@ def verify_primer(ans, idx):
         # text a reader who believes the wrong thing will go check first.
         m["verified"] = all(_check(c, idx, f"misconception {i}", problems)
                             for c in (m.get("cites") or []))
+    if "misconceptions" in ans:
+        ans["misconceptions"] = kept_misc
+
+    # A bare string where a list belongs is iterated one character at a time —
+    # `"cards": "Astral Heron"` renders twelve cards, each "not found". Reported
+    # and emptied, so the page cannot show the damage as though it were content.
+    for key in ("misconceptions", "considered_rejected", "open_questions", "cards"):
+        value = ans.get(key)
+        if value is not None and not isinstance(value, list):
+            problems.append(
+                f"`{key}` must be a list, not {type(value).__name__} — a bare "
+                "string is iterated one character at a time")
+            ans[key] = []
 
     check_corpus_stamp(ans, idx, problems)
     check_considered_rejected(ans, idx, problems)
@@ -370,7 +388,9 @@ def _exit_html(ex, steps_by_id, idx, corpus, n):
 
 
 def render(ans, idx):
-    corpus = ans["corpus"]
+    # `.get`, not `[]`, throughout: every field below is model-authored, and
+    # --force renders exactly the documents where they are missing.
+    corpus = ans.get("corpus") or {}
     steps = ans["steps"]
     steps_by_id = {s["id"]: (i + 1, s.get("heading", s["id"]))
                    for i, s in enumerate(steps)}
@@ -413,15 +433,17 @@ def render(ans, idx):
 
     misc = "".join(f'''<section class="misc plate" data-od-id="misconception-{i}">
   <span class="label">Commonly believed</span>
-  <h3>“{esc(m["belief"])}”</h3>
+  <h3>“{esc(m.get("belief", ""))}”</h3>
   <span class="label">What the rules actually say</span>
-  <p class="why">{esc(m["why_wrong"])}</p>
+  <p class="why">{esc(m.get("why_wrong", ""))}</p>
   {f'<div class="cites">{"".join(cite_html(x, idx, corpus) for x in m.get("cites") or [])}</div>'
    if m.get("cites") else ""}
-</section>''' for i, m in enumerate(ans.get("misconceptions") or [], 1))
+</section>''' for i, m in enumerate(
+        [x for x in (ans.get("misconceptions") or []) if isinstance(x, dict)], 1))
 
-    rejected = "".join(f'<li><code>{esc(r["rule"])}</code> — {esc(r["why"])}</li>'
-                       for r in ans.get("considered_rejected") or [])
+    rejected = "".join(
+        f'<li><code>{esc(r.get("rule", ""))}</code> — {esc(r.get("why", ""))}</li>'
+        for r in (ans.get("considered_rejected") or []) if isinstance(r, dict))
     openq = "".join(f"<li>{esc(q)}</li>" for q in ans.get("open_questions") or [])
     problems = "".join(f"<li>{esc(p)}</li>" for p in ans.get("_problems") or [])
 
@@ -479,8 +501,8 @@ def render(ans, idx):
     {MARK}
     <span class="wordmark"><span class="eyebrow">Riftbound</span><b>Oracle</b></span>
     <span class="unofficial">Unofficial rules companion</span>
-    <span class="corpus">CR <b>{esc(corpus["CR"])}</b> &middot; TR <b>{esc(corpus["TR"])}</b><br>
-      corpus built {esc(corpus["generated"])} &middot; offline</span>
+    <span class="corpus">CR <b>{esc(corpus.get("CR", "—"))}</b> &middot; TR <b>{esc(corpus.get("TR", "—"))}</b><br>
+      corpus built {esc(corpus.get("generated", "—"))} &middot; offline</span>
   </div>
 </header>
 

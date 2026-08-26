@@ -947,6 +947,18 @@ MUTANTS = [
          find='      <h3>{esc(s.get("heading", ""))}</h3>',
          repl='      <h3>{esc(s["heading"])}</h3>',
          expect='still renders under --force'),
+    dict(name='subscript a misconception the verifier already rejected, so --force '
+              'crashes on the document it exists to show you',
+         file='render_primer.py',
+         find='  <h3>“{esc(m.get("belief", ""))}”</h3>',
+         repl='  <h3>“{esc(m["belief"])}”</h3>',
+         expect='every malformed field is reported'),
+    dict(name='accept a bare string where a list belongs, so "cards": "Astral Heron" '
+              'renders twelve cards, each of them not found',
+         file='render_primer.py',
+         find='''        if value is not None and not isinstance(value, list):''',
+         repl='''        if False:''',
+         expect='iterated one character at a time'),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)
