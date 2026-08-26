@@ -157,8 +157,10 @@ dashed.
 transitions, so every arrow on it is one of them and every one of them is on it —
 numbered to match the prose beneath. There is no field in which an author can draw an
 edge. That is what makes a picture publishable here at all: a diagram is the surface a
-reader trusts most and audits least, and this one cannot say anything the citations
-do not. It is [invariant 12](invariants.md), pinned by nine checks.
+reader trusts most and audits least, and this one cannot say anything the document did
+not declare. A solid gold arrow is a move a rule states outright, a dashed blue one
+follows from the rules cited, a dashed grey one is unsettled, and a heavy inverted one
+failed verification. It is [invariant 12](invariants.md).
 
 `rules_cli.py graph <primer.json>` emits the same graph as Mermaid source, for the
 website and for diagramming tools. It refuses on an unverified primer, so a diagram

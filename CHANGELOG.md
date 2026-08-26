@@ -32,9 +32,15 @@ This project follows [Semantic Versioning](https://semver.org/) and
   nine checks, each proven by a mutant.
 - **`rules_cli.py graph`** emits the same graph as Mermaid source, and refuses on an
   unverified primer.
+- **Invariant 12** — *a diagram draws exactly the transitions the document declares,
+  no more and no fewer*. An arrow is absorbed at a glance and audited by nobody, so
+  the map is computed from the declared transitions and shows which kind of claim
+  each one rests on: solid for stated outright, dashed for inferred or unsettled, and
+  a heavy inverted arrow for one whose citation failed, so a `--force` page has no
+  element left claiming everything is fine.
 - A shipped HOT FEPR primer (CR 332–340, 33 citations, 12 transitions) as the worked
-  example, and 51 new checks with 34 new mutants — 260 checks, 150 mutants, all 12
-  invariants pinned.
+  example. Run `python3 scripts/check-invariants.py` for the live check and mutant
+  counts — a total written into prose here only goes stale.
 
 ## [1.2.1] — 2026-08-20
 

@@ -720,6 +720,12 @@ MUTANTS = [
          find='    graded += [(s["id"], ex["basis"]) for s in steps for ex in (s.get("exits") or [])]',
          repl='    graded += []',
          expect='reports structural as its weakest link'),
+    dict(name="file a transition's basis under its source step, so the page names a "
+              'weakest step whose own chip says something else',
+         file='render_primer.py',
+         find='            graded.append((s["id"], ex["basis"], f"transition {n}"))',
+         repl='            graded.append((s["id"], ex["basis"], f"step {i}"))',
+         expect='weakest link names what is actually weakest'),
     dict(name='let a transition claim the rules are silent without showing what it searched',
          file='render_primer.py',
          find='            if ex["basis"] == "gap" and not ex.get("rules_checked"):\n'
@@ -733,8 +739,8 @@ MUTANTS = [
          expect='goto naming no step is refused'),
     dict(name='stop noticing a step nothing reaches, leaving an orphan box on the map',
          file='render_primer.py',
-         find='    for s in steps[1:]:\n        if s.get("id") not in reached:',
-         repl='    for s in []:\n        if s.get("id") not in reached:',
+         find='    for s in steps[1:]:\n        if s.get("id") not in reachable:',
+         repl='    for s in []:\n        if s.get("id") not in reachable:',
          expect='step nothing reaches is refused'),
     dict(name='accept a procedure with no way out, describing a loop play can never leave',
          file='render_primer.py',
@@ -959,6 +965,82 @@ MUTANTS = [
          find='''        if value is not None and not isinstance(value, list):''',
          repl='''        if False:''',
          expect='iterated one character at a time'),
+
+    # ---- what the review pass found ----------------------------------------
+    dict(name='style a diagram edge from its declared basis alone, so a citation '
+              'that failed the verbatim check still draws as a confident gold arrow',
+         file='flowgraph.py',
+         find='    failed = not e.get("verified", True)',
+         repl='    failed = False',
+         expect='drawn unmistakably, not as a confident arrow'),
+    dict(name='draw every fall-through at the spine again, so two transitions '
+              'between the same pair of steps collapse into one arrow',
+         file='flowgraph.py',
+         find='            elif target == i + 1 and not spine_used[i]:',
+         repl='            elif target == i + 1:',
+         expect='draw two arrows'),
+    dict(name="count undrawable transitions in the map's accessible description, so "
+              'a screen reader is told about an arrow nobody can see',
+         file='flowgraph.py',
+         find='    drawn = [e for e in edges if e["kind"] != "broken"]',
+         repl='    drawn = list(edges)',
+         expect='counts the arrows it actually drew'),
+    dict(name='drop the readability cap, so a hundred-step primer verifies clean and '
+              'renders a map three hundred thousand pixels wide',
+         file='render_primer.py',
+         find='    if len(steps) > MAX_STEPS:',
+         repl='    if False:',
+         expect='too many steps to read as a map is refused'),
+    dict(name='drop the transition cap, so a primer needing more gutter lanes than a '
+              'page can carry still renders its wall of a map',
+         file='render_primer.py',
+         find='    if transitions > MAX_TRANSITIONS:',
+         repl='    if False:',
+         expect='too many transitions to draw is refused'),
+    dict(name='test only whether a step is named by something, so a disconnected '
+              'island of steps that name each other passes',
+         file='render_primer.py',
+         find='''    reachable, frontier = {steps[0].get("id")}, [steps[0]]''',
+         repl='''    reachable, frontier = {s.get("id") for s in steps}, []''',
+         expect='disconnected island of steps is refused'),
+    dict(name='report a transition-level problem under an id transitions do not '
+              'have, leaving every one of them as "?"',
+         file='render_primer.py',
+         find='''        check_rules_checked(s.get("exits", []) or [], idx, problems,
+                            label=lambda n, sid=sid: f"{sid} transition {n}")''',
+         repl='''        check_rules_checked(s.get("exits", []) or [], idx, problems)''',
+         expect='names the transition'),
+    dict(name='drop an unreadable step instead of keeping its slot, renumbering '
+              'every step after it and quietly losing a box from the map',
+         file='render_primer.py',
+         find='''            kept.append({
+                "id": f"_unreadable{i}", "basis": "gap", "rules_checked": ["300"],''',
+         repl='''            continue
+            kept.append({
+                "id": f"_unreadable{i}", "basis": "gap", "rules_checked": ["300"],''',
+         expect='keeps its slot rather than renumbering'),
+    dict(name='let two step ids collapse to one mermaid node, turning a cited '
+              'transition between them into a self-loop',
+         file='flowgraph.py',
+         find='        ids[node["id"]] = base if seen[base] == 1 else f"{base}__{seen[base]}"',
+         repl='        ids[node["id"]] = base',
+         expect='its own node'),
+    dict(name='strip -primer from the report slug again, so a primer and a ruling on '
+              'one subject overwrite each other',
+         file='rules_cli.py',
+         find='    slug = os.path.splitext(os.path.basename(src))[0].replace("-answer", "")',
+         repl='    slug = os.path.splitext(os.path.basename(src))[0].replace("-answer", "").replace("-primer", "")',
+         expect='do not overwrite each other'),
+    dict(name="stop guarding the shape of `cites`, so a bare string aborts "
+              'verification and every problem found after it goes unreported',
+         file='render_report.py',
+         find='''    cites = item.get("cites")
+    if cites is None:
+        return []''',
+         repl='''    cites = item.get("cites")
+    if True:
+        return cites or []''',
+         expect='malformed field is reported'),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

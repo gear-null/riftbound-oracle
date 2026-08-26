@@ -56,9 +56,13 @@ INVARIANTS = {
         "matches the recorded corpus exactly", "orphaned parents",
         "rendered rulebook is in numeric id order"],
     # An arrow is absorbed at a glance and audited by nobody, so the diagram is
-    # derived from the transitions the primer already cited. These pin the
+    # derived from the transitions the primer DECLARES — and a declared
+    # transition must either cite a rule or openly downgrade the document's
+    # min() confidence. "Cites" was the original wording and it was too strong:
+    # an exit declared `structural` or `gap` carries no citation and still draws
+    # its arrow, which is the honest concession, not a hole. These pin the
     # derivation in both directions.
-    "12. A diagram draws exactly the transitions the document cites": [
+    "12. A diagram draws exactly the transitions the document declares": [
         "one edge per declared transition", "one node per declared step",
         "lands on a step the primer declares", "numbered in the prose beside it",
         "draws no dashed arrow", "structural transition draws a dashed one",
@@ -67,14 +71,64 @@ INVARIANTS = {
 }
 
 
+def failures(out):
+    """The [FAIL] lines in a selftest run.
+
+    THE GATE'S OWN BLIND SPOT, and the reason this is a named function with a
+    self-test below rather than three lines inside main(). The gate harvested
+    [PASS] lines and ignored both the exit code and every [FAIL] line, so a
+    failing check simply VANISHED from its invariant's hit count — an invariant
+    pinned by two checks, one of them now red, reported "1 check / 1 proven",
+    and the gate exited 0 announcing all twelve invariants were pinned. The one
+    thing meant to block a release was structurally incapable of seeing a red
+    suite.
+    """
+    return [n.strip() for n in
+            re.findall(r"^\s*\[FAIL\]\s*(.+?)(?:\s+—.*)?$", out, re.M)]
+
+
+def self_test():
+    """Prove this gate can still see a failure, before it speaks for the suite.
+
+    `mutants.py` cannot reach here — it sandboxes the SKILL folder, and this
+    file is maintainer-side, outside it. So the mutation discipline the rest of
+    the project runs on does not apply, and this stands in for it: synthetic
+    output known to be red, asserted to be read as red. It runs on every
+    invocation, because a gate that is only checked when someone remembers to
+    check it is the gate that was broken for this long.
+    """
+    red = ("  [PASS] something fine\n"
+           "  [FAIL] a check that is red  — with a detail\n"
+           "  [FAIL] another red one\n"
+           "FAILED 2 of 3: a check that is red, another red one\n")
+    green = "  [PASS] something fine\n  [PASS] something else\n"
+    problems = []
+    if failures(red) != ["a check that is red", "another red one"]:
+        problems.append(f"cannot read [FAIL] lines: {failures(red)}")
+    if failures(green):
+        problems.append(f"invents failures in a green run: {failures(green)}")
+    if problems:
+        sys.exit("check-invariants cannot see a failing suite:\n  "
+                 + "\n  ".join(problems))
+
+
 def main():
+    self_test()
     import mutants
-    out = subprocess.run([sys.executable, os.path.join(LIB, "selftest.py")],
-                         capture_output=True, text=True, cwd=LIB).stdout
+    run = subprocess.run([sys.executable, os.path.join(LIB, "selftest.py")],
+                         capture_output=True, text=True, cwd=LIB)
+    out = run.stdout
     names = [n.strip() for n in
              re.findall(r"^\s*\[PASS\]\s*(.+?)(?:\s+—.*)?$", out, re.M)]
     if not names:
         sys.exit("selftest produced no passing checks — run it directly and fix that first")
+
+    failed = failures(out)
+    if failed or run.returncode != 0:
+        print(f"{len(failed)} check(s) FAILING — the gate cannot speak for a red suite:")
+        for name in failed:
+            print(f"  ! {name}")
+        sys.exit(f"\nselftest exited {run.returncode}. Fix the suite, then run this again.")
     proven = {n for m in mutants.MUTANTS for n in names if m["expect"] in n}
 
     gaps = []

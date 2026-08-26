@@ -357,11 +357,11 @@ def cmd_report(args):
     """
     src = args[0]
     explicit = args[1] if len(args) > 1 and not args[1].startswith("-") else None
-    # Both naming conventions collapse to the topic: heron-answer.json and
-    # hot-fepr-primer.json become heron.html and hot-fepr.html, so the
-    # reports folder reads as a list of subjects rather than of filenames.
-    slug = os.path.splitext(os.path.basename(src))[0]
-    slug = slug.replace("-answer", "").replace("-primer", "") or slug
+    # `-answer` only. Stripping `-primer` too was tidier and collided:
+    # heron-answer.json and heron-primer.json both resolved to reports/heron.html,
+    # so rendering one silently destroyed the other — a ruling and a primer about
+    # the same subject is the NORMAL pairing, not an edge case.
+    slug = os.path.splitext(os.path.basename(src))[0].replace("-answer", "")
     out = _out_path(explicit) if explicit else os.path.join(REPORTS, f"{slug}.html")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
 
@@ -431,6 +431,12 @@ def _cite_sources(ans, kind):
             yield step
             for ex in step.get("exits", []) or []:
                 yield dict(ex, id=f"{step.get('id', '?')}→{ex.get('goto') or 'end'}")
+        # Misconceptions carry citations too, so a narrowed one there printed
+        # no `narrowed:` line — the id the author wrote was vaguer than the rule
+        # that says the thing, and nothing said so.
+        for m in ans.get("misconceptions", []) or []:
+            if isinstance(m, dict):
+                yield dict(m, id=f"misconception {m.get('belief', '')[:24]}")
     else:
         for note in ans.get("notes", []):
             yield note
@@ -457,7 +463,7 @@ def cmd_graph(args):
     """Emit a primer's step graph as Mermaid source.
 
     Derived from the same verified transitions the report draws, so a diagram
-    produced from this cannot assert an edge the citations do not. That is the
+    produced from this cannot assert an edge the document does not. That is the
     point of having it: the website and any restyling pass work from the graph,
     not from a fresh reading of the prose.
     """

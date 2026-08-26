@@ -92,7 +92,7 @@ whole thing inverts to a clean sheet, because judges print these.
 happens in one situation and you get a **primer** instead of a ruling: the procedure as
 numbered steps, every move between them cited, and a diagram of the whole loop. The diagram is
 *derived* from those cited transitions — there is no field an author can draw an arrow in — so
-the picture can never say something the citations don't.
+the picture can never say something the document didn't declare.
 
 ![A primer on the HOT FEPR loop: the five steps down the left, the twelve transitions between them numbered and drawn as arrows, each one cited in the text below](docs/images/primer.png)
 

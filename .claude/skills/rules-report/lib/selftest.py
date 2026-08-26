@@ -482,8 +482,11 @@ def primer_invariants(idx):
     from render_primer import all_cites, render, verify_primer
 
     src = os.path.join(HERE, "hot-fepr-primer.json")
-    if not os.path.exists(src):
-        note("hot-fepr-primer.json missing; skipping the primer suite")
+    # FAIL, not skip. A note does not reach the exit code, so removing the
+    # fixture took the run from 267 checks to 213 while reporting two unrelated
+    # failures and nothing at all about the fifty that never ran.
+    if not check("the primer fixture is present", os.path.exists(src),
+                 "without it none of the primer checks run"):
         return
     base = json.load(open(src, encoding="utf-8"))
 
@@ -664,6 +667,14 @@ def primer_invariants(idx):
         "open_questions as a bare string": lambda a: a.__setitem__("open_questions", "xyz"),
         "cards as a bare string": lambda a: a.__setitem__("cards", "Astral Heron"),
         "a step that is not an object": lambda a: a["steps"].append("junk"),
+        "cites as a list of bare strings": lambda a: a["steps"][1]["exits"][0]
+            .__setitem__("cites", ["CR:337.2"]),
+        "a citation object with no rule": lambda a: a["steps"][1]["exits"][0]
+            .__setitem__("cites", [{"quote": "x"}]),
+        "cites as a bare string": lambda a: a["steps"][1].__setitem__("cites", "CR:337.1"),
+        "corpus as a bare string": lambda a: a.__setitem__("corpus", "2026-07-16"),
+        "considered_rejected with no why": lambda a: a.__setitem__(
+            "considered_rejected", [{"rule": "CR:305"}]),
         "every one of them at once": lambda a: (
             a["misconceptions"].insert(0, "x"), a.pop("corpus"),
             a.__setitem__("cards", "X"), a["steps"][1].pop("heading")),
@@ -708,7 +719,7 @@ def primer_invariants(idx):
                 ex["goto"] = "s5"
     r = verify_primer(orphan, idx)
     check("a step nothing reaches is refused",
-          any("nothing reaches it" in p for p in r["_problems"]))
+          any("no run of this procedure reaches" in p for p in r["_problems"]))
 
     sealed = copy.deepcopy(base)
     for s in sealed["steps"]:
@@ -754,7 +765,7 @@ def primer_invariants(idx):
         try:
             got = any(phrase in p for p in verify_primer(bad, idx)["_problems"])
         except Exception as exc:
-            got, name = False, name
+            got = False
             note(f"verify_primer raised {type(exc).__name__}: {exc}")
         check(name, got)
 
@@ -836,6 +847,198 @@ def primer_invariants(idx):
     check("and collapses a newline rather than truncating the graph",
           bool(hot) and len(hot.splitlines()) == len(mmd.splitlines()),
           f"{len(hot.splitlines())} lines vs {len(mmd.splitlines())}")
+
+    # `_mid` maps every non-alphanumeric character to "_", so it is not
+    # injective: `s1.a` and `s1_a` both became S_s1_a, collapsing two declared
+    # steps into one node and turning the transition between them into a
+    # self-loop — in the export that exists so a diagram cannot outrun its
+    # citations. Verification cannot see it, because the JSON ids ARE unique.
+    collide = verify_primer(copy.deepcopy(base), idx)
+    rename = {"s1": "x.a", "s2": "x_a"}
+    for st in collide["steps"]:
+        for ex in st.get("exits") or []:
+            if ex.get("goto") in rename:
+                ex["goto"] = rename[ex["goto"]]
+        st["id"] = rename.get(st["id"], st["id"])
+    cmmd = safely(lambda: flowgraph.mermaid(collide["steps"], "T"), "",
+                  "flowgraph.mermaid with colliding ids")
+    node_ids = re.findall(r"^  (S_\S+)\[", cmmd, re.M)
+    check("the mermaid export gives every step its own node",
+          len(node_ids) == len(collide["steps"]) == len(set(node_ids)),
+          f"{len(node_ids)} node lines, {len(set(node_ids))} distinct")
+
+    # A ruling and a primer about the same subject is the normal pairing, and
+    # both slugs collapsed to reports/<topic>.html — so rendering one silently
+    # destroyed the other.
+    with tempfile.TemporaryDirectory() as d:
+        pj, aj = os.path.join(d, "x-primer.json"), os.path.join(d, "x-answer.json")
+        json.dump(base, open(pj, "w", encoding="utf-8"))
+        json.dump(json.load(open(os.path.join(HERE, "heron-answer.json"),
+                                 encoding="utf-8")), open(aj, "w", encoding="utf-8"))
+        cli = os.path.join(HERE, "rules_cli.py")
+        outs = []
+        for source in (pj, aj):
+            r = subprocess.run([sys.executable, cli, "report", source, "--no-open"],
+                               capture_output=True, text=True, cwd=d)
+            m = re.search(r"^report: (.+)$", r.stdout, re.M)
+            outs.append(m.group(1) if m else "")
+        check("a primer and a ruling on one subject do not overwrite each other",
+              all(outs) and outs[0] != outs[1],
+              " vs ".join(os.path.basename(o) for o in outs))
+        for o in outs:
+            if o and os.path.exists(o):
+                os.remove(o)
+
+    print("\n=== primer: the map tells the truth about itself ===")
+    # A citation that failed the verbatim check drew a solid gold "grounded"
+    # arrow a few hundred pixels above its own citation card reading ✗
+    # UNVERIFIED. On a forced page the banner and the stamps were honest; the
+    # diagram was the one element still claiming everything was fine.
+    ghost_edge = copy.deepcopy(base)
+    ghost_edge["steps"][0]["exits"][0]["cites"][0]["quote"] = "not in rule 336 at all"
+    gr = verify_primer(ghost_edge, idx)
+    gpage = safely(lambda: render(gr, idx), "", "render with a failed transition cite")
+    gsvg = re.search(r'<svg class="flowgraph".*?</svg>', gpage or "", re.S)
+    gsvg = gsvg.group(0) if gsvg else ""
+    check("an unverified transition is drawn unmistakably, not as a confident arrow",
+          bool(gr["_problems"]) and "fg-head-unverified" in gsvg
+          and 'stroke="var(--mist-100)"' in gsvg
+          and 'class="stamp bad"' in gpage,
+          "it must separate in colour, weight and rhythm at once")
+
+    # Two exits from one step to the next were both drawn at the spine's fixed
+    # geometry — two identical lines, and two badges at identical coordinates
+    # with an opaque fill, so the later painted out the earlier. One arrow for
+    # two cited transitions: invariant 12's "no fewer" half, without --force.
+    twin = copy.deepcopy(base)
+    extra = copy.deepcopy(twin["steps"][0]["exits"][0])
+    extra["when"] = "a second, different condition"
+    twin["steps"][0]["exits"].insert(1, extra)
+    tr = verify_primer(twin, idx)
+    tpage = safely(lambda: render(tr, idx), "", "render with twin spine edges")
+    spots = re.findall(r'<rect x="([-\d.]+)" y="([-\d.]+)"[^>]*/>'
+                       r'<text[^>]*class="fg-num"', tpage or "")
+    declared = sum(len(st.get("exits") or []) for st in tr["steps"])
+    check("two transitions between the same pair of steps draw two arrows",
+          not tr["_problems"] and len(spots) == declared
+          and len(set(spots)) == declared,
+          f"{len(spots)} badges at {len(set(spots))} distinct positions "
+          f"for {declared} transitions")
+
+    # A transition whose goto names no step keeps its number but cannot be
+    # placed, and the accessible description went on counting it — a reader
+    # using a screen reader was told about an arrow nobody can see.
+    dangling = copy.deepcopy(base)
+    dangling["steps"][1]["exits"][2]["goto"] = "s9"
+    dr = verify_primer(dangling, idx)
+    dsvg = safely(lambda: flowgraph.svg(dr["steps"]), "", "svg with a dangling goto")
+    label = re.search(r'aria-label="([^"]*)"', dsvg or "")
+    check("the map's description counts the arrows it actually drew",
+          bool(label) and "11 transitions" in label.group(1)
+          and "could not be drawn" in label.group(1),
+          label.group(1)[:96] if label else "no aria-label")
+
+    print("\n=== primer: a primer is something a person reads ===")
+    def flowgraph_max_steps():
+        import render_primer as _rp
+        return _rp.MAX_STEPS
+
+    def hub(nsteps, per):
+        cite = [{"rule": "CR:334", "quote": "Handle Outstanding Tasks"}]
+        out = []
+        for i in range(nsteps):
+            exits = ([{"when": f"c{k}", "goto": f"h{nsteps - 1}", "cites": cite}
+                      for k in range(per)] if i < nsteps - 1
+                     else [{"when": "end", "cites": cite}])
+            out.append({"id": f"h{i}", "heading": f"Step {i}", "body": "b",
+                        "basis": "grounded", "cites": cite, "exits": exits})
+        return out
+
+    # Not a performance limit — the lane sweep lays out ten thousand
+    # transitions in tens of milliseconds. A limit on what can still be a
+    # primer: a hundred steps whose exits all target one common step needs a
+    # gutter lane each, and the derived map comes out three hundred thousand
+    # pixels wide. Nothing about that document is wrong under the citation gate,
+    # which is why the refusal has to be a document rule.
+    # Two independent limits, so two checks. One case that trips both proves
+    # only that at least one works — and the first version of this used 100
+    # steps x 20 exits, which trips both, so disabling the step cap alone left
+    # it green.
+    many_steps = copy.deepcopy(base)
+    many_steps["steps"] = hub(flowgraph_max_steps() + 1, 1)
+    msr = verify_primer(many_steps, idx)
+    check("a document with too many steps to read as a map is refused",
+          any("a person reads" in p for p in msr["_problems"]),
+          f'{len(many_steps["steps"])} steps, '
+          f'{sum(len(x.get("exits") or []) for x in many_steps["steps"])} transitions')
+
+    many_edges = copy.deepcopy(base)
+    many_edges["steps"] = hub(20, 12)
+    mer = verify_primer(many_edges, idx)
+    check("a document with too many transitions to draw is refused",
+          any("gutter lanes" in p for p in mer["_problems"]),
+          f'{len(many_edges["steps"])} steps, '
+          f'{sum(len(x.get("exits") or []) for x in many_edges["steps"])} transitions')
+
+    # The lane search was O(E x lanes) and lanes grow toward E when spans
+    # overlap, so it was quadratic: 10,000 transitions took forty seconds
+    # before a single byte of SVG. Replaced with a sweep; this is the property
+    # that sweep has to preserve.
+    lanes_ok, wide = True, hub(30, 6)
+    fnodes, fedges = safely(lambda: flowgraph.build(wide), ([], []), "flowgraph.build")
+    gutters = [e for e in fedges if e["kind"] in ("back", "skip", "self")]
+
+    def _span(e):
+        ys = [fnodes[e["from"]]["y"], fnodes[e["to"]]["y"]]
+        return min(ys) - 6, max(ys) + flowgraph.BOX_H + 6
+
+    by_lane = {}
+    for e in gutters:
+        by_lane.setdefault(e["lane"], []).append(_span(e))
+    for spans in by_lane.values():
+        spans.sort()
+        for (a_top, a_bot), (b_top, _b) in zip(spans, spans[1:]):
+            if b_top <= a_bot:
+                lanes_ok = False
+    check("no two transitions share a lane while their spans overlap",
+          bool(gutters) and lanes_ok, f"{len(gutters)} gutter edges, "
+          f"{len(by_lane)} lanes")
+
+    print("\n=== primer: the procedure must be enterable ===")
+    island = copy.deepcopy(base)
+    for st in island["steps"]:
+        for ex in st.get("exits") or []:
+            if ex.get("goto") in ("s3", "s4") and st["id"] not in ("s3", "s4"):
+                ex["goto"] = "s5"
+    ir = verify_primer(island, idx)
+    check("a disconnected island of steps is refused",
+          any("no run of this procedure reaches" in p for p in ir["_problems"]),
+          "two steps naming only each other each have an arrow arriving, so "
+          '"is it named by anything" cannot see them')
+
+    # A transition carries no id, so `item.get("id", "?")` reported every
+    # transition-level rules_checked problem as `?:` — unattributable.
+    unattributed = copy.deepcopy(base)
+    unattributed["steps"][2]["exits"][0]["basis"] = "gap"
+    unattributed["steps"][2]["exits"][0]["rules_checked"] = ["99999"]
+    ur2 = verify_primer(unattributed, idx)
+    check("a transition-level problem names the transition",
+          any(re.match(r"s\d+ transition \d+: rules_checked names 99999", p)
+              for p in ur2["_problems"]),
+          "; ".join(p for p in ur2["_problems"] if "99999" in p)[:70])
+
+    # Dropping a malformed step outright renumbered every step after it, so
+    # every position reference in the surrounding prose pointed one place off
+    # and the map quietly lost a box — recorded only in a list readers skim.
+    slotted = copy.deepcopy(base)
+    slotted["steps"][2] = "s3"
+    sl = verify_primer(slotted, idx)
+    slpage = safely(lambda: render(sl, idx), "", "render with an unreadable step")
+    plates = re.findall(r'<div class="step-n"[^>]*>(\d+)</div>', slpage or "")
+    check("an unreadable step keeps its slot rather than renumbering the rest",
+          plates == [str(i) for i in range(1, len(base["steps"]) + 1)]
+          and "could not be read" in (slpage or ""),
+          f"plates {plates}")
 
     print("\n=== primer: the render gate ===")
     # Invariants 1 and 10. A primer has no disposition to downgrade, so the
@@ -919,13 +1122,6 @@ def primer_invariants(idx):
               open(kept, encoding="utf-8").read() == "PREVIOUS GOOD PRIMER",
               "an in-place open() truncates the destination before it can fail")
 
-    # Print is invisible to every other gate, and the diagram is the part of a
-    # primer most likely to survive as paper on a judge's table. The whole print
-    # inversion works by remapping CSS custom properties, so a colour written as
-    # a literal anywhere in the SVG keeps its dark-ground value on white — which
-    # is exactly the defect that once printed the grounded half of a verdict
-    # line at 2.23:1. flowgraph emits colour ONLY as tokens; this is the check
-    # that keeps it that way.
     # A heading that does not fit its box. The first estimate was a flat
     # 6.15px/char, which is simply wrong for a proportional face: an ordinary
     # 42-character heading measured 279px in a 262px box and one set in caps
@@ -976,6 +1172,12 @@ def primer_invariants(idx):
           bool(badges) and not narrow,
           f"{len(badges)} badges, too narrow: {narrow}")
 
+    # Print is invisible to every other gate, and the diagram is the part of a
+    # primer most likely to survive as paper on a judge's table. The whole print
+    # inversion works by remapping CSS custom properties, so a colour written as
+    # a literal anywhere in the SVG keeps its dark-ground value on white — the
+    # defect that once printed the grounded half of a verdict line at 2.23:1.
+    # flowgraph emits colour ONLY as tokens; this is the check that keeps it so.
     literals = re.findall(r'(?:fill|stroke)="(#[0-9a-fA-F]{3,8}|rgba?\([^"]*\))"', plain)
     check("the diagram writes no colour the print sheet cannot remap",
           bool(plain) and not literals, f"literals: {sorted(set(literals))[:4]}")
@@ -1014,10 +1216,34 @@ def primer_invariants(idx):
     check("and no step number is rendered unknown",
           bool(rpage) and "step ?" not in rpage)
 
+    # `bool(page)` is load-bearing: `safely`'s "" fallback satisfies any
+    # negative assertion, so this passed with render entirely broken while its
+    # neighbours correctly went red.
     check("a primer prints no disposition word",
-          not re.search(r'class="disp\b', page) and 'class="verdict ' not in page)
-    check("a primer reports its weakest STEP, not a weakest link",
-          "Weakest step" in page and "Weakest link" not in page)
+          bool(page) and not re.search(r'class="disp\b', page)
+          and 'class="verdict ' not in page)
+    # min() runs over transitions as well as steps, so the weakest thing is
+    # often not a step at all — and filing its basis under its SOURCE step made
+    # the page contradict itself: "Weakest step 2 · structural" linking to a
+    # plate whose own chip read "● grounded", with the structural thing named
+    # nowhere. The label has to say what it is pointing at.
+    #
+    # This replaces a check that asserted the literal words "Weakest step",
+    # which was both the wrong property and case-sensitively vacuous — the page
+    # already said "the lowest link, never an average" two lines below it.
+    soft = copy.deepcopy(base)
+    soft["steps"][1]["exits"][0].pop("cites", None)
+    soft["steps"][1]["exits"][0]["basis"] = "structural"
+    sr = verify_primer(soft, idx)
+    spage = safely(lambda: render(sr, idx), "", "render with a structural transition")
+    check("the weakest link names what is actually weakest",
+          sr["_strength"] == "structural"
+          and str(sr.get("_weakest_label", "")).startswith("transition")
+          and bool(spage) and sr["_weakest_label"] in spage,
+          f'{sr["_strength"]} / {sr.get("_weakest_label")!r}')
+    check("and still anchors at the step a reader has to open",
+          bool(spage) and f'href="#{sr["_weakest"]}"' in spage
+          and sr["_weakest"] in {st["id"] for st in sr["steps"]})
 
 
 def cli_output_paths():

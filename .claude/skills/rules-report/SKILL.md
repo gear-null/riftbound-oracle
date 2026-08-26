@@ -246,33 +246,40 @@ describes half a procedure, which is worse than describing none.
 }
 ```
 
-Rules the renderer enforces, so write to them:
+Rules the verifier enforces, so write to them:
 
 - A transition with **no `cites`** and no declared basis **fails**. Grounded is the
   default and grounded means a rule says it.
 - Every `goto` must name a step in this primer. There is no cross-document jump.
 - Once *any* step declares an exit, the document is claiming to describe a procedure:
-  every step but the first must be reachable, and **one transition must omit `goto`**
-  so the procedure has a way out. A primer with no exits at all is a linear
-  explainer — "the parts of a card" — and none of this applies to it.
+  every step must be **reachable by some run of it from the first step**, and **one
+  transition must omit `goto`** so the procedure has a way out. A primer with no
+  exits at all is a linear explainer — "the parts of a card" — and none of this
+  applies to it.
 - A `gap` step or transition must list `rules_checked`.
-- Confidence is **min()** over steps **and transitions**. A document whose steps are
-  all grounded but whose transitions are guesses is a guess about the procedure,
-  which is the only thing anyone reads a procedure primer for.
-- **A step's `body` must stay inside what that step cites.** The basis chip is a
-  claim about the whole step — `grounded` reads as *a rule states this in so many
-  words* — so a synthesis across neighbouring steps does not belong in the prose of
-  a grounded one. Either ground it, or say it in a step you have marked
-  `structural`. This is the one place fluency will cost you: the sentence that
-  reads best is often the one drawing on three rules the step never cited.
-- **`in_one_line` is not separately graded.** It is a summary of the steps, so it
-  must not say anything they do not. Unlike a ruling's holding line it carries no
-  typed spans, which makes it the one sentence you have to keep honest yourself.
+- Confidence is **min()** over steps **and transitions**, and the page names whichever
+  is weakest — "transition 3", not the step it leaves.
+- At most **40 steps** and **200 transitions**. Not a performance limit: past that the
+  derived map is a wall rather than a diagram. Split the topic.
 - Step ids are the page's anchors, so they must be unique.
 - There is **no disposition and no crux**. A primer states no verdict; if you find
   yourself wanting one, you are writing a ruling.
 - If any citation fails verification the primer **does not render at all**. There is
   no UNSETTLED to fall back to.
+
+**And two rules nothing enforces, which is exactly why they are yours:**
+
+- **A step's `body` must stay inside what that step cites.** The basis chip is a
+  claim about the whole step — `grounded` reads as *a rule states this in so many
+  words* — so a synthesis across neighbouring steps does not belong in the prose of
+  a grounded one. Either ground it, or say it in a step you have marked
+  `structural`. This is where fluency will cost you: the sentence that reads best is
+  often the one drawing on three rules the step never cited.
+- **`in_one_line` must not say anything the steps do not.** Unlike a ruling's holding
+  line it carries no typed spans and no coverage floor — the verifier checks only
+  that it is present. It is the largest gap between the two document kinds and the
+  most prominent sentence on the page, and there is no mechanical backstop behind it
+  at all.
 
 Once it renders, `rules_cli.py graph <primer.json>` emits the same graph as Mermaid
 source for the website and for diagramming tools. It refuses on an unverified primer,

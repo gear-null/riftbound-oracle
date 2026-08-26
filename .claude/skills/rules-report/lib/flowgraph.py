@@ -5,11 +5,20 @@ labelled transitions between them. The transitions are already in the answer
 file as `steps[].exits[]`, and every one of them has been through the same
 verbatim citation gate as any other claim in this project.
 
-So the diagram is computed from that verified data and from nothing else. There
-is no field in which an author can draw an arrow, which means the picture cannot
-say something the citations do not. That is the same argument as ADR 0006 for
-the symbol legend: a derived artifact cannot drift from its source, and a
-hand-drawn one always eventually does.
+So the diagram is computed from that data and from nothing else. There is no
+field in which an author can draw an arrow, which means the picture cannot say
+something the document does not DECLARE — and a declared transition must either
+cite a rule or openly downgrade the document's confidence, which the arrow then
+shows: solid for stated outright, dashed for inferred or unsettled, and a heavy
+inverted arrow for one whose citation failed.
+
+"Cannot say something the CITATIONS do not" was the first wording and it was too
+strong: an exit declared `structural` carries no citation and still draws. That
+is the honest concession, not a hole — but the picture has to say which it is,
+which is why basis reaches the stroke and the verification outcome reaches it too.
+
+The argument is ADR 0006's, for the symbol legend: a derived artifact cannot
+drift from its source, and a hand-drawn one always eventually does.
 
 Two renderings, one graph:
 
@@ -25,8 +34,8 @@ loop in these rules actually has: a sequence you fall through, plus a handful of
 back-edges that send you somewhere earlier.
 """
 
-# Geometry. Tuned against the HOT FEPR loop (5 steps, 9 transitions, 4 of them
-# back-edges), which is the densest of the procedures worth a primer.
+# Geometry. Tuned against the HOT FEPR loop — 5 steps and 12 transitions, of
+# which 4 are back-edges and one more is a self-return.
 BOX_W = 312
 BOX_H = 54
 GAP = 40           # vertical room between boxes — the spine arrow lives here
@@ -45,6 +54,12 @@ EDGE_COLOUR = {
     "structural": "var(--blue)",
     "inferred": "var(--blue)",
     "gap": "var(--slate-300)",
+    # Not a basis. An edge whose citation failed the verbatim check, drawn in
+    # the same inverted Mist the ✗ UNVERIFIED stamp uses, so the map carries the
+    # warning the rest of a forced page already carries. It has to survive a
+    # glance, a greyscale printer and a reader who does not know the palette —
+    # which is why it is the one edge style that is not a hue.
+    "unverified": "var(--mist-100)",
 }
 
 
@@ -113,6 +128,7 @@ def build(steps):
              for i, s in enumerate(steps)]
 
     edges, n = [], 0
+    spine_used = [False] * len(steps)
     for i, s in enumerate(steps):
         for ex in s.get("exits", []) or []:
             n += 1
@@ -121,8 +137,13 @@ def build(steps):
             # step says the procedure ENDS here. Distinguishing it from a typo
             # is the verifier's job (it rejects a goto naming no step), so by
             # the time layout runs, None means exactly one thing.
-            target = order.get(goto) if goto else None
-            if goto and target is None:
+            # `goto is not None`, matching verify_primer exactly. `if goto`
+            # made an empty string falsy, so the verifier called it "a goto
+            # naming no step" while the classifier read it as "the procedure
+            # ends here" — two derived renderings of one JSON value telling a
+            # reader two different stories.
+            target = order.get(goto) if goto is not None else None
+            if goto is not None and target is None:
                 # A goto naming no step. verify_primer refuses to render such a
                 # primer at all, so this is only reachable under --force — but
                 # the edge still consumes its number, because dropping it here
@@ -133,8 +154,19 @@ def build(steps):
                 kind = "out"
             elif target == i:
                 kind = "self"
-            elif target == i + 1:
+            elif target == i + 1 and not spine_used[i]:
+                # Only the first. Two exits from the same step to the next one
+                # were both drawn at the spine's fixed geometry — two identical
+                # lines and two badges at identical coordinates, the later one
+                # painting out the earlier with an opaque fill. One arrow shown
+                # for two cited transitions, and the number the prose cites is
+                # not on the map: invariant 12's "no fewer" half, without
+                # --force. The rest route through the gutter like any other
+                # off-spine move.
                 kind = "next"
+                spine_used[i] = True
+            elif target == i + 1:
+                kind = "skip"
             elif target > i:
                 kind = "skip"
             else:
@@ -143,6 +175,14 @@ def build(steps):
                 "n": n, "from": i, "to": target, "kind": kind,
                 "when": ex.get("when", ""),
                 "basis": ex.get("basis", "grounded"),
+                # The VERIFICATION OUTCOME, not the declared basis. Styling from
+                # `basis` alone meant a transition whose quote failed the
+                # verbatim check still drew a solid gold "grounded" arrow, a few
+                # hundred pixels above its own citation card reading ✗
+                # UNVERIFIED. The banner and the stamps were honest about a
+                # forced page; the diagram was the one element still claiming
+                # everything was fine.
+                "verified": ex.get("verified", True),
             })
 
     _assign_lanes(nodes, edges)
@@ -158,24 +198,43 @@ def _assign_lanes(nodes, edges):
     in lane 0 and pushed every short hop out past it, which reads as though the
     long edge were the ordinary case.
     """
+    import heapq
+
     gutter = [e for e in edges if e["kind"] in ("back", "skip", "self")]
     # `broken` and `out` edges have no target node, so they never claim a lane.
-    taken = []   # per lane: list of occupied (top, bottom) intervals
 
     def span(e):
         ys = [nodes[e["from"]]["y"], nodes[e["to"]]["y"]]
         return min(ys) - 6, max(ys) + BOX_H + 6
 
-    for e in sorted(gutter, key=lambda e: abs(e["to"] - e["from"])):
+    # Interval-graph colouring by sweep. The previous version scanned every
+    # already-open lane for each edge, which is O(E x lanes) — and lanes grow
+    # toward E whenever spans overlap heavily, so it was quadratic in practice.
+    # A primer of 100 steps with 20 exits each all pointing at one common step
+    # (a completely ordinary "and here is where it can bail out early" shape,
+    # and one that VERIFIES CLEANLY) took 1.2s to lay out and produced a
+    # 59,000px-wide, 1MB inline SVG; 10,000 edges took forty seconds. No
+    # `--force` involved, and no subprocess in rules_cli.py passes a timeout.
+    #
+    # Sorting by span start and keeping freed lanes in a heap gives the same
+    # assignment in O(E log E). Ties break on the SHORTEST span first, which
+    # preserves the property the old comment describes: a one-step hop stays
+    # tight against the boxes and the long loop-back rides the outside,
+    # because reversing that reads as though the long edge were the ordinary case.
+    ordered = sorted(gutter, key=lambda e: (span(e)[0], span(e)[1] - span(e)[0]))
+    free = []          # lanes released, smallest index first
+    active = []        # (bottom, lane) of lanes still occupied
+    next_lane = 0
+    for e in ordered:
         top, bot = span(e)
-        for lane, used in enumerate(taken):
-            if all(bot < u_top or top > u_bot for u_top, u_bot in used):
-                used.append((top, bot))
-                e["lane"] = lane
-                break
+        while active and active[0][0] < top:
+            heapq.heappush(free, heapq.heappop(active)[1])
+        if free:
+            lane = heapq.heappop(free)
         else:
-            taken.append([(top, bot)])
-            e["lane"] = len(taken) - 1
+            lane, next_lane = next_lane, next_lane + 1
+        e["lane"] = lane
+        heapq.heappush(active, (bot, lane))
     for e in edges:
         e.setdefault("lane", 0)
 
@@ -204,7 +263,12 @@ def _assign_ports(nodes, edges):
         items.sort(key=lambda t: (t[0]["lane"], t[0]["n"]))
         count = len(items)
         for k, (e, role) in enumerate(items):
-            frac = 0.5 if count == 1 else 0.24 + 0.52 * k / (count - 1)
+            # Widened from 0.24-0.76. A hub step can carry a dozen
+            # connections, and the old span put them under 2px apart with
+            # 7px arrowheads — the stacking this function exists to stop.
+            # Density past what even this span can separate is refused
+            # upstream by MAX_TRANSITIONS rather than drawn badly.
+            frac = 0.5 if count == 1 else 0.14 + 0.72 * k / (count - 1)
             e["y_" + role] = nodes[i]["y"] + BOX_H * frac
 
 
@@ -221,7 +285,7 @@ def _clip_path(height):
             f'<rect x="0" y="0" width="{BOX_W - 8}" height="{height}"/></clipPath>')
 
 
-def _badge(x, y, n, colour):
+def _badge(x, y, n, colour, failed=False):
     """The edge number, as a tag the eye can find against a line.
 
     Sized to its digits. At a fixed 18px the second digit of every transition
@@ -229,10 +293,15 @@ def _badge(x, y, n, colour):
     as a hairline rule and the clipping is unmistakable.
     """
     w = 18 if len(str(n)) < 2 else 11 + 7 * len(str(n))
+    # A failed edge's number inverts to solid Mist on Ink, exactly as the ✗
+    # UNVERIFIED citation stamp does — the same signal in the same visual
+    # language, so a reader who has met one recognises the other.
+    fill = colour if failed else "var(--well)"
+    ink = "var(--ink-900)" if failed else colour
     return (f'<g class="fg-badge"><rect x="{x - w / 2:.1f}" y="{y - 8:.1f}" width="{w}" '
-            f'height="16" fill="var(--well)" stroke="{colour}" stroke-width="1"/>'
+            f'height="16" fill="{fill}" stroke="{colour}" stroke-width="1"/>'
             f'<text x="{x:.1f}" y="{y + 3.5:.1f}" text-anchor="middle" '
-            f'class="fg-num" fill="{colour}">{n}</text></g>')
+            f'class="fg-num" fill="{ink}">{n}</text></g>')
 
 
 def svg(steps, label="Procedure"):
@@ -284,8 +353,16 @@ def svg(steps, label="Procedure"):
     # numbered transitions written out in full beneath it — a reader using a
     # screen reader gets the authoritative version either way, and a caption
     # that merely said "diagram" would have been worse than none.
-    desc = (f'{len(nodes)} steps and {len(edges)} transitions; '
+    # Counts what is DRAWN. A transition whose goto names no step keeps its
+    # number but cannot be placed, and the description went on counting it — so
+    # a reader using a screen reader was told about an arrow nobody can see,
+    # while the caption beside it still claimed every transition is on the map.
+    drawn = [e for e in edges if e["kind"] != "broken"]
+    desc = (f'{len(nodes)} steps and {len(drawn)} transitions; '
             "each transition is numbered and cited in the text below.")
+    if len(drawn) != len(edges):
+        desc += (f' {len(edges) - len(drawn)} further transition(s) could not be '
+                 "drawn because they name no step — see Verification problems.")
     return (
         f'<svg class="flowgraph" viewBox="0 0 {width} {height}" width="{width}" '
         f'height="{height}" role="img" aria-label="{_esc(label)}: {_esc(desc)}" '
@@ -295,10 +372,15 @@ def svg(steps, label="Procedure"):
 
 
 def _edge_svg(e, nodes, gutter, has_out):
-    colour = EDGE_COLOUR.get(e["basis"], "var(--slate-300)")
+    failed = not e.get("verified", True)
+    colour = ("var(--mist-100)" if failed
+              else EDGE_COLOUR.get(e["basis"], "var(--slate-300)"))
     src = nodes[e["from"]]
-    dash = "" if e["basis"] == "grounded" else ' stroke-dasharray="4 3"'
-    head = f'#fg-head-{ _key(e["basis"]) }'
+    # A failed edge is drawn heavier and in long dashes, so it separates from
+    # every basis style in colour AND in weight AND in rhythm.
+    dash = (' stroke-dasharray="9 4"' if failed
+            else "" if e["basis"] == "grounded" else ' stroke-dasharray="4 3"')
+    head = f'#fg-head-{"unverified" if failed else _key(e["basis"])}'
     title = f'<title>{_esc(str(e["n"]) + ". " + e["when"])}</title>'
 
     if e["kind"] == "next":
@@ -308,8 +390,8 @@ def _edge_svg(e, nodes, gutter, has_out):
         y0, y1 = src["y"] + BOX_H, nodes[e["to"]]["y"]
         return (f'<g class="fg-edge">{title}'
                 f'<line x1="{x}" y1="{y0}" x2="{x}" y2="{y1 - 7:.1f}" stroke="{colour}" '
-                f'stroke-width="1.6"{dash} marker-end="url({head})"/>'
-                f'{_badge(x + 22, (y0 + y1) / 2, e["n"], colour)}</g>')
+                f'stroke-width="{2.4 if failed else 1.6}"{dash} marker-end="url({head})"/>'
+                f'{_badge(x + 22, (y0 + y1) / 2, e["n"], colour, failed)}</g>')
 
     if e["kind"] == "out":
         # Leaving the procedure. Drawn past the last lane so it cannot be
@@ -318,10 +400,10 @@ def _edge_svg(e, nodes, gutter, has_out):
         x0, x1 = BOX_W, BOX_W + gutter + 46
         return (f'<g class="fg-edge">{title}'
                 f'<line x1="{x0}" y1="{y}" x2="{x1:.1f}" y2="{y}" stroke="{colour}" '
-                f'stroke-width="1.6"{dash} marker-end="url({head})"/>'
+                f'stroke-width="{2.4 if failed else 1.6}"{dash} marker-end="url({head})"/>'
                 f'<text x="{x1 + 8:.1f}" y="{y + 3.5:.1f}" class="fg-out" fill="{colour}">'
                 f'exits</text>'
-                f'{_badge((x0 + x1) / 2, y - 11, e["n"], colour)}</g>')
+                f'{_badge((x0 + x1) / 2, y - 11, e["n"], colour, failed)}</g>')
 
     lane_x = BOX_W + LANE_X0 + e["lane"] * LANE_W
     if e["kind"] == "self":
@@ -336,9 +418,9 @@ def _edge_svg(e, nodes, gutter, has_out):
         d = (f"M{BOX_W} {y0:.1f} C{lobe} {y0 - 10:.1f} {lobe} {y1 + 10:.1f} "
              f"{BOX_W + 7} {y1:.1f}")
         return (f'<g class="fg-edge">{title}'
-                f'<path d="{d}" fill="none" stroke="{colour}" stroke-width="1.6"{dash} '
+                f'<path d="{d}" fill="none" stroke="{colour}" stroke-width="{2.4 if failed else 1.6}"{dash} '
                 f'marker-end="url({head})"/>'
-                f'{_badge(lobe + 12, src["y"] + BOX_H / 2, e["n"], colour)}</g>')
+                f'{_badge(lobe + 12, src["y"] + BOX_H / 2, e["n"], colour, failed)}</g>')
 
     # A back-edge or a forward skip: out to the lane, along it, back in.
     up = e["kind"] == "back"
@@ -347,9 +429,9 @@ def _edge_svg(e, nodes, gutter, has_out):
          f"{y0 + (-14 if up else 14):.1f} L{lane_x} {y1 + (14 if up else -14):.1f} "
          f"C{lane_x} {y1:.1f} {lane_x} {y1:.1f} {BOX_W + 7} {y1:.1f}")
     return (f'<g class="fg-edge">{title}'
-            f'<path d="{d}" fill="none" stroke="{colour}" stroke-width="1.6"{dash} '
+            f'<path d="{d}" fill="none" stroke="{colour}" stroke-width="{2.4 if failed else 1.6}"{dash} '
             f'marker-end="url({head})"/>'
-            f'{_badge(lane_x, (y0 + y1) / 2, e["n"], colour)}</g>')
+            f'{_badge(lane_x, (y0 + y1) / 2, e["n"], colour, failed)}</g>')
 
 
 def _key(basis):
@@ -366,7 +448,8 @@ _ARROWS = "".join(
     f'<path d="M0 0 L8 4 L0 8 Z" fill="{v}"/></marker>'
     for k, v in (("grounded", EDGE_COLOUR["grounded"]),
                  ("structural", EDGE_COLOUR["structural"]),
-                 ("gap", EDGE_COLOUR["gap"]))
+                 ("gap", EDGE_COLOUR["gap"]),
+                 ("unverified", EDGE_COLOUR["unverified"]))
 )
 
 
@@ -389,18 +472,29 @@ def mermaid(steps, topic="Procedure"):
     markup wherever the graph is finally drawn.
     """
     nodes, edges = build(steps)
+    # `_mid` maps every non-alphanumeric character to "_", so it is not
+    # injective: `s1.a` and `s1_a` both became S_s1_a, silently collapsing two
+    # declared steps into one node and turning the transition between them into
+    # a self-loop — in the export that exists so a diagram cannot outrun its
+    # citations. Verification cannot see it, because the JSON ids ARE unique.
+    # Disambiguated here, where every id is in hand.
+    ids, seen = {}, {}
+    for node in nodes:
+        base = _mid(node["id"])
+        seen[base] = seen.get(base, 0) + 1
+        ids[node["id"]] = base if seen[base] == 1 else f"{base}__{seen[base]}"
     lines = [f"%% {_mlabel(topic)} — derived from verified transitions; do not hand-edit",
              "flowchart TD"]
     for node in nodes:
-        lines.append(f'  {_mid(node["id"])}["{_mlabel(node["heading"])}"]')
+        lines.append(f'  {ids[node["id"]]}["{_mlabel(node["heading"])}"]')
     if any(e["kind"] == "out" for e in edges):
         lines.append('  DONE(["procedure ends"])')
     for e in sorted(edges, key=lambda e: e["n"]):
         if e["kind"] == "broken":
             continue
-        target = "DONE" if e["to"] is None else _mid(nodes[e["to"]]["id"])
+        target = "DONE" if e["to"] is None else ids[nodes[e["to"]]["id"]]
         arrow = "-->" if e["basis"] == "grounded" else "-.->"
-        lines.append(f'  {_mid(nodes[e["from"]]["id"])} {arrow}'
+        lines.append(f'  {ids[nodes[e["from"]]["id"]]} {arrow}'
                      f'|"{e["n"]}. {_mlabel(e["when"])}"| {target}')
     return "\n".join(lines) + "\n"
 

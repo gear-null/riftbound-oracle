@@ -154,6 +154,16 @@ def check_corpus_stamp(ans, idx, problems):
     copy-cite date reading from the same block, both provenance claims on the
     page derived from unverified input.
     """
+    # `corpus` is model-authored like everything else. `.get("corpus", {}).get`
+    # assumed a dict, so `"corpus": "2026-07-16"` — a plausible thing to write —
+    # raised AttributeError here, and this runs BEFORE check_required_keys, so
+    # the crash pre-empted the very message that would have explained it.
+    if ans.get("corpus") is not None and not isinstance(ans.get("corpus"), dict):
+        problems.append(
+            f'corpus must be an object with CR, TR and generated, not '
+            f'{type(ans["corpus"]).__name__}')
+        ans["corpus"] = {}
+
     for key in ("CR", "TR"):
         # Scoped PER DOCUMENT. Built across both and reused, the union let a
         # swapped pair validate: CR stamped with TR's date and vice versa, both
@@ -185,6 +195,13 @@ def check_considered_rejected(ans, idx, problems):
                 f"`why`, got {type(cr).__name__}")
             continue
         ref = str(cr.get("rule", ""))
+        # `why` is rendered beside the rule and was validated nowhere, so an
+        # entry with only a `rule` verified clean and printed an em-dash into
+        # empty space — "considered and rejected" is read as evidence of
+        # thoroughness, and a blank reason is the cheapest possible way to buy it.
+        if not str(cr.get("why", "")).strip():
+            problems.append(f"considered_rejected {i}: no `why` — a rule id with "
+                            "no reason beside it is not evidence of anything")
         cdoc, crid = (ref.split(":", 1) if ":" in ref else (None, ref))
         if not crid:
             problems.append(f"considered_rejected {i}: no rule id")
@@ -217,15 +234,21 @@ def check_card_sections(ans, idx, problems):
                     "does not exist at this corpus version")
 
 
-def check_rules_checked(items, idx, problems):
+def check_rules_checked(items, idx, problems, label=None):
     """`rules_checked` is the evidence an abstention offers for itself.
 
     A fabricated id here buys the strongest claim in the document: that the
     rules do not address something. It was rendered as "Rules searched" without
-    ever being checked. Runs over anything id-bearing — a ruling's notes, a
-    primer's steps.
+    ever being checked.
+
+    Runs over a ruling's notes, a primer's steps AND a primer's transitions —
+    and transitions carry no `id`, so `item.get("id", "?")` reported every one
+    of them as `?: rules_checked names ...`, unattributable. `label` supplies
+    the name the caller already knows ("s2 transition 1"), which is the same
+    string it passes to `_check` two lines earlier.
     """
-    for item in items:
+    for n, item in enumerate(items, 1):
+        where = label(n) if callable(label) else (label or item.get("id", "?"))
         # Normalised here, in the one function that already walks these, so no
         # document kind can verify a list it then cannot render. `rules_checked`
         # is rendered with " · ".join(), which needs strings — and this check
@@ -242,7 +265,7 @@ def check_rules_checked(items, idx, problems):
             rdoc, rrid = (ref.split(":", 1) if ":" in ref else (None, ref))
             if not rrid or not idx.get(rrid, rdoc):
                 problems.append(
-                    f'{item.get("id", "?")}: rules_checked names {ref}, which does not '
+                    f"{where}: rules_checked names {ref}, which does not "
                     "exist at this corpus version")
 
 
@@ -275,6 +298,38 @@ def check_required_keys(ans, keys, problems):
     for key in ("CR", "TR", "generated"):
         if isinstance(ans.get("corpus"), dict) and key not in ans["corpus"]:
             problems.append(f"corpus.{key} is missing")
+
+
+def check_cites(item, where, problems):
+    """Drop citations that are not shaped like citations, after reporting them.
+
+    `cites` was the one untrusted list nothing guarded. A bare string raised
+    TypeError inside `_check` and an entry with no `rule` raised KeyError — and
+    because both abort verification where they occur, every problem found after
+    them was never printed, including a hallucinated quote two notes down. The
+    same reasoning already applies to `considered_rejected` and to a primer's
+    steps: report, drop, keep checking.
+    """
+    cites = item.get("cites")
+    if cites is None:
+        return []
+    if not isinstance(cites, list):
+        problems.append(f"{where}: `cites` must be a list of "
+                        '{"rule": ..., "quote": ...} objects, not '
+                        f"{type(cites).__name__}")
+        item["cites"] = []
+        return []
+    kept = []
+    for i, c in enumerate(cites, 1):
+        if not isinstance(c, dict):
+            problems.append(f"{where}: citation {i} is a {type(c).__name__}, not an "
+                            'object with `rule` and `quote`')
+        elif not str(c.get("rule", "")).strip():
+            problems.append(f"{where}: citation {i} names no rule")
+        else:
+            kept.append(c)
+    item["cites"] = kept
+    return kept
 
 
 def _check_holding(ans):
@@ -420,24 +475,19 @@ def verify_answer(ans, idx):
 
     check_considered_rejected(ans, idx, problems)
 
-    # `rules_checked` is the evidence a gap note offers for its abstention, so
-    # a fabricated id here buys the strongest claim in the document: that the
-    # rules do not address something. It was rendered as "Rules searched"
-    # without ever being checked.
+    # Each of these carries its reason in its own docstring now. Three of the
+    # comments stayed behind when the bodies moved and ended up labelling the
+    # call that happened to follow them — the `rules_checked` narrative sat over
+    # check_card_sections, and the "keys render() subscripts" narrative over the
+    # disposition check, which is a closed-set validation and not that at all.
+    # A comment attached to the wrong statement is worse than none: it is read.
     check_card_sections(ans, idx, problems)
-
     check_rules_checked(ans["notes"], idx, problems)
-
-    # Every anchor on the page is #<note id>, and a browser resolves a repeated
-    # id to the FIRST match — so a duplicate silently sent every superscript and
-    # rail row to the wrong note, while the verifier validated spans against the
-    # second. Ids are the addressing scheme; they have to be unique.
     check_unique_ids(ans["notes"], "note", problems)
 
-    # The keys render() subscripts with [] — verified here rather than
-    # discovered as a KeyError halfway through writing the page. The verifier
-    # certifying an answer it cannot render is the two halves disagreeing about
-    # what a valid answer is, and rc=0 is what the product sells.
+    # The disposition is a CSS class as well as a label, so it is a closed set.
+    # An unvalidated value containing spaces produced several classes at once
+    # and quietly disabled the print sheet keyed on the same name.
     _disp = ans.get("holding", {}).get("disposition")
     if _disp not in DISPOSITIONS:
         problems.append(

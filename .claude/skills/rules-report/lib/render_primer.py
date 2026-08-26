@@ -7,8 +7,8 @@ saying what breaks if it is wrong, the opposing reading confronted by name.
 
 A primer answers a different question: "how does this actually work". There is
 no proposition to defend, so none of that machinery applies. Ask for the HOT
-FEPR loop and the honest answer is five steps and nine transitions between them,
-four of which send you backwards — a shape a single holding sentence cannot
+FEPR loop and the honest answer is five steps and twelve transitions between
+them, five of which send you backwards — a shape a single holding sentence cannot
 hold, and a crux cannot rank.
 
 What does NOT change is the standard of proof. Every quote goes through the same
@@ -24,8 +24,9 @@ deliberately the stricter document in one respect:
   is the primer's equivalent of the ruling's typed holding spans: the part a
   reader most relies on is the part code refuses to take on trust.
 
-The diagram is derived from those same verified transitions (see flowgraph.py),
-so the picture cannot say something the citations do not.
+The diagram is derived from those same transitions (see flowgraph.py), so the
+picture cannot say something the document does not declare — and it shows which
+kind of declaration each arrow rests on, including one whose citation failed.
 """
 import json
 import os
@@ -36,7 +37,8 @@ import flowgraph
 from render_report import (BASIS, FAVICON, LEGEND_MARKER, MARK, RAILSYM_MARKER,
                            RULEBOOK,
                            RANK, _CSS, _JS, _check, basis_key_html, cards_html,
-                           check_card_sections, check_considered_rejected,
+                           check_card_sections, check_cites,
+                           check_considered_rejected,
                            check_corpus_stamp, check_required_keys,
                            check_rules_checked, check_unique_ids, cite_html,
                            clip, esc, legend_html)
@@ -46,6 +48,20 @@ from verify_citations import RuleIndex
 # default out here rather than at each use site is what makes "uncited grounded
 # edge" a single check instead of three that can disagree.
 DEFAULT_EXIT_BASIS = "grounded"
+
+# A primer is a thing someone reads. These are not performance limits — the
+# lane sweep handles ten thousand transitions in thirty milliseconds — they are
+# limits on what can still be a primer. Past them the map is a wall: a hundred
+# steps whose exits all target one common step needs one gutter lane each, and
+# the derived SVG comes out three hundred thousand pixels wide. Nothing about
+# that document is wrong under the citation gate, which is exactly why the
+# refusal has to be stated as a document rule rather than left to the renderer
+# to degrade quietly.
+#
+# HOT FEPR is 5 steps and 12 transitions. Showdowns and Combat are of the same
+# order. These are generous.
+MAX_STEPS = 40
+MAX_TRANSITIONS = 200
 
 
 def _cite_carriers(ans):
@@ -88,11 +104,29 @@ def verify_primer(ans, idx):
     # hid every problem found after it — including a hallucinated quote. The
     # malformed entries are DROPPED after being reported, so verification
     # continues and the author sees the whole list rather than the first item.
+    # The step's CONTENT is discarded; its SLOT is not. Dropping the entry
+    # outright renumbered every step after it — the author's step 4 became plate
+    # 3 — so every position reference in the surrounding prose pointed one place
+    # off, the map quietly lost that box and the arrows touching it, and the
+    # only record was a line in Verification problems, which is the part of the
+    # page a reader skims past. It also manufactured a cascade: three "goto
+    # names s3" problems and one "nothing reaches s4", all artefacts of the
+    # removal, burying the single problem that was real.
+    #
+    # A placeholder keeps positions stable and puts the omission where it
+    # happened. It has no exits, which is itself the honest picture.
     kept = []
     for i, item in enumerate(steps, 1):
         if not isinstance(item, dict):
             problems.append(f"step {i}: expected an object with `id`, `heading` "
                             f"and `body`, got {type(item).__name__}")
+            kept.append({
+                "id": f"_unreadable{i}", "basis": "gap", "rules_checked": ["300"],
+                "heading": f"Step {i} could not be read",
+                "body": "This step was not an object, so nothing in it could be "
+                        "verified. See Verification problems.",
+                "cites": [], "exits": [],
+            })
             continue
         # `id` is the addressing scheme — the page anchor, the goto target, the
         # key every later pass subscripts. A step without one crashed
@@ -129,6 +163,17 @@ def verify_primer(ans, idx):
                     f'unknown basis {ex.get("basis")!r}')
                 ex["basis"] = "gap"
 
+    if len(steps) > MAX_STEPS:
+        problems.append(
+            f"{len(steps)} steps — a primer is something a person reads, and past "
+            f"{MAX_STEPS} the map is a wall rather than a diagram. Split the topic.")
+    transitions = sum(len(s.get("exits") or []) for s in steps
+                      if isinstance(s, dict))
+    if transitions > MAX_TRANSITIONS:
+        problems.append(
+            f"{transitions} transitions — past {MAX_TRANSITIONS} the derived map "
+            "needs more gutter lanes than a page can carry. Split the topic.")
+
     check_unique_ids(steps, "step", problems)
     known = {s.get("id") for s in steps}
 
@@ -139,7 +184,8 @@ def verify_primer(ans, idx):
         if not s.get("body"):
             problems.append(f"{sid}: no body — a step with a heading and nothing "
                             "under it explains nothing")
-        step_ok = all(_check(c, idx, sid, problems) for c in (s.get("cites") or []))
+        step_ok = all(_check(c, idx, sid, problems)
+                      for c in check_cites(s, sid, problems))
         # Scoped to `grounded` for the same reason it is on a ruling's notes:
         # `structural` legitimately rests on the rules its neighbours cite, and
         # `gap` pays for its abstention with rules_checked below. Grounded is
@@ -163,7 +209,8 @@ def verify_primer(ans, idx):
                     f"{where}: goto names {goto!r}, which is not a step in this "
                     "primer — the diagram is drawn from these, so it would point "
                     "at nothing")
-            ex_ok = all(_check(c, idx, where, problems) for c in (ex.get("cites") or []))
+            ex_ok = all(_check(c, idx, where, problems)
+                        for c in check_cites(ex, where, problems))
             # The strict default, and the whole reason this document kind is
             # safe to write as prose. An edge is the load-bearing part of a
             # procedure — it is what a reader will act on at the table — so it
@@ -180,7 +227,9 @@ def verify_primer(ans, idx):
 
     check_rules_checked(steps, idx, problems)
     for s in steps:
-        check_rules_checked(s.get("exits", []) or [], idx, problems)
+        sid = s.get("id", "?")
+        check_rules_checked(s.get("exits", []) or [], idx, problems,
+                            label=lambda n, sid=sid: f"{sid} transition {n}")
 
     # Dropped after being reported, like a malformed step: `continue` alone left
     # the bad entry in the list, and every later pass over misconceptions —
@@ -197,8 +246,9 @@ def verify_primer(ans, idx):
                 problems.append(f"misconception {i}: no {key}")
         # Held to the same standard as a ruling's counterargument: this is the
         # text a reader who believes the wrong thing will go check first.
-        m["verified"] = all(_check(c, idx, f"misconception {i}", problems)
-                            for c in (m.get("cites") or []))
+        m["verified"] = all(
+            _check(c, idx, f"misconception {i}", problems)
+            for c in check_cites(m, f"misconception {i}", problems))
     if "misconceptions" in ans:
         ans["misconceptions"] = kept_misc
 
@@ -223,13 +273,28 @@ def verify_primer(ans, idx):
     # min() over steps AND transitions. A primer whose steps are all grounded
     # but whose transitions are guesses is a guess about the procedure, which is
     # the only thing anyone reads a procedure primer for.
-    graded = [(s["id"], s["basis"]) for s in steps]
-    graded += [(s["id"], ex["basis"]) for s in steps for ex in (s.get("exits") or [])]
+    #
+    # Each candidate carries a LABEL as well as an anchor. Filing a transition's
+    # basis under its source step's id made the page contradict itself: the
+    # summary read "Weakest step 2 · structural" and linked to step 2, whose own
+    # chip said "● grounded", while the structural thing — transition 3 — was
+    # named nowhere. The anchor still points at the step, because that is where
+    # a reader has to go; the label now says what they are going to look at.
+    #
+    # Transitions are numbered in document order, the same rule flowgraph.build
+    # uses. The two are pinned to agree by "every arrow on the map is numbered
+    # in the prose beside it".
+    graded, n = [], 0
+    for i, s in enumerate(steps, 1):
+        graded.append((s["id"], s["basis"], f"step {i}"))
+        for ex in s.get("exits") or []:
+            n += 1
+            graded.append((s["id"], ex["basis"], f"transition {n}"))
     if graded:
-        wid, wbasis = min(graded, key=lambda g: RANK[g[1]])
-        ans["_weakest"], ans["_strength"] = wid, wbasis
+        wid, wbasis, wlabel = min(graded, key=lambda g: RANK[g[1]])
+        ans["_weakest"], ans["_strength"], ans["_weakest_label"] = wid, wbasis, wlabel
     else:
-        ans["_weakest"], ans["_strength"] = "-", "gap"
+        ans["_weakest"], ans["_strength"], ans["_weakest_label"] = "-", "gap", "nothing"
 
     # ANY problem, not only a failed quote. `--force` exists to inspect a broken
     # primer, and the banner is the only thing stopping the resulting page from
@@ -255,13 +320,26 @@ def _check_shape(steps):
     if not any(s.get("exits") for s in steps):
         return problems
 
-    reached = {g for s in steps for ex in (s.get("exits") or [])
-               if (g := ex.get("goto")) is not None}
+    # Reachability from the FIRST step, not "is this step named by anything".
+    # The weaker test passes a disconnected island — two steps that name only
+    # each other — and its own docstring's promise, that such a step "would be
+    # visible on the diagram as a box nothing reaches", is exactly what an
+    # island defeats: every box in it has an arrow arriving.
+    by_id = {s.get("id"): s for s in steps}
+    reachable, frontier = {steps[0].get("id")}, [steps[0]]
+    while frontier:
+        current = frontier.pop()
+        for ex in current.get("exits") or []:
+            goto = ex.get("goto")
+            if goto in by_id and goto not in reachable:
+                reachable.add(goto)
+                frontier.append(by_id[goto])
     for s in steps[1:]:
-        if s.get("id") not in reached:
+        if s.get("id") not in reachable:
             problems.append(
-                f'{s.get("id", "?")}: no transition names this step, so nothing '
-                "reaches it — either a transition is missing or a goto is wrong")
+                f'{s.get("id", "?")}: no run of this procedure reaches this step '
+                "from the first one — either a transition is missing or a goto "
+                "is wrong")
 
     if not any(ex.get("goto") is None
                for s in steps for ex in (s.get("exits") or [])):
@@ -330,6 +408,8 @@ _PRIMER_CSS = """
 .e-grounded .exit-n{color:var(--gold-500);border-color:var(--line)}
 .e-structural .exit-n,.e-inferred .exit-n{color:var(--blue);
  border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.e-gap .exit-n{color:var(--slate-300);border-color:var(--rule)}
+.exit-goto .basis-chip{margin-left:.5rem;vertical-align:baseline;letter-spacing:.1em}
 .exit-when{font-size:.93rem;line-height:1.55;max-width:64ch}
 .exit-goto{display:block;margin-top:.2rem;font:600 .66rem/1.5 var(--plate);
  letter-spacing:.1em;text-transform:uppercase;color:var(--slate-300)}
@@ -378,11 +458,22 @@ def _exit_html(ex, steps_by_id, idx, corpus, n):
         dest = (f'<a href="#{esc(goto)}">step {esc(number)} · '
                 f'{esc(clip(heading, 42))}</a>')
     cites = "".join(cite_html(c, idx, corpus) for c in ex.get("cites") or [])
+    # Grounded carries no chip; anything else does. The basis was colour-only —
+    # the exit number is tinted and nothing else marks it — and under the print
+    # sheet a grounded transition (#785a28) and a gap one (#4a6a80) sit about
+    # 1.1:1 apart, which is to say identical in greyscale and on a photocopier.
+    # A chip that appears only when the transition is NOT plainly stated needs
+    # no colour at all to read: its presence is the signal.
+    chip = ""
+    if ex["basis"] != "grounded":
+        glyph, why = BASIS[ex["basis"]]
+        chip = (f'<span class="basis-chip" title="{esc(why)}">{glyph} '
+                f'{esc(ex["basis"])}</span>')
     return (
         f'<div class="exit e-{esc(ex["basis"])}">'
         f'<span class="exit-n">{n}</span>'
         f'<div><span class="exit-when">{esc(ex.get("when", ""))}</span>'
-        f'<span class="exit-goto">&rarr; {dest}</span></div>'
+        f'<span class="exit-goto">&rarr; {dest}{chip}</span></div>'
         + (f'<div class="cites">{cites}</div>' if cites else "")
         + "</div>")
 
@@ -394,7 +485,8 @@ def render(ans, idx):
     steps = ans["steps"]
     steps_by_id = {s["id"]: (i + 1, s.get("heading", s["id"]))
                    for i, s in enumerate(steps)}
-    weakest_n = steps_by_id.get(ans["_weakest"], ("?", ""))[0]
+    weakest_label = ans.get("_weakest_label") or (
+        f'step {steps_by_id.get(ans["_weakest"], ("?", ""))[0]}')
 
     # Transition numbering comes from flowgraph, not from a second count here.
     # The map and the prose disagreeing about which edge is number 4 would make
@@ -464,13 +556,15 @@ def render(ans, idx):
         '<h2 id="map" data-od-id="sec-map">The shape of it</h2>'
         f'<div class="map plate" data-od-id="flowgraph">{diagram}</div>'
         '<p class="map-note">Drawn from the transitions below — every arrow is one '
-        'of them, numbered to match. A solid arrow is a move a rule states '
-        'outright; a dashed one follows from the rules cited rather than being '
-        'written in one place.</p>') if diagram else ""
+        'of them, numbered to match. A <b>solid gold</b> arrow is a move a rule '
+        'states outright; a <b>dashed blue</b> one follows from the rules cited '
+        'rather than being written in one place; a <b>dashed grey</b> one is a '
+        'move the rules do not settle. A <b>heavy white</b> arrow failed '
+        'verification and must not be relied on.</p>') if diagram else ""
 
     cards_block = cards_html(ans)
     key = basis_key_html(steps + [ex for s in steps for ex in (s.get("exits") or [])])
-    rail = _rail_html(ans, steps, weakest_n, [
+    rail = _rail_html(ans, steps, weakest_label, [
         (href, label) for href, label, present in (
             ("#map", "The shape of it", map_block),
             ("#cards", "Cards referenced", cards_block),
@@ -526,9 +620,9 @@ def render(ans, idx):
   <div class="strength">
     <span class="metric"><span class="label">Steps</span>
       <span>{steps_metric}</span></span>
-    <span class="metric"><span class="label">Weakest step</span>
-      <a class="weakref" href="#{esc(ans["_weakest"])}">step
-      {esc(weakest_n)}</a> <b>{esc(ans["_strength"])}</b></span>
+    <span class="metric"><span class="label">Weakest link</span>
+      <a class="weakref" href="#{esc(ans["_weakest"])}">{esc(weakest_label)}</a>
+      <b>{esc(ans["_strength"])}</b></span>
     <span class="metric"><span class="label">Confidence</span>the lowest link, never an average</span>
     {unverified}
   </div>
@@ -579,7 +673,7 @@ def render(ans, idx):
     return page.replace(LEGEND_MARKER, legend).replace(RAILSYM_MARKER, railsym)
 
 
-def _rail_html(ans, steps, weakest_n, jumps):
+def _rail_html(ans, steps, weakest_label, jumps):
     """The sticky index. Same furniture as a ruling's, indexing steps not claims."""
     # `.get`, not `[]`. The verifier already complains about a step with no
     # heading, and --force exists to look at exactly that document — so every
@@ -596,8 +690,8 @@ def _rail_html(ans, steps, weakest_n, jumps):
   <div class="rail-plate plate">
     <h4>The primer</h4>
     <span class="rail-disp is-lead">{esc(clip(ans.get("topic", ""), 64))}</span>
-    <p class="rail-meta">Weakest step <a class="weakref" href="#{esc(ans["_weakest"])}">step
-      {esc(weakest_n)}</a> · {esc(ans["_strength"])}</p>
+    <p class="rail-meta">Weakest link <a class="weakref" href="#{esc(ans["_weakest"])}">{esc(
+      weakest_label)}</a> · {esc(ans["_strength"])}</p>
   </div>
   <nav class="rail-nav">
     <h4>The steps</h4>

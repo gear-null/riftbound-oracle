@@ -140,7 +140,8 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   Tournament Rules.
 - **`build` is maintainer-only.** Don't document it as a user step.
 - **A shared check has one definition.** Both document kinds verify the corpus stamp,
-  `considered_rejected`, `rules_checked`, card `rule_sections` and id uniqueness. Those
+  `considered_rejected`, `rules_checked`, card `rule_sections`, citation shape, id
+  uniqueness and the required keys. Those
   live once, in `render_report.py`, and `render_primer.py` calls them. Copying one to
   "adapt it" is how three citation-tally comprehensions drifted into disagreeing about
   the same answer file.

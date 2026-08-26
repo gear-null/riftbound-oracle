@@ -16,8 +16,9 @@ every part of it exists to make one contested proposition defensible.
 That is the right machinery for *"does a countered Flow spell still get banished"*.
 It is the wrong machinery for *"explain the HOT FEPR loop"*.
 
-HOT FEPR is CR 332–340. It is five steps with twelve transitions between them, four
-of which send play backwards (`337.3`, `338.1.a.7`, `339.2`, `340.3`, `340.4`). Asked
+HOT FEPR is CR 332–340. It is five steps with twelve transitions between them, five
+of which send play backwards (`337.3`, `338.1.a.7`, `339.2`, `340.3`, `340.4` — the
+first of those a self-return). Asked
 to answer that as a ruling, an author must:
 
 - compress a state machine into one sentence, which the 30%-span-coverage check then
@@ -73,8 +74,17 @@ cheaply than a sentence in a ruling.
 ### The diagram is derived, never authored
 
 There is no field in which an author can draw an edge. `flowgraph.py` computes the map
-from `steps` and `exits` and from nothing else, so every arrow drawn is a cited
-transition and every cited transition is drawn — numbered to match the prose beneath it.
+from `steps` and `exits` and from nothing else, so every arrow drawn is a **declared**
+transition and every declared transition is drawn — numbered to match the prose beneath it.
+
+*Declared*, not *cited*, and the distinction is the honest one. An exit declared
+`structural` carries no citation and still draws its arrow; what it costs is the
+document's `min()` confidence and a dashed stroke instead of a solid one. So the map
+does not promise that every arrow rests on a quote — it promises that every arrow
+rests on something the document said out loud, and shows which kind. An arrow whose
+citation failed verification is drawn heavier and inverted, in the same Mist the ✗
+UNVERIFIED stamp uses, so a forced page cannot carry one element still claiming
+everything is fine.
 
 This is the same argument as [ADR 0006](0006-derive-the-symbol-legend.md) for the symbol
 legend, and it matters more here. A diagram is the surface a reader trusts most and
@@ -83,7 +93,7 @@ A hand-drawn diagram beside a verified document is a second, unverified account 
 same procedure, and the moment the rules move, it is the half that goes quietly wrong.
 
 Recorded as **invariant 12** — *a diagram draws exactly the transitions the document
-cites, no more and no fewer* — pinned by nine checks, each proven by a mutant.
+declares, no more and no fewer* — pinned by checks, each proven by a mutant.
 
 `rules_cli.py graph` emits the same graph as Mermaid source and refuses on an unverified
 primer, so a diagram handed to a website or a restyling pass can never travel further
@@ -106,5 +116,13 @@ than its citations.
   vocabulary, so *"explain the HOT FEPR loop"* would not have fired it.
 - `flowgraph.py` also lays the graph out, which is layout code in a project that had
   none. It is bounded on purpose: a vertical spine with off-spine transitions routed
-  through numbered gutter lanes, which is the shape every procedure in these rules
-  actually has.
+  through numbered gutter lanes — the shape HOT FEPR has, and the one Showdowns and
+  Combat look likely to share. Generalised from one worked example; if a third
+  procedure does not fit it, that is a reason to revisit the layout, not to bend the
+  procedure.
+- Two caps, `MAX_STEPS` and `MAX_TRANSITIONS`. Not performance limits — the lane sweep
+  handles ten thousand transitions in tens of milliseconds — but limits on what can
+  still be read as a map. A hundred steps whose exits all target one common step needs
+  a gutter lane each and draws three hundred thousand pixels wide, and nothing about
+  that document is wrong under the citation gate. Refusing it has to be a document
+  rule, or the renderer degrades quietly instead.
