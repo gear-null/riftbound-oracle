@@ -44,9 +44,10 @@ from render_report import (BASIS, FAVICON, LEGEND_MARKER, MARK, RAILSYM_MARKER,
                            clip, esc, legend_html)
 from verify_citations import RuleIndex
 
-# An exit with no basis is asserting that a rule sends you there. Spelling the
-# default out here rather than at each use site is what makes "uncited grounded
-# edge" a single check instead of three that can disagree.
+# An exit with no basis is asserting that a rule sends you there. Named rather
+# than written inline so the default is stated once, where a reader looking for
+# "what happens if I omit basis" will find it — the schema in SKILL.md and this
+# constant are then the only two places it is written down.
 DEFAULT_EXIT_BASIS = "grounded"
 
 # A primer is a thing someone reads. These are not performance limits — the
@@ -552,6 +553,13 @@ def render(ans, idx):
                     f"<b>{len(steps)}</b>, {ngrounded} stated outright in the rules")
 
     diagram = flowgraph.svg(steps, ans.get("topic") or "Procedure")
+    # If a document declares transitions but NONE of them can be drawn — every
+    # goto naming a step that is not there — `svg()` returns "" and the whole
+    # section used to disappear along with its rail entry. A primer that says it
+    # is a procedure and then shows no map has to say why; silence there reads
+    # as "this one has no diagram", which is a different document.
+    declared_exits = sum(len(st.get("exits") or []) for st in steps)
+    undrawable = declared_exits and not diagram
     map_block = (
         '<h2 id="map" data-od-id="sec-map">The shape of it</h2>'
         f'<div class="map plate" data-od-id="flowgraph">{diagram}</div>'
@@ -560,7 +568,12 @@ def render(ans, idx):
         'states outright; a <b>dashed blue</b> one follows from the rules cited '
         'rather than being written in one place; a <b>dashed grey</b> one is a '
         'move the rules do not settle. A <b>heavy white</b> arrow failed '
-        'verification and must not be relied on.</p>') if diagram else ""
+        'verification and must not be relied on.</p>') if diagram else (
+        '<h2 id="map" data-od-id="sec-map">The shape of it</h2>'
+        '<p class="map-note">This primer declares '
+        f'{declared_exits} transition(s), and none of them could be drawn — every '
+        'one names a step that is not in the document. See Verification '
+        'problems.</p>' if undrawable else "")
 
     cards_block = cards_html(ans)
     key = basis_key_html(steps + [ex for s in steps for ex in (s.get("exits") or [])])

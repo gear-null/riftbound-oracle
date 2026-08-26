@@ -997,6 +997,12 @@ MUTANTS = [
          find='    if transitions > MAX_TRANSITIONS:',
          repl='    if False:',
          expect='too many transitions to draw is refused'),
+    dict(name='drop the whole map section when nothing in it can be drawn, so a '
+              'primer that declares transitions silently shows no diagram at all',
+         file='render_primer.py',
+         find='    undrawable = declared_exits and not diagram',
+         repl='    undrawable = False',
+         expect='undrawable map says so rather than disappearing'),
     dict(name='test only whether a step is named by something, so a disconnected '
               'island of steps that name each other passes',
          file='render_primer.py',

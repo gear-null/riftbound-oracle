@@ -285,12 +285,17 @@ def check_unique_ids(items, label, problems):
 
 
 def check_required_keys(ans, keys, problems):
-    """Keys the renderer subscripts with [].
+    """Keys a document cannot be missing and still mean anything.
 
-    Verified here rather than discovered as a KeyError halfway through writing
-    the page. The verifier certifying an answer it cannot render is the two
-    halves disagreeing about what a valid answer is, and rc=0 is what the
-    product sells.
+    On the ruling path these are also the keys `render` subscripts, so the check
+    is what stops a KeyError halfway through writing the page — the verifier
+    certifying an answer it cannot render is the two halves disagreeing about
+    what a valid answer is, and rc=0 is what the product sells.
+
+    The primer reads three of its four with `.get`, deliberately: `--force`
+    exists to look at a document this check has already rejected, so the
+    renderer must survive their absence. There the check is about meaning, not
+    about crashing — a primer with no `topic` is not a primer.
     """
     for key in keys:
         if key not in ans:

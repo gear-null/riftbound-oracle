@@ -938,6 +938,20 @@ def primer_invariants(idx):
           and "could not be drawn" in label.group(1),
           label.group(1)[:96] if label else "no aria-label")
 
+    # A primer that declares transitions and can draw none of them used to lose
+    # the whole map section, and its rail entry with it — silence that reads as
+    # "this one has no diagram", which is a different document.
+    allbad = copy.deepcopy(base)
+    for st in allbad["steps"]:
+        for ex in st.get("exits") or []:
+            ex["goto"] = "nowhere"
+    ab = verify_primer(allbad, idx)
+    abpage = safely(lambda: render(ab, idx), "", "render with every goto broken")
+    check("an undrawable map says so rather than disappearing",
+          bool(ab["_problems"]) and 'id="map"' in abpage
+          and "none of them could be drawn" in abpage,
+          "the section and its rail entry both have to survive")
+
     print("\n=== primer: a primer is something a person reads ===")
     def flowgraph_max_steps():
         import render_primer as _rp
