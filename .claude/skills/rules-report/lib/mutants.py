@@ -915,6 +915,22 @@ MUTANTS = [
          find='    ans["_unverified"] = bool(problems)',
          repl='    ans["_unverified"] = any(not c.get("verified", False) for c in all_cites(ans))',
          expect='marked whatever kind of verification it failed'),
+    dict(name='estimate every glyph at one average width again, so an ordinary '
+              'heading runs out of its box and over the transition arrows',
+         file='flowgraph.py',
+         find='''def _char_w(ch):
+    if ch == " ":
+        return 3.3''',
+         repl='''def _char_w(ch):
+    if True:
+        return 6.15''',
+         expect='clipped to fit inside its box'),
+    dict(name='drop the geometric clip on a step label, leaving nothing but an '
+              'estimate between a long heading and the arrows beside it',
+         file='flowgraph.py',
+         find='''            f'clip-path="url(#fg-box)">' ''' .rstrip(),
+         repl='''            f'>' ''' .rstrip(),
+         expect='cut at the box edge even if the estimate is wrong'),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

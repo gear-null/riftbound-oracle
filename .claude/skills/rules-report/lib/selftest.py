@@ -487,6 +487,23 @@ def primer_invariants(idx):
         return
     base = json.load(open(src, encoding="utf-8"))
 
+    def safely(fn, fallback, label):
+        """Run a drawing step, turning a crash into a failed check.
+
+        Defined up here because the FIRST call into flowgraph is the
+        linear-primer check further down, not the diagram section. Wrapping
+        only the diagram section left that one call bare, so a mutant that
+        breaks the layout took the whole suite down — reported as
+        "<suite crashed>", which is detection by traceback rather than by the
+        check whose job it is. A check that only holds while the code is
+        healthy is not a check.
+        """
+        try:
+            return fn()
+        except Exception as exc:
+            note(f"{label} raised {type(exc).__name__}: {exc}")
+            return fallback
+
     good = verify_primer(copy.deepcopy(base), idx)
     check("the shipped primer verifies clean", not good["_problems"],
           "; ".join(good["_problems"][:2]))
@@ -648,7 +665,7 @@ def primer_invariants(idx):
     check("a linear primer with no transitions is still valid",
           not r["_problems"], "; ".join(r["_problems"][:2]))
     check("and draws no map, rather than a column of boxes with no arrows",
-          flowgraph_mod.svg(r["steps"]) == "")
+          safely(lambda: flowgraph_mod.svg(r["steps"]), None, "flowgraph.svg") == "")
 
     # Untrusted model JSON. Every access below assumes a dict; a list of bare
     # strings crashed the ruling path once and the traceback hid every problem
@@ -686,20 +703,6 @@ def primer_invariants(idx):
     from render_primer import render
     fresh = verify_primer(copy.deepcopy(base), idx)
     declared_exits = sum(len(s.get("exits") or []) for s in fresh["steps"])
-
-    def safely(fn, fallback, label):
-        """Run a drawing step, turning a crash into a failed check.
-
-        A mutant that breaks the layout made flowgraph raise, which the battery
-        reported as "<suite crashed>" — detection, but by a traceback rather
-        than by the check whose whole job is to notice. A check that only holds
-        while the code is healthy is not a check.
-        """
-        try:
-            return fn()
-        except Exception as exc:
-            note(f"{label} raised {type(exc).__name__}: {exc}")
-            return fallback
 
     nodes, edges = safely(lambda: flowgraph.build(fresh["steps"]), ([], []),
                           "flowgraph.build")
@@ -853,6 +856,46 @@ def primer_invariants(idx):
     # is exactly the defect that once printed the grounded half of a verdict
     # line at 2.23:1. flowgraph emits colour ONLY as tokens; this is the check
     # that keeps it that way.
+    # A heading that does not fit its box. The first estimate was a flat
+    # 6.15px/char, which is simply wrong for a proportional face: an ordinary
+    # 42-character heading measured 279px in a 262px box and one set in caps
+    # measured 537px, running out over the transition arrows beside it.
+    wide = copy.deepcopy(base)
+    for i, heading in enumerate(["W" * 42, "M" * 42,
+                                 "Handling Outstanding Tasks Before Anything",
+                                 "i" * 42, "R — Resolve"]):
+        if i < len(wide["steps"]):
+            wide["steps"][i]["heading"] = heading
+    wsvg = safely(lambda: flowgraph.svg(verify_primer(wide, idx)["steps"]), "",
+                  "flowgraph.svg with wide headings")
+    # Measured with the harness's OWN table, deliberately duplicated from the
+    # browser measurements rather than imported. Calling flowgraph._char_w here
+    # made the check circular: a mutant that flattened every glyph to one
+    # average width also flattened the yardstick, so 42 characters at 6.15px
+    # "fit" a box they visibly overflow. A check has to be an independent
+    # oracle or it only ever confirms the code agrees with itself.
+    def ref_w(ch):
+        if ch == " ":
+            return 3.3
+        if ch in "iljI.,;:'!|()[]{}/\\`":
+            return 4.4
+        if ch in "WM":
+            return 12.8
+        if ch in "—–":
+            return 11.6
+        return 8.6 if ch.isdigit() else (10.1 if ch.isupper() else 7.6)
+
+    room = flowgraph.BOX_W - flowgraph.PAD_X - 20 - 14
+    drawn_labels = re.findall(r'class="fg-step"[^>]*>([^<]*)</text>', wsvg)
+    too_wide = [lab for lab in drawn_labels if sum(ref_w(c) for c in lab) > room]
+    check("a step heading is clipped to fit inside its box",
+          len(drawn_labels) >= 5 and not too_wide,
+          f"{len(drawn_labels)} labels, over by: {[lab[:12] for lab in too_wide]}")
+    # Belt AND braces: the estimate is measured against a font the reader may
+    # not have, so the label is also cut geometrically at the box edge.
+    check("and is cut at the box edge even if the estimate is wrong",
+          'clipPath id="fg-box"' in wsvg and 'clip-path="url(#fg-box)"' in wsvg)
+
     # A two-digit transition number in an 18px box printed with its second
     # digit on the border. Found on paper, where the box is a hairline rule and
     # nothing hides it; checked here so it does not have to be found there again.
@@ -932,10 +975,17 @@ def cli_output_paths():
               landed and r.returncode == 0,
               f"in lib instead: {os.path.exists(os.path.join(HERE, 'graph.mmd'))}")
         # And the CLI must name the path it actually wrote, not the one asked for.
+        #
+        # `.split()[-1]` on an empty stdout raised IndexError and took the whole
+        # suite down with it — so an unrelated mutant that made `graph` exit
+        # non-zero was reported as "<suite crashed>" instead of by the checks
+        # that had already failed by name a hundred lines above. A check that
+        # crashes on the failure it is watching for is worse than no check.
+        reported = (r.stdout.strip().split() or [""])[-1]
         check("and the CLI reports the path it actually wrote",
-              os.path.join(d, "graph.mmd") in r.stdout
-              or os.path.realpath(d) in os.path.realpath(r.stdout.strip().split()[-1] or "."),
-              r.stdout.strip()[:80])
+              bool(reported) and os.path.realpath(reported)
+              == os.path.realpath(os.path.join(d, "graph.mmd")),
+              r.stdout.strip()[:80] or "no output")
         for stray in ("graph.mmd", "report.html"):
             if os.path.exists(os.path.join(HERE, stray)):
                 os.remove(os.path.join(HERE, stray))

@@ -48,14 +48,56 @@ EDGE_COLOUR = {
 }
 
 
-def _clip(text, width, px_per_char=6.15):
-    """Shorten to fit `width` px, on a word boundary where one is available."""
+# Per-glyph widths at the .82rem the step label is set in, measured in a browser
+# against the rendered SVG rather than guessed. A flat average was the first
+# attempt and it is simply wrong for a proportional face: at 6.15px/char an
+# ordinary 42-character heading measured 279px in a 262px box, and one set in
+# caps measured 537px — the text ran out over the transition arrows beside it.
+#
+# Rounded UP within each class, because the face that actually renders is
+# whatever the reader has: Beaufort and TT Norms are proprietary and not
+# redistributed, so what ships is a fallback stack. Overestimating clips a
+# heading a word early; underestimating puts it through the diagram.
+_NARROW = "iljI.,;:'!|()[]{}/\\`"
+_WIDE = "WM"
+
+
+def _char_w(ch):
+    if ch == " ":
+        return 3.3
+    if ch in _NARROW:
+        return 4.4
+    if ch in _WIDE:
+        return 12.8
+    if ch in "—–":
+        return 11.6
+    if ch.isdigit():
+        return 8.6
+    if ch.isupper():
+        return 10.1
+    return 7.6
+
+
+def _clip(text, width):
+    """Shorten to fit `width` px, on a word boundary where one is available.
+
+    Belt only — `svg()` also clips the text to the box geometrically, because an
+    estimate against an unknown font can always be wrong and a heading spilling
+    over the arrows is worse than one cut a word short.
+    """
     text = " ".join(str(text).split())
-    limit = max(4, int(width / px_per_char))
-    if len(text) <= limit:
+    if sum(_char_w(c) for c in text) <= width:
         return text
-    cut = text.rfind(" ", 0, limit - 1)
-    return text[:cut if cut > 0 else limit - 1].rstrip(" ,;:—-") + "…"
+    room, cut = width - _char_w("…"), 0
+    used = 0.0
+    for i, ch in enumerate(text):
+        used += _char_w(ch)
+        if used > room:
+            break
+        cut = i + 1
+    head = text[:cut]
+    space = head.rfind(" ")
+    return (head[:space] if space > 0 else head).rstrip(" ,;:—-") + "…"
 
 
 def build(steps):
@@ -166,6 +208,19 @@ def _assign_ports(nodes, edges):
             e["y_" + role] = nodes[i]["y"] + BOX_H * frac
 
 
+def _clip_path(height):
+    """The geometric backstop on the label estimate.
+
+    One clip region serves every box: they share an x range and differ only in
+    y, so a single full-height rect cuts each label at the same right edge. If
+    the width estimate above is ever wrong — a font the reader has that the
+    measurement did not — the heading is cut at the box rather than running out
+    across the transition arrows.
+    """
+    return (f'<clipPath id="fg-box" clipPathUnits="userSpaceOnUse">'
+            f'<rect x="0" y="0" width="{BOX_W - 8}" height="{height}"/></clipPath>')
+
+
 def _badge(x, y, n, colour):
     """The edge number, as a tag the eye can find against a line.
 
@@ -216,7 +271,8 @@ def svg(steps, label="Procedure"):
             # the heading text, which the map has to clip.
             f'<text x="{PAD_X}" y="{y + BOX_H / 2 + 4:.1f}" class="fg-idx" '
             f'fill="{colour}">{node["index"] + 1}</text>'
-            f'<text x="{PAD_X + 20}" y="{y + BOX_H / 2 + 4:.1f}" class="fg-step">'
+            f'<text x="{PAD_X + 20}" y="{y + BOX_H / 2 + 4:.1f}" class="fg-step" '
+            f'clip-path="url(#fg-box)">'
             f'{_esc(_clip(node["heading"], BOX_W - PAD_X - 34))}</text>'
             f'<title>{node["index"] + 1}. {_esc(node["heading"])}</title></g>')
 
@@ -235,7 +291,7 @@ def svg(steps, label="Procedure"):
         f'height="{height}" role="img" aria-label="{_esc(label)}: {_esc(desc)}" '
         f'preserveAspectRatio="xMinYMin meet">'
         f'<title>{_esc(label)}</title><desc>{_esc(desc)}</desc>'
-        f'<defs>{_ARROWS}</defs>' + "".join(out) + "</svg>")
+        f'<defs>{_ARROWS}{_clip_path(height)}</defs>' + "".join(out) + "</svg>")
 
 
 def _edge_svg(e, nodes, gutter, has_out):
