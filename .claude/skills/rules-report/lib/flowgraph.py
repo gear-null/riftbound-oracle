@@ -326,9 +326,14 @@ def mermaid(steps, topic="Procedure"):
     from the verified transitions rather than from a fresh reading of the prose.
     Node ids are the step ids, so a diff of this file after a rules update names
     the transition that moved.
+
+    Every label is escaped. The SVG above is emitted straight into a page that
+    escapes for HTML, but this export leaves the project entirely — and Mermaid
+    renders labels as HTML by default, so an unescaped `<` in a step heading is
+    markup wherever the graph is finally drawn.
     """
     nodes, edges = build(steps)
-    lines = [f"%% {topic} — derived from verified transitions; do not hand-edit",
+    lines = [f"%% {_mlabel(topic)} — derived from verified transitions; do not hand-edit",
              "flowchart TD"]
     for node in nodes:
         lines.append(f'  {_mid(node["id"])}["{_mlabel(node["heading"])}"]')
@@ -349,6 +354,26 @@ def _mid(step_id):
     return "S_" + "".join(ch if ch.isalnum() else "_" for ch in str(step_id))
 
 
+# Mermaid's own escape syntax: `#` plus an entity name or code, then `;`. It
+# survives both the parser and the HTML label renderer, which a bare character
+# reference does not.
+#
+# `#` is in the table because it introduces the escape — leaving it out makes
+# every other substitution ambiguous with text the author actually wrote. The
+# rest are the characters that mean something structurally: `"` closes a quoted
+# label, `|` delimits an edge label, and `<>&` are markup once Mermaid renders
+# the label as HTML.
+_MERMAID_ESCAPES = {
+    "#": "#35;", '"': "#quot;", "<": "#lt;", ">": "#gt;", "&": "#amp;", "|": "#124;",
+}
+
+
 def _mlabel(text):
-    """Mermaid labels are quoted, so the quote is the one character to remove."""
-    return " ".join(str(text).split()).replace('"', "'")
+    """One line of escaped label text, safe inside a quoted Mermaid label.
+
+    Whitespace is collapsed first: a newline inside a heading or a `when` would
+    otherwise end the statement early and silently truncate the graph, which is
+    the one failure that would leave a *plausible* diagram behind.
+    """
+    return "".join(_MERMAID_ESCAPES.get(ch, ch)
+                   for ch in " ".join(str(text).split()))

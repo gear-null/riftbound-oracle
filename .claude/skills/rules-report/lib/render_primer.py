@@ -39,7 +39,7 @@ from render_report import (BASIS, FAVICON, LEGEND_MARKER, MARK, RAILSYM_MARKER,
                            check_card_sections, check_considered_rejected,
                            check_corpus_stamp, check_required_keys,
                            check_rules_checked, check_unique_ids, cite_html,
-                           clip, esc, legend_html, note_number)
+                           clip, esc, legend_html)
 from verify_citations import RuleIndex
 
 # An exit with no basis is asserting that a rule sends you there. Spelling the
@@ -327,14 +327,23 @@ _PRIMER_CSS = """
 """
 
 
-def _exit_html(ex, step_ids, idx, corpus, n):
-    """One numbered transition: the condition, where it sends you, its evidence."""
+def _exit_html(ex, steps_by_id, idx, corpus, n):
+    """One numbered transition: the condition, where it sends you, its evidence.
+
+    A step's number is its POSITION, never digits scraped out of its id. Those
+    agree for `s1`..`s5` and part company the moment an author writes `s0` or
+    `handle` — and then the plate at the top of a step says 1 while every
+    transition pointing at it says 0, or "step handle". Position is also what
+    the diagram numbers its boxes by, so this is the same number in all three
+    places by construction.
+    """
     goto = ex.get("goto")
     if goto is None:
         dest = "the procedure ends"
     else:
-        dest = (f'<a href="#{esc(goto)}">step {esc(note_number(goto))} · '
-                f'{esc(clip(step_ids.get(goto, goto), 42))}</a>')
+        number, heading = steps_by_id.get(goto, ("?", goto))
+        dest = (f'<a href="#{esc(goto)}">step {esc(number)} · '
+                f'{esc(clip(heading, 42))}</a>')
     cites = "".join(cite_html(c, idx, corpus) for c in ex.get("cites") or [])
     return (
         f'<div class="exit e-{esc(ex["basis"])}">'
@@ -348,7 +357,9 @@ def _exit_html(ex, step_ids, idx, corpus, n):
 def render(ans, idx):
     corpus = ans["corpus"]
     steps = ans["steps"]
-    step_ids = {s["id"]: s.get("heading", s["id"]) for s in steps}
+    steps_by_id = {s["id"]: (i + 1, s.get("heading", s["id"]))
+                   for i, s in enumerate(steps)}
+    weakest_n = steps_by_id.get(ans["_weakest"], ("?", ""))[0]
 
     # Transition numbering comes from flowgraph, not from a second count here.
     # The map and the prose disagreeing about which edge is number 4 would make
@@ -367,7 +378,8 @@ def render(ans, idx):
         cites = "".join(cite_html(c, idx, corpus) for c in s.get("cites") or [])
         numbers = edge_n.get(i, [])
         exits = "".join(
-            _exit_html(ex, step_ids, idx, corpus, numbers[j] if j < len(numbers) else "")
+            _exit_html(ex, steps_by_id, idx, corpus,
+                       numbers[j] if j < len(numbers) else "")
             for j, ex in enumerate(s.get("exits") or []))
         blocks.append(f'''<section class="step plate b-{esc(s["basis"])}"
     id="{esc(s["id"])}" data-od-id="step-{esc(s["id"])}">
@@ -421,7 +433,7 @@ def render(ans, idx):
 
     cards_block = cards_html(ans)
     key = basis_key_html(steps + [ex for s in steps for ex in (s.get("exits") or [])])
-    rail = _rail_html(ans, steps, [
+    rail = _rail_html(ans, steps, weakest_n, [
         (href, label) for href, label, present in (
             ("#map", "The shape of it", map_block),
             ("#cards", "Cards referenced", cards_block),
@@ -479,7 +491,7 @@ def render(ans, idx):
       <span>{steps_metric}</span></span>
     <span class="metric"><span class="label">Weakest step</span>
       <a class="weakref" href="#{esc(ans["_weakest"])}">step
-      {esc(note_number(ans["_weakest"]))}</a> <b>{esc(ans["_strength"])}</b></span>
+      {esc(weakest_n)}</a> <b>{esc(ans["_strength"])}</b></span>
     <span class="metric"><span class="label">Confidence</span>the lowest link, never an average</span>
     {unverified}
   </div>
@@ -530,7 +542,7 @@ def render(ans, idx):
     return page.replace(LEGEND_MARKER, legend).replace(RAILSYM_MARKER, railsym)
 
 
-def _rail_html(ans, steps, jumps):
+def _rail_html(ans, steps, weakest_n, jumps):
     """The sticky index. Same furniture as a ruling's, indexing steps not claims."""
     rows = "".join(
         f'<a class="rail-note" href="#{esc(s["id"])}" title="{esc(s["heading"])}">'
@@ -544,7 +556,7 @@ def _rail_html(ans, steps, jumps):
     <h4>The primer</h4>
     <span class="rail-disp is-lead">{esc(clip(ans.get("topic", ""), 64))}</span>
     <p class="rail-meta">Weakest step <a class="weakref" href="#{esc(ans["_weakest"])}">step
-      {esc(note_number(ans["_weakest"]))}</a> · {esc(ans["_strength"])}</p>
+      {esc(weakest_n)}</a> · {esc(ans["_strength"])}</p>
   </div>
   <nav class="rail-nav">
     <h4>The steps</h4>

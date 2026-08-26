@@ -107,9 +107,13 @@ MUTANTS = [
          find="            if not rrid or not idx.get(rrid, rdoc):",
          repl="            if False:",
          expect="fabricated rules_checked id"),
+    # Anchored on `check_unique_ids`, which is where this moved when the primer
+    # arrived and both kinds needed it. The battery reported the mutant STALE
+    # the moment the block left `verify_answer` — which is the battery doing its
+    # job: a mutant whose anchor no longer exists is testing nothing.
     dict(name="allow duplicate note ids",
          file="render_report.py",
-         find="    if _dupes:",
+         find="    if dupes:",
          repl="    if False:",
          expect="duplicate note ids"),
     dict(name="let answer fields override the vendored card record",
@@ -853,6 +857,44 @@ MUTANTS = [
                                   or any(not isinstance(x, dict) for x in exits)):''',
          repl='        if False:',
          expect='is not a list of objects is reported'),
+    dict(name='resolve relative output paths against the skill folder again, so a '
+              'report lands somewhere the caller never named and is reported as written',
+         file='rules_cli.py',
+         find='''    if os.path.isabs(path):
+        return path
+    return os.path.join(default_dir or CWD, path)''',
+         repl='''    return path''',
+         expect='lands where the caller ran the command'),
+    dict(name='bind the first argument after the source as the destination again, so '
+              '--force becomes the output path',
+         file='rules_cli.py',
+         find='''    pos = [a for a in args if not a.startswith("-")]
+    src = pos[0]
+    out = _out_path(pos[1]) if len(pos) > 1 else _out_path("report.html")''',
+         repl='''    src = args[0]
+    out = _out_path(args[1]) if len(args) > 1 else _out_path("report.html")''',
+         expect='not bound as the render destination'),
+    dict(name='escape only the quote in a mermaid label again, so a step heading '
+              'containing a tag is markup wherever the graph is finally drawn',
+         file='flowgraph.py',
+         find='''    return "".join(_MERMAID_ESCAPES.get(ch, ch)
+                   for ch in " ".join(str(text).split()))''',
+         repl='''    return " ".join(str(text).split()).replace('"', "'")''',
+         expect='escapes every label'),
+    dict(name='stop collapsing whitespace in a mermaid label, so a newline in a '
+              'heading ends the statement early and truncates the graph',
+         file='flowgraph.py',
+         find='''    return "".join(_MERMAID_ESCAPES.get(ch, ch)
+                   for ch in " ".join(str(text).split()))''',
+         repl='''    return "".join(_MERMAID_ESCAPES.get(ch, ch) for ch in str(text))''',
+         expect='collapses a newline rather than truncating'),
+    dict(name='number a step from digits in its id again, so a primer whose steps '
+              'are not called s1..sN links to numbers its own plates never show',
+         file='render_primer.py',
+         find='''        number, heading = steps_by_id.get(goto, ("?", goto))''',
+         repl='''        from render_report import note_number
+        number, heading = note_number(goto), steps_by_id.get(goto, (0, goto))[1]''',
+         expect='numbers the step it points at by position'),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

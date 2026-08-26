@@ -30,10 +30,26 @@ import json, os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+# The directory the user actually ran the command from. `main()` chdirs into
+# HERE so the tools can find their data, which silently relocated every RELATIVE
+# OUTPUT path into the skill folder: `graph primer.json out.mmd` printed "wrote
+# out.mmd" and put it in lib/. Input paths were already resolved before the
+# chdir for the mirror-image reason — a relative input found a shipped sample of
+# the same name. Captured at import, because by the time a command runs the cwd
+# is gone.
+CWD = os.getcwd()
+
 from corpus import rules_json as _rules_json
 RULES_JSON = _rules_json()
 RULES_DB = os.path.join(HERE, "rules.db")
 REPORTS = os.path.normpath(os.path.join(HERE, "..", "reports"))
+
+
+def _out_path(path, default_dir=None):
+    """Resolve a caller-supplied output path against the caller's directory."""
+    if os.path.isabs(path):
+        return path
+    return os.path.join(default_dir or CWD, path)
 
 
 def _idx():
@@ -346,7 +362,7 @@ def cmd_report(args):
     # reports folder reads as a list of subjects rather than of filenames.
     slug = os.path.splitext(os.path.basename(src))[0]
     slug = slug.replace("-answer", "").replace("-primer", "") or slug
-    out = explicit or os.path.join(REPORTS, f"{slug}.html")
+    out = _out_path(explicit) if explicit else os.path.join(REPORTS, f"{slug}.html")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
 
     # Verify first; a failing gate must not silently produce a pretty report.
@@ -421,15 +437,20 @@ def _cite_sources(ans, kind):
 
 
 def cmd_render(args):
-    src = args[0]
-    out = args[1] if len(args) > 1 else "report.html"
+    # Positionals separated from flags. `out = args[1]` bound `--force` as the
+    # destination, so the documented escape hatch rendered to a path the caller
+    # never named — the renderer then dropped the flag from its own positionals
+    # and wrote report.html into the skill folder, reporting success.
+    pos = [a for a in args if not a.startswith("-")]
+    src = pos[0]
+    out = _out_path(pos[1]) if len(pos) > 1 else _out_path("report.html")
     _v, _c, renderer = _verify_for(_kind(json.load(open(src, encoding="utf-8")), src))
     ensure_rulebook()
     # Flags are forwarded, not dropped: --force is the documented escape hatch
     # and it lives in the renderer, so swallowing it here made the flag a no-op
     # on the one path a caller reaches for it.
     subprocess.run([sys.executable, renderer, src, out]
-                   + [a for a in args if a.startswith("--")], check=True)
+                   + [a for a in args if a.startswith("-")], check=True)
 
 
 def cmd_graph(args):
@@ -456,9 +477,10 @@ def cmd_graph(args):
     import flowgraph
     text = flowgraph.mermaid(ans["steps"], ans.get("topic", "Procedure"))
     if len(args) > 1 and not args[1].startswith("-"):
-        with open(args[1], "w", encoding="utf-8") as fh:
+        dest = _out_path(args[1])
+        with open(dest, "w", encoding="utf-8") as fh:
             fh.write(text)
-        print(f"wrote {args[1]}")
+        print(f"wrote {dest}")
     else:
         print(text, end="")
 

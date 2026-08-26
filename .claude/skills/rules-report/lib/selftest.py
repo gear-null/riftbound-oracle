@@ -713,6 +713,30 @@ def primer_invariants(idx):
     check("the mermaid export names only real steps", bool(used) and used <= ids,
           f"unknown: {sorted(used - ids)}")
 
+    # The SVG is escaped by the page that embeds it; this export leaves the
+    # project entirely, and Mermaid renders labels as HTML by default — so a
+    # heading containing a tag becomes markup wherever the graph is finally
+    # drawn. A newline is the quieter half: it ends the statement early and
+    # truncates the graph, leaving something that still looks like a diagram.
+    hostile = copy.deepcopy(fresh)
+    hostile["steps"][0]["heading"] = '<img src=x>|"q"&\nsecond line'
+    hostile["steps"][0]["exits"][0]["when"] = "a<b>c"
+    hot = safely(lambda: flowgraph.mermaid(hostile["steps"], '<b>topic</b>'), "",
+                 "flowgraph.mermaid")
+    # Scoped to the label CONTENTS. Mermaid's own syntax is full of these
+    # characters — `-->|"..."|`, `["..."]` — so scanning the whole file just
+    # reports the language back at you. A label is what sits between the
+    # quotes, and after escaping it holds none of them.
+    labels = re.findall(r'"([^"]*)"', hot)
+    header = hot.splitlines()[0] if hot else ""
+    leaked = sorted({c for lab in labels + [header] for c in "<>|" if c in lab})
+    check("the mermaid export escapes every label",
+          len(labels) >= 2 and not leaked and "#lt;" in hot,
+          f"{len(labels)} labels, leaked {leaked}")
+    check("and collapses a newline rather than truncating the graph",
+          bool(hot) and len(hot.splitlines()) == len(mmd.splitlines()),
+          f"{len(hot.splitlines())} lines vs {len(mmd.splitlines())}")
+
     print("\n=== primer: the render gate ===")
     # Invariants 1 and 10. A primer has no disposition to downgrade, so the
     # only honest answer to a broken citation is to publish nothing.
@@ -808,10 +832,96 @@ def primer_invariants(idx):
           and ".fg-step" in render_primer._PRIMER_CSS[
               render_primer._PRIMER_CSS.index("@media print"):])
 
+    # A step's number is its position, in all three places it appears: the
+    # plate, the diagram box, and every transition pointing at it. Deriving it
+    # from digits in the id agreed with position for s1..s5 and parted company
+    # the moment an author wrote s0 — the plate said 1, the links said 0.
+    #
+    # Checked against ids carrying no digits at all, so a number can only have
+    # come from position. Every rendered link is then compared to the position
+    # of the step it actually points at, which is a claim about each link
+    # rather than about the page containing some digit somewhere.
+    renamed = verify_primer(copy.deepcopy(base), idx)
+    mapping = {s["id"]: "z" + chr(97 + i) for i, s in enumerate(renamed["steps"])}
+    for st in renamed["steps"]:
+        for ex in st.get("exits") or []:
+            if ex.get("goto"):
+                ex["goto"] = mapping[ex["goto"]]
+        st["id"] = mapping[st["id"]]
+    renamed["_weakest"] = mapping.get(renamed["_weakest"], renamed["_weakest"])
+    position = {st["id"]: i + 1 for i, st in enumerate(renamed["steps"])}
+
+    rpage = safely(lambda: render(renamed, idx), "", "render with non-numeric step ids")
+    # Digits only: the weakest-step metric renders "step 1</a>" with no heading
+    # after it, and \S+ swallowed the closing tag into the number.
+    links = re.findall(r'href="#(z[a-z])">step\s+(\d+)', rpage)
+    wrong = [(t, n) for t, n in links if n != str(position.get(t))]
+    check("every link numbers the step it points at by position",
+          len(links) >= len(renamed["steps"]) and not wrong,
+          f"{len(links)} links, wrong: {wrong[:3]}")
+    check("and no step number is rendered unknown",
+          bool(rpage) and "step ?" not in rpage)
+
     check("a primer prints no disposition word",
           not re.search(r'class="disp\b', page) and 'class="verdict ' not in page)
     check("a primer reports its weakest STEP, not a weakest link",
           "Weakest step" in page and "Weakest link" not in page)
+
+
+def cli_output_paths():
+    """Where a report actually lands when the caller names a relative path.
+
+    `rules_cli.main()` chdirs into the skill folder so the tools can find their
+    data. Input paths were already resolved before that — a relative input
+    otherwise found a shipped sample of the same name and printed "6/6
+    verified" for an answer nobody wrote. The mirror image went unnoticed:
+    every relative OUTPUT path was silently relocated INTO the skill folder,
+    and the CLI reported success naming a file that is not where it said.
+    """
+    print("\n=== cli: output goes where the caller asked ===")
+    import tempfile
+
+    cli = os.path.join(HERE, "rules_cli.py")
+    primer = os.path.join(HERE, "hot-fepr-primer.json")
+    ruling = os.path.join(HERE, "heron-answer.json")
+
+    with tempfile.TemporaryDirectory() as d:
+        r = subprocess.run([sys.executable, cli, "graph", primer, "graph.mmd"],
+                           capture_output=True, text=True, cwd=d)
+        landed = os.path.exists(os.path.join(d, "graph.mmd"))
+        check("a relative output path lands where the caller ran the command",
+              landed and r.returncode == 0,
+              f"in lib instead: {os.path.exists(os.path.join(HERE, 'graph.mmd'))}")
+        # And the CLI must name the path it actually wrote, not the one asked for.
+        check("and the CLI reports the path it actually wrote",
+              os.path.join(d, "graph.mmd") in r.stdout
+              or os.path.realpath(d) in os.path.realpath(r.stdout.strip().split()[-1] or "."),
+              r.stdout.strip()[:80])
+        for stray in ("graph.mmd", "report.html"):
+            if os.path.exists(os.path.join(HERE, stray)):
+                os.remove(os.path.join(HERE, stray))
+
+    with tempfile.TemporaryDirectory() as d:
+        # `out = args[1]` bound --force as the destination. The renderer then
+        # dropped it from its own positionals and wrote report.html into the
+        # skill folder — the flag worked, the file went somewhere else, and the
+        # caller was told nothing.
+        # NO explicit destination. With one supplied the flag sits at args[2]
+        # and the defect never fires — the first version of this check passed
+        # against the broken code it was named for, which is the failure mode
+        # this whole file exists to refuse.
+        r = subprocess.run([sys.executable, cli, "render", ruling, "--force"],
+                           capture_output=True, text=True, cwd=d)
+        check("--force is not bound as the render destination",
+              os.path.exists(os.path.join(d, "report.html"))
+              and not os.path.exists(os.path.join(HERE, "report.html")),
+              f"rc={r.returncode}; {(r.stderr or '')[:60]}")
+        check("and no file is named after the flag",
+              not os.path.exists(os.path.join(d, "--force"))
+              and not os.path.exists(os.path.join(HERE, "--force")))
+        for stray in ("out.html", "report.html", "--force"):
+            if os.path.exists(os.path.join(HERE, stray)):
+                os.remove(os.path.join(HERE, stray))
 
 
 def python_floor():
@@ -1906,6 +2016,7 @@ def main():
     metric_consistency(idx)
     rendered_surfaces(idx)
     primer_invariants(idx)
+    cli_output_paths()
     python_floor()
 
     print()
