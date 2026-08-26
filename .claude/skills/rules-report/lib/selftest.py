@@ -582,6 +582,28 @@ def primer_invariants(idx):
     check("rules_checked naming a rule that does not exist is refused",
           any("does not exist at this corpus version" in p for p in r["_problems"]))
 
+    # The corpus stamp, considered_rejected and card rule_sections are verified
+    # by helpers shared with the ruling path. Shared is not the same as pinned:
+    # the primer calls them, and a call that goes missing is invisible to every
+    # check filed under the other document. Same reasoning as the atomic-write
+    # check below — a property nobody has watched fail on THIS path is not
+    # pinned on it.
+    shared = []
+    stamp = copy.deepcopy(base)
+    stamp["corpus"]["CR"] = "2025-01-01"
+    shared.append(any("corpus.CR claims" in p
+                      for p in verify_primer(stamp, idx)["_problems"]))
+    ghost_cr = copy.deepcopy(base)
+    ghost_cr["considered_rejected"] = [{"rule": "CR:9999", "why": "x"}]
+    shared.append(any("does not exist at this corpus version" in p
+                      for p in verify_primer(ghost_cr, idx)["_problems"]))
+    tr_bare = copy.deepcopy(base)
+    tr_bare["considered_rejected"] = [{"rule": "702.15", "why": "x"}]
+    shared.append(any("exists only in TR" in p
+                      for p in verify_primer(tr_bare, idx)["_problems"]))
+    check("the shared provenance checks run on the primer path too",
+          all(shared), f"corpus/rejected-id/TR-prefix: {shared}")
+
     print("\n=== primer: the procedure has to be a procedure ===")
     import flowgraph as flowgraph_mod
     dangling = copy.deepcopy(base)
@@ -652,6 +674,11 @@ def primer_invariants(idx):
               "a step that is not an object is reported, not crashed")
     malformed(lambda a: a["steps"][1].__setitem__("exits", "s3"), "must be a list",
               "`exits` that is not a list of objects is reported, not crashed")
+    # `id` is the page anchor, the goto target, and the key every later pass
+    # subscripts. A step without one raised KeyError inside verification, so the
+    # author got a traceback instead of the problem list.
+    malformed(lambda a: a["steps"][2].pop("id"), "no `id`",
+              "a step with no id is reported, not crashed")
 
     print("\n=== primer: the diagram cannot outrun the citations ===")
     import flowgraph
@@ -769,6 +796,18 @@ def primer_invariants(idx):
               bool(forced) and 'class="stamp bad"' in forced)
         check("--force says on the page that it must not be relied on",
               bool(forced) and 'class="forced"' in forced)
+
+    # The banner is the only thing stopping a forced page from being mistaken
+    # for a verified one, so it must answer "did this pass", not "did a quote
+    # match". Scoped to citations, an uncited grounded step — which has no
+    # citation to fail — produced a forced page with no banner at all.
+    uncited = copy.deepcopy(base)
+    uncited["steps"][0].pop("cites")
+    ur = verify_primer(uncited, idx)
+    upage = safely(lambda: render(ur, idx), "", "render of an uncited-step primer")
+    check("a forced page is marked whatever kind of verification it failed",
+          bool(ur["_problems"]) and 'class="forced"' in upage,
+          "an uncited grounded step has no citation to fail")
 
     # A primer states no verdict, so the plate words must not appear on it. An
     # early draft reused the ruling template and shipped a primer headed

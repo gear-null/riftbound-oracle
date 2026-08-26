@@ -895,6 +895,26 @@ MUTANTS = [
          repl='''        from render_report import note_number
         number, heading = note_number(goto), steps_by_id.get(goto, (0, goto))[1]''',
          expect='numbers the step it points at by position'),
+    dict(name='stop running the shared provenance checks on the primer path, so a '
+              'primer can misdate the corpus and cite rules that do not exist',
+         file='render_primer.py',
+         find='''    check_corpus_stamp(ans, idx, problems)
+    check_considered_rejected(ans, idx, problems)
+    check_card_sections(ans, idx, problems)''',
+         repl='''    pass''',
+         expect='shared provenance checks run on the primer path'),
+    dict(name='assume every step carries an id, so one without it raises KeyError '
+              'inside verification and the author gets a traceback, not a problem list',
+         file='render_primer.py',
+         find='        if not str(item.get("id") or "").strip():',
+         repl='        if False:',
+         expect='a step with no id is reported, not crashed'),
+    dict(name='scope the forced-render banner back to citations, so a primer that '
+              'failed verification some other way prints as though it passed',
+         file='render_primer.py',
+         find='    ans["_unverified"] = bool(problems)',
+         repl='    ans["_unverified"] = any(not c.get("verified", False) for c in all_cites(ans))',
+         expect='marked whatever kind of verification it failed'),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

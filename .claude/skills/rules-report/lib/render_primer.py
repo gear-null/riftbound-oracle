@@ -94,10 +94,20 @@ def verify_primer(ans, idx):
             problems.append(f"step {i}: expected an object with `id`, `heading` "
                             f"and `body`, got {type(item).__name__}")
             continue
+        # `id` is the addressing scheme — the page anchor, the goto target, the
+        # key every later pass subscripts. A step without one crashed
+        # verification outright, so the author got a traceback instead of the
+        # problem list, and a crash means no report at all. Reported and given a
+        # placeholder, so the rest of the document is still checked and --force
+        # still produces a page saying what is wrong with it.
+        if not str(item.get("id") or "").strip():
+            problems.append(f"step {i}: no `id` — it is the page anchor and the "
+                            "name every transition points at")
+            item["id"] = f"_unnamed{i}"
         exits = item.get("exits")
         if exits is not None and (not isinstance(exits, list)
                                   or any(not isinstance(x, dict) for x in exits)):
-            problems.append(f'{item.get("id", f"step {i}")}: `exits` must be a list '
+            problems.append(f'{item["id"]}: `exits` must be a list '
                             "of objects, each with `when` and a `goto`")
             item["exits"] = []
         kept.append(item)
@@ -203,7 +213,12 @@ def verify_primer(ans, idx):
     else:
         ans["_weakest"], ans["_strength"] = "-", "gap"
 
-    ans["_unverified"] = any(not c.get("verified", False) for c in all_cites(ans))
+    # ANY problem, not only a failed quote. `--force` exists to inspect a broken
+    # primer, and the banner is the only thing stopping the resulting page from
+    # being mistaken for a verified one — so scoping it to citations meant an
+    # uncited grounded step, a bad goto or a missing heading produced a forced
+    # page with no banner at all.
+    ans["_unverified"] = bool(problems)
     ans["_problems"] = problems
     return ans
 
@@ -444,9 +459,9 @@ def render(ans, idx):
         ) if present])
 
     unverified = (
-        '<div class="forced">Failed verification — a cited rule could not be '
-        'confirmed. This page was written with --force and must not be relied '
-        'on</div>' if ans.get("_unverified") else "")
+        '<div class="forced">Failed verification — written with --force and must '
+        'not be relied on. What went wrong is listed under Verification '
+        'problems</div>' if ans.get("_unverified") else "")
 
     page = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
