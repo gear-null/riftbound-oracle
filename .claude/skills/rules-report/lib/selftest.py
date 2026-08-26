@@ -479,7 +479,7 @@ def primer_invariants(idx):
     print("\n=== primer: routing ===")
     import copy
     import tempfile
-    from render_primer import all_cites, verify_primer
+    from render_primer import all_cites, render, verify_primer
 
     src = os.path.join(HERE, "hot-fepr-primer.json")
     if not os.path.exists(src):
@@ -621,6 +621,32 @@ def primer_invariants(idx):
     check("the shared provenance checks run on the primer path too",
           all(shared), f"corpus/rejected-id/TR-prefix: {shared}")
 
+    # `rules_checked` is rendered with " · ".join(), which needs strings, and
+    # the existence check str()s each ref for the lookup — so a list of plain
+    # integers, which is the natural thing to write, verified clean and then
+    # died in the renderer. The verifier certifying an answer it cannot render
+    # is the two halves disagreeing about what a valid answer is.
+    numeric = copy.deepcopy(base)
+    numeric["steps"][0]["basis"] = "gap"
+    numeric["steps"][0]["rules_checked"] = [332, 333]
+    nr = verify_primer(numeric, idx)
+    npage = safely(lambda: render(nr, idx), "", "render with numeric rules_checked")
+    check("rules_checked written as numbers verifies AND renders",
+          not nr["_problems"] and bool(npage) and "332 · 333" in npage,
+          "; ".join(nr["_problems"][:2]) or "rendered")
+
+    # --force exists to look at a document the verifier rejected, so every field
+    # the renderer reads has to survive being absent — or the escape hatch
+    # crashes on the only inputs anyone opens it for.
+    bare = copy.deepcopy(base)
+    bare["steps"][1].pop("heading")
+    bare["steps"][1].pop("body")
+    br = verify_primer(bare, idx)
+    bpage = safely(lambda: render(br, idx), "", "render of a step with no heading")
+    check("a step missing every optional field still renders under --force",
+          len(br["_problems"]) >= 2 and bool(bpage),
+          "; ".join(br["_problems"][:2]))
+
     print("\n=== primer: the procedure has to be a procedure ===")
     import flowgraph as flowgraph_mod
     dangling = copy.deepcopy(base)
@@ -700,7 +726,6 @@ def primer_invariants(idx):
     print("\n=== primer: the diagram cannot outrun the citations ===")
     import flowgraph
     import render_primer
-    from render_primer import render
     fresh = verify_primer(copy.deepcopy(base), idx)
     declared_exits = sum(len(s.get("exits") or []) for s in fresh["steps"])
 

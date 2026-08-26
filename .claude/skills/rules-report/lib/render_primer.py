@@ -401,10 +401,10 @@ def render(ans, idx):
   <div class="step-n" aria-hidden="true">{i + 1}</div>
   <div class="step-body">
     <div class="step-head">
-      <h3>{esc(s["heading"])}</h3>
+      <h3>{esc(s.get("heading", ""))}</h3>
       <span class="note-tags"><span class="basis-chip" title="{esc(why)}">{glyph} {esc(s["basis"])}</span></span>
     </div>
-    <p class="step-text">{esc(s["body"])}</p>
+    <p class="step-text">{esc(s.get("body", ""))}</p>
     {checked}
     {f'<div class="cites">{cites}</div>' if cites else ""}
     {f'<div class="exits"><span class="label">Where you go next</span>{exits}</div>' if exits else ""}
@@ -559,10 +559,14 @@ def render(ans, idx):
 
 def _rail_html(ans, steps, weakest_n, jumps):
     """The sticky index. Same furniture as a ruling's, indexing steps not claims."""
+    # `.get`, not `[]`. The verifier already complains about a step with no
+    # heading, and --force exists to look at exactly that document — so every
+    # field the renderer reads has to survive being absent, or the escape hatch
+    # crashes on the only inputs anyone opens it for.
     rows = "".join(
-        f'<a class="rail-note" href="#{esc(s["id"])}" title="{esc(s["heading"])}">'
+        f'<a class="rail-note" href="#{esc(s["id"])}" title="{esc(s.get("heading", ""))}">'
         f'<span class="n">{i + 1}</span>'
-        f'<span class="t">{esc(clip(s["heading"]))}</span></a>'
+        f'<span class="t">{esc(clip(s.get("heading", "")))}</span></a>'
         for i, s in enumerate(steps))
     jump_html = "".join(f'<a class="rail-jump" href="{href}">{esc(label)}</a>'
                         for href, label in jumps)

@@ -931,6 +931,22 @@ MUTANTS = [
          find='''            f'clip-path="url(#fg-box)">' ''' .rstrip(),
          repl='''            f'>' ''' .rstrip(),
          expect='cut at the box edge even if the estimate is wrong'),
+    dict(name='stop normalising rules_checked to strings, so a list of plain '
+              'integers verifies clean and then kills the renderer',
+         file='render_report.py',
+         find='''        refs = [str(x) for x in (item.get("rules_checked") or [])]
+        if refs:
+            item["rules_checked"] = refs
+        elif "rules_checked" in item:
+            item.pop("rules_checked")''',
+         repl='''        refs = [str(x) for x in (item.get("rules_checked") or [])]''',
+         expect='written as numbers verifies AND renders'),
+    dict(name='subscript a step heading the verifier already complained about, so '
+              '--force crashes on the one kind of document it exists for',
+         file='render_primer.py',
+         find='      <h3>{esc(s.get("heading", ""))}</h3>',
+         repl='      <h3>{esc(s["heading"])}</h3>',
+         expect='still renders under --force'),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

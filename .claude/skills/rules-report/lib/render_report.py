@@ -226,8 +226,19 @@ def check_rules_checked(items, idx, problems):
     primer's steps.
     """
     for item in items:
-        for ref in item.get("rules_checked", []) or []:
-            ref = str(ref)
+        # Normalised here, in the one function that already walks these, so no
+        # document kind can verify a list it then cannot render. `rules_checked`
+        # is rendered with " · ".join(), which needs strings — and this check
+        # str()s each ref for the lookup, so a list of plain integers verified
+        # clean and died in the renderer. The verifier certifying an answer it
+        # cannot render is the two halves disagreeing about what a valid answer
+        # is, and rc=0 is what the product sells.
+        refs = [str(x) for x in (item.get("rules_checked") or [])]
+        if refs:
+            item["rules_checked"] = refs
+        elif "rules_checked" in item:
+            item.pop("rules_checked")
+        for ref in refs:
             rdoc, rrid = (ref.split(":", 1) if ":" in ref else (None, ref))
             if not rrid or not idx.get(rrid, rdoc):
                 problems.append(
