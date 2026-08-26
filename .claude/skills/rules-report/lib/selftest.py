@@ -32,6 +32,28 @@ def note(msg):
     print(f"  [note] {msg}")
 
 
+def safely(fn, fallback, label):
+    """Run something that may be broken, turning a crash into a failed check.
+
+    MODULE LEVEL, and that is the point. This started nested inside one check
+    group, so every group written afterwards called into flowgraph bare — and a
+    mutant that breaks the layout took the whole suite down three separate
+    times, reported as "<suite crashed>": detection by traceback rather than by
+    the check whose job it is. A check that only holds while the code is healthy
+    is not a check, and a guard that only exists in one function is a guard the
+    next function will not use.
+
+    Reaches `note` so the exception is visible, and returns a fallback the
+    caller can assert against. Callers must still guard a NEGATIVE assertion
+    with `bool(result)` — an empty fallback satisfies "does not contain X".
+    """
+    try:
+        return fn()
+    except Exception as exc:
+        note(f"{label} raised {type(exc).__name__}: {exc}")
+        return fallback
+
+
 def parser_fidelity():
     """Test parse_doc itself on fixtures.
 
@@ -490,22 +512,6 @@ def primer_invariants(idx):
         return
     base = json.load(open(src, encoding="utf-8"))
 
-    def safely(fn, fallback, label):
-        """Run a drawing step, turning a crash into a failed check.
-
-        Defined up here because the FIRST call into flowgraph is the
-        linear-primer check further down, not the diagram section. Wrapping
-        only the diagram section left that one call bare, so a mutant that
-        breaks the layout took the whole suite down — reported as
-        "<suite crashed>", which is detection by traceback rather than by the
-        check whose job it is. A check that only holds while the code is
-        healthy is not a check.
-        """
-        try:
-            return fn()
-        except Exception as exc:
-            note(f"{label} raised {type(exc).__name__}: {exc}")
-            return fallback
 
     good = verify_primer(copy.deepcopy(base), idx)
     check("the shipped primer verifies clean", not good["_problems"],
@@ -1296,10 +1302,12 @@ def shipped_primers(idx):
                    or f'{len(cites)} citations, all verbatim')
         if not ok:
             continue
-        page = render(ans, idx)
-        _nodes, edges = flowgraph.build(ans["steps"])
+        page = safely(lambda: render(ans, idx), "", f"{name}: render")
+        _nodes, edges = safely(lambda: flowgraph.build(ans["steps"]), ([], []),
+                               f"{name}: flowgraph.build")
         drawn = [e for e in edges if e["kind"] != "broken"]
-        ir = fireworks_ir.build(ans)
+        ir = safely(lambda: fireworks_ir.build(ans), {"arrows": []},
+                    f"{name}: fireworks_ir.build")
         written = sorted(int(n) for n in
                          re.findall(r'class="exit-n">(\d+)</span>', page))
         check(f"{name}: the report, the map and the export agree on every transition",
@@ -1346,9 +1354,14 @@ def committed_diagrams(idx):
             stale.append(f"{name}: never committed")
             continue
         ans = verify_primer(json.load(open(path, encoding="utf-8")), idx)
-        fresh = fireworks_ir.build(ans)
+        # `{}` and not None: the fallback is iterated two lines down, so a
+        # generator that raises would have swapped one crash for another.
+        fresh = safely(lambda: fireworks_ir.build(ans), {},
+                       f"{name}: fireworks_ir.build")
         saved = json.load(open(committed, encoding="utf-8"))
-        if fresh != saved:
+        if not fresh:
+            stale.append(f"{name}: could not be regenerated at all")
+        elif fresh != saved:
             diffs = [k for k in set(fresh) | set(saved) if fresh.get(k) != saved.get(k)]
             stale.append(f"{name}: {', '.join(sorted(diffs))} differ")
     check("every committed diagram matches what this corpus now produces",
@@ -1382,9 +1395,10 @@ def fireworks_export(idx):
         return
     base = json.load(open(src, encoding="utf-8"))
     ans = verify_primer(copy.deepcopy(base), idx)
-    ir = fireworks_ir.build(ans)
-
-    nodes, edges = flowgraph.build(ans["steps"])
+    ir = safely(lambda: fireworks_ir.build(ans), {"nodes": [], "arrows": [], "legend": [],
+                                                  "subtitle": ""}, "fireworks_ir.build")
+    nodes, edges = safely(lambda: flowgraph.build(ans["steps"]), ([], []),
+                          "flowgraph.build")
     drawn = [e for e in edges if e["kind"] != "broken"]
     step_ids = {s["id"] for s in ans["steps"]}
     ir_ids = {n["id"] for n in ir["nodes"]}
@@ -1410,7 +1424,8 @@ def fireworks_export(idx):
     dangling = copy.deepcopy(base)
     dangling["steps"][1]["exits"][2]["goto"] = "nowhere"
     dr = verify_primer(dangling, idx)
-    dir_ = fireworks_ir.build(dr)
+    dir_ = safely(lambda: fireworks_ir.build(dr), {"arrows": []},
+                  "fireworks_ir.build with a dangling goto")
     d_labels = sorted(int(a["label"]) for a in dir_["arrows"])
     check("a transition that cannot be placed is not exported, and renumbers nothing",
           len(d_labels) == len(drawn) - 1 and 5 not in d_labels
@@ -1434,7 +1449,8 @@ def fireworks_export(idx):
     broken = copy.deepcopy(base)
     broken["steps"][0]["exits"][0]["cites"][0]["quote"] = "not in rule 336 at all"
     br = verify_primer(broken, idx)
-    bir = fireworks_ir.build(br)
+    bir = safely(lambda: fireworks_ir.build(br), {"arrows": [], "legend": []},
+                 "fireworks_ir.build with a failed cite")
     flows = {a["id"]: a["flow"] for a in bir["arrows"]}
     check("an unverified transition is exported in the failed class, not its declared one",
           flows.get("t1") == fireworks_ir.FLOW_UNVERIFIED
