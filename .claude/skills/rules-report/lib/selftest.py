@@ -463,6 +463,357 @@ def card_rendering():
               "0</b>" in stats_html(zero[0]["stats"]), zero[0]["name"])
 
 
+def primer_invariants(idx):
+    """The primer document kind: routing, the transition rule, and the diagram.
+
+    A primer is prose, and prose is where a model's fluency does the most
+    damage — so the checks that matter are the ones proving the page cannot
+    assert more than the citations carry. Two properties are new here and
+    neither exists on the ruling path:
+
+      * a transition is a claim, and an uncited one fails verification
+      * the diagram is derived, so it cannot draw an arrow nobody declared
+
+    Both are pinned below, and both are pinned by mutants in mutants.py.
+    """
+    print("\n=== primer: routing ===")
+    import copy
+    import tempfile
+    from render_primer import all_cites, verify_primer
+
+    src = os.path.join(HERE, "hot-fepr-primer.json")
+    if not os.path.exists(src):
+        note("hot-fepr-primer.json missing; skipping the primer suite")
+        return
+    base = json.load(open(src, encoding="utf-8"))
+
+    good = verify_primer(copy.deepcopy(base), idx)
+    check("the shipped primer verifies clean", not good["_problems"],
+          "; ".join(good["_problems"][:2]))
+    cites = all_cites(good)
+    check("and every one of its citations is verbatim",
+          bool(cites) and all(c["verified"] for c in cites),
+          f'{sum(1 for c in cites if c["verified"])}/{len(cites)}')
+
+    # The headline "N/N citations verified verbatim" is the number a reader
+    # takes the page's word on, so it has to count everything the verifier
+    # checked. Counted independently from the raw JSON, and the edge total is
+    # asserted non-zero so the comparison cannot pass vacuously.
+    raw = sum(len(x.get("cites") or []) for x in base["steps"])
+    edge_cites = sum(len(ex.get("cites") or [])
+                     for st in base["steps"] for ex in st.get("exits") or [])
+    raw += edge_cites + sum(len(m.get("cites") or [])
+                            for m in base.get("misconceptions") or [])
+    check("the tally counts steps, transitions AND misconceptions",
+          len(cites) == raw and edge_cites > 0,
+          f"{len(cites)} counted / {raw} in the file, {edge_cites} on transitions")
+
+    # Invariant 9. Two document kinds means a new way to verify the wrong thing:
+    # route a primer through the ruling verifier and every primer-shaped key is
+    # simply unread, producing a confident report about a document nobody wrote.
+    from rules_cli import _kind
+    check("an answer with no `kind` is a ruling",
+          _kind({"holding": {}}, "x") == "ruling")
+    check("`kind: primer` routes to the primer", _kind(base, "x") == "primer")
+    misspelt = False
+    try:
+        _kind({"kind": "primmer"}, "x")
+    except SystemExit:
+        misspelt = True
+    check("an unknown `kind` is refused, never defaulted", misspelt,
+          "defaulting would silently route a typo down the ruling path")
+
+    print("\n=== primer: a transition is a claim ===")
+    # THE property this document kind rests on. An exit is what a reader acts
+    # on at the table, so it may not be asserted more cheaply than a sentence
+    # in a ruling: the default basis is `grounded`, and grounded needs a rule.
+    naked = copy.deepcopy(base)
+    naked["steps"][1]["exits"][0].pop("cites")
+    r = verify_primer(naked, idx)
+    check("an uncited transition fails verification",
+          any("must cite the rule that says so" in p for p in r["_problems"]))
+
+    ghost_edge = copy.deepcopy(base)
+    ghost_edge["steps"][1]["exits"][0]["cites"] = [
+        {"rule": "CR:999.9.z", "quote": "invented"}]
+    r = verify_primer(ghost_edge, idx)
+    check("a fabricated transition citation fails verification",
+          bool(r["_problems"]) and any("999.9.z" in p for p in r["_problems"]))
+
+    misquoted = copy.deepcopy(base)
+    misquoted["steps"][1]["exits"][0]["cites"] = [
+        {"rule": "CR:337.2", "quote": "the item resolves at the end of the turn"}]
+    r = verify_primer(misquoted, idx)
+    check("a transition quoting a real rule inexactly still fails",
+          bool(r["_problems"]),
+          "the rule exists; the words are not in it")
+
+    declared = copy.deepcopy(base)
+    declared["steps"][1]["exits"][0].pop("cites")
+    declared["steps"][1]["exits"][0]["basis"] = "structural"
+    r = verify_primer(declared, idx)
+    check("but a transition may go uncited if it DECLARES itself structural",
+          not r["_problems"], "; ".join(r["_problems"][:2]))
+    # Invariant 4. The concession above must cost something visible, or it is a
+    # free way to launder a guess: min() runs over transitions, not just steps.
+    check("and the page then reports structural as its weakest link",
+          r["_strength"] == "structural", f'-> {r["_strength"]}')
+
+    print("\n=== primer: abstention is audited ===")
+    # Invariant 8. Prose invites filling a gap from memory more than a ruling
+    # does, so a primer's abstentions are held to the same standard.
+    gap_step = copy.deepcopy(base)
+    gap_step["steps"][2]["basis"] = "gap"
+    gap_step["steps"][2].pop("rules_checked", None)
+    r = verify_primer(gap_step, idx)
+    check("a gap STEP must list rules_checked",
+          any("gap step must list rules_checked" in p for p in r["_problems"]))
+
+    gap_edge = copy.deepcopy(base)
+    gap_edge["steps"][2]["exits"][0]["basis"] = "gap"
+    r = verify_primer(gap_edge, idx)
+    check("a gap TRANSITION must list rules_checked",
+          any("gap transition must list rules_checked" in p for p in r["_problems"]))
+
+    ghost_checked = copy.deepcopy(base)
+    ghost_checked["steps"][2]["basis"] = "gap"
+    ghost_checked["steps"][2]["rules_checked"] = ["CR:999.9.z"]
+    r = verify_primer(ghost_checked, idx)
+    check("rules_checked naming a rule that does not exist is refused",
+          any("does not exist at this corpus version" in p for p in r["_problems"]))
+
+    print("\n=== primer: the procedure has to be a procedure ===")
+    import flowgraph as flowgraph_mod
+    dangling = copy.deepcopy(base)
+    dangling["steps"][1]["exits"][2]["goto"] = "s9"
+    r = verify_primer(dangling, idx)
+    check("a goto naming no step is refused",
+          any("is not a step in this primer" in p for p in r["_problems"]),
+          "the diagram is drawn from these, so it would point at nothing")
+
+    orphan = copy.deepcopy(base)
+    for s in orphan["steps"]:
+        for ex in s.get("exits", []):
+            if ex.get("goto") == "s4":
+                ex["goto"] = "s5"
+    r = verify_primer(orphan, idx)
+    check("a step nothing reaches is refused",
+          any("nothing reaches it" in p for p in r["_problems"]))
+
+    sealed = copy.deepcopy(base)
+    for s in sealed["steps"]:
+        for ex in s.get("exits", []):
+            if ex.get("goto") is None:
+                ex["goto"] = "s2"
+    r = verify_primer(sealed, idx)
+    check("a procedure with no way out is refused",
+          any("no way out" in p for p in r["_problems"]))
+
+    dupe = copy.deepcopy(base)
+    dupe["steps"][2]["id"] = "s2"
+    r = verify_primer(dupe, idx)
+    check("duplicate step ids are refused",
+          any("duplicate step id" in p for p in r["_problems"]),
+          "every anchor is #<id>, so the second is unreachable")
+
+    # A primer need not be a procedure at all — "the parts of a card" is a
+    # legitimate linear explainer. The shape checks above must not fire on one,
+    # or the only primers this skill can write are loops.
+    linear = copy.deepcopy(base)
+    for s in linear["steps"]:
+        s.pop("exits", None)
+    r = verify_primer(linear, idx)
+    check("a linear primer with no transitions is still valid",
+          not r["_problems"], "; ".join(r["_problems"][:2]))
+    check("and draws no map, rather than a column of boxes with no arrows",
+          flowgraph_mod.svg(r["steps"]) == "")
+
+    # Untrusted model JSON. Every access below assumes a dict; a list of bare
+    # strings crashed the ruling path once and the traceback hid every problem
+    # found after it. Reported and dropped, so the author sees the whole list.
+    def malformed(mutate, phrase, name):
+        """Verify a deliberately malformed primer; a crash fails the check.
+
+        Catching here is the point. Without it the crash surfaced as
+        "<suite crashed>" in the mutation battery — detected, but by a
+        traceback rather than by the check whose whole job is to notice, and a
+        check that only holds while the code is healthy is not a check.
+        """
+        bad = copy.deepcopy(base)
+        mutate(bad)
+        try:
+            got = any(phrase in p for p in verify_primer(bad, idx)["_problems"])
+        except Exception as exc:
+            got, name = False, name
+            note(f"verify_primer raised {type(exc).__name__}: {exc}")
+        check(name, got)
+
+    malformed(lambda a: a["steps"].append("s6"), "expected an object",
+              "a step that is not an object is reported, not crashed")
+    malformed(lambda a: a["steps"][1].__setitem__("exits", "s3"), "must be a list",
+              "`exits` that is not a list of objects is reported, not crashed")
+
+    print("\n=== primer: the diagram cannot outrun the citations ===")
+    import flowgraph
+    import render_primer
+    from render_primer import render
+    fresh = verify_primer(copy.deepcopy(base), idx)
+    declared_exits = sum(len(s.get("exits") or []) for s in fresh["steps"])
+
+    def safely(fn, fallback, label):
+        """Run a drawing step, turning a crash into a failed check.
+
+        A mutant that breaks the layout made flowgraph raise, which the battery
+        reported as "<suite crashed>" — detection, but by a traceback rather
+        than by the check whose whole job is to notice. A check that only holds
+        while the code is healthy is not a check.
+        """
+        try:
+            return fn()
+        except Exception as exc:
+            note(f"{label} raised {type(exc).__name__}: {exc}")
+            return fallback
+
+    nodes, edges = safely(lambda: flowgraph.build(fresh["steps"]), ([], []),
+                          "flowgraph.build")
+    check("the graph has exactly one edge per declared transition",
+          len(edges) == declared_exits and declared_exits > 0,
+          f"{len(edges)} edges / {declared_exits} exits")
+    check("and exactly one node per declared step",
+          len(nodes) == len(fresh["steps"]), f"{len(nodes)} / {len(fresh['steps'])}")
+    check("every edge lands on a step the primer declares",
+          bool(edges) and all(e["to"] is None or 0 <= e["to"] < len(nodes)
+                              for e in edges))
+
+    page = safely(lambda: render(fresh, idx), "", "render_primer.render")
+    drawn = sorted(int(n) for n in re.findall(r'class="fg-num"[^>]*>(\d+)</text>', page))
+    written = sorted(int(n) for n in re.findall(r'class="exit-n">(\d+)</span>', page))
+    check("every arrow on the map is numbered in the prose beside it",
+          drawn == written and drawn == list(range(1, declared_exits + 1)),
+          f"map {drawn} vs prose {written}")
+
+    # The picture speaks the same language as the chips: a dashed arrow is a
+    # move that follows from the rules cited rather than being written in one
+    # place. Drawing a structural transition solid would overstate it on the
+    # one surface a reader takes in at a glance; dashing a grounded one would
+    # undersell every move the rules do state.
+    plain = safely(lambda: flowgraph.svg(fresh["steps"]), "", "flowgraph.svg")
+    check("an all-grounded primer draws no dashed arrow",
+          bool(plain) and "stroke-dasharray" not in plain)
+    soft = verify_primer(copy.deepcopy(base), idx)
+    soft["steps"][1]["exits"][0]["basis"] = "structural"
+    dashed = safely(lambda: flowgraph.svg(soft["steps"]), "", "flowgraph.svg")
+    check("and a structural transition draws a dashed one",
+          "stroke-dasharray" in dashed)
+
+    mmd = safely(lambda: flowgraph.mermaid(fresh["steps"], fresh["topic"]), "",
+                 "flowgraph.mermaid")
+    ids = {"S_" + s["id"] for s in fresh["steps"]}
+    used = set(re.findall(r"\bS_\w+", mmd))
+    check("the mermaid export names only real steps", bool(used) and used <= ids,
+          f"unknown: {sorted(used - ids)}")
+
+    print("\n=== primer: the render gate ===")
+    # Invariants 1 and 10. A primer has no disposition to downgrade, so the
+    # only honest answer to a broken citation is to publish nothing.
+    broken = copy.deepcopy(base)
+    broken["steps"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+    with tempfile.TemporaryDirectory() as d:
+        bad = os.path.join(d, "bad.json")
+        out = os.path.join(d, "out.html")
+        json.dump(broken, open(bad, "w", encoding="utf-8"))
+
+        r = subprocess.run([sys.executable, os.path.join(HERE, "render_primer.py"), bad, out],
+                           capture_output=True, text=True, cwd=HERE)
+        check("a fabricated primer citation exits non-zero", r.returncode != 0,
+              f"rc={r.returncode}")
+        # Named so one mutant — removing the gate — proves both halves. They
+        # are separate checks because "exited 1" and "wrote nothing" fail
+        # independently: an atomic-write bug satisfies the first and not the second.
+        check("and a fabricated primer citation leaves no page behind",
+              not os.path.exists(out))
+
+        r = subprocess.run([sys.executable, os.path.join(HERE, "rules_cli.py"), "graph", bad],
+                           capture_output=True, text=True, cwd=HERE)
+        check("`graph` refuses to emit a diagram for it too", r.returncode != 0,
+              "a diagram handed to a website must not outrun the gate")
+
+        r = subprocess.run([sys.executable, os.path.join(HERE, "render_primer.py"), bad, out,
+                            "--force"], capture_output=True, text=True, cwd=HERE)
+        forced = os.path.exists(out) and open(out, encoding="utf-8").read()
+        check("--force renders the primer but marks the citation failed",
+              bool(forced) and 'class="stamp bad"' in forced)
+        check("--force says on the page that it must not be relied on",
+              bool(forced) and 'class="forced"' in forced)
+
+    # A primer states no verdict, so the plate words must not appear on it. An
+    # early draft reused the ruling template and shipped a primer headed
+    # UNSETTLED, which reads as a failed answer rather than an explanation.
+    # Invariant 10, on the primer's own write path. The code is the same shape
+    # as the ruling's, which is exactly the reasoning this file exists to
+    # refuse: a property nobody has watched fail on THIS path is not pinned on
+    # it.
+    #
+    # The failure has to land on the WRITE, not before it. A first attempt
+    # crashed render instead (by removing `corpus`) — which left the previous
+    # page intact for the trivial reason that nothing was ever written, so the
+    # check passed with an in-place write live underneath it. os.replace is
+    # what fails here, so render and the temp write both succeed and the only
+    # thing being tested is whether the destination was already truncated.
+    #
+    # Drives render_primer.main() rather than re-implementing the write, so
+    # this tests that module and not this one.
+    import render_primer as _rpw
+    with tempfile.TemporaryDirectory() as d:
+        kept = os.path.join(d, "primer.html")
+        open(kept, "w", encoding="utf-8").write("PREVIOUS GOOD PRIMER")
+        good_src = os.path.join(d, "p.json")
+        json.dump(base, open(good_src, "w", encoding="utf-8"))
+        _real_replace, _real_argv = os.replace, sys.argv
+        try:
+            os.replace = lambda *a, **k: (_ for _ in ()).throw(OSError("disk full"))
+            sys.argv = ["render_primer.py", good_src, kept]
+            try:
+                _rpw.main()
+            except BaseException:
+                pass
+        finally:
+            os.replace, sys.argv = _real_replace, _real_argv
+        check("a failed write leaves the previous primer intact",
+              open(kept, encoding="utf-8").read() == "PREVIOUS GOOD PRIMER",
+              "an in-place open() truncates the destination before it can fail")
+
+    # Print is invisible to every other gate, and the diagram is the part of a
+    # primer most likely to survive as paper on a judge's table. The whole print
+    # inversion works by remapping CSS custom properties, so a colour written as
+    # a literal anywhere in the SVG keeps its dark-ground value on white — which
+    # is exactly the defect that once printed the grounded half of a verdict
+    # line at 2.23:1. flowgraph emits colour ONLY as tokens; this is the check
+    # that keeps it that way.
+    # A two-digit transition number in an 18px box printed with its second
+    # digit on the border. Found on paper, where the box is a hairline rule and
+    # nothing hides it; checked here so it does not have to be found there again.
+    badges = re.findall(r'<rect x="([-\d.]+)" y="[-\d.]+" width="(\d+)"[^>]*/>'
+                        r'<text x="([-\d.]+)"[^>]*class="fg-num"[^>]*>(\d+)</text>', plain)
+    narrow = [n for x, w, _tx, n in badges if int(w) < 11 + 7 * len(n) and len(n) > 1]
+    check("every transition badge is wide enough for its own number",
+          bool(badges) and not narrow,
+          f"{len(badges)} badges, too narrow: {narrow}")
+
+    literals = re.findall(r'(?:fill|stroke)="(#[0-9a-fA-F]{3,8}|rgba?\([^"]*\))"', plain)
+    check("the diagram writes no colour the print sheet cannot remap",
+          bool(plain) and not literals, f"literals: {sorted(set(literals))[:4]}")
+    check("and the primer's own print sheet inverts the map with the page",
+          "@media print" in render_primer._PRIMER_CSS
+          and ".fg-step" in render_primer._PRIMER_CSS[
+              render_primer._PRIMER_CSS.index("@media print"):])
+
+    check("a primer prints no disposition word",
+          not re.search(r'class="disp\b', page) and 'class="verdict ' not in page)
+    check("a primer reports its weakest STEP, not a weakest link",
+          "Weakest step" in page and "Weakest link" not in page)
+
+
 def python_floor():
     """The skill must import on the oldest Python it might meet.
 
@@ -1554,6 +1905,7 @@ def main():
     research_tools(idx)
     metric_consistency(idx)
     rendered_surfaces(idx)
+    primer_invariants(idx)
     python_floor()
 
     print()

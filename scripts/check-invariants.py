@@ -20,7 +20,7 @@ INVARIANTS = {
     "1. A citation never reads verified unless its quote is in the cited rule, verbatim": [
         "verified verbatim", "spliced across a block boundary",
         "fabricated citation exits non-zero", "quote-less citation downgrades",
-        "whitespace-only quote"],
+        "whitespace-only quote", "fabricated primer citation exits non-zero"],
     "2. A citation is attributed to the right rule and the right document": [
         "cited rule keeps its own quote", "ambiguous quote home",
         "normative text outranks", "rejects a CR rule cited as TR",
@@ -30,7 +30,9 @@ INVARIANTS = {
         "legend entry names a symbol"],
     "4. The page never claims more support than the notes carry": [
         "grounded note with no citations", "span cannot claim more support",
-        "gap note is the weakest link"],
+        "gap note is the weakest link",
+        "uncited transition fails verification",
+        "reports structural as its weakest link"],
     "5. Card text is Riot's current text, or is marked as not being it": [
         "override the vendored card text", "EMPTY card index", "missing card"],
     "6. Riot's illustrations are never presented as normative rules": [
@@ -40,16 +42,28 @@ INVARIANTS = {
         "citation dates follow the corpus"],
     "8. A research tool never reports absence it did not establish": [
         "which exists", "rewritten query says so", "finds the rule holding both words",
-        "points at where its content lives", "clause that reverses a rule"],
+        "points at where its content lives", "clause that reverses a rule",
+        "gap STEP must list rules_checked", "gap TRANSITION must list rules_checked"],
     "9. The answer verified is the answer the caller asked for": [
-        "refused, not substituted", "mistaken for the output path"],
+        "refused, not substituted", "mistaken for the output path",
+        "unknown `kind` is refused"],
     "10. A failure never leaves a stale artifact looking current": [
         "failed write leaves the previous ruling intact",
         "rulebook render leaves the previous one intact",
-        "committed rulebook matches", "crash inside render leaves the previous report intact"],
+        "committed rulebook matches", "crash inside render leaves the previous report intact",
+        "leaves no page behind", "failed write leaves the previous primer intact"],
     "11. The corpus is structurally whole": [
         "matches the recorded corpus exactly", "orphaned parents",
         "rendered rulebook is in numeric id order"],
+    # An arrow is absorbed at a glance and audited by nobody, so the diagram is
+    # derived from the transitions the primer already cited. These pin the
+    # derivation in both directions.
+    "12. A diagram draws exactly the transitions the document cites": [
+        "one edge per declared transition", "one node per declared step",
+        "lands on a step the primer declares", "numbered in the prose beside it",
+        "draws no dashed arrow", "structural transition draws a dashed one",
+        "names only real steps", "goto naming no step is refused",
+        "refuses to emit a diagram for it too"],
 }
 
 

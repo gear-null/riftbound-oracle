@@ -694,6 +694,165 @@ MUTANTS = [
          find='                "parent": parent_of(rid),',
          repl='                "parent": (parent_of(rid) if rid.count(".") < 2 else rid + ".nonexistent"),',
          expect='orphaned parents', rebuild=True),
+    # ---- the primer document kind -------------------------------------------
+    # Two kinds means a new way to verify the wrong thing. These pin the two
+    # properties that are new here and exist nowhere on the ruling path: a
+    # transition is a claim, and the diagram is derived from those claims.
+    dict(name='default an unrecognised `kind` to ruling, so a typo routes a primer '
+              'down a path that never reads a single one of its keys',
+         file='rules_cli.py',
+         find='    kind = ans.get("kind", "ruling")\n    if kind not in KINDS:',
+         repl='    kind = ans.get("kind", "ruling")\n    kind = kind if kind in KINDS else "ruling"\n    if False:',
+         expect='unknown `kind` is refused'),
+    dict(name='let a transition assert that the rules send you somewhere without '
+              'citing the rule that says so',
+         file='render_primer.py',
+         find='            if ex["basis"] == "grounded" and not ex.get("cites"):',
+         repl='            if False:',
+         expect='uncited transition fails verification'),
+    dict(name='grade a primer on its steps alone, so a document whose every '
+              'transition is a guess still reports itself grounded',
+         file='render_primer.py',
+         find='    graded += [(s["id"], ex["basis"]) for s in steps for ex in (s.get("exits") or [])]',
+         repl='    graded += []',
+         expect='reports structural as its weakest link'),
+    dict(name='let a transition claim the rules are silent without showing what it searched',
+         file='render_primer.py',
+         find='            if ex["basis"] == "gap" and not ex.get("rules_checked"):\n'
+              '                problems.append(f"{where}: gap transition must list rules_checked")',
+         repl='            if False:\n                pass',
+         expect='gap TRANSITION must list rules_checked'),
+    dict(name='accept a goto naming no step, so the derived diagram draws an arrow to nothing',
+         file='render_primer.py',
+         find='            if goto is not None and goto not in known:',
+         repl='            if False:',
+         expect='goto naming no step is refused'),
+    dict(name='stop noticing a step nothing reaches, leaving an orphan box on the map',
+         file='render_primer.py',
+         find='    for s in steps[1:]:\n        if s.get("id") not in reached:',
+         repl='    for s in []:\n        if s.get("id") not in reached:',
+         expect='step nothing reaches is refused'),
+    dict(name='accept a procedure with no way out, describing a loop play can never leave',
+         file='render_primer.py',
+         find='    if not any(ex.get("goto") is None\n               for s in steps for ex in (s.get("exits") or [])):',
+         repl='    if False:',
+         expect='procedure with no way out is refused'),
+    dict(name='stop checking step ids for uniqueness, so every link to the duplicate '
+              'resolves to the first',
+         file='render_primer.py',
+         find='    check_unique_ids(steps, "step", problems)\n    known = {s.get("id") for s in steps}',
+         repl='    known = {s.get("id") for s in steps}',
+         expect='duplicate step ids are refused'),
+    dict(name="count only a primer's steps in its citation tally, so the headline "
+              'under-reports every transition it verified',
+         file='render_primer.py',
+         find='    for step in ans.get("steps", []):\n        yield step\n'
+              '        for ex in step.get("exits", []) or []:\n            yield ex',
+         repl='    for step in ans.get("steps", []):\n        yield step',
+         expect='counts steps, transitions AND misconceptions'),
+    dict(name='drop a transition from the derived diagram, so the map shows fewer '
+              'moves than the primer declares',
+         file='flowgraph.py',
+         find='            edges.append({\n                "n": n, "from": i, "to": target, "kind": kind,',
+         repl='            if kind == "self":\n                continue\n'
+              '            edges.append({\n                "n": n, "from": i, "to": target, "kind": kind,',
+         expect='one edge per declared transition'),
+    dict(name='number only the transitions that go somewhere, so the map and the '
+              'prose disagree about which arrow is which',
+         file='flowgraph.py',
+         find='            n += 1\n            goto = ex.get("goto")',
+         repl='            goto = ex.get("goto")\n            if goto:\n                n += 1',
+         expect='numbered in the prose beside it'),
+    dict(name='draw every arrow solid, so a transition that merely follows from the '
+              'rules looks like one they state outright',
+         file='flowgraph.py',
+         find='    dash = "" if e["basis"] == "grounded" else \' stroke-dasharray="4 3"\'',
+         repl='    dash = ""',
+         expect='structural transition draws a dashed one'),
+    dict(name='render a primer that failed verification anyway, with no flag asked for',
+         file='render_primer.py',
+         find='    if ans["_problems"] and "--force" not in sys.argv:\n'
+              '        print("VERIFICATION FAILED — refusing to render:", file=sys.stderr)',
+         repl='    if False:\n        print("VERIFICATION FAILED — refusing to render:", file=sys.stderr)',
+         expect='fabricated primer citation'),
+    dict(name='emit a diagram from an unverified primer, handing a website a picture '
+              'this project never stood behind',
+         file='rules_cli.py',
+         find='    if ans["_problems"]:\n        print("VERIFICATION FAILED — not emitting a graph:", file=sys.stderr)',
+         repl='    if False:\n        print("VERIFICATION FAILED — not emitting a graph:", file=sys.stderr)',
+         expect='refuses to emit a diagram for it too'),
+    dict(name='drop the last step from the derived graph, so the map shows fewer '
+              'steps than the primer walks through',
+         file='flowgraph.py',
+         find='             for i, s in enumerate(steps)]',
+         repl='             for i, s in enumerate(steps[:-1])]',
+         expect='one node per declared step'),
+    dict(name='resolve every goto one step off, so each arrow lands on the step '
+              'after the one the primer named',
+         file='flowgraph.py',
+         find='    order = {s["id"]: i for i, s in enumerate(steps)}',
+         repl='    order = {s["id"]: i + 1 for i, s in enumerate(steps)}',
+         expect='lands on a step the primer declares'),
+    dict(name='dash every arrow, so a move the rules state outright looks like an inference',
+         file='flowgraph.py',
+         find='    dash = "" if e["basis"] == "grounded" else \' stroke-dasharray="4 3"\'',
+         repl='    dash = \' stroke-dasharray="4 3"\'',
+         expect='draws no dashed arrow'),
+    dict(name='mangle the mermaid node ids, so the exported graph names steps that '
+              'do not exist',
+         file='flowgraph.py',
+         find='    return "S_" + "".join(ch if ch.isalnum() else "_" for ch in str(step_id))',
+         repl='    return "S_x" + "".join(ch if ch.isalnum() else "_" for ch in str(step_id))',
+         expect='names only real steps'),
+    dict(name='let a step claim the rules are silent without showing what it searched',
+         file='render_primer.py',
+         find='        if s["basis"] == "gap" and not s.get("rules_checked"):',
+         repl='        if False:',
+         expect='gap STEP must list rules_checked'),
+    dict(name='write the primer in place again, so a failure mid-write destroys the '
+              'previous page saved at that path',
+         file='render_primer.py',
+         find='    tmp = out + ".tmp"\n    try:\n        with open(tmp, "w", encoding="utf-8") as fh:\n            fh.write(html_out)\n        os.replace(tmp, out)',
+         repl='    tmp = out + ".tmp"\n    try:\n        with open(out, "w", encoding="utf-8") as fh:\n            raise OSError("disk full")',
+         expect='failed write leaves the previous primer intact'),
+    dict(name='write the diagram colours as literals, so the print sheet cannot remap '
+              'them and a printed map keeps its dark-ground palette on white',
+         file='flowgraph.py',
+         find='''EDGE_COLOUR = {
+    "grounded": "var(--gold-500)",''',
+         repl='''EDGE_COLOUR = {
+    "grounded": "#c8aa6e",''',
+         expect='no colour the print sheet cannot remap'),
+    dict(name='drop the primer print sheet, so the map prints white-on-white',
+         file='render_primer.py',
+         find='@media print{\n .summary,.step:target{background:transparent}\n .topic{color:var(--fg)}',
+         repl='@media screen{\n .summary,.step:target{background:transparent}\n .topic{color:var(--fg)}',
+         expect="print sheet inverts the map"),
+    dict(name='fix the transition badge at one digit wide again, clipping the second '
+              'digit of every transition past nine',
+         file='flowgraph.py',
+         find="    w = 18 if len(str(n)) < 2 else 11 + 7 * len(str(n))",
+         repl="    w = 18",
+         expect='wide enough for its own number'),
+    dict(name='draw a map for a primer that has no transitions, so a linear '
+              'explainer gets a column of boxes with nothing between them',
+         file='flowgraph.py',
+         find='    if not nodes or not any(e["kind"] != "broken" for e in edges):',
+         repl='    if not nodes:',
+         expect='draws no map'),
+    dict(name='assume every step is an object again, so a malformed one crashes '
+              'verification and hides every problem found after it',
+         file='render_primer.py',
+         find='        if not isinstance(item, dict):',
+         repl='        if False:',
+         expect='not an object is reported, not crashed'),
+    dict(name='assume `exits` is a list of objects, so a bare string is iterated '
+              'one character at a time',
+         file='render_primer.py',
+         find='''        if exits is not None and (not isinstance(exits, list)
+                                  or any(not isinstance(x, dict) for x in exits)):''',
+         repl='        if False:',
+         expect='is not a list of objects is reported'),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

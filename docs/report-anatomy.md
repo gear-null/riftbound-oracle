@@ -1,5 +1,9 @@
 # How to read a report
 
+This skill writes two documents. Most of this page describes a **ruling** — the
+answer to a disputed situation. A **primer** explains a mechanic instead, and
+[what differs is at the bottom](#primers).
+
 Every answer is one HTML file in `.claude/skills/rules-report/reports/`. It carries
 its own CSS and JavaScript, so it can be kept or sent on with nothing else attached.
 
@@ -125,3 +129,41 @@ one-word answer is real.
 `UNSETTLED` is a real answer, not a failure. When the rules genuinely don't settle a
 question, saying so with the gap named is more useful than a confident answer you
 cannot check — and it is the one thing a general-purpose chatbot will not give you.
+
+
+## Primers
+
+A primer answers *"how does this work"* rather than *"what happens here"*. It shares
+the masthead, the citation blocks, the rulebook overlay, the basis vocabulary, the
+rail and the print sheet. Four things differ.
+
+**No verdict, no crux.** There is nothing to rule on, so the plate carries the topic
+and a one-line summary instead of a disposition, and no claim is marked load-bearing.
+The metrics beside it are the step count, how many of those steps a rule states
+outright, and the **weakest step**.
+
+**Steps, and the transitions out of them.** Each step is a numbered plate with its
+basis and its citations, followed by *Where you go next*: every condition that sends
+you somewhere else, the step it leads to, and the rule that says so.
+
+**A transition is a claim.** This is the one place a primer is *stricter* than a
+ruling. An exit's default basis is `grounded`, so a transition with no citation fails
+verification outright — it cannot render as confident prose the way a sentence in a
+paragraph could. Declaring `structural` is allowed and honest, and it costs what it
+should: the whole document's confidence drops to structural, and the arrow is drawn
+dashed.
+
+**The map is derived.** The diagram at the top is computed from those same
+transitions, so every arrow on it is one of them and every one of them is on it —
+numbered to match the prose beneath. There is no field in which an author can draw an
+edge. That is what makes a picture publishable here at all: a diagram is the surface a
+reader trusts most and audits least, and this one cannot say anything the citations
+do not. It is [invariant 12](invariants.md), pinned by nine checks.
+
+`rules_cli.py graph <primer.json>` emits the same graph as Mermaid source, for the
+website and for diagramming tools. It refuses on an unverified primer, so a diagram
+can never travel further than its citations.
+
+**A failed citation means no page.** A ruling downgrades to `UNSETTLED` and says so;
+a primer has no verdict to downgrade, so the only honest response is to publish
+nothing. `--force` still writes a marked page for debugging a citation.

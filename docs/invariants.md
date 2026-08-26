@@ -34,6 +34,16 @@ rebuild `rules.json` first. It is a pre-release gate, not an inner loop.
 | 9 | The answer verified is the answer the caller asked for |
 | 10 | A failure never leaves a stale artifact looking current |
 | 11 | The corpus is structurally whole |
+| 12 | A diagram draws exactly the transitions the document cites — no more, no fewer |
+
+Number 12 arrived with the primer, and it is the one that makes a picture
+publishable. A diagram is the surface a reader trusts most and checks least: an
+arrow is absorbed at a glance and never audited the way a sentence is. So the
+graph is *derived* from the transitions the document has already cited, and
+those checks assert the derivation both ways — every arrow drawn is a cited
+transition, and every cited transition is drawn. There is no field in which an
+author can add an edge, which is what makes the picture as good as its
+citations rather than a second, unverified account of the same procedure.
 
 Numbers 8 and 9 look like plumbing and are not. This skill is driven by an agent
 that navigates with `rules_cli.py` and then writes an answer. A tool that
@@ -68,6 +78,6 @@ and how many of those checks are proven. It exits non-zero on a gap.
 
 It is not a claim that the code is defect-free. Coverage of the whole suite is
 about two thirds; the remainder is mostly cosmetic and is listed in
-`docs/known-issues.md`. It is a claim that the eleven statements above are the
+`docs/known-issues.md`. It is a claim that the twelve statements above are the
 ones worth blocking a release on, and that each is currently held up by a check
 that has been seen to fail.

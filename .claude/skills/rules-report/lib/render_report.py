@@ -136,6 +136,136 @@ def place_spans(line, spans):
     return placed, dropped
 
 
+# ── checks shared by every document kind ────────────────────────────────
+#
+# A ruling and a primer are different documents making the same promises about
+# provenance, so these run over both. They were inlined in `verify_answer` until
+# the primer arrived; extracting them was the alternative to a second copy that
+# would drift, which is exactly how three tally comprehensions once disagreed.
+# Each keeps the comment recording the defect it exists to prevent.
+
+
+def check_corpus_stamp(ans, idx, problems):
+    """The masthead's "CR 2026-07-16 · TR 2026-07-16" is provenance.
+
+    It came from the answer file — i.e. from the model — with nothing to check
+    it against. Every rule in the index carries its own version, so a stamp that
+    contradicts the corpus it was verified against is free to detect. With the
+    copy-cite date reading from the same block, both provenance claims on the
+    page derived from unverified input.
+    """
+    for key in ("CR", "TR"):
+        # Scoped PER DOCUMENT. Built across both and reused, the union let a
+        # swapped pair validate: CR stamped with TR's date and vice versa, both
+        # wrong for their own document, and the wrong one reaching the copy-cite
+        # string this file elsewhere calls "the artifact a judge pastes".
+        stamped = {r.get("version") for r in idx.rules.values()
+                   if r.get("doc") == key and r.get("version")}
+        claimed = ans.get("corpus", {}).get(key)
+        if claimed and stamped and claimed not in stamped:
+            problems.append(
+                f"corpus.{key} claims {claimed}, but this index was built from "
+                f'{" / ".join(sorted(stamped))}')
+
+
+def check_considered_rejected(ans, idx, problems):
+    """"Considered and rejected" is read as evidence of thoroughness.
+
+    So an id invented here buys more credibility than one in a note. It reached
+    the page entirely unverified: no quote to check, but the rule must at least
+    exist and be addressed by the document it names.
+    """
+    for i, cr in enumerate(ans.get("considered_rejected", []), 1):
+        # Untrusted model JSON. A list of bare strings used to raise
+        # AttributeError here, and the crash hid every problem found after it —
+        # including a hallucinated quote in a note.
+        if not isinstance(cr, dict):
+            problems.append(
+                f"considered_rejected {i}: expected an object with `rule` and "
+                f"`why`, got {type(cr).__name__}")
+            continue
+        ref = str(cr.get("rule", ""))
+        cdoc, crid = (ref.split(":", 1) if ":" in ref else (None, ref))
+        if not crid:
+            problems.append(f"considered_rejected {i}: no rule id")
+            continue
+        # Resolved WITHOUT the doc filter first, so a wrong prefix reports the
+        # real document instead of "does not exist" — `idx.get` already filters
+        # by doc, which made the mismatch branch unreachable.
+        found = idx.get(crid, cdoc) or idx.get(crid, None)
+        if not found:
+            problems.append(
+                f"considered_rejected {i}: {ref} does not exist at this corpus version")
+        elif cdoc and found["doc"] != cdoc:
+            problems.append(
+                f'considered_rejected {i}: {ref} is in {found["doc"]}, not {cdoc}')
+        elif not cdoc and found["doc"] != "CR":
+            # Same rule the citation path enforces: 790 ids exist only in TR, and
+            # a bare one reads as CR to every reader of the page.
+            problems.append(
+                f'considered_rejected {i}: {ref} exists only in {found["doc"]} — '
+                f'write it as {found["doc"]}:{ref}')
+
+
+def check_card_sections(ans, idx, problems):
+    """Every rule id a resolved card links to must exist at this corpus version."""
+    for c in resolve_cards(ans):
+        for sec in (c.get("rule_sections") or []):
+            if isinstance(sec, str) and not idx.get(str(sec), "CR"):
+                problems.append(
+                    f'card {c.get("name", "?")}: rule_sections names {sec}, which '
+                    "does not exist at this corpus version")
+
+
+def check_rules_checked(items, idx, problems):
+    """`rules_checked` is the evidence an abstention offers for itself.
+
+    A fabricated id here buys the strongest claim in the document: that the
+    rules do not address something. It was rendered as "Rules searched" without
+    ever being checked. Runs over anything id-bearing — a ruling's notes, a
+    primer's steps.
+    """
+    for item in items:
+        for ref in item.get("rules_checked", []) or []:
+            ref = str(ref)
+            rdoc, rrid = (ref.split(":", 1) if ":" in ref else (None, ref))
+            if not rrid or not idx.get(rrid, rdoc):
+                problems.append(
+                    f'{item.get("id", "?")}: rules_checked names {ref}, which does not '
+                    "exist at this corpus version")
+
+
+def check_unique_ids(items, label, problems):
+    """Ids are the addressing scheme, so they have to be unique.
+
+    Every anchor on the page is `#<id>`, and a browser resolves a repeated id to
+    the FIRST match — so a duplicate silently sent every superscript and rail row
+    to the wrong item, while the verifier validated against the second.
+    """
+    ids = [n.get("id") for n in items]
+    dupes = sorted({i for i in ids if i and ids.count(i) > 1})
+    if dupes:
+        problems.append(
+            f"duplicate {label} id(s) {', '.join(dupes)} — every link to them "
+            "resolves to the first, so the others are unreachable")
+
+
+def check_required_keys(ans, keys, problems):
+    """Keys the renderer subscripts with [].
+
+    Verified here rather than discovered as a KeyError halfway through writing
+    the page. The verifier certifying an answer it cannot render is the two
+    halves disagreeing about what a valid answer is, and rc=0 is what the
+    product sells.
+    """
+    for key in keys:
+        if key not in ans:
+            problems.append(f"answer is missing required key {key!r}")
+    for key in ("CR", "TR", "generated"):
+        if isinstance(ans.get("corpus"), dict) and key not in ans["corpus"]:
+            problems.append(f"corpus.{key} is missing")
+
+
 def _check_holding(ans):
     """Enforce the holding line's invariants.
 
@@ -275,90 +405,23 @@ def verify_answer(ans, idx):
             if not _check(c, idx, f"counterargument {i}", problems):
                 ca_failed = True
 
-    # The masthead's "CR 2026-07-16 · TR 2026-07-16" is provenance, and it came
-    # from the answer file — i.e. from the model — with nothing to check it
-    # against. Every rule in the index carries its own version, so a stamp that
-    # contradicts the corpus it was verified against is free to detect. With
-    # the copy-cite date now reading from the same block, both provenance
-    # claims on the page derived from unverified input.
-    for key in ("CR", "TR"):
-        # Scoped PER DOCUMENT. Built across both and reused, the union let a
-        # swapped pair validate: CR stamped with TR's date and vice versa, both
-        # wrong for their own document, and the wrong one reaching the copy-cite
-        # string this file elsewhere calls "the artifact a judge pastes".
-        stamped = {r.get("version") for r in idx.rules.values()
-                   if r.get("doc") == key and r.get("version")}
-        claimed = ans.get("corpus", {}).get(key)
-        if claimed and stamped and claimed not in stamped:
-            problems.append(
-                f"corpus.{key} claims {claimed}, but this index was built from "
-                f'{" / ".join(sorted(stamped))}')
+    check_corpus_stamp(ans, idx, problems)
 
-    # "Considered and rejected" is read as evidence of thoroughness, so an id
-    # invented here buys more credibility than one in a note. It reached the
-    # page entirely unverified: no quote to check, but the rule must at least
-    # exist and be addressed by the document it names.
-    for i, cr in enumerate(ans.get("considered_rejected", []), 1):
-        # Untrusted model JSON. A list of bare strings used to raise
-        # AttributeError here, and the crash hid every problem found after it —
-        # including a hallucinated quote in a note.
-        if not isinstance(cr, dict):
-            problems.append(
-                f"considered_rejected {i}: expected an object with `rule` and "
-                f"`why`, got {type(cr).__name__}")
-            continue
-        ref = str(cr.get("rule", ""))
-        cdoc, crid = (ref.split(":", 1) if ":" in ref else (None, ref))
-        if not crid:
-            problems.append(f"considered_rejected {i}: no rule id")
-            continue
-        # Resolved WITHOUT the doc filter first, so a wrong prefix reports the
-        # real document instead of "does not exist" — `idx.get` already filters
-        # by doc, which made the mismatch branch unreachable.
-        found = idx.get(crid, cdoc) or idx.get(crid, None)
-        if not found:
-            problems.append(
-                f"considered_rejected {i}: {ref} does not exist at this corpus version")
-        elif cdoc and found["doc"] != cdoc:
-            problems.append(
-                f'considered_rejected {i}: {ref} is in {found["doc"]}, not {cdoc}')
-        elif not cdoc and found["doc"] != "CR":
-            # Same rule the citation path enforces: 790 ids exist only in TR, and
-            # a bare one reads as CR to every reader of the page.
-            problems.append(
-                f'considered_rejected {i}: {ref} exists only in {found["doc"]} — '
-                f'write it as {found["doc"]}:{ref}')
+    check_considered_rejected(ans, idx, problems)
 
     # `rules_checked` is the evidence a gap note offers for its abstention, so
     # a fabricated id here buys the strongest claim in the document: that the
     # rules do not address something. It was rendered as "Rules searched"
     # without ever being checked.
-    for c in resolve_cards(ans):
-        for sec in (c.get("rule_sections") or []):
-            if isinstance(sec, str) and not idx.get(str(sec), "CR"):
-                problems.append(
-                    f'card {c.get("name", "?")}: rule_sections names {sec}, which '
-                    "does not exist at this corpus version")
+    check_card_sections(ans, idx, problems)
 
-    for note in ans["notes"]:
-        for ref in note.get("rules_checked", []) or []:
-            ref = str(ref)
-            rdoc, rrid = (ref.split(":", 1) if ":" in ref else (None, ref))
-            if not rrid or not idx.get(rrid, rdoc):
-                problems.append(
-                    f'{note["id"]}: rules_checked names {ref}, which does not '
-                    "exist at this corpus version")
+    check_rules_checked(ans["notes"], idx, problems)
 
     # Every anchor on the page is #<note id>, and a browser resolves a repeated
     # id to the FIRST match — so a duplicate silently sent every superscript and
     # rail row to the wrong note, while the verifier validated spans against the
     # second. Ids are the addressing scheme; they have to be unique.
-    _ids = [n.get("id") for n in ans["notes"]]
-    _dupes = sorted({i for i in _ids if i and _ids.count(i) > 1})
-    if _dupes:
-        problems.append(
-            f"duplicate note id(s) {', '.join(_dupes)} — every link to them "
-            "resolves to the first, so the others are unreachable")
+    check_unique_ids(ans["notes"], "note", problems)
 
     # The keys render() subscripts with [] — verified here rather than
     # discovered as a KeyError halfway through writing the page. The verifier
@@ -370,12 +433,7 @@ def verify_answer(ans, idx):
             f"holding.disposition is {_disp!r}; it must be one of "
             f"{', '.join(DISPOSITIONS)} — it is a CSS class as well as a label")
 
-    for key in ("question", "corpus"):
-        if key not in ans:
-            problems.append(f"answer is missing required key {key!r}")
-    for key in ("CR", "TR", "generated"):
-        if isinstance(ans.get("corpus"), dict) and key not in ans["corpus"]:
-            problems.append(f"corpus.{key} is missing")
+    check_required_keys(ans, ("question", "corpus"), problems)
     for n in ans["notes"]:
         if not n.get("claim"):
             problems.append(f'{n.get("id", "?")}: no claim')
@@ -1401,7 +1459,9 @@ window.addEventListener('afterprint', function(){
     links.forEach(function(l){ l.classList.remove('here'); });
     if(current) map[current].classList.add('here');
   },{rootMargin:'-12% 0px -68% 0px'});
-  document.querySelectorAll('.note').forEach(function(n){ io.observe(n); });
+  // '.step' is a primer's equivalent of a ruling's '.note'. Both use
+  // '.rail-note' links, so one observer serves both documents.
+  document.querySelectorAll('.note, .step').forEach(function(n){ io.observe(n); });
 })();
 
 // Reading a cited rule should not cost you your place in the argument, so the

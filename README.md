@@ -42,6 +42,10 @@ Unchecked Power deals 12 damage to all units at battlefields. Player 2 has
 Viktor, Leader and two Vanguard Sergeants. How many Recruits do they play?
 ```
 
+```
+Explain the HOT FEPR loop as best you can
+```
+
 Your agent looks up the cards, walks the rulebook, writes the answer, verifies it, and opens
 the report. You never run a command.
 
@@ -83,6 +87,14 @@ argument.
 verdict, the weakest link, and every claim in order with the load-bearing one marked. It tracks
 which claim you're reading. Print it and the index drops away, every citation opens, and the
 whole thing inverts to a clean sheet, because judges print these.
+
+**It explains things, not only rules on them.** Ask *how* something works rather than what
+happens in one situation and you get a **primer** instead of a ruling: the procedure as
+numbered steps, every move between them cited, and a diagram of the whole loop. The diagram is
+*derived* from those cited transitions — there is no field an author can draw an arrow in — so
+the picture can never say something the citations don't.
+
+![A primer on the HOT FEPR loop: the five steps down the left, the twelve transitions between them numbered and drawn as arrows, each one cited in the text below](docs/images/primer.png)
 
 **It tells you when it doesn't know.** When the rules genuinely don't settle something, you get
 `UNSETTLED` and a list of what was searched — not a confident guess. Refusal is a rare quality
