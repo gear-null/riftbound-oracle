@@ -717,8 +717,11 @@ MUTANTS = [
     dict(name='grade a primer on its steps alone, so a document whose every '
               'transition is a guess still reports itself grounded',
          file='render_primer.py',
-         find='    graded += [(s["id"], ex["basis"]) for s in steps for ex in (s.get("exits") or [])]',
-         repl='    graded += []',
+         find="""        for ex in s.get("exits") or []:
+            n += 1
+            graded.append((s["id"], ex["basis"], f"transition {n}"))""",
+         repl="""        for ex in s.get("exits") or []:
+            n += 1""",
          expect='reports structural as its weakest link'),
     dict(name="file a transition's basis under its source step, so the page names a "
               'weakest step whose own chip says something else',
@@ -776,8 +779,10 @@ MUTANTS = [
     dict(name='draw every arrow solid, so a transition that merely follows from the '
               'rules looks like one they state outright',
          file='flowgraph.py',
-         find='    dash = "" if e["basis"] == "grounded" else \' stroke-dasharray="4 3"\'',
-         repl='    dash = ""',
+         find="""    dash = (' stroke-dasharray="9 4"' if failed
+            else "" if e["basis"] == "grounded" else ' stroke-dasharray="4 3"')""",
+         repl=(chr(32) * 4 + "dash = ' stroke-dasharray=" + chr(34) + "9 4"
+               + chr(34) + "' if failed else " + chr(34) * 2),
          expect='structural transition draws a dashed one'),
     dict(name='render a primer that failed verification anyway, with no flag asked for',
          file='render_primer.py',
@@ -805,8 +810,9 @@ MUTANTS = [
          expect='lands on a step the primer declares'),
     dict(name='dash every arrow, so a move the rules state outright looks like an inference',
          file='flowgraph.py',
-         find='    dash = "" if e["basis"] == "grounded" else \' stroke-dasharray="4 3"\'',
-         repl='    dash = \' stroke-dasharray="4 3"\'',
+         find="""    dash = (' stroke-dasharray="9 4"' if failed
+            else "" if e["basis"] == "grounded" else ' stroke-dasharray="4 3"')""",
+         repl="""    dash = ' stroke-dasharray="4 3"' """.rstrip(),
          expect='draws no dashed arrow'),
     dict(name='mangle the mermaid node ids, so the exported graph names steps that '
               'do not exist',

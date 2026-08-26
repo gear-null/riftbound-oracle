@@ -1046,7 +1046,13 @@ def primer_invariants(idx):
     # and the map quietly lost a box — recorded only in a list readers skim.
     slotted = copy.deepcopy(base)
     slotted["steps"][2] = "s3"
-    sl = verify_primer(slotted, idx)
+    # The VERIFY call is wrapped too, not only the render. A mutant that
+    # removes the isinstance guard makes verification itself raise, and this
+    # check was the one place still calling it bare — so the battery reported
+    # "<suite crashed>" instead of the two checks that had already gone red by
+    # name a few lines above.
+    sl = safely(lambda: verify_primer(slotted, idx), {"_problems": [], "steps": []},
+                "verify_primer with an unreadable step")
     slpage = safely(lambda: render(sl, idx), "", "render with an unreadable step")
     plates = re.findall(r'<div class="step-n"[^>]*>(\d+)</div>', slpage or "")
     check("an unreadable step keeps its slot rather than renumbering the rest",
