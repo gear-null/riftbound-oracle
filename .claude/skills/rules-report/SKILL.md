@@ -259,6 +259,15 @@ Rules the renderer enforces, so write to them:
 - Confidence is **min()** over steps **and transitions**. A document whose steps are
   all grounded but whose transitions are guesses is a guess about the procedure,
   which is the only thing anyone reads a procedure primer for.
+- **A step's `body` must stay inside what that step cites.** The basis chip is a
+  claim about the whole step — `grounded` reads as *a rule states this in so many
+  words* — so a synthesis across neighbouring steps does not belong in the prose of
+  a grounded one. Either ground it, or say it in a step you have marked
+  `structural`. This is the one place fluency will cost you: the sentence that
+  reads best is often the one drawing on three rules the step never cited.
+- **`in_one_line` is not separately graded.** It is a summary of the steps, so it
+  must not say anything they do not. Unlike a ruling's holding line it carries no
+  typed spans, which makes it the one sentence you have to keep honest yourself.
 - Step ids are the page's anchors, so they must be unique.
 - There is **no disposition and no crux**. A primer states no verdict; if you find
   yourself wanting one, you are writing a ruling.

@@ -62,6 +62,10 @@
       "body": "The oldest pending item goes first: its controller completes the steps of playing it until it is Finalized or leaves the Chain, and items finalize in the order they were appended. Finalizing is bookkeeping, not a window to act in — it does not pass Priority. Note the numbering: the rules call Finalize \"Step 1\", so \"return to step 1\" inside these rules means Finalize, not Handle Outstanding Tasks.",
       "cites": [
         {
+          "rule": "CR:337",
+          "quote": "Step 1: Finalize"
+        },
+        {
           "rule": "CR:337.1",
           "quote": "If there is at least one Chain Item Pending, the controller of the oldest Pending Chain Item must complete the steps of Playing that Pending Item until it is a Finalized Item or leaves the Chain."
         },
@@ -111,7 +115,7 @@
       "id": "s3",
       "heading": "E — Execute",
       "basis": "grounded",
-      "body": "The one step in the loop where a player makes a choice rather than bookkeeping. The player with Priority either plays something legally timed or passes. \"Legally timed\" is the constraint that matters: by default cards and activated abilities cannot be played in a Closed State, so what is legal here is generally something with Reaction.",
+      "body": "The player with Priority chooses: play something legally timed, or pass. Those are the only two options on offer — the rules give the player with Priority this list and nothing else. \"Legally timed\" is the constraint that matters: by default cards and activated abilities cannot be played in a Closed State, so what qualifies here is generally something with Reaction.",
       "cites": [
         {
           "rule": "CR:338.1",
@@ -199,7 +203,7 @@
       "id": "s5",
       "heading": "R — Resolve",
       "basis": "grounded",
-      "body": "Exactly one item resolves — the newest Finalized one — and its effects are executed in their entirety. One item, not the whole Chain: what happens next depends entirely on what is still sitting on it, which is why a three-item Chain runs this loop three times.",
+      "body": "Exactly one item resolves — the newest Finalized one — and its effects are executed in their entirety. One item, not the whole Chain: what happens next depends entirely on what is still sitting on it, and the three transitions below are the whole answer.",
       "cites": [
         {
           "rule": "CR:340.1",

@@ -32,8 +32,8 @@ This project follows [Semantic Versioning](https://semver.org/) and
   nine checks, each proven by a mutant.
 - **`rules_cli.py graph`** emits the same graph as Mermaid source, and refuses on an
   unverified primer.
-- A shipped HOT FEPR primer (CR 332–340, 32 citations, 12 transitions) as the worked
-  example, and 34 new checks with 20 new mutants — 243 checks, 136 mutants, all 12
+- A shipped HOT FEPR primer (CR 332–340, 33 citations, 12 transitions) as the worked
+  example, and 51 new checks with 34 new mutants — 260 checks, 150 mutants, all 12
   invariants pinned.
 
 ## [1.2.1] — 2026-08-20
