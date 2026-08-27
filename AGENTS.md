@@ -109,7 +109,7 @@ copies. Read these before changing the corresponding behaviour:
 | [ADR 0004](docs/adr/0004-the-skill-is-the-product.md) | Why everything is vendored into the skill folder |
 | [ADR 0005](docs/adr/0005-generate-the-rulebook.md) | Why the rulebook is generated, not converted from PDF |
 | [ADR 0006](docs/adr/0006-derive-the-symbol-legend.md) | Why the symbol legend is derived from the rules |
-| [ADR 0007](docs/adr/0007-two-document-kinds.md) | Why there are two document kinds, and why the diagram is derived |
+| [ADR 0008](docs/adr/0008-two-document-kinds.md) | Why there are two document kinds, and why the diagram is derived |
 
 [`docs/maintaining.md`](docs/maintaining.md) has the rules-update procedure, the
 repository layout, and the invariants that must hold when editing the skill —

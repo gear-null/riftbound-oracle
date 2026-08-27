@@ -38,4 +38,4 @@ chosen.
 | [0004](adr/0004-the-skill-is-the-product.md) | The skill is the product; the repo is the workshop |
 | [0005](adr/0005-generate-the-rulebook.md) | Generate the anchored rulebook from the parsed corpus |
 | [0006](adr/0006-derive-the-symbol-legend.md) | Derive the symbol legend from the rules |
-| [0007](adr/0007-two-document-kinds.md) | Two document kinds (ruling, primer), one verification core |
+| [0008](adr/0008-two-document-kinds.md) | Two document kinds (ruling, primer), one verification core |

@@ -1,4 +1,4 @@
-# ADR 0007 — Two document kinds, one verification core
+# ADR 0008 — Two document kinds, one verification core
 
 **Status:** accepted · 2026-08-26
 

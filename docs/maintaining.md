@@ -147,7 +147,7 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   the same answer file.
 - **A diagram is derived or it does not ship.** `flowgraph.py` reads `steps` and
   `exits` and nothing else. Do not add a field that lets an author place an edge, a
-  node or a label — see [ADR 0007](adr/0007-two-document-kinds.md). The same rule
+  node or a label — see [ADR 0008](adr/0008-two-document-kinds.md). The same rule
   governs anything downstream: `graph` refuses on an unverified primer so that a
   picture can never travel further than its citations.
 
