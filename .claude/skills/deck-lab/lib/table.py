@@ -305,7 +305,7 @@ class Table:
         # applied by the reader — including anything that moves the target.
         for bf in self.battlefields:
             if cards.find(bf.name) and cards.text(bf.name).strip():
-                self.note(f"  {bf.name} reads: {cards.text(bf.name)}")
+                self.note(f"  {bf.name} reads: {cards.for_reading(bf.name)}")
         self.note(f"victory score is {self.victory_target} — adjust with `target <n>` if a card changes it")
         return self
 
@@ -532,7 +532,7 @@ class Table:
         p.hand.remove(name)
         p.trash.append(name)
         self.note(f"seat {seat} plays {name}")
-        return cards.text(name)
+        return cards.for_reading(name)
 
     def recycle_card(self, seat, name, from_zone="hand"):
         """Return a card to the bottom of its deck (416)."""
@@ -1002,7 +1002,7 @@ class Table:
         return p.points
 
     def _note_score_trigger(self, bf):
-        trigger = cards.text(bf.name) if cards.find(bf.name) else ""
+        trigger = cards.for_reading(bf.name) if cards.find(bf.name) else ""
         if trigger:
             self.note(f"  {bf.name} reads: {trigger}")
 
@@ -1125,7 +1125,7 @@ class Table:
                     "buffs": u.buffs,
                     "damage": u.damage,
                     "role": role,
-                    "text": cards.text(u.name) if cards.find(u.name) else "",
+                    "text": cards.for_reading(u.name) if cards.find(u.name) else "",
                 }
                 for u in units
             ]
@@ -1170,7 +1170,7 @@ class Table:
         # the numbers — a log that shows both is auditable after the fact.
         for unit in attackers + defenders:
             if cards.find(unit.name) and cards.text(unit.name).strip():
-                self.note(f"  [{unit.id}] {unit.name} ({unit.might}M) reads: {cards.text(unit.name)}")
+                self.note(f"  [{unit.id}] {unit.name} ({unit.might}M) reads: {cards.for_reading(unit.name)}")
 
         # 465.2.c: attacker assigns first, but damage is DEALT simultaneously,
         # so both assignments are computed before either is applied.

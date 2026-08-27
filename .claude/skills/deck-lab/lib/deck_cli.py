@@ -212,7 +212,7 @@ def cmd_card(args):
     print(f"  energy {s['energy']}  power {s['power']}  might {s['might']}")
     if s.get("tags"):
         print(f"  tags: {', '.join(s['tags'])}")
-    print(f"\n  {card['text'] or '(no text)'}")
+    print(f"\n  {cards.space_seams(card['text']) or '(no text)'}")
     if card.get("incomplete"):
         print(f"\n  INCOMPLETE: {card['incomplete']}")
 

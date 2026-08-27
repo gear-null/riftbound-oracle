@@ -71,7 +71,7 @@ def hand_lines(t, seat, show_text=True):
             line += f"  [{cards.might(name)}M]"
         out.append(line)
         if cards.has_text(name) and (show_text is True and t.first_sight(name) or show_text == "always"):
-            for chunk in _wrap(cards.text(name), 62):
+            for chunk in _wrap(cards.for_reading(name), 62):
                 out.append(f"                  {chunk}")
         if not payable:
             out.append(f"                  ({why})")
@@ -137,7 +137,7 @@ def render(t, seat=None, full=False, verbose=False):
         # Printed once, like a card's. It is in the setup log too, and it does
         # not change; `--verbose` brings it back.
         if cards.find(bf.name) and cards.has_text(bf.name) and (verbose or t.first_sight(bf.name)):
-            for chunk in _wrap(cards.text(bf.name), 66):
+            for chunk in _wrap(cards.for_reading(bf.name), 66):
                 lines.append(f"    {chunk}")
         here = t.at(bf.location)
         if here:

@@ -201,6 +201,34 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   short-circuiting the citation loop, where a failing quote hid every
   fabrication after it in the same block.
 
+- **To find every site, trace routes to output — do not enumerate callers.** Both
+  answer "where does this reach a human", and only one of them is honest. Grepping
+  `cards.text(` finds sites that *name* the function; it cannot find
+  `deck_cli.py:155`, which prints card text and never mentions the function that
+  produced it, because the value arrived in a dict from somewhere else. The
+  route-tracing sweep — walk every `json.dump`, every `.write(`, every serialiser,
+  every `["text"]` — found that one plus three tails the caller list had no way to
+  raise: whether the HTML report prints text or only counts, whether `--json`
+  exposes it, and whether it is persisted into saved games (it is not, so there is
+  no migration).
+
+  This is the guard sweep's lesson one level up: a search shaped like the code you
+  expect cannot see code written another way. Enumerating callers is the cheap
+  first pass; it is not the coverage argument.
+
+- **Pin a measured pattern against being made NARROWER, not only wider.** The
+  widenings are the ones you go looking for, so they get guarded. The tightening
+  arrives disguised as tidying: `[)\]][A-Z]` looks careless, and requiring a
+  lowercase tail after the capital looks like an obvious improvement. It silently
+  drops 20 cards, because Riftbound speaks in the first person and the sentence
+  after the seam opens on a bare `I` — `…enter ready.)I have [Assault]…`. That is
+  not hypothetical: two independent measurements of the same defect disagreed by
+  exactly that set before anyone noticed the tail was doing it.
+
+  Any regex encoding a measured decision can be improved into a worse one by
+  someone cleaning it up. If the measurement was worth making, mutate the
+  tightening too, and let the check name the set that would be lost.
+
 - **Never match on `str(exception)`; match on `err.args[0]`.** `str(KeyError(msg))`
   is `repr(msg)`, and `repr` picks its wrapper from the content. A message holding
   only single quotes comes back wrapped in double ones, inner quotes intact, so a
