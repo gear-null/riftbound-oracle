@@ -27,6 +27,7 @@ copy of the whole skill folder. That is not fastidiousness: an earlier review
 sweep ran a truncating build whose output path resolved back to the real
 `data/rules.html` and destroyed it.
 """
+import json
 import os
 import re
 import shutil
@@ -1521,7 +1522,12 @@ def run_one(m):
         if hit:
             # The RAW line, unsplit. Also keep the [FAIL] lines, which carry
             # each name intact and are immune to the join.
-            failed = [hit.group(1).strip()]
+            # Tagged, because this is the joined "N of M: a, b, c" line and NOT
+            # a check name. `caught` still matches inside it; the proven-record
+            # must not, or it banks a comma-joined blob as though it were one
+            # check. That is how the first record came out with 361 entries for
+            # 298 checks.
+            failed = ["<verdict> " + hit.group(1).strip()]
             failed += re.findall(r"^\s*\[FAIL\]\s*(.+?)(?:\s+—.*)?$", r.stdout, re.M)
             return failed, None
         if r.returncode != 0:
@@ -1532,11 +1538,91 @@ def run_one(m):
         return [], None
 
 
+def preflight():
+    """Does the suite run the SAME checks inside the battery's copy?
+
+    The copy omits `reports` and caches. A check that reads a fixture from one
+    of those — rather than constructing what it needs — silently does not run
+    here, and every mutant it exists to catch then walks past a green suite
+    reporting itself caught.
+
+    This is not hypothetical. The whole export group did exactly that: it read
+    `reports/flow-counter.html`, called `note()` when it was missing, and
+    returned. Ten mutants survived while each one verified as caught by hand —
+    both results true, because the fixture was sitting on the author's disk and
+    absent here. Only this comparison can see it, because only this copy takes
+    the fixture away.
+
+    Costs one extra suite run per battery, once, not per mutant. Credit to
+    riftbound-oracle-c6, who built it on the deck-lab side after I reported the
+    failure and offered it rather than waiting for me to be bitten again.
+    """
+    def count(cwd):
+        r = subprocess.run([sys.executable, os.path.join(cwd, "selftest.py")],
+                           capture_output=True, text=True, cwd=cwd)
+        m = re.search(r"all (\d+) checks passed", r.stdout)
+        if m:
+            return int(m.group(1))
+        m = re.search(r"FAILED \d+ of (\d+)", r.stdout)
+        return int(m.group(1)) if m else -1
+
+    here = count(HERE)
+    with tempfile.TemporaryDirectory() as tmp:
+        skill = os.path.join(tmp, "rules-report")
+        shutil.copytree(SKILL, skill, ignore=shutil.ignore_patterns(
+            "reports", "__pycache__", "*.tmp"))
+        there = count(os.path.join(skill, "lib"))
+    if here != there:
+        print(f"  PREFLIGHT FAILED: {here} checks run normally, {there} inside "
+              "the battery's copy.\n  Some check reads a fixture the copy omits, "
+              "so it is invisible to every mutant\n  below. Construct what it "
+              "needs instead of reading a directory.")
+        return False
+    print(f"  preflight: {here} checks run in both environments\n")
+    return True
+
+
+PROVEN = os.path.join(HERE, "proven-checks.json")
+
+
+def _record_proven(names):
+    """Write down which checks have actually been SEEN to fail.
+
+    A record is the natural home for stale credit: a check gets renamed, the
+    old name lingers, and the ratio keeps counting a proof nobody has repeated.
+    So the reader intersects with the checks that exist today rather than
+    trusting the file, and a name that no longer matches is simply dropped —
+    renaming a check lowers the ratio until the battery has watched the new one
+    fail, which is the honest direction for that pressure to point.
+    """
+    try:
+        with open(PROVEN, "w", encoding="utf-8") as fh:
+            json.dump(sorted(names), fh, indent=1)
+        print(f"\n  recorded {len(names)} check(s) observed to fail -> "
+              f"{os.path.basename(PROVEN)}")
+    except OSError as err:
+        print(f"\n  (could not record which checks failed: {err})")
+
+
 def main():
     print("mutation battery — reintroducing defects the suite claims to catch\n")
+    if not preflight():
+        sys.exit(1)
     survived, stale, crashes = [], [], []
+    # Every check name the battery WATCHES go red, across all mutants. The
+    # suite reports its proven ratio from this record.
+    #
+    # It used to derive that ratio by matching each mutant's `expect` against
+    # check names, which counts CLAIMS. A claim can be false — ten of mine were,
+    # for a group that never ran — and it also under-counts, because one mutant
+    # usually reddens several checks and `expect` names only one. Wrong in both
+    # directions from the same technique, which is the tell that it was
+    # measuring something unrelated to the question.
+    reddened = set()
     for i, m in enumerate(MUTANTS, 1):
         failures, err = run_one(m)
+        reddened.update(f for f in failures
+                        if not f.startswith(("<suite crashed>", "<verdict>")))
         if err:
             stale.append((m["name"], err))
             print(f"  [STALE] {i:2}. {m['name']}\n           {err}")
@@ -1574,6 +1660,7 @@ def main():
         print(f"{len(survived)} of {len(MUTANTS)} mutants SURVIVED — the named check "
               "passes while its defect is live.")
         bad += survived
+    _record_proven(reddened)
     if bad:
         # Exits non-zero for stale and crashed too. Only `survived` used to
         # fail, so a battery in which nothing meaningful ran still printed

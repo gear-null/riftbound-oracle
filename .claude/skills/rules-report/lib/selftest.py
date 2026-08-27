@@ -3422,19 +3422,39 @@ def main():
 
 
 def _proof_summary():
-    """How many checks have actually been seen to fail. Never blocks a run."""
+    """How many checks the battery has actually WATCHED fail. Never blocks a run.
+
+    Read from `proven-checks.json`, which `mutants` writes with the names it saw
+    go red. The first version of this derived the number by matching each
+    mutant's `expect` against check names — that counts CLAIMS, and a claim can
+    be false: ten of mine were, for a group that never ran inside the battery.
+    It under-counts too, since one mutant usually reddens several checks and
+    `expect` names one. Wrong in both directions from one technique, which is
+    how you tell it was measuring something else.
+
+    Intersected with the checks that exist NOW, so a renamed check drops its old
+    credit rather than carrying a proof nobody has repeated.
+    """
     try:
-        import re as _re
-        from mutants import MUTANTS
+        import json as _json, re as _re
         names = set(_re.findall(r'check\(\s*"([^"]{6,})"', open(__file__).read()))
-        expects = [m["expect"] for m in MUTANTS]
-        proven = sum(1 for n in names if any(e in n for e in expects))
-        return (f"  of {len(names)} distinct checks, {proven} have been observed "
-                f"to fail ({proven * 100 // max(len(names), 1)}%). The rest hold "
-                f"today and have never been tested against a defect — run "
-                f"`mutants` to move that number.")
+        path = os.path.join(HERE, "proven-checks.json")
+        if not os.path.exists(path):
+            return (f"  {len(names)} distinct checks. How many have been OBSERVED "
+                    f"to fail is unknown here — no record yet; run `mutants` to "
+                    f"write one. Unknown is not zero, and it is not fine either.")
+        with open(path, encoding="utf-8") as fh:
+            recorded = set(_json.load(fh))
+        proven = names & recorded
+        forgotten = len(recorded - names)
+        note_ = (f", {forgotten} recorded name(s) no longer exist and were dropped"
+                 if forgotten else "")
+        return (f"  of {len(names)} distinct checks, {len(proven)} have been "
+                f"watched to fail ({len(proven) * 100 // max(len(names), 1)}%)"
+                f"{note_}. The rest hold today and have never been tested against "
+                f"a defect — run `mutants` to move that number.")
     except Exception as exc:
-        return f"  (could not compute how many checks are proven: {exc})"
+        return f"  (could not read which checks are proven: {exc})"
     sys.exit(0)
 
 
