@@ -1,0 +1,87 @@
+{
+  "name": "rk-ambush",
+  "legend": "Renekton - Butcher of the Sands",
+  "chosen_champion": "Renekton, Brute",
+  "main": [
+    {
+      "name": "Inferna",
+      "qty": 3
+    },
+    {
+      "name": "Gemhand Hunter",
+      "qty": 3
+    },
+    {
+      "name": "Grim Apothecary",
+      "qty": 3
+    },
+    {
+      "name": "Nidalee - Cat Form",
+      "qty": 3
+    },
+    {
+      "name": "Rengar - Trophy Hunter",
+      "qty": 2
+    },
+    {
+      "name": "Here to Help",
+      "qty": 3
+    },
+    {
+      "name": "Dragonsoul Sage",
+      "qty": 3
+    },
+    {
+      "name": "Fresh Beans",
+      "qty": 3
+    },
+    {
+      "name": "Forsaken Baccai",
+      "qty": 3
+    },
+    {
+      "name": "Pit Rookie",
+      "qty": 3
+    },
+    {
+      "name": "Oasis Raider",
+      "qty": 2
+    },
+    {
+      "name": "Renekton, Brute",
+      "qty": 1
+    },
+    {
+      "name": "Against the Odds",
+      "qty": 3
+    },
+    {
+      "name": "Consuming Curse",
+      "qty": 3
+    },
+    {
+      "name": "Ruthless Strike",
+      "qty": 2
+    }
+  ],
+  "runes": [
+    {
+      "name": "Body Rune",
+      "qty": 12
+    }
+  ],
+  "battlefields": [
+    {
+      "name": "Threshold of the Gray",
+      "qty": 1
+    },
+    {
+      "name": "Trifarian War Camp",
+      "qty": 1
+    },
+    {
+      "name": "Fortified Position",
+      "qty": 1
+    }
+  ]
+}

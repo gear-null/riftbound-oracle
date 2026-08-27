@@ -243,7 +243,51 @@ export function keysFor(displayName: string): string[] {
  * from the symbol legend, whose token scan saw four characters instead of one.
  */
 export function cardText(card: RiftcodexCard): string {
-  return decodeEntities((card.text?.plain ?? "").trim());
+  return stripTrailingArtifact(decodeEntities((card.text?.plain ?? "").trim())).text;
+}
+
+/**
+ * Remove a stray token welded onto the end of a card's text.
+ *
+ * `Gemhand Hunter` arrives as `…(While you have 6+ XP, get the effect.)ambush` —
+ * a bare lowercase word fused to the closing paren with no separator. It is the
+ * only card in the pool shaped like that.
+ *
+ * It is NOT a mangled keyword and must not be repaired into one. All 19 genuine
+ * Ambush entries are bracketed, sit at the START of the text, and carry the
+ * reminder "(You may play me as a [Reaction] to a battlefield where you have
+ * units.)"; this has none of those properties. Bracketing it would invent an
+ * ability the card does not have, which is the exact failure this project
+ * exists to prevent — and it already cost real work: two agents built and
+ * piloted decks around a keyword `Gemhand Hunter` never had.
+ *
+ * The match is anchored to the end of the string and requires the fusion, so it
+ * cannot eat legitimate prose. Every removal is returned so the build can
+ * REPORT it: silently deleting text is its own way of asserting something about
+ * a card, and a second occurrence should be seen rather than swallowed.
+ *
+ * NARROW ON PURPOSE, and it must stay narrow. The intended companion is a
+ * corpus-integrity check on the rules-report side that scans for the same
+ * artifact signature UNANCHORED, deliberately wider than this. That check does
+ * NOT exist yet — it is owed, and it belongs on the rules-report side rather
+ * than here. `docs/known-issues.md` tracks the class as open. This paragraph
+ * described it in the present tense before it was written, which is worse than
+ * saying nothing: it told the next maintainer that a wider net was already
+ * catching what this function misses, and nothing was.
+ *
+ * The asymmetry is the point, whenever it does land: deletion is the operation
+ * that can destroy a real card's rules text, so it stays conservative;
+ * reporting cannot destroy anything, so it casts wide. If that detector ever
+ * fires on something this function leaves alone, that is the check working. Go
+ * and look at the card. Do NOT widen this to make the detector green — a
+ * stripper widened until its detector agrees is a stripper with no detector,
+ * because a check derived from the thing it checks can only ever find what that
+ * thing already does.
+ */
+export function stripTrailingArtifact(text: string): { text: string; removed?: string } {
+  const m = /([).!])([a-z]{3,})$/.exec(text);
+  if (!m) return { text };
+  return { text: text.slice(0, m.index + 1), removed: m[2] };
 }
 
 /**
@@ -320,9 +364,13 @@ export function buildCardIndex(
   });
 
   const erratumUsed = new Set<string>();
+  const artifacts: string[] = [];
   for (const card of ordered) {
     const display = card.name.replace(/\s*\(.*?\)\s*$/, "").trim();
-    const body = cardText(card);
+    const raw = decodeEntities((card.text?.plain ?? "").trim());
+    const stripped = stripTrailingArtifact(raw);
+    if (stripped.removed) artifacts.push(`${display}: "${stripped.removed}"`);
+    const body = stripped.text;
     let entry: SkillCard = { name: display, text: body, stats: cardStats(card) };
     const gap = missingText(card, body);
     if (gap) entry.incomplete = gap;
@@ -368,6 +416,11 @@ export function buildCardIndex(
 
   for (const [key, names] of namesFor) {
     if (names.size > 1) index[key].ambiguous = [...names].sort();
+  }
+  if (artifacts.length) {
+    console.warn(
+      `  stripped ${artifacts.length} trailing extraction artifact(s): ${artifacts.join(", ")}`
+    );
   }
   return index;
 }

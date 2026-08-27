@@ -144,8 +144,6 @@
   "meta": true,
   "fetched": "2026-08-24"
  },
- "championCandidates": [
-  "Leona, Determined",
-  "Leona, Zealot"
- ]
+ "chosen_champion": "Leona, Determined",
+ "chosen_champion_note": "chosen by the maintainer, not by the source: the list legally runs 2x Leona, Determined and 2x Leona, Zealot, and only the pilot knows which sat in the Champion Zone. Picked the one with the most copies (ties to the cheaper). Change it if you know better."
 }

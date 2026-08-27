@@ -129,8 +129,6 @@
   "meta": true,
   "fetched": "2026-08-24"
  },
- "championCandidates": [
-  "Ahri, Alluring",
-  "Ahri, Inquisitive"
- ]
+ "chosen_champion": "Ahri, Inquisitive",
+ "chosen_champion_note": "chosen by the maintainer, not by the source: the list legally runs 3x Ahri, Inquisitive and 2x Ahri, Alluring, and only the pilot knows which sat in the Champion Zone. Picked the one with the most copies (ties to the cheaper). Change it if you know better."
 }

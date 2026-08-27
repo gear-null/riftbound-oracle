@@ -1,0 +1,91 @@
+{
+ "name": "rengar-sands-v6-control",
+ "legend": "Rengar - Pridestalker",
+ "chosen_champion": "Rengar, Trophy Hunter",
+ "main": [
+  {
+   "name": "Mischievous Marai",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 3
+  },
+  {
+   "name": "Legion Marauder",
+   "qty": 3
+  },
+  {
+   "name": "Crackshot Corsair",
+   "qty": 3
+  },
+  {
+   "name": "Buhru Captain",
+   "qty": 3
+  },
+  {
+   "name": "Nilah - Joyful Ascetic",
+   "qty": 3
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 1
+  },
+  {
+   "name": "Consuming Curse",
+   "qty": 3
+  },
+  {
+   "name": "Incinerate",
+   "qty": 2
+  },
+  {
+   "name": "Confront",
+   "qty": 3
+  },
+  {
+   "name": "Repulse",
+   "qty": 2
+  },
+  {
+   "name": "Stare Down",
+   "qty": 2
+  },
+  {
+   "name": "Disposal Order",
+   "qty": 2
+  },
+  {
+   "name": "Ruthless Strike",
+   "qty": 3
+  },
+  {
+   "name": "Sudden Storm",
+   "qty": 2
+  },
+  {
+   "name": "Punch First",
+   "qty": 2
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 12
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Grove of the God-Willow",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  },
+  {
+   "name": "Fortified Position",
+   "qty": 1
+  }
+ ]
+}

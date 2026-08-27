@@ -1,0 +1,33 @@
+{
+ "name": "Renekton Empower v1",
+ "legend": "Renekton - Butcher of the Sands",
+ "chosen_champion": "Renekton, Brute",
+ "main": [
+  { "name": "Determined Sentry", "qty": 3 },
+  { "name": "Pit Rookie", "qty": 3 },
+  { "name": "Inferna", "qty": 3 },
+  { "name": "Dragonsoul Sage", "qty": 2 },
+  { "name": "Irresistible Faefolk", "qty": 2 },
+  { "name": "Nidalee - Cat Form", "qty": 3 },
+  { "name": "Brutal Hunter", "qty": 3 },
+  { "name": "Kinkou Initiate", "qty": 3 },
+  { "name": "First Mate", "qty": 2 },
+  { "name": "Noxus Hopeful", "qty": 3 },
+  { "name": "Kai'Sa, Survivor", "qty": 2 },
+  { "name": "Renekton, Brute", "qty": 1 },
+  { "name": "Punch First", "qty": 3 },
+  { "name": "Dominus", "qty": 2 },
+  { "name": "Rampage", "qty": 2 },
+  { "name": "Sabotage", "qty": 2 },
+  { "name": "Challenge", "qty": 1 }
+ ],
+ "runes": [
+  { "name": "Body Rune", "qty": 9 },
+  { "name": "Fury Rune", "qty": 3 }
+ ],
+ "battlefields": [
+  { "name": "Emperor's Dais", "qty": 1 },
+  { "name": "Seat of Power", "qty": 1 },
+  { "name": "Star Spring", "qty": 1 }
+ ]
+}

@@ -1,0 +1,83 @@
+{
+  "name": "Renekton Empower Thresholds",
+  "legend": "Renekton - Butcher of the Sands",
+  "chosen_champion": "Renekton, Brute",
+  "main": [
+    {
+      "name": "Legion Marauder",
+      "qty": 3
+    },
+    {
+      "name": "Punching Poro",
+      "qty": 3
+    },
+    {
+      "name": "Dragonsoul Sage",
+      "qty": 3
+    },
+    {
+      "name": "Brutal Hunter",
+      "qty": 3
+    },
+    {
+      "name": "Ambessa, The Wolf",
+      "qty": 3
+    },
+    {
+      "name": "Baccai Witherclaw",
+      "qty": 3
+    },
+    {
+      "name": "Renekton, Brute",
+      "qty": 3
+    },
+    {
+      "name": "Baccai Sandspinner",
+      "qty": 2
+    },
+    {
+      "name": "Blood Rush",
+      "qty": 3
+    },
+    {
+      "name": "Guttural Roar",
+      "qty": 3
+    },
+    {
+      "name": "Dominus",
+      "qty": 2
+    },
+    {
+      "name": "Onslaught",
+      "qty": 3
+    },
+    {
+      "name": "Mobilize",
+      "qty": 3
+    },
+    {
+      "name": "Tools of Empire",
+      "qty": 3
+    }
+  ],
+  "runes": [
+    {
+      "name": "Body Rune",
+      "qty": 12
+    }
+  ],
+  "battlefields": [
+    {
+      "name": "Risen Altar",
+      "qty": 1
+    },
+    {
+      "name": "Trifarian War Camp",
+      "qty": 1
+    },
+    {
+      "name": "Startipped Peak",
+      "qty": 1
+    }
+  ]
+}

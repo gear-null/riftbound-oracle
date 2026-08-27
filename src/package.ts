@@ -35,7 +35,48 @@ import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
 export const SKILL_SRC = ".claude/skills/rules-report";
+export const DECK_LAB_SRC = ".claude/skills/deck-lab";
 export const DIST_DIR = "dist";
+
+/**
+ * A skill that ships.
+ *
+ * The repo grew a second product — `deck-lab` — and packaging stayed hardcoded
+ * to the first, so the CI job proving a registry install works covered one of
+ * the two and `install.sh` could not fetch the other at all. Everything that
+ * differs between them lives here: what corpus proves the folder is complete,
+ * what the manifest should record, and which CLI proves the install works.
+ */
+export interface SkillSpec {
+  name: string;
+  dir: string;
+  /** Files without which the folder is not a working skill. */
+  requires: string[];
+  /** How to rebuild the missing corpus, shown when `requires` fails. */
+  buildHint: string;
+  /** The selftest an installer runs to prove the copy works. */
+  verify: string;
+  describe(skillDir: string, version: string): SkillManifest;
+}
+
+export const SKILLS: Record<string, SkillSpec> = {
+  "rules-report": {
+    name: "rules-report",
+    dir: SKILL_SRC,
+    requires: ["data/rules.json", "data/cards.json"],
+    buildHint: "npm run oracle skill-data && (cd .claude/skills/rules-report/lib && python3 rules_cli.py build)",
+    verify: "python3 rules_cli.py selftest",
+    describe: describeRulesReport,
+  },
+  "deck-lab": {
+    name: "deck-lab",
+    dir: DECK_LAB_SRC,
+    requires: ["data/cards.json", "gauntlet"],
+    buildHint: "npm run oracle skill-data && npm run oracle decks pull",
+    verify: "python3 deck_cli.py selftest",
+    describe: describeDeckLab,
+  },
+};
 
 /** Build outputs and caches that must not travel with the skill. */
 const EXCLUDE = new Set(["reports", "__pycache__", "rules.db", ".DS_Store"]);
@@ -47,14 +88,44 @@ export interface SkillManifest {
   name: string;
   version: string;
   built_from: string;
+  /**
+   * How an installed copy checks itself: a complete command, run from the
+   * skill's `lib/`.
+   *
+   * The packager's registry already knew this; the archive did not, so anything
+   * downstream that wanted to verify an install had to hard-code a per-skill
+   * command and silently skipped whatever it had not been told about. Shipping
+   * it means a consumer can verify a skill it has never heard of.
+   */
+  verify: string;
+  cards: number;
+  /** rules-report only. */
+  rules_version?: string;
+  rules?: number;
+  cards_awaiting_transcription?: number;
+  /** deck-lab only — a gauntlet of tournament lists goes stale on its own clock. */
+  gauntlet_decks?: number;
+  gauntlet_pulled?: string;
+}
+
+/**
+ * rules-report's manifest, with its own fields required.
+ *
+ * The changelog diffs rule and card counts release to release, so those cannot
+ * be optional at that call site even though the shared shape allows it.
+ */
+export interface RulesReportManifest extends SkillManifest {
   rules_version: string;
   rules: number;
-  cards: number;
   cards_awaiting_transcription: number;
 }
 
 /** Read the corpus the skill actually carries, so the manifest is not asserted. */
-export function describeSkill(skillDir: string, version: string): SkillManifest {
+export function describeSkill(skillDir: string, version: string): RulesReportManifest {
+  return describeRulesReport(skillDir, version);
+}
+
+function describeRulesReport(skillDir: string, version: string): RulesReportManifest {
   const rules = JSON.parse(readFileSync(join(skillDir, "data/rules.json"), "utf-8"));
   const cards = JSON.parse(readFileSync(join(skillDir, "data/cards.json"), "utf-8"));
   const names = new Set(Object.values(cards).map((c) => (c as { name: string }).name));
@@ -67,10 +138,45 @@ export function describeSkill(skillDir: string, version: string): SkillManifest 
     name: "rules-report",
     version,
     built_from: "https://github.com/gear-null/riftbound-oracle",
+    verify: SKILLS["rules-report"].verify,
     rules_version: rules[0]?.version ?? "unknown",
     rules: rules.length,
     cards: names.size,
     cards_awaiting_transcription: awaiting.size,
+  };
+}
+
+/**
+ * What a deck-lab install actually carries.
+ *
+ * There is no rulebook here, so the traceable facts are different: how many
+ * cards it can resolve, and how stale its gauntlet is. A gauntlet of tournament
+ * decklists goes out of date on its own schedule, and an installed copy is cut
+ * off from the repo that could tell it so — hence the pull date.
+ */
+function describeDeckLab(skillDir: string, version: string): SkillManifest {
+  const cards = JSON.parse(readFileSync(join(skillDir, "data/cards.json"), "utf-8"));
+  const names = new Set(Object.values(cards).map((c) => (c as { name: string }).name));
+
+  const gauntletDir = join(skillDir, "gauntlet");
+  const decks = existsSync(gauntletDir)
+    ? readdirSync(gauntletDir).filter((f) => f.endsWith(".json"))
+    : [];
+  let pulled = "unknown";
+  for (const file of decks) {
+    const deck = JSON.parse(readFileSync(join(gauntletDir, file), "utf-8"));
+    const fetched = deck?.source?.fetched;
+    if (typeof fetched === "string" && (pulled === "unknown" || fetched > pulled)) pulled = fetched;
+  }
+
+  return {
+    name: "deck-lab",
+    version,
+    built_from: "https://github.com/gear-null/riftbound-oracle",
+    verify: SKILLS["deck-lab"].verify,
+    cards: names.size,
+    gauntlet_decks: decks.length,
+    gauntlet_pulled: pulled,
   };
 }
 
@@ -84,38 +190,68 @@ function stampRecursively(dir: string): void {
 }
 
 export interface PackageOptions {
+  /** Which skill to package. Defaults to rules-report for back-compatibility. */
+  skill?: string;
   skillDir?: string;
   distDir?: string;
   version?: string;
+  /** Where the licence lives. A seam so the refusal below can be tested. */
+  licencePath?: string;
+  /**
+   * Also rewrite the skill's committed SKILL-VERSION.json in the source tree.
+   *
+   * Defaults to FALSE, and the default is the guard. `oracle package` opts in —
+   * it is the one caller whose job is keeping that file current. Everything
+   * else, tests included, gets an archive and an untouched working tree.
+   *
+   * It defaulted to on briefly, with each test opting out. That leaves the trap
+   * armed for whoever writes the next packaging test and does not know to pass
+   * the flag: their suite quietly edits a tracked file, and the failure surfaces
+   * later as a stale manifest in someone else's commit. A default that is safe
+   * when forgotten beats a check that catches forgetting.
+   */
+  updateSourceManifest?: boolean;
 }
 
 export function packageSkill(opts: PackageOptions = {}) {
-  const skillDir = resolve(opts.skillDir ?? SKILL_SRC);
-  const distDir = resolve(opts.distDir ?? DIST_DIR);
-  if (!existsSync(join(skillDir, "data/rules.json"))) {
+  const spec = SKILLS[opts.skill ?? "rules-report"];
+  if (!spec) {
     throw new Error(
-      `No corpus at ${skillDir}/data — run \`npm run oracle skill-data\` and ` +
-        "`rules_cli.py build` before packaging."
+      `unknown skill ${JSON.stringify(opts.skill)} — known: ${Object.keys(SKILLS).join(", ")}`
     );
+  }
+  const skillDir = resolve(opts.skillDir ?? spec.dir);
+  const distDir = resolve(opts.distDir ?? DIST_DIR);
+  for (const needed of spec.requires) {
+    if (!existsSync(join(skillDir, needed))) {
+      throw new Error(
+        `${spec.name} is missing ${needed} — run \`${spec.buildHint}\` before packaging.`
+      );
+    }
   }
 
   const version =
     opts.version ??
     (JSON.parse(readFileSync(resolve("package.json"), "utf-8")).version as string);
-  const manifest = describeSkill(skillDir, version);
+  const manifest = spec.describe(skillDir, version);
+  const manifestJson = JSON.stringify(manifest, null, 2) + "\n";
 
   // Write it into the source tree so every channel carries it — git installs
   // included. It shows up in `git status` when the corpus moves, which is the
   // reminder to commit it.
-  writeFileSync(
-    join(skillDir, "SKILL-VERSION.json"),
-    JSON.stringify(manifest, null, 2) + "\n",
-    "utf-8"
-  );
+  //
+  // Opt-in, because a build step that edits tracked files is a trap whoever
+  // runs the suite next walks into. This was unconditional, so a test packaging
+  // at "9.9.9" rewrote the committed manifest as a side effect; a `git add -A`
+  // then committed it, and CI failed on a stale manifest nobody had knowingly
+  // touched — for rules-report as readily as for deck-lab.
+  if (opts.updateSourceManifest) {
+    writeFileSync(join(skillDir, "SKILL-VERSION.json"), manifestJson, "utf-8");
+  }
 
   const staging = mkdtempSync(join(tmpdir(), "skill-pkg-"));
   try {
-    const root = join(staging, "rules-report");
+    const root = join(staging, spec.name);
     cpSync(skillDir, root, {
       recursive: true,
       filter: (src) => !EXCLUDE.has(src.split("/").pop() ?? ""),
@@ -124,23 +260,42 @@ export function packageSkill(opts: PackageOptions = {}) {
     // someone the code without the repository around it, so without this they
     // receive an unlicensed copy — which is the state the licence was added to
     // end, and the state most likely to be redistributed further.
-    const licence = resolve("LICENSE");
-    if (existsSync(licence)) cpSync(licence, join(root, "LICENSE"));
+    // Refusing is the point: an `existsSync` guard here would mean a moved or
+    // renamed LICENSE silently restores the unlicensed archive this exists to
+    // prevent — and quietly restored is worse than never fixed, because the fix
+    // is what stops anyone from looking again.
+    const licence = opts.licencePath ?? resolve("LICENSE");
+    if (!existsSync(licence)) {
+      throw new Error(
+        `no LICENSE at ${licence} — every archive must carry one, so packaging stops here ` +
+          "rather than shipping an unlicensed copy"
+      );
+    }
+    cpSync(licence, join(root, "LICENSE"));
+    // Written into the staging copy directly rather than relying on the source
+    // tree having just been updated, so the archive states the version it was
+    // actually built at even when the source manifest is left alone.
+    writeFileSync(join(root, "SKILL-VERSION.json"), manifestJson, "utf-8");
     stampRecursively(root);
 
     mkdirSync(distDir, { recursive: true });
-    const archive = join(distDir, `riftbound-rules-report-v${version}.zip`);
+    const archive = join(distDir, `riftbound-${spec.name}-v${version}.zip`);
     rmSync(archive, { force: true });
     // -X drops extra file attributes (uid/gid, timestamps beyond the entry's)
     // which would otherwise vary between machines.
-    execFileSync("zip", ["-qrX", archive, "rules-report"], { cwd: staging });
+    execFileSync("zip", ["-qrX", archive, spec.name], { cwd: staging });
 
     const bytes = readFileSync(archive);
     const sha = createHash("sha256").update(bytes).digest("hex");
     writeFileSync(`${archive}.sha256`, `${sha}  ${archive.split("/").pop()}\n`, "utf-8");
 
-    return { archive, sha256: sha, bytes: bytes.length, manifest };
+    return { archive, sha256: sha, bytes: bytes.length, manifest, skill: spec.name };
   } finally {
     rmSync(staging, { recursive: true, force: true });
   }
+}
+
+/** Package every shipping skill. A release carries both or it carries neither. */
+export function packageAll(opts: Omit<PackageOptions, "skill" | "skillDir"> = {}) {
+  return Object.keys(SKILLS).map((skill) => packageSkill({ ...opts, skill }));
 }

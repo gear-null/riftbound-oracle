@@ -37,6 +37,12 @@ scripts/
 .claude/skills/rules-report/
   ├── SKILL.md            The procedure an LLM agent follows to answer a question
   └── lib/                rules_cli.py + the deterministic verification tools
+
+.claude/skills/deck-lab/
+  ├── SKILL.md            The procedure for building a deck and playing it out
+  ├── gauntlet/           Tournament decklists to test against (committed)
+  ├── decks/              Decks under construction
+  └── lib/                deck_cli.py — the table, deck legality, shuffle math
 ```
 
 ## Tech Stack
@@ -88,6 +94,7 @@ Type-specific fields:
 9. Answer questions via the `rules-report` skill (see `.claude/skills/rules-report/SKILL.md`).
    It writes two documents: a **ruling** (a disputed situation) and a **primer**
    (how a mechanic works, with a diagram derived from its cited transitions).
+10. Build and test decks via the `deck-lab` skill (see `.claude/skills/deck-lab/SKILL.md`)
 
 ## Environment Variables
 
@@ -109,6 +116,7 @@ copies. Read these before changing the corresponding behaviour:
 | [ADR 0004](docs/adr/0004-the-skill-is-the-product.md) | Why everything is vendored into the skill folder |
 | [ADR 0005](docs/adr/0005-generate-the-rulebook.md) | Why the rulebook is generated, not converted from PDF |
 | [ADR 0006](docs/adr/0006-derive-the-symbol-legend.md) | Why the symbol legend is derived from the rules |
+| [ADR 0007](docs/adr/0007-the-table-not-the-player.md) | Why the game engine simulates the table and not the player |
 | [ADR 0008](docs/adr/0008-two-document-kinds.md) | Why there are two document kinds, and why the diagram is derived |
 
 [`docs/maintaining.md`](docs/maintaining.md) has the rules-update procedure, the

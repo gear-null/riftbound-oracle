@@ -1,0 +1,29 @@
+{
+ "name": "Renekton Sands v2",
+ "legend": "Renekton - Butcher of the Sands",
+ "chosen_champion": "Renekton, Brute",
+ "main": [
+  { "name": "Determined Sentry", "qty": 3 },
+  { "name": "Forsaken Baccai", "qty": 3 },
+  { "name": "Pit Rookie", "qty": 3 },
+  { "name": "Inferna", "qty": 3 },
+  { "name": "Kinkou Initiate", "qty": 3 },
+  { "name": "Brutal Hunter", "qty": 3 },
+  { "name": "Oasis Raider", "qty": 3 },
+  { "name": "Noxus Hopeful", "qty": 3 },
+  { "name": "Nidalee - Cat Form", "qty": 2 },
+  { "name": "Rengar, Trophy Hunter", "qty": 1 },
+  { "name": "Renekton, Brute", "qty": 1 },
+  { "name": "Guttural Roar", "qty": 3 },
+  { "name": "Cleave", "qty": 3 },
+  { "name": "Confront", "qty": 2 },
+  { "name": "Incinerate", "qty": 2 },
+  { "name": "Dominus", "qty": 2 }
+ ],
+ "runes": [ { "name": "Body Rune", "qty": 12 } ],
+ "battlefields": [
+  { "name": "Emperor's Dais", "qty": 1 },
+  { "name": "Seat of Power", "qty": 1 },
+  { "name": "Star Spring", "qty": 1 }
+ ]
+}

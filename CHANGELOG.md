@@ -1,6 +1,7 @@
 # Changelog
 
-Notable changes to the Riftbound rules-report skill.
+Notable changes to the Riftbound skills — `rules-report`, which answers rules questions
+with verified citations, and `deck-lab`, which builds and plays out decks.
 
 Entries are drafted with `npm run oracle changelog` — which reads the git history *and* diffs
 the corpus — then edited for readability. The **Corpus** section is usually what matters most:
@@ -48,6 +49,59 @@ This project follows [Semantic Versioning](https://semver.org/) and
 - A shipped HOT FEPR primer (CR 332–340, 33 citations, 12 transitions) as the worked
   example. Run `python3 scripts/check-invariants.py` for the live check and mutant
   counts — a total written into prose here only goes stale.
+- **`deck-lab` — a second skill, for building decks and playing them out.** Deck design
+  needs games, and games were the expensive part: an agent asked to imagine a shuffle
+  imagines a convenient one. So the skill simulates the *table*, not the player — it
+  deals, tracks the board, enforces the rules and refuses illegal actions, and leaves
+  every decision to whoever is playing. It carries a gauntlet of real tournament lists
+  to test against, imported from decklist text because four of the six sites that
+  publish them block scripts. See [ADR 0007](docs/adr/0007-the-table-not-the-player.md).
+- **The table refuses rather than assumes.** It never interprets card text — it prints
+  it verbatim and stops. A table that quietly applies an effect it half-understands
+  turns every card it does not handle into a confident wrong game, which is worse than
+  no table at all. Rules it *does* enforce are cited in the code and pinned by a
+  mutation battery, on the same terms as the rules-report skill.
+
+### Fixed
+
+- **Packaging checked the first skill and reported on all of them.** Five places made
+  that assumption, and none of them could have failed while only one skill existed —
+  these are defects the second skill *revealed*, not ones it caused. CI ran
+  `unzip -q dist/*.zip`, which takes the first archive and reads the rest as member
+  names *inside* it, so the job that proves an install works was one glob-ordering away
+  from passing while installing nothing. The reproducibility check compared only the
+  first checksum; the stale-manifest check named `rules-report` outright; the licence
+  test asserted `rules-report/LICENSE` by name; and the "records nothing
+  self-referential" invariant, which exists so a release rebuilds from its own tag,
+  called one of the two manifest producers — a commit hash in the other passed the
+  entire suite. All five now iterate the skill registry, and CI runs the verify command
+  each skill's manifest names, which meant shipping `verify` into `SKILL-VERSION.json`
+  so an archive knows how to check itself.
+- **Running the tests no longer edits tracked files.** Packaging rewrote each skill's
+  committed `SKILL-VERSION.json` unconditionally, which is right for
+  `npm run oracle package` and a trap from a test: the licence test packages at a
+  throwaway version, so merely running the suite rewrote a manifest to a version that
+  does not exist — `rules-report`'s as readily as `deck-lab`'s — and a `git add -A`
+  then committed it. `SKILL-VERSION.json` is the file a consumer reads to know what
+  they have. The source-tree write is now opt-in and `oracle package` is the only
+  caller that asks for it, so forgetting the flag is safe rather than damaging; the
+  archive's manifest is written separately, and states the version it was actually
+  built at either way.
+- **A deck name claimed by two files is refused instead of silently picked.** `resolve()`
+  promised "gauntlet first, then decks/" and delivered the reverse — `available()` sorts
+  full paths and `decks` sorts before `gauntlet` — so a personal draft answered to a
+  tournament list's name and every number downstream described the wrong deck. Neither
+  order is right: whichever directory loses, a real deck is discarded without a word.
+  It now names both files and asks which you meant.
+- **A missing licence now stops the build** instead of being skipped by an `existsSync`.
+  A renamed or moved `LICENSE` silently restored the unlicensed archive that work existed
+  to prevent, which is worse than never having fixed it: the fix is what stops anyone
+  looking again.
+- **Permanents left in another player's base are recalled at cleanup (CR 323.7)**, along
+  with unattached Gear left at a battlefield. A unit walked into the enemy base used to
+  stay there for the rest of the game, reading on the board as a presence it does not
+  have. The rule had no implementation at all, so no guard sweep could have found it —
+  it turned up by constructing board states no fixture builds.
 
 ## [1.2.1] — 2026-08-20
 

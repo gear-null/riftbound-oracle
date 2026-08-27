@@ -9,6 +9,18 @@ import {
   type Deck,
 } from "../decks.js";
 import type { CardIndex } from "../skill-data.js";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+/** A page whose two champions both carry the legend's tag, so it stays unresolved. */
+function ambiguousPage(): string {
+  return page({
+    sections:
+      section("Champions", 6, tile("SFD-057", "Irelia, Fervent", 3) + tile("SFD-058", "Irelia, Graceful", 3)) +
+      section("Runes", 12, tile("calmrune", "Calm Rune", 12)) +
+      section("Battlefields", 3, tile("OGN-276", "Aspirant's Climb") + tile("SFD-215", "Ravenbloom Conservatory") + tile("OGN-292", "The Dreaming Tree")),
+  });
+}
 
 /** A tile as the site renders it — the count badge is omitted for singletons. */
 function tile(code: string, name: string, qty = 1): string {
@@ -319,6 +331,37 @@ describe("pullMetaDecks", () => {
     expect(result.decks).toHaveLength(0);
     expect(result.written).toHaveLength(0);
     expect(result.quarantined[0].reasons.join(" ")).toMatch(/Runes: section not found/);
+  });
+
+  it("does not undo a hand-set Chosen Champion on a re-pull", async () => {
+    // Five of the 24 pulled decks legally run two champions of the legend's tag,
+    // so the champion is filled in by hand. Overwriting it returns those decks
+    // to unplayable, and the next CI run is the first anyone hears of it.
+    const tmp = `/tmp/decks-test-${process.pid}-keep`;
+    const opts = {
+      delayMs: 0,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+      now: () => "2026-08-24",
+      fetchText: async (url: string) =>
+        url.endsWith("/decks") ? `<a href="/meta/aaa"></a>` : ambiguousPage(),
+    };
+    const first = await pullMetaDecks(opts);
+    expect(first.decks[0].chosenChampion).toBeNull();
+
+    // A maintainer fills it in.
+    const file = join(`${tmp}/gauntlet`, `${deckSlug(first.decks[0])}.json`);
+    const saved = JSON.parse(readFileSync(file, "utf-8"));
+    saved.chosen_champion = "Irelia, Fervent";
+    saved.chosen_champion_note = "picked by hand";
+    writeFileSync(file, JSON.stringify(saved, null, 1));
+
+    const second = await pullMetaDecks(opts);
+    const after = JSON.parse(readFileSync(file, "utf-8"));
+    expect(after.chosen_champion).toBe("Irelia, Fervent");
+    expect(after.chosen_champion_note).toBe("picked by hand");
+    expect(second.warnings.join(" ")).toMatch(/kept the hand-set Chosen Champion/);
   });
 
   it("keeps going when one deck page fails, and says which", async () => {

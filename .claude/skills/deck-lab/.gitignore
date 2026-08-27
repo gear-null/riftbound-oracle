@@ -1,0 +1,5 @@
+# Games in progress and finished reports are a working artifact of whoever is
+# using the skill, not part of it. The gauntlet and the card data ARE part of
+# it and stay committed — see ADR 0004.
+games/
+reports/

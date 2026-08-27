@@ -1,0 +1,87 @@
+{
+  "name": "Renekton Tokens \u2014 Restricted Energy, Unrestricted Board",
+  "legend": "Renekton - Butcher of the Sands",
+  "chosen_champion": "Renekton, Brute",
+  "main": [
+    {
+      "name": "Determined Sentry",
+      "qty": 3
+    },
+    {
+      "name": "Cithria of Cloudfield",
+      "qty": 3
+    },
+    {
+      "name": "Pit Rookie",
+      "qty": 3
+    },
+    {
+      "name": "Legion Marauder",
+      "qty": 3
+    },
+    {
+      "name": "Inferna",
+      "qty": 3
+    },
+    {
+      "name": "Forsaken Baccai",
+      "qty": 3
+    },
+    {
+      "name": "Pouty Poro",
+      "qty": 3
+    },
+    {
+      "name": "Grim Apothecary",
+      "qty": 3
+    },
+    {
+      "name": "First Mate",
+      "qty": 3
+    },
+    {
+      "name": "Gem Jammer",
+      "qty": 3
+    },
+    {
+      "name": "Noxus Hopeful",
+      "qty": 3
+    },
+    {
+      "name": "Oasis Raider",
+      "qty": 3
+    },
+    {
+      "name": "Battering Ram",
+      "qty": 3
+    },
+    {
+      "name": "Renekton, Brute",
+      "qty": 1
+    }
+  ],
+  "runes": [
+    {
+      "name": "Body Rune",
+      "qty": 7
+    },
+    {
+      "name": "Fury Rune",
+      "qty": 5
+    }
+  ],
+  "battlefields": [
+    {
+      "name": "The Grand Plaza",
+      "qty": 1
+    },
+    {
+      "name": "Altar to Unity",
+      "qty": 1
+    },
+    {
+      "name": "Trifarian War Camp",
+      "qty": 1
+    }
+  ]
+}

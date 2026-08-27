@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import {
   buildCardIndex, buildSkillData, cardStats, cardText, keysFor,
-  CARD_DATA_TARGETS, DECK_LAB_CARD_DATA, RULES_REPORT_CARD_DATA,
+  CARD_DATA_TARGETS, DECK_LAB_CARD_DATA, RULES_REPORT_CARD_DATA, stripTrailingArtifact,
 } from "../skill-data.js";
 import type { RiftcodexCard } from "../riftcodex.js";
 
@@ -296,5 +296,40 @@ describe("card data fan-out", () => {
       })
     ).rejects.toThrow();
     expect(readFileSync(good, "utf-8")).toBe("PREVIOUS");
+  });
+});
+
+describe("trailing extraction artifacts", () => {
+  it("removes a bare token fused to the end of a card's text", () => {
+    // Gemhand Hunter arrives as "…get the effect.)ambush" — the only card in
+    // the pool shaped like that.
+    const r = stripTrailingArtifact("[Hunt] (When I conquer, gain 1 XP.)ambush");
+    expect(r.text).toBe("[Hunt] (When I conquer, gain 1 XP.)");
+    expect(r.removed).toBe("ambush");
+  });
+
+  it("does not repair it into a keyword", () => {
+    // Bracketing it would invent an ability the card does not have. All genuine
+    // Ambush entries are bracketed, lead the text, and carry a reminder.
+    expect(stripTrailingArtifact("(x.)ambush").text).not.toContain("[Ambush]");
+  });
+
+  it("leaves ordinary text alone", () => {
+    for (const t of [
+      "Give a unit +2 Might this turn.",
+      "[Ambush] (You may play me as a [Reaction] to a battlefield where you have units.)",
+      "When I conquer, draw 1.",
+      "Deal 2 to a unit at a battlefield. This deals 1 Bonus Damage for each copy in your trash.",
+    ]) {
+      expect(stripTrailingArtifact(t).text, t).toBe(t);
+      expect(stripTrailingArtifact(t).removed).toBeUndefined();
+    }
+  });
+
+  it("only matches a fusion at the very end, not mid-sentence punctuation", () => {
+    // "(reminder)Then draw" is legitimate shape; only a trailing lowercase weld
+    // with nothing after it is the artifact signature.
+    const mid = "[Legion] (Get the effect if you played another card.)Draw 1.";
+    expect(stripTrailingArtifact(mid).text).toBe(mid);
   });
 });

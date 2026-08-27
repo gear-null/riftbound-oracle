@@ -1,0 +1,91 @@
+{
+  "name": "rk-tempo",
+  "legend": "Renekton - Butcher of the Sands",
+  "chosen_champion": "Renekton, Brute",
+  "main": [
+    {
+      "name": "Mischievous Marai",
+      "qty": 3
+    },
+    {
+      "name": "Legion Marauder",
+      "qty": 3
+    },
+    {
+      "name": "Pit Rookie",
+      "qty": 3
+    },
+    {
+      "name": "Kinkou Initiate",
+      "qty": 2
+    },
+    {
+      "name": "Buhru Captain",
+      "qty": 2
+    },
+    {
+      "name": "Nilah - Joyful Ascetic",
+      "qty": 3
+    },
+    {
+      "name": "Brutal Hunter",
+      "qty": 3
+    },
+    {
+      "name": "Noxus Hopeful",
+      "qty": 3
+    },
+    {
+      "name": "Ambessa, The Wolf",
+      "qty": 2
+    },
+    {
+      "name": "Rengar, Trophy Hunter",
+      "qty": 2
+    },
+    {
+      "name": "Renekton, Brute",
+      "qty": 1
+    },
+    {
+      "name": "Marching Orders",
+      "qty": 3
+    },
+    {
+      "name": "Consuming Curse",
+      "qty": 3
+    },
+    {
+      "name": "Stare Down",
+      "qty": 3
+    },
+    {
+      "name": "Ruthless Strike",
+      "qty": 2
+    },
+    {
+      "name": "Spoils of War",
+      "qty": 2
+    }
+  ],
+  "runes": [
+    {
+      "name": "Body Rune",
+      "qty": 12
+    }
+  ],
+  "battlefields": [
+    {
+      "name": "Grove of the God-Willow",
+      "qty": 1
+    },
+    {
+      "name": "Navori Fighting Pit",
+      "qty": 1
+    },
+    {
+      "name": "Fortified Position",
+      "qty": 1
+    }
+  ]
+}

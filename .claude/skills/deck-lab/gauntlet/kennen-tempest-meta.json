@@ -1,0 +1,105 @@
+{
+ "name": "Kennen Tempest (top metashare)",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosen_champion": "Kennen, Storm of Shuriken",
+ "main": [
+  {
+   "name": "Abandon",
+   "qty": 1
+  },
+  {
+   "name": "Deathgrip",
+   "qty": 2
+  },
+  {
+   "name": "Fizz - Trickster",
+   "qty": 3
+  },
+  {
+   "name": "Kennen, Storm of Shuriken",
+   "qty": 1
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Nocturne - Horrifying",
+   "qty": 3
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 3
+  },
+  {
+   "name": "Ride The Wind",
+   "qty": 2
+  },
+  {
+   "name": "Seal of Discord",
+   "qty": 3
+  },
+  {
+   "name": "Shadows of the Past",
+   "qty": 1
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Switcheroo",
+   "qty": 1
+  },
+  {
+   "name": "Tail-Cloaked Matriarch",
+   "qty": 3
+  },
+  {
+   "name": "Tideturner",
+   "qty": 3
+  },
+  {
+   "name": "Tornado Warrior",
+   "qty": 3
+  },
+  {
+   "name": "Traveling Merchant",
+   "qty": 3
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 9
+  },
+  {
+   "name": "Order Rune",
+   "qty": 3
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Bandle Tree",
+   "qty": 1
+  },
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "imported",
+  "meta": true,
+  "fetched": "2026-08-24",
+  "url": "https://hextechanalytics.com/legends/kennen"
+ }
+}

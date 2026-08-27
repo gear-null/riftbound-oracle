@@ -70,6 +70,57 @@ jobs:
           # The gate must refuse a bad citation, not merely report one.
           python3 rules_cli.py report flow-counter-answer.json --no-open
 
+      # Proves deck-lab's suite can fail. A pre-merge review found 54 defects
+      # shipping past a green 71/71, because the checks tested the
+      # implementation rather than the rules — deleting the 466.1.a.2 recall or
+      # the 316.3 pool emptying left the suite green. Same reasoning as the
+      # rules-report battery above, same gate.
+      - name: The deck-lab selftest can fail
+        if: matrix.python == '3.13'
+        working-directory: .claude/skills/deck-lab/lib
+        run: python3 mutants.py
+
+      # The deck-lab table, on the same Python floor. It ships in the same
+      # repo and installs the same way, so it is guarded the same way.
+      - name: The deck-lab table holds a game
+        working-directory: .claude/skills/deck-lab/lib
+        run: python3 deck_cli.py selftest
+
+      # Copying the folder has to be the whole install (ADR 0004), so this runs
+      # the skill with the repo out of reach. `rules-report` has an equivalent
+      # gate; deck-lab had none, and an import reaching into the repo would have
+      # passed CI and failed on a user's first command.
+      - name: The skill works with the repo out of reach
+        run: |
+          cp -R .claude/skills/deck-lab "$RUNNER_TEMP/deck-lab"
+          cd "$RUNNER_TEMP/deck-lab/lib"
+          python3 deck_cli.py selftest
+          python3 deck_cli.py decks
+          python3 deck_cli.py card "Stellacorn Herder"
+          DECK=$(python3 -c "import deckfile,os; print(os.path.splitext(os.path.basename(sorted(deckfile.available())[0]))[0])")
+          python3 deck_cli.py analyze "$DECK" --trials 2000
+          python3 deck_cli.py report "$DECK" --trials 2000 --out /tmp/r.html
+          test -s /tmp/r.html
+
+      # Every shipped gauntlet deck must be playable. The previous version
+      # checked one deck by name and passed while 5 of 24 were unusable.
+      - name: Every shipped deck is legal and playable
+        working-directory: .claude/skills/deck-lab/lib
+        run: |
+          python3 - <<'PY'
+          import sys, deckfile
+          bad = []
+          for path in deckfile.available():
+              d = deckfile.load(path)
+              r = deckfile.check(d)
+              if not r.legal:
+                  bad.append((d.name, r.errors[:2]))
+          for name, errs in bad:
+              print(f"ILLEGAL {name}: {errs}")
+          print(f"{len(deckfile.available()) - len(bad)}/{len(deckfile.available())} decks legal")
+          sys.exit(1 if bad else 0)
+          PY
+
   pipeline:
     name: pipeline
     runs-on: ubuntu-latest
@@ -104,30 +155,54 @@ jobs:
 
       - name: Build twice and compare
         run: |
+          # Every archive the packager emits, not just the first: a second skill
+          # can be irreproducible while the one that happens to sort first is
+          # stable, and a release checksum is per-archive.
           npm run oracle package >/dev/null
-          first=$(cut -d' ' -f1 dist/*.zip.sha256)
+          first=$(cat dist/*.zip.sha256)
           npm run oracle package >/dev/null
-          second=$(cut -d' ' -f1 dist/*.zip.sha256)
-          echo "first  $first"
-          echo "second $second"
+          second=$(cat dist/*.zip.sha256)
+          echo "$first"
           test "$first" = "$second" || {
-            echo "::error::the archive is not reproducible — a release checksum would be meaningless"
+            echo "::error::an archive is not reproducible — a release checksum would be meaningless"
+            diff <(echo "$first") <(echo "$second") || true
             exit 1
           }
 
-      - name: The committed manifest matches the corpus
+      - name: The committed manifests match the corpus
         run: |
-          # `oracle package` rewrites SKILL-VERSION.json. If that changes the
-          # tree, someone regenerated the corpus and forgot to commit the
+          # `oracle package` rewrites every SKILL-VERSION.json. If that changes
+          # the tree, someone regenerated the corpus and forgot to commit the
           # manifest — so registry installs would advertise the wrong version.
-          git diff --exit-code -- .claude/skills/rules-report/SKILL-VERSION.json || {
-            echo "::error::SKILL-VERSION.json is stale — run 'npm run oracle package' and commit it"
+          # Globbed, so a new skill is covered the day it is added rather than
+          # the day someone remembers to extend this line.
+          git diff --exit-code -- .claude/skills/*/SKILL-VERSION.json || {
+            echo "::error::a SKILL-VERSION.json is stale — run 'npm run oracle package' and commit it"
             exit 1
           }
 
-      - name: Install the archive the way a user would
+      - name: Install each archive the way a user would
         run: |
+          # One `unzip dist/*.zip` would take the first archive and read the
+          # rest as member names to extract FROM it — which is how a second
+          # skill silently stopped being installed at all. Loop instead, and
+          # run the verify command the skill's own manifest names, so this
+          # step cannot drift from the packager's registry.
           mkdir -p /tmp/consumer
-          unzip -q dist/*.zip -d /tmp/consumer
-          cd /tmp/consumer/rules-report/lib
-          python3 rules_cli.py selftest
+          for zip in dist/*.zip; do
+            unzip -q "$zip" -d /tmp/consumer
+          done
+          shopt -s nullglob
+          found=0
+          for manifest in /tmp/consumer/*/SKILL-VERSION.json; do
+            skill=$(dirname "$manifest")
+            verify=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['verify'])" "$manifest")
+            echo "::group::$(basename "$skill") — $verify"
+            (cd "$skill/lib" && $verify)
+            echo "::endgroup::"
+            found=$((found + 1))
+          done
+          test "$found" -eq "$(ls -1 dist/*.zip | wc -l)" || {
+            echo "::error::$found skills unpacked from $(ls -1 dist/*.zip | wc -l) archives — an archive did not install"
+            exit 1
+          }

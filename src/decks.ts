@@ -47,6 +47,12 @@ export interface Deck {
   name: string;
   legend: string;
   /**
+   * Set by hand when the source leaves the Chosen Champion ambiguous, and
+   * carried across a re-pull so the decision is not silently undone.
+   */
+  chosen_champion?: string | null;
+  chosen_champion_note?: string;
+  /**
    * Resolved at pull time where the card data makes it unambiguous, null where
    * it does not. Never guessed: a wrong Chosen Champion changes every opening
    * hand, so an unresolved one is reported rather than invented.
@@ -301,6 +307,16 @@ export function resolveChosenChampion(deck: Deck, cards: CardIndex): Pick<Deck, 
   return { chosenChampion: null, championCandidates: names };
 }
 
+/** A previously written deck file, or undefined. Never throws on bad JSON. */
+function readExistingDeck(path: string): (Deck & { chosen_champion?: string }) | undefined {
+  if (!existsSync(path)) return undefined;
+  try {
+    return JSON.parse(readFileSync(path, "utf-8"));
+  } catch {
+    return undefined;
+  }
+}
+
 export function loadCardIndex(path?: string): CardIndex {
   const target = resolve(path ?? DECK_LAB_CARD_DATA);
   if (!existsSync(target)) {
@@ -406,8 +422,21 @@ export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult>
 
   const claimed = new Set<string>();
   for (const deck of decks) {
-    const body = JSON.stringify(deck, null, 1);
+    // A deck whose Chosen Champion the source cannot name gets one filled in by
+    // hand (the list legally runs two champions of the legend's tag, and only
+    // the pilot knows which sat in the Champion Zone). Re-pulling must not throw
+    // that away — it would silently return the deck to unplayable.
     const slug = deckSlug(deck);
+    if (!deck.chosenChampion) {
+      const existing = readExistingDeck(resolve(gauntletDir, `${slug}.json`));
+      const kept = existing?.chosen_champion ?? existing?.chosenChampion;
+      if (kept) {
+        deck.chosen_champion = kept;
+        if (existing?.chosen_champion_note) deck.chosen_champion_note = existing.chosen_champion_note;
+        warnings.push(`${deck.name}: kept the hand-set Chosen Champion ${kept}`);
+      }
+    }
+    const body = JSON.stringify(deck, null, 1);
     if (claimed.has(slug)) {
       // Cannot happen while the slug carries a per-URL digest, which is exactly
       // why it is checked: a future change to `deckSlug` must fail loudly here

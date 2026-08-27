@@ -1,0 +1,29 @@
+{
+  "name": "rk-control",
+  "legend": "Renekton - Butcher of the Sands",
+  "chosen_champion": "Renekton, Brute",
+  "main": [
+    {"name": "Demacian Diplomat", "qty": 3},
+    {"name": "Gemhand Hunter", "qty": 3},
+    {"name": "Towering Combatant", "qty": 3},
+    {"name": "Master Yi - Tempered", "qty": 2},
+    {"name": "Renekton, Brute", "qty": 3},
+    {"name": "Ruin Runner", "qty": 2},
+    {"name": "Stare Down", "qty": 3},
+    {"name": "Incinerate", "qty": 3},
+    {"name": "Consuming Curse", "qty": 3},
+    {"name": "Mobilize", "qty": 3},
+    {"name": "Confront", "qty": 2},
+    {"name": "Disposal Order", "qty": 2},
+    {"name": "Ruthless Strike", "qty": 3},
+    {"name": "Marching Orders", "qty": 2},
+    {"name": "Catalyst of Aeons", "qty": 1},
+    {"name": "Concentrate", "qty": 2}
+  ],
+  "runes": [{"name": "Body Rune", "qty": 12}],
+  "battlefields": [
+    {"name": "Grove of the God-Willow", "qty": 1},
+    {"name": "Startipped Peak", "qty": 1},
+    {"name": "Aspirant's Climb", "qty": 1}
+  ]
+}

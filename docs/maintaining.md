@@ -50,6 +50,26 @@ python3 rules_cli.py build               # re-parse -> data/rules.json, index, r
 python3 rules_cli.py selftest            # must end "all N checks passed"
 ```
 
+`skill-data` writes card data to **both** skills that vendor it — `rules-report` and
+`deck-lab` — from one fetch, so the two can never end up disagreeing about what a card
+says. Adding a third skill that needs cards means adding it to `CARD_DATA_TARGETS`, not
+copying the file.
+
+The deck-lab gauntlet refreshes on its own cadence, because it tracks tournament results
+rather than Riot releases:
+
+```bash
+npm run oracle decks pull                # tournament decklists     (network)
+cd .claude/skills/deck-lab/lib
+python3 deck_cli.py selftest             # must end "N/N passed"
+python3 deck_cli.py mutants              # must end "N/N mutants caught"
+```
+
+`mutants` is the gate that makes `selftest` mean something: it reintroduces each defect
+the suite claims to catch and asserts the named check goes red. A surviving mutant is a
+check that is lying about what it covers. It is slow — a full suite run per mutant — so
+it is a pre-merge gate, not an inner loop.
+
 `build` regenerates `data/rules.json`, the FTS index and `data/rules.html` together.
 They must move as a set: report citations link to `rules.html#CR-<id>`, and a rules
 update renumbers IDs.
@@ -94,6 +114,19 @@ would churn the corpus for nothing.
 `skill-data` warns that card text may be stale. The update run below is already in that order.
 
 ## Packaging a release
+
+Both skills ship together. `oracle package` builds an archive per skill —
+`riftbound-rules-report-vX.zip` and `riftbound-deck-lab-vX.zip` — each with its own
+`SKILL-VERSION.json` and `.sha256`, and `install.sh` fetches both by default
+(`--skill <name>` for one). A release carries every shipping skill or it carries none:
+packaging was hardcoded to one of them for a while, and the other quietly had no release
+archive at all. `install.test.ts` now asserts the installer handles every skill the
+packager produces, and that check has been seen to fail.
+
+deck-lab's manifest records what a rulebook cannot: how many gauntlet decks it carries and
+the date they were pulled. A gauntlet of tournament lists goes stale on its own clock, and
+an installed copy is cut off from the repo that could say so.
+
 
 ```bash
 npm run oracle package        # -> dist/riftbound-rules-report-v<version>.zip + .sha256
@@ -167,6 +200,31 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   stamped with a version that does not exist. That probe is what found `all()`
   short-circuiting the citation loop, where a failing quote hid every
   fabrication after it in the same block.
+
+- **Never match on `str(exception)`; match on `err.args[0]`.** `str(KeyError(msg))`
+  is `repr(msg)`, and `repr` picks its wrapper from the content. A message holding
+  only single quotes comes back wrapped in double ones, inner quotes intact, so a
+  match on `saved game 'x'` fires. Put a double quote anywhere else in that same
+  message — nest another error's text, quote a filename — and repr flips to
+  single-quote wrapping and escapes every inner single quote, and the identical
+  match silently stops firing. Nothing goes red; the check simply never fires
+  again.
+
+  That is worse than escaping unconditionally, which fails while you are writing
+  the check and looking straight at it. This one passes when written and dies
+  later, from an edit that appears unrelated and lands in someone else's commit.
+  The wrapper defeats `startswith`/`endswith` on a raw `str()` too. The whole
+  class disappears if the predicate reads `args[0]`, so make that the habit
+  rather than reasoning about which row you are in. It is a check-that-cannot-fail
+  with a cause unlike the others here: not a behaviour with no check behind it,
+  but a predicate that cannot become true no matter what the code does.
+
+  The one raise that breaks the habit is the argumentless one: `raise KeyError()`
+  leaves `args` empty, so `args[0]` is an `IndexError`. Every raise in both skills
+  passes exactly one f-string, so nothing is exposed, and this is not worth a
+  guard while that convention holds. Note which way it fails, though — `args[0]`
+  crashes, where `str()` returns `''` and quietly matches nothing. Loud is the
+  better failure, so the habit stays right even in the row that breaks it.
 - **The IR is the product; the renderer is not.** Fireworks Tech Graph lives outside
   the skill folder, so nothing here may require it. `graph` always writes the IR —
   self-contained, checkable, diffable — and renders an SVG only if an install is
@@ -177,6 +235,68 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   invariant 12 is the whole reason a picture is publishable at all. Style 8, the
   closest match to this project's palette, is refused for exactly this reason —
   Fireworks will only hand-craft it.
+- **The deck-lab table must refuse rather than assume.** A permissive table produces
+  confident wrong games, which is worse than no table — see
+  [ADR 0007](adr/0007-the-table-not-the-player.md). When adding an action, decide what it
+  does when the rules forbid it *before* deciding what it does when they allow it.
+- **The table must never interpret card text.** It may print text verbatim and it may
+  refuse; the moment it starts applying an effect, every card it does not handle becomes
+  a silent wrong answer instead of a visible manual step.
+- **Every deck-lab behaviour needs a mutant, not just a check.** Adding a rule to the
+  table means adding a check to `selftest.py` AND a mutant to `mutants.py` that has been
+  seen to make that check fail. The first run of the battery found five checks that
+  passed while the behaviour they named was deleted.
+- **A second guard makes the system safer and the suite blinder.** Redundant guards are
+  good; only their safety is visible. Delete either half of a masking pair and nothing goes
+  red, so a one-at-a-time mutant battery reports both as covered while neither is pinned.
+  When you add a guard behind an existing one, add the check that tells them APART at the
+  same time — assert on which message fired, not merely that something refused. A guard
+  indistinguishable from the guard behind it cannot be pinned separately, and if the two
+  print the same string you have to make them differ before you can check them.
+
+  The sweep that finds these is cheap and worth re-running after any batch of guard work:
+  neuter each `raise` in turn and see whether the suite still passes. It found **20 of 37
+  unpinned** in deck-lab, including a 144.2 move-cost refusal masked by `exhaust()`'s own
+  complaint. (Credit to `riftbound-oracle-c1`, which found the same class on the
+  rules-report side — a `cmd_report` gate whose docstring called it "the ONLY way to finish
+  an answer", pinned by nothing.)
+
+- **The guard sweep only finds code you wrote; probe for states you never build.** A
+  battery over `raise` sites cannot flag a rule with no code behind it at all, because
+  there is no line to neuter. The complement is to construct board shapes no fixture
+  produces and ask whether each is refused, handled, or silently wrong: negative Might, a
+  Victory Score of zero, both players on the target at once, a draw of nothing, a
+  battlefield contested by a player with no units, every rune recycled, a unit parked in
+  the opponent's base. Ten such probes found 323.7 missing — a permanent in a foreign base
+  was never recalled, so a unit walked into the enemy base stayed there for the rest of the
+  game, reading on the board as a presence it does not have. Nine of the ten were already
+  correct, which is the expected yield; the probe is cheap enough that the ratio is fine.
+
+  Two habits make the probes pay. Assert on the **log**, not just on state, when the two
+  cannot be told apart: recalling a unit to the base it already occupies moves nothing, so
+  a check on `location` passes whether or not the sweep wrongly picked it up — the mutation
+  battery caught exactly that weak check here. And write a mutant per **clause**, not per
+  rule: 323.7 has one condition for foreign bases and one for unattached Gear, and each of
+  the two conditions has an over-broad failure as well as an off one, so a single rule
+  earned five mutants.
+
+- **Narrow where you delete, wide where you only report — and let them disagree.**
+  `stripTrailingArtifact` removes a stray token from card text and is anchored and
+  conservative, because a false positive destroys a real card's rules text. The
+  corpus-integrity check that scans for the same signature is deliberately wider,
+  because reporting cannot destroy anything. When the wide one fires on something the
+  narrow one ignores, that is the check working: look at the card. Widening the deleter
+  until its detector goes green leaves you with a deleter and no detector, since a check
+  derived from what it checks can only find what that thing already does.
+- **Seeds pair, they do not multiply.** Each seat shuffles on its own generator derived
+  from the seed, so at a fixed seed a seat draws the same cards whatever it is facing —
+  two decks can be compared over identical opposition. That is a paired design, not an
+  independent one: reusing a seed across decks does NOT give you independent samples, and
+  a run that read 18 such games as independent was really six situations played three
+  times. Vary the seed for independence.
+- **A turn must stay cheap.** Card text prints once per game, batches are one round trip,
+  and SKILL.md carries everything a normal turn needs so playing never requires a rules
+  lookup. Count the tool calls a feature costs before counting the rules it covers.
 
 ## Repository layout
 
@@ -192,6 +312,14 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   data/                        vendored + committed (~2.6MB)
     diagrams/                  the shipped primers' diagrams, and the IR they came from
   reports/                     generated HTML reports (gitignored)
+
+.claude/skills/deck-lab/       <- THE OTHER PRODUCT. Same deal: copy the folder.
+  SKILL.md                     the procedure for building and testing a deck
+  lib/                         deck_cli.py — table, deck legality, shuffle math
+  data/cards.json              vendored + committed, written by `oracle skill-data`
+  gauntlet/                    tournament decklists, committed
+  decks/                       decks under construction
+  games/, reports/             working artifacts (gitignored)
 
                                --- maintainer side ---
 src/                     TypeScript pipeline (fetch, parse, normalise)

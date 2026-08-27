@@ -113,11 +113,43 @@ no network at all — only the card artwork loads remotely, when you open a repo
 
 ---
 
+## Also included: a deck lab
+
+The same repo ships a second skill, `deck-lab`, for building decks and testing them
+against real tournament lists.
+
+```
+Build me an aggressive Irelia list and see how it holds up against the Master Yi decks
+```
+
+It is a **table, not a player.** Code owns everything that must not be imagined — the
+shuffle, what you drew, whose turn it is, what a rune pool holds, how much damage a combat
+assigns, who scored and when, and whether the deck is legal under rule 103. Your agent
+owns every decision and every word of card text, because a scripted engine over 1,037
+cards is wrong in ways nobody notices — and an agent asked what it drew will produce a
+card that suits its plan.
+
+So the report keeps its two halves apart, and says which is which:
+
+- **Shuffle math** at 50,000 hands in the report — curve reachability, domain access, cards stranded in
+  hand, hands blocked on Power rather than Energy. No decisions are involved, so it is
+  exact and it is cheap.
+- **Played games** at the sample size games are actually played at, with `n` and a Wilson
+  interval beside every rate. At four games that interval runs 30–95%, and the report
+  prints it rather than quietly rounding a 3–1 into "75%".
+
+24 tournament decklists ship with it, refreshed on demand with `npm run oracle decks pull`.
+See [ADR 0007](docs/adr/0007-the-table-not-the-player.md) for why it is built this way, and
+[the skill itself](.claude/skills/deck-lab/SKILL.md) for how to drive it.
+
+---
+
 ## Documentation
 
 | | |
 |---|---|
 | [Reading a report](docs/report-anatomy.md) | What the grades, superscripts and symbol legend mean |
+| [The deck lab](.claude/skills/deck-lab/SKILL.md) | Building a deck, playing it out, and reporting results honestly |
 | [Changelog](CHANGELOG.md) | What changed, and which rules version each release ships |
 | [Contributing & design notes](docs/README.md) | How it's built, and what was measured to decide that |
 
