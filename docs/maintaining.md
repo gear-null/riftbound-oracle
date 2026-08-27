@@ -218,6 +218,13 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   rather than reasoning about which row you are in. It is a check-that-cannot-fail
   with a cause unlike the others here: not a behaviour with no check behind it,
   but a predicate that cannot become true no matter what the code does.
+
+  The one raise that breaks the habit is the argumentless one: `raise KeyError()`
+  leaves `args` empty, so `args[0]` is an `IndexError`. Every raise in both skills
+  passes exactly one f-string, so nothing is exposed, and this is not worth a
+  guard while that convention holds. Note which way it fails, though — `args[0]`
+  crashes, where `str()` returns `''` and quietly matches nothing. Loud is the
+  better failure, so the habit stays right even in the row that breaks it.
 - **The IR is the product; the renderer is not.** Fireworks Tech Graph lives outside
   the skill folder, so nothing here may require it. `graph` always writes the IR —
   self-contained, checkable, diffable — and renders an SVG only if an install is
