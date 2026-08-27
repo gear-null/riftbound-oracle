@@ -1223,9 +1223,9 @@ MUTANTS = [
     dict(name='leave the staging file behind when a render fails, so a half-written '
               'diagram sits beside the good one looking like an artifact',
          file='rules_cli.py',
-         find='''    if run.returncode != 0 or not os.path.exists(staged):
+         find='''    if run.returncode != 0 or not _looks_like_svg(staged):
         _discard(staged)''',
-         repl='''    if run.returncode != 0 or not os.path.exists(staged):
+         repl='''    if run.returncode != 0 or not _looks_like_svg(staged):
         pass''',
          expect='clears up after itself rather than leaving a staging file'),
     dict(name='trust the renderer exit code instead of the artifact, so `<svg><g>` and '

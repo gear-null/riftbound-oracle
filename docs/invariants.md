@@ -59,6 +59,32 @@ resting on it is sound. Round 8 found `grep` displaying the exact opposite of a
 rule by clipping the sentence before its "not". Nothing downstream could catch
 that.
 
+## The smell: would this check pass if the behaviour were deleted?
+
+That is the one question worth asking of every check here, because the routes
+into a check-that-cannot-fail keep differing while the smell stays identical.
+Four found across two codebases in two days, by four unrelated routes:
+
+| route | what it looked like |
+|---|---|
+| redundancy | two gates guard one path; remove either and the other still holds |
+| shell globbing | `unzip -q dist/*.zip` reads only the FIRST archive and passes |
+| a no-op transition | recalling a unit to the base it already occupies changes no state, so "left alone" and "swept and put back" are indistinguishable |
+| truthiness | `if not heading` accepts `"   "`, and the check never varied the type |
+
+None of those is findable by looking for the others. What they share is that
+the check would have passed with the behaviour it names removed — so ask that,
+rather than trying to recognise the shapes.
+
+Two corollaries worth stating, because both cost time here:
+
+- **A fix without a case behind it is not pinned.** Guard fixed, table not
+  extended, mutant reverting it survives. The fixed code passes the existing
+  check either way, because the check was never watching the property the fix
+  established.
+- **When a correct no-op and an incorrect no-op leave the same state, the
+  check has to read the trace**, not the state.
+
 ## Redundant guards are invisible here
 
 A mutation battery changes one site at a time, so a property defended TWICE is
