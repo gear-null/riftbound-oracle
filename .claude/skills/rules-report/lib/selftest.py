@@ -618,6 +618,47 @@ def export_and_history():
     rules = open(_c.rulebook_html_path(), encoding="utf-8").read()
     stub = lambda u: "data:image/png;base64,AAAA"
 
+    # The embedded rulebook is inspected DIRECTLY, because everything above
+    # asks about the wrapper. The first version of `build_minibook` looked for
+    # a sentinel that occurs zero times in the rulebook and fell back to a
+    # blind 4000-character slice on every rule — carrying ~100 uncited rules,
+    # leaving 17 sections unclosed, and ending mid-attribute. No cited rule was
+    # truncated, but only because the longest rule in the corpus is 2,000
+    # characters: a margin upstream of us that nobody chose. These check the
+    # property rather than that margin.
+    cited = E._cited_anchors(html)
+    minibook = safely(lambda: E.build_minibook(cited, rules), "", "minibook")
+    got = set(re.findall(r'id="((?:CR|TR)-[^"]+)"', minibook))
+    check("the embedded rulebook carries every rule the report cites",
+          set(cited) <= got, f"missing {sorted(set(cited) - got)[:4]}")
+    check("the embedded rulebook carries NOTHING the report does not cite",
+          got <= set(cited), f"{len(got - set(cited))} uncited rule(s) rode along")
+    check("every rule in the embedded rulebook arrives whole",
+          minibook.count("<section") == minibook.count("</section>")
+          and minibook.count("<section") == len(cited),
+          f"{minibook.count('<section')} open, {minibook.count('</section>')} "
+          f"closed, {len(cited)} cited")
+
+    # The whole-block guard, exercised DIRECTLY. It is a backstop behind the
+    # end-tag search, so no single-site mutation of correct code reaches it —
+    # which by this repo's own rule means it would be defended by nothing and
+    # reported as covered. Feeding it a rulebook whose section never closes is
+    # what makes it a real guard rather than a comforting one.
+    # Tear the closing tag off THE CITED RULE, not off the file's first
+    # section — removing an unrelated one leaves this rule's block perfectly
+    # well-formed, and the check passed while proving nothing.
+    one = cited[0]
+    at = rules.index(f'id="{one}"')
+    shut = rules.index("</section>", at)
+    torn = rules[:shut] + rules[shut + len("</section>"):]
+    why = ""
+    try:
+        E.build_minibook([one], torn)
+    except E.ExportRefused as err:
+        why = str(err)
+    check("a rule block that is not one whole section is refused",
+          "whole" in why or "never closed" in why, f"got {why[:80]!r}")
+
     doc = safely(lambda: E.export(html, rules, fetch=stub), "", "export")
     check("an export is produced from a rendered report", bool(doc))
     if not doc:
@@ -630,6 +671,8 @@ def export_and_history():
     # ...and the other direction, which is the one that was missed. A file with
     # its rulebook deleted passes the check above perfectly.
     check("an export carries the rulebook it cites", 'id="rb-doc"' in doc)
+
+
     check("an export carries the loader that shows it", "fr.srcdoc=doc" in doc)
     check("an export inlines every image the report had",
           doc.count("data:image/") >= len(E.REMOTE_IMG.findall(html)),

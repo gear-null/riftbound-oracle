@@ -96,13 +96,32 @@ def build_minibook(anchors, rules_html):
     head = rules_html.split("<body", 1)[0]
     blocks = []
     for a in anchors:
-        # Each rule is one element carrying id="CR-<id>". Take it whole.
-        m = re.search(rf'<[^>]*\bid="{re.escape(a)}"[^>]*>', rules_html)
+        # Each rule is ONE `<section>`, and they are siblings rather than
+        # nested — depth is carried by a `d1`/`d2`/`d3` class, not by
+        # containment — so a rule ends at its own closing tag.
+        #
+        # This used to look for `<div class="rule` and slice 4000 characters
+        # when it did not find it. That sentinel occurs ZERO times in the
+        # rulebook, so the fallback was not an edge case, it was the only path
+        # ever taken: every block was a blind fixed-length cut. It carried ~100
+        # uncited rules into a document whose whole purpose is to hold the ones
+        # the report cites, left the HTML unbalanced, and ended the last block
+        # mid-attribute. No cited rule was actually truncated, but only because
+        # the longest rule in the corpus is 2,000 characters — a margin nobody
+        # chose, upstream of us, and one longer rule from Riot would have
+        # silently cut a cited rule's tail off.
+        m = re.search(rf'<section[^>]*\bid="{re.escape(a)}"[^>]*>', rules_html)
         if not m:
             raise ExportRefused(f"could not locate the block for {a}")
-        start = m.start()
-        nxt = rules_html.find('<div class="rule', m.end())
-        blocks.append(rules_html[start:nxt if nxt > 0 else m.end() + 4000])
+        end = rules_html.find("</section>", m.end())
+        if end < 0:
+            raise ExportRefused(f"the block for {a} is never closed in the rulebook")
+        block = rules_html[m.start():end + len("</section>")]
+        # Completeness, not presence. The check that the anchor "arrived" is
+        # satisfied by an opening tag alone; this is what makes it a rule.
+        if block.count("<section") != 1 or not block.endswith("</section>"):
+            raise ExportRefused(f"the block for {a} did not come out whole")
+        blocks.append(block)
     return (
         head
         + "<body class=\"rb minibook\">"
@@ -229,13 +248,32 @@ def export(html, rules_html, fetch=None):
     ):
         if probe not in out:
             raise ExportRefused(f"{what} is missing from the finished file")
+    # PRESENCE IS NOT COMPLETENESS. `id="CR-829.1"` being in the document is
+    # satisfied by an opening tag with the rule's text sliced off after it, and
+    # a truncated rule is the worst possible payload here: the reader follows a
+    # citation, sees a rule, and reads half of what it says. So assert the
+    # closing tag too — the rule arrived whole, not merely started.
     for anchor in anchors:
-        if f'id="{anchor}"' not in minibook:
+        opened = f'id="{anchor}"' in minibook
+        if not opened:
             raise ExportRefused(f"the embedded rulebook is missing {anchor}")
-    inlined = out.count("data:image/")
-    if inlined < len(REMOTE_IMG.findall(html)):
+    if minibook.count("<section") != minibook.count("</section>"):
         raise ExportRefused(
-            f"{len(REMOTE_IMG.findall(html))} image(s) went in, {inlined} came "
-            "out — artwork was dropped rather than inlined"
+            f"the embedded rulebook has {minibook.count('<section')} sections "
+            f"open and {minibook.count('</section>')} closed — a rule was cut"
+        )
+
+    # Count only what THIS function inlined. Comparing the finished document's
+    # data: URIs against the input's remote images silently credits any data:
+    # URI the report already carried (`RIFTBOUND_EMBED_ART=1` produces them),
+    # so the left side could cover a real drop on the right. It cannot today,
+    # because `inline_artwork` refuses before reaching here — which is exactly
+    # why it needed fixing: it reads as a second guard and was not one.
+    remote_before = len(REMOTE_IMG.findall(html))
+    still_remote = len(REMOTE_IMG.findall(out))
+    if still_remote:
+        raise ExportRefused(
+            f"{remote_before} image(s) went in and {still_remote} still point "
+            "at a remote host — artwork was dropped rather than inlined"
         )
     return out

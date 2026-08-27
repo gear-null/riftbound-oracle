@@ -1444,6 +1444,24 @@ MUTANTS = [
          find='''            "portable": 'id="rb-doc"' in head or 'id="rb-doc"' in tail,''',
          repl='''            "portable": 'id="rb-doc"' in head,''',
          expect="listed as portable"),
+    # The exact defect that shipped: a sentinel matching nothing, so every rule
+    # block became a blind fixed-length slice. It passed every check that asked
+    # whether an anchor ARRIVED, because an opening tag is an anchor.
+    dict(name="slice rule blocks blindly instead of ending them at their tag",
+         file="export_report.py",
+         find='        end = rules_html.find("</section>", m.end())',
+         repl='        end = m.end() + 4000',
+         # The whole-block guard inside `build_minibook` refuses before a
+         # bloated minibook can exist, so the check that fires is the one
+         # asserting every rule arrives whole — not the passenger check, which
+         # never gets a document to count passengers in. The mutant below
+         # removes that guard, so the passenger check is pinned on its own.
+         expect="arrives whole"),
+    dict(name="accept a rule block that is not one whole section",
+         file="export_report.py",
+         find='        if block.count("<section") != 1 or not block.endswith("</section>"):',
+         repl='        if False:',
+         expect="whole section is refused"),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)
