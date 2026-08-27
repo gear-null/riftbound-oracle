@@ -1665,6 +1665,50 @@ def fireworks_export(idx):
     check("the export survives shapes the shipped primers do not have",
           not broken_shapes, "; ".join(broken_shapes[:3]))
 
+    # TWO GATES GUARD THIS PATH, AND EACH MASKED THE OTHER. `cmd_report` refuses
+    # a document with problems, and then the renderer it shells out to refuses
+    # again. Delete `cmd_report`'s entirely and the whole suite stays green,
+    # because the renderer catches what it let through — so the gate whose own
+    # docstring calls it "the ONLY way to finish an answer" was pinned by
+    # nothing at all.
+    #
+    # A one-at-a-time mutation battery cannot see this: redundant guards are
+    # good for safety and invisible to it, and it reports both as covered.
+    # The answer is a check per guard, written so it can tell WHICH one fired —
+    # the two announce themselves differently, so the message says who refused.
+    with tempfile.TemporaryDirectory() as d:
+        for label, source, gate in (
+                ("primer", base, "not rendering"),
+                ("ruling", json.load(open(os.path.join(HERE, "heron-answer.json"),
+                                          encoding="utf-8")), "not rendering")):
+            broken_doc = copy.deepcopy(source)
+            if label == "primer":
+                broken_doc["steps"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+            else:
+                broken_doc["notes"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+            bad_doc = os.path.join(d, f"{label}-answer.json")
+            json.dump(broken_doc, open(bad_doc, "w", encoding="utf-8"))
+            run = subprocess.run([sys.executable, cli, "report", bad_doc, "--no-open"],
+                                 capture_output=True, text=True, cwd=d)
+            check(f"`report` refuses a broken {label} at its OWN gate",
+                  run.returncode != 0 and gate in run.stdout
+                  and "refusing to render" not in (run.stderr or ""),
+                  "the renderer's gate must not be what caught it — that is the "
+                  "masking this check exists to expose")
+
+    # Same shape, one layer down: `verify`'s exit code is its whole contract,
+    # and nothing else on that path would notice if it stopped meaning anything.
+    with tempfile.TemporaryDirectory() as d:
+        broken_doc = copy.deepcopy(base)
+        broken_doc["steps"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+        bad_doc = os.path.join(d, "v-primer.json")
+        json.dump(broken_doc, open(bad_doc, "w", encoding="utf-8"))
+        run = subprocess.run([sys.executable, cli, "verify", bad_doc],
+                             capture_output=True, text=True, cwd=d)
+        check("`verify` reports a broken primer through its exit code",
+              run.returncode != 0 and "999.9.z" in run.stdout,
+              f"rc={run.returncode}")
+
     # The exit code is not the artifact. A renderer that writes `<svg><g>` and
     # exits 0 was announced as "wrote out.svg" — an unclosed fragment no viewer
     # will open, reported as a success, with neither the suite nor the battery

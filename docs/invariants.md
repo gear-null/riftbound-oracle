@@ -59,6 +59,26 @@ resting on it is sound. Round 8 found `grep` displaying the exact opposite of a
 rule by clipping the sentence before its "not". Nothing downstream could catch
 that.
 
+## Redundant guards are invisible here
+
+A mutation battery changes one site at a time, so a property defended TWICE is
+pinned by nothing: remove either guard and the other still holds, the suite
+stays green, and the battery reports both as covered.
+
+It is not hypothetical. `cmd_report` refuses a document with problems, and the
+renderer it shells out to refuses again — and `cmd_report`'s gate, whose own
+docstring calls it *"the ONLY way to finish an answer"*, could be deleted
+outright without a single check going red.
+
+The fix is a check per guard, written so it can tell **which one fired**. The
+two gates announce themselves differently on purpose (`not rendering` from the
+CLI, `refusing to render` from the renderer), so a check can assert that the
+near gate caught it and the far one was never reached.
+
+When you add a second guard to something already guarded, add the check that
+distinguishes them at the same time. Otherwise you have made the system safer
+and the suite blinder, and only the second of those is visible.
+
 ## Adding one
 
 When a defect escapes, do not just fix it:

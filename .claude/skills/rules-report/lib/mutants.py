@@ -708,6 +708,59 @@ MUTANTS = [
          find='    kind = ans.get("kind", "ruling")\n    if kind not in KINDS:',
          repl='    kind = ans.get("kind", "ruling")\n    kind = kind if kind in KINDS else "ruling"\n    if False:',
          expect='unknown `kind` is refused'),
+    # The backward-compatibility guarantee, and the most consequential thing in
+    # the whole two-document design: every answer file written before primers
+    # existed omits `kind`, and defaulting the other way routes all of them at a
+    # verifier that reads none of their keys.
+    dict(name='default a `kind`-less answer to primer, so every ruling ever written '
+              'routes to a verifier that reads none of its keys',
+         file='rules_cli.py',
+         find='    kind = ans.get("kind", "ruling")',
+         repl='    kind = ans.get("kind", "primer")',
+         expect='an answer with no `kind` is a ruling'),
+    # Masked until now: deleting this gate left the suite green, because the
+    # renderer it shells out to refuses again. Two guards, each hiding the
+    # other from a one-at-a-time battery.
+    dict(name="delete `report`'s own verification gate, leaving the renderer's to "
+              'catch what it lets through — the documented gate, pinned by nothing',
+         file='rules_cli.py',
+         find='''    ans = verify(raw, _idx())
+    if ans["_problems"]:''',
+         repl='''    ans = verify(raw, _idx())
+    if False:''',
+         expect='at its OWN gate'),
+    dict(name="make `verify` exit 0 whatever it found, so its whole contract — the "
+              'exit code — stops meaning anything',
+         file='rules_cli.py',
+         find='    sys.exit(1 if ans["_problems"] else 0)',
+         repl='    sys.exit(0)',
+         expect='through its exit code'),
+    # A primer need not be a procedure. If the shape checks stop exempting one
+    # with no transitions, the only primers this skill can write are loops —
+    # "the parts of a card" becomes unrepresentable.
+    dict(name='apply the procedure shape checks to a primer that declares no '
+              'transitions, so a linear explainer is refused for having no way out',
+         file='render_primer.py',
+         find='    if not any(s.get("exits") for s in steps):\n        return problems',
+         repl='    if False:\n        return problems',
+         expect='a linear primer with no transitions is still valid'),
+    # The sweep replaced an O(E x lanes) scan. Correctness is the property it
+    # had to preserve, and "it is fast now" is not evidence of it.
+    dict(name='hand every gutter transition the same lane, so overlapping arrows are '
+              'drawn on top of each other',
+         file='flowgraph.py',
+         find='        if free:\n            lane = heapq.heappop(free)\n        else:\n            lane, next_lane = next_lane, next_lane + 1',
+         repl='        lane = 0',
+         expect='share a lane while their spans overlap'),
+    # The concession has to stay available. If `structural` also demanded a
+    # citation there would be no honest way to record a move the rules imply,
+    # and an author would either invent a citation or omit the transition.
+    dict(name='demand a citation from a transition that declares itself structural, so '
+              'a move the rules only imply cannot be recorded at all',
+         file='render_primer.py',
+         find='            if ex["basis"] == "grounded" and not ex.get("cites"):',
+         repl='            if not ex.get("cites"):',
+         expect='may go uncited if it DECLARES itself structural'),
     dict(name='let a transition assert that the rules send you somewhere without '
               'citing the rule that says so',
          file='render_primer.py',
