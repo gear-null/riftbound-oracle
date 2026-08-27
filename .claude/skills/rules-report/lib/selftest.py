@@ -1656,6 +1656,13 @@ def fireworks_export(idx):
             lambda a: a["steps"][0].__setitem__("basis", "definitional"), "unknown basis"),
         "a transition with no condition": (
             lambda a: a["steps"][0]["exits"][0].pop("when"), "no `when`"),
+        # Whitespace is truthy, so `if not s.get("heading")` passed a heading of
+        # spaces. The guard was fixed and this table was not, so the mutant
+        # reverting it survived — the fix was real and pinned by nothing.
+        "a heading that is only whitespace": (
+            lambda a: a["steps"][0].__setitem__("heading", "   "), "no heading"),
+        "a body that is only whitespace": (
+            lambda a: a["steps"][0].__setitem__("body", "  \n "), "no body"),
     }
     missed = []
     for label, (mutate, phrase) in malformed_shapes.items():
