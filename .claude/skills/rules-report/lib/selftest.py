@@ -593,7 +593,7 @@ def card_rendering():
           malformed is not None and len(malformed) == 1, repr(malformed))
 
 
-def export_and_history():
+def export_and_history(idx):
     """A shared report carries its evidence, or it is not written.
 
     The failure this group exists for is invisible on the machine that makes
@@ -610,11 +610,37 @@ def export_and_history():
     import export_report as E
     import corpus as _c
 
-    src = os.path.join(_c.reports_dir(), "flow-counter.html")
-    if not os.path.exists(src):
-        note("no rendered report on disk; skipping export checks")
+    # RENDER THE FIXTURE, do not go looking for one.
+    #
+    # This group used to read `reports/flow-counter.html` and skip with a note
+    # when it was absent. `reports/` is a working directory that git does not
+    # track and that `mutants.py` deliberately excludes from the copy it
+    # mutates — so the entire group skipped inside the battery, and all ten
+    # export mutants survived while every check passed individually here.
+    #
+    # That is the "check that cannot run when it matters" defect, one level up
+    # from the early return fixed two commits ago: not a check that cannot
+    # fail, but a whole group that quietly does not execute in the one
+    # environment built to prove it can. A `note()` is not a failure, so
+    # nothing said so.
+    #
+    # Rendering from a shipped answer removes the dependency entirely. It runs
+    # wherever the skill runs.
+    import render_report
+    from render_report import verify_answer
+    ans = verify_answer(json.load(open(os.path.join(HERE, "flow-counter-answer.json"),
+                                      encoding="utf-8")), idx)
+    if ans["_problems"]:
+        check("the shipped sample answer still verifies, so export can be tested",
+              False, f"{len(ans['_problems'])} problem(s): {ans['_problems'][:2]}")
         return
-    html = open(src, encoding="utf-8").read()
+    html = safely(lambda: render_report.render(ans, idx), "", "render the fixture")
+    check("a report can be rendered for the export checks to run against",
+          bool(html) and "rb-frame" in html,
+          f"{len(html)} bytes rendered" if html
+          else "no report to export — every export check below would be vacuous")
+    if not html:
+        return
     rules = open(_c.rulebook_html_path(), encoding="utf-8").read()
     stub = lambda u: "data:image/png;base64,AAAA"
 
@@ -735,10 +761,47 @@ def export_and_history():
     # The history page is derived from the directory, so it cannot list a
     # report that is not there.
     import rules_cli
-    records = safely(rules_cli._report_records, [], "report records")
-    check("the history lists the reports that exist",
-          any(r["file"] == "flow-counter.html" for r in records),
-          f"{len(records)} record(s)")
+    # Same reason the fixture above is rendered rather than found: `reports/`
+    # is untracked and the battery excludes it, so reading whatever happens to
+    # be in it made these checks pass here and skip there. Write known files,
+    # assert against them, remove them.
+    # Same reason the fixture above is rendered rather than found: `reports/`
+    # is untracked and `mutants.py` excludes it from the copy it mutates, so
+    # reading whatever happens to be in it made these checks pass here and skip
+    # in the battery. Write known files, assert against them, remove them.
+    os.makedirs(rules_cli.REPORTS, exist_ok=True)
+    plain = os.path.join(rules_cli.REPORTS, "_selftest_plain.html")
+    port = os.path.join(rules_cli.REPORTS, "_selftest_port.html")
+    try:
+        open(plain, "w", encoding="utf-8").write(html)
+        open(port, "w", encoding="utf-8").write(doc)
+        records = safely(rules_cli._report_records, [], "report records")
+        names = {r["file"] for r in records}
+        check("the history lists the reports that exist",
+              {"_selftest_plain.html", "_selftest_port.html"} <= names,
+              f"{len(records)} record(s), missing "
+              f"{sorted({'_selftest_plain.html', '_selftest_port.html'} - names)}")
+        check("the history does not list itself as a report",
+              not any(r["file"] == rules_cli.INDEX_NAME for r in records))
+
+        # The portable marker is APPENDED after the overlay, ~2.5MB into a
+        # 2.6MB file, so a head-only scan never saw it and the column was
+        # decorative: every report listed as not-portable, including the
+        # portable ones. A flag that cannot be true is the same defect as a
+        # check that cannot fail.
+        portable = {r["file"] for r in records if r["portable"]}
+        check("an exported report is listed as portable",
+              "_selftest_port.html" in portable,
+              f"{len(portable)} of {len(records)} marked portable")
+        check("a plain report is not listed as portable",
+              "_selftest_plain.html" not in portable,
+              "the un-exported fixture is claimed portable"
+              if "_selftest_plain.html" in portable else "correctly unmarked")
+    finally:
+        for f in (plain, port):
+            if os.path.exists(f):
+                os.remove(f)
+
     # The index must be refreshed by `report`, not only by `reports`. An index
     # that updates on a second command nobody is told to run is stale by
     # default, and stale in the worst way: it lists every answer except the one
@@ -747,26 +810,13 @@ def export_and_history():
     body = src_lines[src_lines.index("def cmd_report("):src_lines.index("def cmd_render(")]
     check("writing a report refreshes the history index",
           "write_report_index()" in body,
-          "cmd_report never updates the index, so `reports` must be run by hand")
-
-    check("the history does not list itself as a report",
-          not any(r["file"] == rules_cli.INDEX_NAME for r in records))
+          "cmd_report calls it" if "write_report_index()" in body
+          else "cmd_report never updates the index, so `reports` must be run by hand")
 
     # Diagrams used to land in `reports/` beside the answers, so the folder a
     # user browses held `combat.svg` and `ok.fireworks.json` as siblings of the
     # documents. Separated rather than filtered: a reader should not have to
     # know which extensions to ignore.
-    # The portable marker is APPENDED after the overlay, ~2.5MB into a 2.6MB
-    # file, so a head-only scan never saw it and the column was decorative:
-    # every report listed as not-portable, including the portable ones. A flag
-    # that cannot be true is the same defect as a check that cannot fail.
-    portable = [r for r in records if r["portable"]]
-    check("an exported report is listed as portable",
-          any(r["file"].endswith(".portable.html") for r in portable),
-          f"{len(portable)} of {len(records)} marked portable")
-    check("a plain report is not listed as portable",
-          not any(r["file"] == "flow-counter.html" for r in portable))
-
     check("a diagram is written under reports/diagrams, not among the reports",
           os.path.basename(rules_cli.DIAGRAMS) == "diagrams"
           and os.path.dirname(rules_cli.DIAGRAMS) == rules_cli.REPORTS,
@@ -3328,7 +3378,7 @@ def main():
     metric_consistency(idx)
     rendered_surfaces(idx)
     primer_invariants(idx)
-    export_and_history()
+    export_and_history(idx)
     shipped_primers(idx)
     fireworks_export(idx)
     committed_diagrams(idx)
