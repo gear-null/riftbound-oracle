@@ -1,0 +1,42 @@
+MIT License
+
+Copyright (c) 2026 Dois
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+WHAT THIS COVERS, AND WHAT IT CANNOT
+
+The MIT licence above applies to this project's own work: the TypeScript
+pipeline, the Python skill, the tooling, the design system, and the
+documentation.
+
+It does NOT apply to Riot Games' content, because that is not ours to license.
+The Riftbound Comprehensive Rules, Tournament Rules, patch notes and errata
+committed under `output/`, and the card names, card text and artwork URLs in
+the skill's vendored data, are Riot Games' copyright. They are included so that
+a citation can be verified verbatim against the document it claims to quote,
+and are used under Riot's policy for fan and community projects.
+
+Riftbound is a trademark of Riot Games. This project is unofficial and not
+endorsed by Riot Games.
+
+If you fork this, the code is yours to do as you like with. Riot's rules text
+travels under Riot's terms, not under this licence.

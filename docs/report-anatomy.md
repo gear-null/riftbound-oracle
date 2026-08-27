@@ -1,7 +1,14 @@
 # How to read a report
 
-Every answer is one HTML file in `.claude/skills/rules-report/reports/`. It is
-self-contained, works offline, and can be kept or sent on.
+Every answer is one HTML file in `.claude/skills/rules-report/reports/`. It carries
+its own CSS and JavaScript, so it can be kept or sent on with nothing else attached.
+
+One qualification, because it matters if you print at a venue: **card artwork is the
+only thing not in the file.** Reports reference Riot's CDN by URL rather than
+redistributing the images, so a reader with no network gets a labelled "artwork
+offline" placeholder and everything else — the argument, the citations, the
+rulebook links — works normally. Setting `RIFTBOUND_EMBED_ART=1` inlines the art
+and makes the file genuinely self-contained, at roughly 1MB per card.
 
 ## The rail
 

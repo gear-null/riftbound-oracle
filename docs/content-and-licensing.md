@@ -1,5 +1,12 @@
 # Content and licensing
 
+## The short version
+
+**The code is MIT.** The rules text is Riot's. Those are two different things in one
+repository, and [LICENSE](../LICENSE) says which is which — you cannot MIT-license
+someone else's copyright, so this project does not pretend to.
+
+
 Riftbound is a trademark of Riot Games. **This project is unofficial and not endorsed by
 Riot.**
 

@@ -120,6 +120,12 @@ export function packageSkill(opts: PackageOptions = {}) {
       recursive: true,
       filter: (src) => !EXCLUDE.has(src.split("/").pop() ?? ""),
     });
+    // The licence travels WITH the archive. The zip and install.sh paths hand
+    // someone the code without the repository around it, so without this they
+    // receive an unlicensed copy — which is the state the licence was added to
+    // end, and the state most likely to be redistributed further.
+    const licence = resolve("LICENSE");
+    if (existsSync(licence)) cpSync(licence, join(root, "LICENSE"));
     stampRecursively(root);
 
     mkdirSync(distDir, { recursive: true });

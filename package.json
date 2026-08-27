@@ -1,6 +1,7 @@
 {
   "name": "riftbound-oracle",
   "version": "1.2.1",
+  "license": "MIT",
   "type": "module",
   "description": "Riftbound TCG rules corpus + a citation-verified rules answerer",
   "bin": {
