@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Combat — Riftbound Oracle primer</title>
+<meta name="description" content="Combat is three steps at one Battlefield — a Showdown, then damage, then resolution — and it only begins once units of exactly two opposing players are there; the third step can stage the whole thing again rather than ending it. Every step and every transition cites the rule that says so.">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><path d='M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z' fill='none' stroke='%23c8aa6e' stroke-width='4'/><path d='M48 30 L52.8 47.2 L70 52 L52.8 56.8 L48 74 L43.2 56.8 L26 52 L43.2 47.2 Z' fill='%233c8fe0'/></svg>">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#content">Skip to content</a>
+<header class="masthead" data-od-id="site-masthead">
+  <div class="wrap masthead-in">
+    <svg class="mark" viewBox="0 0 96 96" role="img" aria-label="Riftbound Oracle"><path d="M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z" fill="none" stroke="#c8aa6e" stroke-width="2.5"/><circle cx="48" cy="48" r="25" fill="none" stroke="#c8aa6e" stroke-width="3"/><path d="M30.61 43.34 A18 18 0 0 1 43.34 30.61" fill="none" stroke="#e4f1f5" stroke-width="3" stroke-linecap="round"/><path d="M48 37 L50.4 45.6 L59 48 L50.4 50.4 L48 59 L45.6 50.4 L37 48 L45.6 45.6 Z" fill="#3c8fe0"/></svg>
+    <a class="wordmark" href="index.html"><span class="eyebrow">Riftbound</span><b>Oracle</b></a>
+    <span class="unofficial">Unofficial rules companion</span>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Overview</a>
+      <a href="hot-fepr.html">HOT&nbsp;FEPR</a>
+      <a href="combat.html" aria-current="page">Combat</a>
+      <a href="showdowns.html">Showdowns</a>
+      <a href="rulebook.html">Rulebook</a>
+      <a href="samples.html">Sample reports</a>
+    </nav>
+  </div>
+</header>
+<main id="content">
+<section class="wrap" data-od-id="primer-head">
+  <span class="crumb"><a href="index.html">Overview</a> &nbsp;/&nbsp; Diagram explainers</span>
+  <div class="split wide-left">
+    <div>
+      <p class="eyebrow">Primer &middot; derived from verified transitions</p>
+      <h1>Combat</h1>
+      <p class="lede">Combat is three steps at one Battlefield — a Showdown, then damage, then resolution — and it only begins once units of exactly two opposing players are there; the third step can stage the whole thing again rather than ending it.</p>
+      <p class="muted">This page covers the procedure rules 459-466 call Combat — when it is staged, the three Steps of Combat, how damage is assigned and dealt, and what settles the Battlefield afterwards.</p>
+    </div>
+    <div class="plate rimlit">
+      <div class="pad">
+        <p class="eyebrow cool">The question it answers</p>
+        <p class="ask">Walk me through Combat</p>
+        <div class="metrics">
+          <div class="metric"><b>Steps</b><span>4</span></div>
+          <div class="metric"><b>Stated outright</b><span>4/4</span></div>
+          <div class="metric"><b>Transitions</b><span>7</span></div>
+        </div>
+        <p class="fine" style="margin:1rem 0 0">Core Rules 2026-07-16 &middot;
+        Tournament Rules 2026-07-16 &middot; verified
+        2026-08-26</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap" data-od-id="primer-diagram">
+  <p class="eyebrow">The map</p>
+  <figure>
+    <div class="plate diagram">
+      <div class="diagram-scroll">
+        <img src="diagrams/combat.svg" alt="Combat: 4 steps down the left with the 7 transitions between them drawn as numbered arrows. Each number matches a numbered transition in the text below.">
+      </div>
+    </div>
+    <p class="fine pan-hint">Wide diagram &mdash; drag it sideways to follow an arrow.</p>
+    <figcaption>Computed from the cited transitions below and from nothing else &mdash; every
+    arrow here is one of them, and every one of them is here. There is no field in which an
+    author can draw an edge. A solid arrow is a move a rule states outright; a dashed one
+    follows from the rules cited. The numbering is shared: arrow&nbsp;7 on the map is
+    item&nbsp;7 in the prose. Rendered by
+    <a href="https://github.com/yizhiyanhua-ai/fireworks-tech-graph">Fireworks Tech Graph</a> in
+    its Blueprint style, and shipped exactly as generated.</figcaption>
+  </figure>
+</section>
+<section class="wrap" data-od-id="primer-steps">
+  <p class="eyebrow">The steps</p>
+  <article class="plate on-well step" id="s1" data-od-id="step-s1">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">1</span>
+      <h3>Staged — two players&#x27; units meet</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>Combat is Staged the moment units controlled by two opposing players are at a Battlefield and the Steps of Combat have not started. Staged is not the same as happening: the Combat occurs at a Cleanup, with no items on the Chain and no other Showdown or Combat ongoing anywhere. Exactly two players — never three.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-461">CR 461</a><span class="quote">Combat is considered Staged if there are units controlled by two opposing players at a Battlefield but the Steps of Combat have not been initiated.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-460">CR 460</a><span class="quote">A Combat occurs when a Cleanup occurs, there are no items on the Chain, there is a staged Combat at a Battlefield, and no Showdown or Combat is ongoing at any other Battlefield. See rule 318. Cleanups for more information.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-462">CR 462</a><span class="quote">Combat can only occur between Units controlled by exactly two players.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">1</span>
+        <div>
+          <span class="exit-when">a Cleanup arrives with the Chain empty and nothing ongoing elsewhere — the Steps of Combat begin</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; Step 1 — the Combat Showdown</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-460">CR 460</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">2</span>
+        <div>
+          <span class="exit-when">the Combat stops being Staged first — the units move or die before the steps start, and nothing is resolved at all</span>
+          <span class="exit-goto">The procedure <b>ends here</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-461.2">CR 461.2</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s2" data-od-id="step-s2">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">2</span>
+      <h3>Step 1 — the Combat Showdown</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>Combat opens with a Showdown, or turns the one already running into a Combat Showdown. Before anyone acts, the designations are fixed: the Attacker is whoever&#x27;s units applied the Contested status, the Defender is the one who did not, and the Attacker gains Focus. Then play proceeds on the Chain as normal.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-464.2">CR 464.2</a><span class="quote">When Combat opens, it either opens with a Combat Showdown, or the current Showdown becomes a Combat Showdown.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-464.2.a">CR 464.2.a</a><span class="quote">The following Tasks become Outstanding, in the order described:</span></li>
+    <li><a class="rid" href="rulebook.html#CR-464.2.c.1">CR 464.2.c.1</a><span class="quote">The Attacker is the player whose unit(s) applied the Contested status to the Battlefield.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-464.2.c.2">CR 464.2.c.2</a><span class="quote">The Defender is the player who did not apply the Contested status to the Battlefield.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-464.2.d">CR 464.2.d</a><span class="quote">3. The Attacker gains Focus.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-464.2.g">CR 464.2.g</a><span class="quote">Players proceed with any play on the Chain as normal.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">3</span>
+        <div>
+          <span class="exit-when">the Showdown closes with both Attacking and Defending units still at the Battlefield</span>
+          <span class="exit-goto">Go to step <b>3 &mdash; Step 2 — Combat Damage</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-465.1">CR 465.1</a> &middot; <a href="rulebook.html#CR-465.2">CR 465.2</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n dashed" aria-hidden="true">4</span>
+        <div>
+          <span class="exit-when">one side no longer has units here when the Showdown closes — there is nothing to resolve damage between, so the Damage Step&#x27;s tasks never become Outstanding and the Combat goes straight to Resolution</span>
+          <span class="exit-goto">Go to step <b>4 &mdash; Step 3 — Resolution</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-465.1">CR 465.1</a> <span class="chip blue">▲ Structural</span></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s3" data-od-id="step-s3">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">3</span>
+      <h3>Step 2 — Combat Damage</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>Both sides sum the Might of their units, and starting with the Attacker each assigns that total among the other&#x27;s units. Assignment is not dealing: nothing happens to any unit until every point is assigned, and then all of it lands at once. A unit must be assigned lethal damage in full before the next one is assigned any, and no more than the minimum lethal amount unless nothing else is left to assign to.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-465.2.a">CR 465.2.a</a><span class="quote">Sum the Might of all Attacking Units.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-465.2.b">CR 465.2.b</a><span class="quote">Sum the Might of all Defending Units.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-465.2.c">CR 465.2.c</a><span class="quote">Starting with the Attacker, each player assigns an amount of damage equal to their summed Might among the other&#x27;s Units.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-465.2.c.1">CR 465.2.c.1</a><span class="quote">Assigning Damage is not Dealing Damage.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-465.2.c.1.a">CR 465.2.c.1.a</a><span class="quote">When all Damage is assigned, it will be Dealt simultaneously. These actions are not synonymous.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-465.2.c.3">CR 465.2.c.3</a><span class="quote">Units must have lethal damage assigned to them in full before damage is assigned to a different Unit.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-465.2.c.4">CR 465.2.c.4</a><span class="quote">Units cannot have more damage assigned to them than the minimum required to constitute lethal damage unless no further units remain to have damage assigned to them.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-465.2.d">CR 465.2.d</a><span class="quote">Deal Damage to each unit equal to the amount assigned to it.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">5</span>
+        <div>
+          <span class="exit-when">damage has been dealt — the FEPR process is skipped and any outstanding tasks are cancelled</span>
+          <span class="exit-goto">Go to step <b>4 &mdash; Step 3 — Resolution</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-465.3">CR 465.3</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s4" data-od-id="step-s4">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">4</span>
+      <h3>Step 3 — Resolution</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>A Combat Cleanup runs first, and it heals every unit and recalls surviving Attackers if Defenders are still there. Only then is the result read: a player won if they are the only one with units left here, lost if they are the only one without. If both still have units, or neither does, there is No Result. Control and any Conquer are settled last, and it need not be the player who contested it.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-466.1">CR 466.1</a><span class="quote">1. Perform a Combat Cleanup.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-466.1.a.1">CR 466.1.a.1</a><span class="quote">Insert “3c. Heal all Units.”</span></li>
+    <li><a class="rid" href="rulebook.html#CR-466.1.a.2">CR 466.1.a.2</a><span class="quote">Insert “3d. Recall Attackers present at the Battlefield if Defenders are still present.” See rule 454. Recalls for more information.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-466.3.a">CR 466.3.a</a><span class="quote">A Player has won a combat if they received either the attacker or defender designation and are the only Player that has units remaining at this battlefield during this step.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-466.3.b">CR 466.3.b</a><span class="quote">A Player has lost a combat if they received either the attacker or defender designation and are the only Player that does not have any units remaining at this battlefield during this step.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-466.3.d">CR 466.3.d</a><span class="quote">There is “No Result” if units were recalled during step 3d of the Combat Cleanup, if both Players have units present during this task, or if neither player has units present during this task.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-466.5">CR 466.5</a><span class="quote">1. If no Showdown or Combat is staged at this location, the player with Units remaining here Establishes Control if they didn’t already control this Battlefield.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-466.5.d">CR 466.5.d</a><span class="quote">Establishing Control results in a Conquer if that player has not yet scored this Battlefield this turn. See rule 188. Control for more information on Control. See rule 469.1. for more information on Conquering.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-466.5.e">CR 466.5.e</a><span class="quote">This does not have to be the player that applied Contested to the Battlefield.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">6</span>
+        <div>
+          <span class="exit-when">No Result was reached and both players still have units here — a Showdown and a Combat are staged at this Battlefield all over again</span>
+          <span class="exit-goto">Go to step <b>1 &mdash; Staged — two players&#x27; units meet</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-466.3.d.1">CR 466.3.d.1</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">7</span>
+        <div>
+          <span class="exit-when">the Battlefield is settled — designations are stripped, end-of-combat effects happen, and every &quot;this combat&quot; effect expires</span>
+          <span class="exit-goto">The procedure <b>ends here</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-466.7">CR 466.7</a> &middot; <a href="rulebook.html#CR-466.7.a">CR 466.7.a</a> &middot; <a href="rulebook.html#CR-466.7.c">CR 466.7.c</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+</section>
+<section class="wrap" data-od-id="primer-misconceptions">
+  <p class="eyebrow">Commonly believed, and wrong</p>
+  <ul class="misc">
+    <li>
+      <p class="belief">Damage is dealt to each unit as it is assigned, so the first one dies before the next is assigned.</p>
+      <p class="why"><b>Why that's wrong</b>Assigning is not dealing. Every point is assigned first, across both sides, and only then is all of it dealt simultaneously — so a unit that will die still has its full Might counted, and abilities that trigger on damage all see the same moment.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-465.2.c.1">CR 465.2.c.1</a> &middot; <a href="rulebook.html#CR-465.2.c.1.a">CR 465.2.c.1.a</a> &middot; <a href="rulebook.html#CR-465.2.d">CR 465.2.d</a></p>
+    </li>
+    <li>
+      <p class="belief">You can dump all your Might onto their biggest unit.</p>
+      <p class="why"><b>Why that's wrong</b>Only up to lethal. A unit must be assigned enough to kill it before any is assigned elsewhere, and no more than that minimum unless there is nothing else left to assign to.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-465.2.c.3">CR 465.2.c.3</a> &middot; <a href="rulebook.html#CR-465.2.c.4">CR 465.2.c.4</a></p>
+    </li>
+    <li>
+      <p class="belief">Damage marked in combat stays on the surviving units afterwards.</p>
+      <p class="why"><b>Why that's wrong</b>The Combat Cleanup heals all units as part of the Resolution Step, before the result is even read.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-466.1.a.1">CR 466.1.a.1</a></p>
+    </li>
+    <li>
+      <p class="belief">Surviving the combat means you took the Battlefield.</p>
+      <p class="why"><b>Why that's wrong</b>You win only by being the ONLY player with units left there. If both of you still have units — or neither does — it is No Result, and if both remain the whole thing is staged again.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-466.3.a">CR 466.3.a</a> &middot; <a href="rulebook.html#CR-466.3.d">CR 466.3.d</a> &middot; <a href="rulebook.html#CR-466.3.d.1">CR 466.3.d.1</a></p>
+    </li>
+  </ul>
+</section>
+<section class="wrap" data-od-id="primer-rejected">
+  <p class="eyebrow">Read and left out</p>
+  <p>Rules that came up while this was written and were deliberately not made steps. Saying
+  which near-misses were rejected, and why, is cheaper for a reader to audit than a silent
+  omission.</p>
+  <table>
+    <thead><tr><th scope="col">Rule</th><th scope="col">Why it is not a step here</th></tr></thead>
+    <tbody>
+      <tr><td><a class="rid" href="rulebook.html#CR-341">CR 341</a></td><td>Showdowns are their own procedure; Combat&#x27;s first step runs one, but how Focus moves inside it belongs there.</td></tr>
+      <tr><td><a class="rid" href="rulebook.html#CR-318">CR 318</a></td><td>Cleanups are when a staged Combat becomes a happening one — the trigger, not a step of Combat.</td></tr>
+      <tr><td><a class="rid" href="rulebook.html#CR-336">CR 336</a></td><td>FEPR runs the Chain a Combat Showdown creates, and the Damage Step explicitly skips it; it is machinery inside a step, not a step.</td></tr>
+    </tbody>
+  </table>
+</section>
+<section class="wrap tight" data-od-id="primer-provenance">
+  <div class="plate on-well">
+    <div class="pad">
+      <p class="eyebrow cool">Provenance</p>
+      <p class="fine" style="max-width:74ch">Every quote on this page was checked against the
+      rule it names before the page was written: the rule has to exist in the corpus, and the
+      quoted span has to appear verbatim inside it. Each rule ID links into
+      <a href="rulebook.html">the anchored rulebook</a> at the exact clause.
+      Of the 7 transitions, 1 is declared structural &mdash; it follows from the rules cited rather than being stated outright &mdash; and is drawn dashed.
+      This page is generated from the same primer document the diagram is
+      &mdash; see <code>site/build.py</code>.</p>
+    </div>
+  </div>
+</section>
+</main>
+<footer data-od-id="site-footer">
+  <div class="wrap">
+    <div class="cols three">
+      <div>
+        <h4>Riftbound Oracle</h4>
+        <p>An unofficial rules companion for Riftbound, the League of Legends Trading Card
+        Game. Rules answers with citations a machine has already checked.</p>
+      </div>
+      <div>
+        <h4>On this site</h4>
+        <ul>
+          <li><a href="hot-fepr.html">HOT FEPR primer</a></li>
+          <li><a href="combat.html">Combat primer</a></li>
+          <li><a href="showdowns.html">Showdowns primer</a></li>
+          <li><a href="rulebook.html">Anchored rulebook</a></li>
+          <li><a href="samples.html">Sample reports</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/gear-null/riftbound-oracle">Source on GitHub</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/docs/report-anatomy.md">How to read a report</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/LICENSE">Licence (MIT)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="disclaim">
+      <p style="max-width:78ch">Riftbound is a trademark of Riot Games. This project is
+      <b>unofficial and not endorsed by, affiliated with, or sponsored by Riot Games</b>. The
+      code is MIT. The Riftbound rules text and card text are Riot Games' copyright, included
+      so a citation can be checked verbatim against the document it quotes, and used under
+      Riot's policy for community projects &mdash; they travel under Riot's terms, not MIT. No
+      card artwork is redistributed: reports reference Riot's CDN by URL, and a reader with no
+      network sees a labelled placeholder. Riot's Beaufort and TT Norms are proprietary and are
+      not redistributed either; this site loads no fonts and renders in the open fallbacks the
+      reports declare.</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

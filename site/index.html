@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Riftbound Oracle — rules answers you can actually check</title>
+<meta name="description" content="An unofficial Riftbound rules companion. Every citation is proved against the rulebook before the answer is written: the rule has to exist, and the quote has to appear verbatim in it.">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><path d='M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z' fill='none' stroke='%23c8aa6e' stroke-width='4'/><path d='M48 30 L52.8 47.2 L70 52 L52.8 56.8 L48 74 L43.2 56.8 L26 52 L43.2 47.2 Z' fill='%233c8fe0'/></svg>">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="masthead" data-od-id="site-masthead">
+  <div class="wrap masthead-in">
+    <svg class="mark" viewBox="0 0 96 96" role="img" aria-label="Riftbound Oracle"><path d="M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z" fill="none" stroke="#c8aa6e" stroke-width="2.5"/><circle cx="48" cy="48" r="25" fill="none" stroke="#c8aa6e" stroke-width="3"/><path d="M30.61 43.34 A18 18 0 0 1 43.34 30.61" fill="none" stroke="#e4f1f5" stroke-width="3" stroke-linecap="round"/><path d="M48 37 L50.4 45.6 L59 48 L50.4 50.4 L48 59 L45.6 50.4 L37 48 L45.6 45.6 Z" fill="#3c8fe0"/></svg>
+    <a class="wordmark" href="index.html"><span class="eyebrow">Riftbound</span><b>Oracle</b></a>
+    <span class="unofficial">Unofficial rules companion</span>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html" aria-current="page">Overview</a>
+      <a href="hot-fepr.html">HOT&nbsp;FEPR</a>
+      <a href="combat.html">Combat</a>
+      <a href="showdowns.html">Showdowns</a>
+      <a href="rulebook.html">Rulebook</a>
+      <a href="samples.html">Sample reports</a>
+    </nav>
+  </div>
+</header>
+
+<main id="content">
+
+<!-- ── hero ────────────────────────────────────────────────────────────── -->
+<section class="wrap" data-od-id="hero">
+  <div class="split">
+    <div>
+      <p class="eyebrow">Riftbound TCG · verified citations</p>
+      <h1>Riftbound rules answers you can actually check.</h1>
+      <p class="lede">Ask your AI agent a rules question. Get back a verdict, the reasoning
+      split into individually-graded claims, and every citation one click away from the
+      rule it rests on.</p>
+      <p class="muted">Two Claude&nbsp;Code skills over Riot's own documents: <b>rules-report</b>,
+      which answers and then proves what it cited, and <b>deck-lab</b>, which builds decks and
+      tests them against real tournament lists.</p>
+      <div class="actions">
+        <a class="btn" href="samples.html" data-od-id="hero-cta-sample">See a verified ruling</a>
+        <a class="btn ghost" href="rulebook.html">Open the rulebook</a>
+      </div>
+    </div>
+    <div class="plate rimlit" data-od-id="hero-install">
+      <div class="pad">
+        <p class="eyebrow">Install</p>
+        <pre><code><span class="p">$ </span>npx skills add gear-null/riftbound-oracle</code></pre>
+        <p class="fine" style="margin:1rem 0 0">Claude&nbsp;Code, Cursor, Codex, Gemini&nbsp;CLI,
+        GitHub&nbsp;Copilot and a dozen more. <b>Python&nbsp;3.9+</b> is the only requirement —
+        the one macOS already ships. No build, no API key, no account.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap tight" data-od-id="hero-figure" style="border-top:0;padding-block-start:0">
+  <figure class="shot">
+    <img src="img/banner.png" width="2400" height="800" alt="The Riftbound Oracle mark beside a verified citation of Core Rules 142.4.a — “Lethal Damage is the amount of marked Damage that will cause a unit to die in a cleanup.” — stamped as checked by code, not by the model.">
+    <figcaption>A citation as the report prints it: the rule ID, the quoted span, and a stamp
+    that means code opened <a href="rulebook.html#CR-142.4.a">142.4.a</a> and found that text
+    inside it.</figcaption>
+  </figure>
+</section>
+
+<!-- ── the spine: 29% ──────────────────────────────────────────────────── -->
+<section class="wrap" data-od-id="the-29-percent">
+  <p class="eyebrow">Why this exists</p>
+  <div class="split">
+    <div>
+      <p class="stat" data-od-id="stat-29">29%</p>
+      <h2 style="margin-top:.6rem">of cited rule IDs<br>don't exist</h2>
+      <p>Ask a chatbot a Riftbound question and it will cite <code>471.1.b.1</code> with total
+      confidence whether or not that rule exists. We measured that rather than assuming it: a
+      7,774-answer community corpus (RiftJudge) was crawled, stamped per-entry as unofficial,
+      and counted.</p>
+      <p>Of the 831 answers that cite a rule ID at all — 1,239 citations between them —
+      <b>29% of the citations point at a rule ID that does not exist</b>, and 33% of those
+      answers contain at least one such ID.</p>
+      <p class="fine">Measured in <a href="https://github.com/gear-null/riftbound-oracle/blob/main/docs/adr/0003-tier-1-sources-only.md">ADR&nbsp;0003</a>,
+      which is also why community Q&amp;A is not a citable source here.</p>
+    </div>
+    <div class="plate on-well" data-od-id="riftjudge-table">
+      <div class="pad">
+        <p class="eyebrow cool">RiftJudge corpus · 7,774 answers</p>
+        <table>
+          <caption class="fine" style="text-align:left;padding:0 0 .8rem;color:var(--muted)">What a
+          community answer archive actually contains.</caption>
+          <tbody>
+            <tr><td>Mention Riot</td><td class="num">5 · 0.06%</td></tr>
+            <tr><td>Cite a dev or designer</td><td class="num">5 · 0.06%</td></tr>
+            <tr><td>Flag a coming rules change</td><td class="num">13 · 0.2%</td></tr>
+            <tr><td>Admit the rules don't settle it</td><td class="num">4 · 0.05%</td></tr>
+            <tr><td>Cite a rule ID at all</td><td class="num">831 · 10.7%</td></tr>
+            <tr class="hi"><td>…of those citations, broken</td><td class="num">29%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── the promise ─────────────────────────────────────────────────────── -->
+<section class="wrap" data-od-id="verification-promise">
+  <p class="eyebrow">The promise</p>
+  <h2>A citation that fails is not softened</h2>
+  <p class="lede">Before a report is rendered, a verifier proves every cited rule exists and
+  every quote appears verbatim in it. A failure doesn't get hedged into "roughly" — it forces
+  the whole answer to <code>UNSETTLED</code>, and the renderer then refuses to write the file
+  at all.</p>
+  <dl class="dl-grid cols three" data-od-id="promise-grid">
+    <div>
+      <dt>The rule must exist</dt>
+      <dd>Every ID is resolved against the parsed corpus — the same 3,316 rules the rulebook on
+      this site is generated from. An invented ID has nowhere to resolve to.</dd>
+    </div>
+    <div>
+      <dt>The quote must be verbatim</dt>
+      <dd>The quoted span is matched inside the rule's own text. Paraphrase fails exactly as
+      hard as fabrication does.</dd>
+    </div>
+    <div>
+      <dt>Confidence is the floor</dt>
+      <dd>Never an average. Nine grounded claims plus one inference make an <i>inferred</i>
+      answer, and the report names which claim is the soft one.</dd>
+    </div>
+    <div>
+      <dt>Refusal is an answer</dt>
+      <dd>When the rules genuinely don't settle something you get <code>UNSETTLED</code> and a
+      list of what was searched — not a confident guess.</dd>
+    </div>
+    <div>
+      <dt>Errata applied</dt>
+      <dd>Card text carries Riot's published errata. The card database the rest of the
+      ecosystem reads is months behind; 28 cards here say what Riot actually ruled.</dd>
+    </div>
+    <div>
+      <dt>It works on a plane</dt>
+      <dd>Rules, cards and rulebook all ship with the skill, so answering needs no network at
+      all. Only card artwork loads remotely, when you open a report.</dd>
+    </div>
+  </dl>
+</section>
+
+<!-- ── what you get ────────────────────────────────────────────────────── -->
+<section class="wrap" data-od-id="what-you-get">
+  <p class="eyebrow">What you actually get</p>
+  <div class="split wide-left">
+    <figure class="shot" data-od-id="shot-report">
+      <img src="img/report.png" width="1265" height="1120" alt="A Riftbound Oracle ruling: the verdict is decomposed into individually graded claims, each with its citations, and the whole argument is indexed in a rail alongside it.">
+    </figure>
+    <div>
+      <h2>One HTML file,<br>argued in the open</h2>
+      <p>A hard ruling runs long, so it is indexed beside itself — the verdict, the weakest
+      link, and every claim in order with the load-bearing one marked. It tracks which claim
+      you are reading.</p>
+      <p>Each claim carries its basis as a chip: <b>●&nbsp;grounded</b> when a rule states it in
+      so many words, <b>▲&nbsp;structural</b> when it follows from the rules cited, and
+      <b>○&nbsp;gap</b> when the rules don't address it. Exactly one claim is marked
+      <b>CRUX</b>, and it must say what happens if it is wrong.</p>
+      <p>Print it and the index drops away, every citation opens, and the whole thing inverts to
+      a clean sheet — because judges print these.</p>
+      <p class="fine"><a href="samples.html">Read a full ruling and a full primer →</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" data-od-id="rulebook-overlay">
+  <div class="split">
+    <div>
+      <h2>Every citation<br>is followable</h2>
+      <p>Click a rule and the full rulebook opens over the report, scrolled to the exact clause
+      with its cross-references live — without losing your place in the argument. A rule is
+      meaningless without the clause it sits under, so the citation shows its ancestor spine
+      too.</p>
+      <p>The same anchored rulebook is <a href="rulebook.html">on this site</a>, so a citation
+      anywhere can deep-link straight at a rule: <a href="rulebook.html#CR-334">CR&nbsp;334</a>,
+      <a href="rulebook.html#CR-465.2.c.1">CR&nbsp;465.2.c.1</a>.</p>
+    </div>
+    <figure class="shot" data-od-id="shot-overlay">
+      <img src="img/rulebook-overlay.png" width="1280" height="581" alt="The anchored rulebook opened as an overlay above a report, scrolled to the exact clause a claim rests on.">
+    </figure>
+  </div>
+</section>
+
+<!-- ── two document kinds ──────────────────────────────────────────────── -->
+<section class="wrap" data-od-id="two-kinds">
+  <p class="eyebrow">Two kinds of document</p>
+  <div class="split">
+    <div>
+      <h2>It explains things,<br>not only rules on them</h2>
+      <p>Ask <i>how</i> something works rather than what happens in one situation and you get a
+      <b>primer</b> instead of a ruling: the procedure as numbered steps, every move between
+      them cited, and a diagram of the whole loop.</p>
+      <p>The diagram is <i>derived</i> from those cited transitions — there is no field an
+      author can draw an arrow in — so the picture can never say something the document didn't
+      declare. A transition with no citation fails verification outright, which makes a primer
+      stricter than a ruling in the one place a reader acts on.</p>
+      <div class="actions">
+        <a class="btn ghost" href="hot-fepr.html">Read the HOT FEPR primer</a>
+      </div>
+    </div>
+    <figure class="shot" data-od-id="shot-primer">
+      <img src="img/primer.png" width="1265" height="1158" alt="A primer on the HOT FEPR loop: five steps down the left, the twelve transitions between them numbered and drawn as arrows, each one cited in the text below.">
+    </figure>
+  </div>
+</section>
+
+<!-- ── mechanics ───────────────────────────────────────────────────────── -->
+<section class="wrap" data-od-id="mechanics">
+  <p class="eyebrow">Diagram explainers</p>
+  <h2>Three procedures, drawn from their own citations</h2>
+  <p>Each of these is a rendered primer: the steps, the conditions that move you between them,
+  and the rule that says so. The map beside the prose is computed from exactly those
+  transitions and from nothing else.</p>
+  <div class="cols three" style="margin-top:2rem">
+    <a class="plate on-well" href="hot-fepr.html" style="border-bottom:0" data-od-id="mech-card-hot-fepr">
+      <div class="pad">
+        <p class="eyebrow">5 steps · 12 transitions</p>
+        <h3>HOT FEPR</h3>
+        <p class="fine">Clear every Task first, then work the Chain one item at a time through
+        Finalize, Execute, Pass and Resolve — where most steps can send you backwards.</p>
+      </div>
+    </a>
+    <a class="plate on-well" href="combat.html" style="border-bottom:0" data-od-id="mech-card-combat">
+      <div class="pad">
+        <p class="eyebrow">4 steps · 7 transitions</p>
+        <h3>Combat</h3>
+        <p class="fine">Three steps at one Battlefield — a Showdown, then damage, then
+        resolution — and the third step can stage the whole thing again rather than ending
+        it.</p>
+      </div>
+    </a>
+    <a class="plate on-well" href="showdowns.html" style="border-bottom:0" data-od-id="mech-card-showdowns">
+      <div class="pad">
+        <p class="eyebrow">4 steps · 8 transitions</p>
+        <h3>Showdowns</h3>
+        <p class="fine">An alternating window at a contested Battlefield: the contester acts
+        first, Focus moves each time a Chain closes, and passing once is not enough to close
+        it.</p>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ── deck lab ────────────────────────────────────────────────────────── -->
+<section class="wrap" data-od-id="deck-lab">
+  <p class="eyebrow">Also included</p>
+  <div class="split wide-left">
+    <div>
+      <h2>A deck lab — a table,<br>not a player</h2>
+      <p>The second skill builds decks and tests them against real tournament lists. Code owns
+      everything that must not be imagined — the shuffle, what you drew, whose turn it is, what
+      a rune pool holds, how much damage a combat assigns, and whether the deck is legal under
+      <a href="rulebook.html#CR-103">rule 103</a>. Your agent owns every decision and every word
+      of card text.</p>
+      <p>So the report keeps its two halves apart and says which is which: <b>shuffle math</b>
+      at 50,000 hands, which involves no decisions and so is exact and cheap; and <b>played
+      games</b> at the sample size games are actually played at, with <i>n</i> and a Wilson
+      interval beside every rate. At four games that interval runs 30–95%, and the report prints
+      it rather than quietly rounding a 3–1 into "75%".</p>
+      <p class="fine">24 tournament decklists ship with it.</p>
+    </div>
+    <div class="plate on-well">
+      <div class="pad">
+        <p class="eyebrow cool">Ask it anything like</p>
+        <p class="ask">Build me an aggressive Irelia list and see how it holds up against the
+        Master Yi decks</p>
+        <p class="ask">Is 12 Power the right count if I'm already running four channels?</p>
+        <p class="ask">Play out game one of Annie versus Kai'Sa and stop at the first
+        Showdown</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── install ─────────────────────────────────────────────────────────── -->
+<section class="wrap" data-od-id="install">
+  <p class="eyebrow">Install</p>
+  <div class="split">
+    <div>
+      <h2>One command,<br>both skills</h2>
+      <pre><code><span class="p">$ </span>npx skills add gear-null/riftbound-oracle</code></pre>
+      <p class="fine" style="margin-top:1rem">Then just ask. Your agent looks up the cards, walks
+      the rulebook, writes the answer, verifies it, and opens the report. You never run a
+      command.</p>
+      <p class="fine">No Node? The published release installs the same folder, verified against
+      its checksum:</p>
+      <pre><code><span class="p">$ </span>curl -fsSL https://raw.githubusercontent.com/gear-null/riftbound-oracle/main/install.sh | sh</code></pre>
+      <p class="fine" style="margin-top:1rem">Desktop and mobile apps take a file instead —
+      download the <code>.zip</code> from
+      <a href="https://github.com/gear-null/riftbound-oracle/releases/latest">Releases</a> and
+      upload it as a skill. Those apps block remote images, so set
+      <code>RIFTBOUND_EMBED_ART=1</code> to inline the card artwork.</p>
+    </div>
+    <div class="plate on-well">
+      <div class="pad">
+        <p class="eyebrow cool">Ask it anything like</p>
+        <p class="ask">Does a countered Flow spell still get banished?</p>
+        <p class="ask">Unchecked Power deals 12 damage to all units at battlefields. Player 2 has
+        Viktor, Leader and two Vanguard Sergeants. How many Recruits do they play?</p>
+        <p class="ask">Explain the HOT FEPR loop as best you can</p>
+        <p class="fine" style="margin:1.1rem 0 0">Text-only skill surfaces can't run it. The
+        answers come from executing a verifier against a corpus, not from prose an agent
+        reads.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer data-od-id="site-footer">
+  <div class="wrap">
+    <div class="cols three">
+      <div>
+        <h4>Riftbound Oracle</h4>
+        <p>An unofficial rules companion for Riftbound, the League of Legends Trading Card Game.
+        Rules answers with citations a machine has already checked.</p>
+      </div>
+      <div>
+        <h4>On this site</h4>
+        <ul>
+          <li><a href="hot-fepr.html">HOT FEPR primer</a></li>
+          <li><a href="combat.html">Combat primer</a></li>
+          <li><a href="showdowns.html">Showdowns primer</a></li>
+          <li><a href="rulebook.html">Anchored rulebook</a></li>
+          <li><a href="samples.html">Sample reports</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/gear-null/riftbound-oracle">Source on GitHub</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/docs/report-anatomy.md">How to read a report</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/LICENSE">Licence (MIT)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="disclaim">
+      <p style="max-width:78ch">Riftbound is a trademark of Riot Games. This project is
+      <b>unofficial and not endorsed by, affiliated with, or sponsored by Riot Games</b>. The
+      code is MIT. The Riftbound rules text and card text are Riot Games' copyright, included so
+      a citation can be checked verbatim against the document it quotes, and used under Riot's
+      policy for community projects — they travel under Riot's terms, not MIT. No card artwork is
+      redistributed: reports reference Riot's CDN by URL, and a reader with no network sees a
+      labelled placeholder. Riot's Beaufort and TT Norms are proprietary and are not
+      redistributed either; this site loads no fonts and renders in the open fallbacks the
+      reports declare.</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

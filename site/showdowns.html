@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Showdowns — Riftbound Oracle primer</title>
+<meta name="description" content="A Showdown is an alternating window at a contested Battlefield: whoever contested it takes Focus and acts first, Focus moves on each time a Chain closes, and the window shuts only once every player has passed in sequence without playing anything. Every step and every transition cites the rule that says so.">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><path d='M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z' fill='none' stroke='%23c8aa6e' stroke-width='4'/><path d='M48 30 L52.8 47.2 L70 52 L52.8 56.8 L48 74 L43.2 56.8 L26 52 L43.2 47.2 Z' fill='%233c8fe0'/></svg>">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#content">Skip to content</a>
+<header class="masthead" data-od-id="site-masthead">
+  <div class="wrap masthead-in">
+    <svg class="mark" viewBox="0 0 96 96" role="img" aria-label="Riftbound Oracle"><path d="M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z" fill="none" stroke="#c8aa6e" stroke-width="2.5"/><circle cx="48" cy="48" r="25" fill="none" stroke="#c8aa6e" stroke-width="3"/><path d="M30.61 43.34 A18 18 0 0 1 43.34 30.61" fill="none" stroke="#e4f1f5" stroke-width="3" stroke-linecap="round"/><path d="M48 37 L50.4 45.6 L59 48 L50.4 50.4 L48 59 L45.6 50.4 L37 48 L45.6 45.6 Z" fill="#3c8fe0"/></svg>
+    <a class="wordmark" href="index.html"><span class="eyebrow">Riftbound</span><b>Oracle</b></a>
+    <span class="unofficial">Unofficial rules companion</span>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Overview</a>
+      <a href="hot-fepr.html">HOT&nbsp;FEPR</a>
+      <a href="combat.html">Combat</a>
+      <a href="showdowns.html" aria-current="page">Showdowns</a>
+      <a href="rulebook.html">Rulebook</a>
+      <a href="samples.html">Sample reports</a>
+    </nav>
+  </div>
+</header>
+<main id="content">
+<section class="wrap" data-od-id="primer-head">
+  <span class="crumb"><a href="index.html">Overview</a> &nbsp;/&nbsp; Diagram explainers</span>
+  <div class="split wide-left">
+    <div>
+      <p class="eyebrow">Primer &middot; derived from verified transitions</p>
+      <h1>Showdowns</h1>
+      <p class="lede">A Showdown is an alternating window at a contested Battlefield: whoever contested it takes Focus and acts first, Focus moves on each time a Chain closes, and the window shuts only once every player has passed in sequence without playing anything.</p>
+      <p class="muted">This page covers the Window of Opportunity rule 342 calls a Showdown — how it opens at a contested Battlefield, who acts, how Focus moves between players, and what closes it.</p>
+    </div>
+    <div class="plate rimlit">
+      <div class="pad">
+        <p class="eyebrow cool">The question it answers</p>
+        <p class="ask">How do Showdowns work?</p>
+        <div class="metrics">
+          <div class="metric"><b>Steps</b><span>4</span></div>
+          <div class="metric"><b>Stated outright</b><span>4/4</span></div>
+          <div class="metric"><b>Transitions</b><span>8</span></div>
+        </div>
+        <p class="fine" style="margin:1rem 0 0">Core Rules 2026-07-16 &middot;
+        Tournament Rules 2026-07-16 &middot; verified
+        2026-08-26</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap" data-od-id="primer-diagram">
+  <p class="eyebrow">The map</p>
+  <figure>
+    <div class="plate diagram">
+      <div class="diagram-scroll">
+        <img src="diagrams/showdowns.svg" alt="Showdowns: 4 steps down the left with the 8 transitions between them drawn as numbered arrows. Each number matches a numbered transition in the text below.">
+      </div>
+    </div>
+    <p class="fine pan-hint">Wide diagram &mdash; drag it sideways to follow an arrow.</p>
+    <figcaption>Computed from the cited transitions below and from nothing else &mdash; every
+    arrow here is one of them, and every one of them is here. There is no field in which an
+    author can draw an edge. A solid arrow is a move a rule states outright; a dashed one
+    follows from the rules cited. The numbering is shared: arrow&nbsp;7 on the map is
+    item&nbsp;7 in the prose. Rendered by
+    <a href="https://github.com/yizhiyanhua-ai/fireworks-tech-graph">Fireworks Tech Graph</a> in
+    its Blueprint style, and shipped exactly as generated.</figcaption>
+  </figure>
+</section>
+<section class="wrap" data-od-id="primer-steps">
+  <p class="eyebrow">The steps</p>
+  <article class="plate on-well step" id="s1" data-od-id="step-s1">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">1</span>
+      <h3>Open — the Battlefield is contested</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>A Showdown opens at a Battlefield whose Control is Contested, during a Cleanup, while the turn is in a Neutral Open State. The player whose units applied that Contested status takes Focus, so the contester acts first. From here the turn is in a Showdown State, and that is a real restriction: by default neither cards nor card abilities can be played at all while one is in progress.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-344">CR 344</a><span class="quote">A Showdown begins when Control of a Battlefield is Contested during a Cleanup and the turn is in a Neutral Open State.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-345">CR 345</a><span class="quote">As a Showdown begins, the player who applied Contested status to the Battlefield gains Focus.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-342">CR 342</a><span class="quote">A Showdown is a Window of Opportunity in which Players have an Open State in which they may play Spells in an alternating fashion.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-343.1.a">CR 343.1.a</a><span class="quote">Cards of all Categories, by default, cannot be played during a Showdown State.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-343.1.b">CR 343.1.b</a><span class="quote">Card abilities, by default, cannot be played during a Showdown State.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">1</span>
+        <div>
+          <span class="exit-when">the Showdown has opened and the contester holds Focus</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; Act — the player with Focus chooses</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-345">CR 345</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s2" data-od-id="step-s2">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">2</span>
+      <h3>Act — the player with Focus chooses</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>The player with Focus has exactly two options, and the rules give them as a closed list: play a card or activated ability that is legally timed, or pass. &quot;Legally timed&quot; is doing the work — a Showdown State blocks cards and abilities by default, so what is playable here is generally something with Reaction.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-347">CR 347</a><span class="quote">During a Showdown, the player with Focus may do one of the following:</span></li>
+    <li><a class="rid" href="rulebook.html#CR-347.1">CR 347.1</a><span class="quote">Play a Card or Activated Ability that is legally timed.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-347.2">CR 347.2</a><span class="quote">Pass.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-343.1.a">CR 343.1.a</a><span class="quote">Cards of all Categories, by default, cannot be played during a Showdown State.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-343.1.b">CR 343.1.b</a><span class="quote">Card abilities, by default, cannot be played during a Showdown State.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-338.1.a.2">CR 338.1.a.2</a><span class="quote">A Legally Timed Card or Activated Ability would be one with Reaction or one that will have Reaction when played under appropriate circumstances.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">2</span>
+        <div>
+          <span class="exit-when">the player with Focus plays a card or activated ability</span>
+          <span class="exit-goto">Go to step <b>3 &mdash; Resolve — the Chain runs</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-347.1">CR 347.1</a> &middot; <a href="rulebook.html#CR-347.1.a">CR 347.1.a</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">3</span>
+        <div>
+          <span class="exit-when">the player with Focus passes, and not every player has passed yet — Focus simply moves along</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; Act — the player with Focus chooses</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-347.2.b">CR 347.2.b</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">4</span>
+        <div>
+          <span class="exit-when">the player with Focus passes and that completes a full sequence of passes</span>
+          <span class="exit-goto">Go to step <b>4 &mdash; Close — everyone has passed</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-347.2.a">CR 347.2.a</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s3" data-od-id="step-s3">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">3</span>
+      <h3>Resolve — the Chain runs</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>A spell played into a Showdown is not special: it creates a Chain as normal and is worked through by the ordinary HOT FEPR process. The Showdown does not reconsider Focus until the last item on that Chain has resolved and the turn is back in an Open State.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-342.1">CR 342.1</a><span class="quote">Each spell played this way creates a Chain as normal.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-346">CR 346</a><span class="quote">When the last item on the chain resolves and the turn returns to an Open State during a Showdown, Focus passes, and the next Player gains both Focus and Priority.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-336">CR 336</a><span class="quote">When there are no outstanding Tasks and there are pending Chain Items on the Chain, players should refer to the FEPR process to proceed.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">5</span>
+        <div>
+          <span class="exit-when">the Chain closes in the ordinary way — Focus passes to the next player in turn order</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; Act — the player with Focus chooses</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-347.1.b">CR 347.1.b</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">6</span>
+        <div>
+          <span class="exit-when">the Chain opened because a triggered ability or an Add ability went on it — Focus does not pass, and the same player acts again</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; Act — the player with Focus chooses</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-346.1">CR 346.1</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s4" data-od-id="step-s4">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">4</span>
+      <h3>Close — everyone has passed</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>The Showdown closes only when every player has passed once in sequence without playing a spell or activating an ability. A single pass does not do it; it takes a full round of them.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-348">CR 348</a><span class="quote">If all players pass Focus without playing a spell or activating an ability, then the Showdown Closes.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-347.2.a">CR 347.2.a</a><span class="quote">If all Players have passed once in sequence, the Showdown ends.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">7</span>
+        <div>
+          <span class="exit-when">it was a Combat Showdown — the remaining steps of Combat now resolve the phase</span>
+          <span class="exit-goto">The procedure <b>ends here</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-348.1">CR 348.1</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">8</span>
+        <div>
+          <span class="exit-when">it was a Non-Combat Showdown — Control of the Battlefield is settled, and that may be a Conquer</span>
+          <span class="exit-goto">The procedure <b>ends here</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-348.2">CR 348.2</a> &middot; <a href="rulebook.html#CR-348.2.a">CR 348.2.a</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+</section>
+<section class="wrap" data-od-id="primer-misconceptions">
+  <p class="eyebrow">Commonly believed, and wrong</p>
+  <ul class="misc">
+    <li>
+      <p class="belief">Passing during a Showdown ends it.</p>
+      <p class="why"><b>Why that's wrong</b>It ends only if that pass completes a full sequence — every player passing once, in turn, with nothing played in between. Otherwise passing just hands Focus to the next player and the window stays open.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-347.2.a">CR 347.2.a</a> &middot; <a href="rulebook.html#CR-347.2.b">CR 347.2.b</a></p>
+    </li>
+    <li>
+      <p class="belief">A Showdown is a window in which you can finally play the card you have been holding.</p>
+      <p class="why"><b>Why that's wrong</b>The opposite, by default. A Showdown puts the turn in a Showdown State, and in that state cards and card abilities cannot be played at all unless something makes them legally timed — which in practice means Reaction.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-343.1.a">CR 343.1.a</a> &middot; <a href="rulebook.html#CR-343.1.b">CR 343.1.b</a> &middot; <a href="rulebook.html#CR-347.1">CR 347.1</a></p>
+    </li>
+    <li>
+      <p class="belief">Whenever your spell resolves, Focus goes to your opponent.</p>
+      <p class="why"><b>Why that's wrong</b>Not if the Chain was opened by a triggered ability or by an ability that Adds resources. In that case Focus does not pass, and the player who had it keeps it.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-346.1">CR 346.1</a></p>
+    </li>
+  </ul>
+</section>
+<section class="wrap" data-od-id="primer-rejected">
+  <p class="eyebrow">Read and left out</p>
+  <p>Rules that came up while this was written and were deliberately not made steps. Saying
+  which near-misses were rejected, and why, is cheaper for a reader to audit than a silent
+  omission.</p>
+  <table>
+    <thead><tr><th scope="col">Rule</th><th scope="col">Why it is not a step here</th></tr></thead>
+    <tbody>
+      <tr><td><a class="rid" href="rulebook.html#CR-336">CR 336</a></td><td>FEPR is the machinery that runs the Chain a Showdown spell creates — what happens inside step 3, not a step of the Showdown itself.</td></tr>
+      <tr><td><a class="rid" href="rulebook.html#CR-459">CR 459</a></td><td>Combat is a separate procedure that a Showdown can become the first step of; the Showdown&#x27;s own steps end at 348.</td></tr>
+      <tr><td><a class="rid" href="rulebook.html#CR-313">CR 313</a></td><td>Defines that one player holds Focus at a time; the Showdown rules say who, and when it moves.</td></tr>
+    </tbody>
+  </table>
+</section>
+<section class="wrap tight" data-od-id="primer-provenance">
+  <div class="plate on-well">
+    <div class="pad">
+      <p class="eyebrow cool">Provenance</p>
+      <p class="fine" style="max-width:74ch">Every quote on this page was checked against the
+      rule it names before the page was written: the rule has to exist in the corpus, and the
+      quoted span has to appear verbatim inside it. Each rule ID links into
+      <a href="rulebook.html">the anchored rulebook</a> at the exact clause.
+      All 8 transitions are stated outright by a rule.
+      This page is generated from the same primer document the diagram is
+      &mdash; see <code>site/build.py</code>.</p>
+    </div>
+  </div>
+</section>
+</main>
+<footer data-od-id="site-footer">
+  <div class="wrap">
+    <div class="cols three">
+      <div>
+        <h4>Riftbound Oracle</h4>
+        <p>An unofficial rules companion for Riftbound, the League of Legends Trading Card
+        Game. Rules answers with citations a machine has already checked.</p>
+      </div>
+      <div>
+        <h4>On this site</h4>
+        <ul>
+          <li><a href="hot-fepr.html">HOT FEPR primer</a></li>
+          <li><a href="combat.html">Combat primer</a></li>
+          <li><a href="showdowns.html">Showdowns primer</a></li>
+          <li><a href="rulebook.html">Anchored rulebook</a></li>
+          <li><a href="samples.html">Sample reports</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/gear-null/riftbound-oracle">Source on GitHub</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/docs/report-anatomy.md">How to read a report</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/LICENSE">Licence (MIT)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="disclaim">
+      <p style="max-width:78ch">Riftbound is a trademark of Riot Games. This project is
+      <b>unofficial and not endorsed by, affiliated with, or sponsored by Riot Games</b>. The
+      code is MIT. The Riftbound rules text and card text are Riot Games' copyright, included
+      so a citation can be checked verbatim against the document it quotes, and used under
+      Riot's policy for community projects &mdash; they travel under Riot's terms, not MIT. No
+      card artwork is redistributed: reports reference Riot's CDN by URL, and a reader with no
+      network sees a labelled placeholder. Riot's Beaufort and TT Norms are proprietary and are
+      not redistributed either; this site loads no fonts and renders in the open fallbacks the
+      reports declare.</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

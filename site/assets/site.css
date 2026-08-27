@@ -1,0 +1,288 @@
+/* Riftbound Oracle — site chrome.
+ *
+ * The token block below is the one the reports declare (render_report.py,
+ * near `:root{`), copied so the site and the documents it shows read as one
+ * surface. Riot's Beaufort and TT Norms are proprietary and are NOT
+ * redistributed here; no font is loaded from anywhere, so what actually
+ * renders is the declared open fallback — the same thing a report shows
+ * when opened offline.
+ */
+:root{
+ --ink-900:#060b14; --ink-800:#0a1428; --ink-700:#0f1e33; --ink-600:#16293f;
+ --ink-500:#1e3a52; --mist-100:#e4f1f5; --slate-300:#7a96a8; --slate-400:#4a6a80;
+ --gold-700:#785a28; --gold-500:#c8aa6e; --blue:#3c8fe0;
+ --bg:var(--ink-900); --surface:var(--ink-700); --well:var(--ink-800);
+ --fg:var(--mist-100); --muted:var(--slate-300); --line:var(--gold-700);
+ --rule:var(--ink-500);
+ --display:"Beaufort for LOL",Cinzel,Georgia,"Times New Roman",serif;
+ --body:"TT Norms Pro Compact",Barlow,system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+ --plate:"Barlow Semi Condensed",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ --ch:10px;
+ --wash:color-mix(in oklch,var(--gold-500) 12%,transparent);
+ --lift:color-mix(in oklch,var(--ink-700) 88%,var(--mist-100));
+ --sink:color-mix(in oklch,var(--ink-900) 70%,transparent);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--fg);
+ font:400 17px/1.65 var(--body);padding-bottom:0;overflow-x:hidden}
+::selection{background:var(--gold-700);color:var(--mist-100)}
+h1,h2,h3,p,li,dd,dt,figcaption{text-wrap:pretty}
+img{max-width:100%;height:auto}
+
+/* A fixed turbulence grain at 3.5%, overlay, never intercepting a click. It is
+   what makes crisp chrome and the painterly diagram read as one surface. */
+.grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23g)'/></svg>")}
+
+/* ── the chamfer ────────────────────────────────────────────────────────
+   Chamfers, not radii. The frame is a real 1px hairline: the element's
+   background IS the frame, and a clipped pseudo-element inset by 1px paints
+   the surface back over it. A plain border cannot do this, because clip-path
+   cuts the border at the chamfer and leaves the corner open. */
+.plate{position:relative;isolation:isolate;padding:1px;background:var(--line);
+ filter:drop-shadow(0 1px 0 var(--sink));
+ clip-path:polygon(var(--ch) 0,100% 0,100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,0 100%,0 var(--ch))}
+.plate::after{content:"";position:absolute;inset:1px;z-index:-1;background:var(--surface);
+ clip-path:polygon(calc(var(--ch) - 1px) 0,100% 0,100% calc(100% - var(--ch) + 1px),calc(100% - var(--ch) + 1px) 100%,0 100%,0 calc(var(--ch) - 1px))}
+.plate.on-well::after{background:var(--well)}
+/* The signature treatment. Elevation is light, not shadow: the hairline
+   brightens to Gold 500 along the lit (top and left) edges. Used once. */
+.plate.rimlit{background:linear-gradient(140deg,var(--gold-500) 0 38%,var(--gold-700) 62% 100%)}
+.pad{padding:1.6rem 1.7rem}
+
+/* ── plate type ─────────────────────────────────────────────────────────
+   Letterspaced uppercase small caps on every label, chip and table header. */
+.eyebrow,.chip,.label,th,.metric b,.nav a,.crumb{font-family:var(--plate)}
+.eyebrow{font:600 .66rem/1.4 var(--plate);letter-spacing:.22em;text-transform:uppercase;
+ color:var(--gold-500);margin:0 0 .9rem}
+.eyebrow.cool{color:var(--slate-300)}
+.chip{display:inline-block;padding:.34em .62em;border:1px solid var(--line);
+ font:600 .62rem/1 var(--plate);letter-spacing:.14em;text-transform:uppercase;
+ color:var(--slate-300);white-space:nowrap}
+.chip.on{color:var(--gold-500);border-color:var(--gold-500)}
+.chip.blue{color:var(--blue);border-color:var(--blue)}
+
+h1{font:400 clamp(2.1rem,1.2rem + 3.4vw,3.4rem)/1.1 var(--display);
+ letter-spacing:.01em;margin:0 0 1.1rem;color:var(--fg)}
+h2{font:400 clamp(1.35rem,1.1rem + 1vw,1.8rem)/1.2 var(--display);
+ letter-spacing:.09em;text-transform:uppercase;color:var(--gold-500);margin:0 0 1.1rem}
+h3{font:600 1.06rem/1.35 var(--body);letter-spacing:.005em;margin:0 0 .5rem;color:var(--fg)}
+p{margin:0 0 1rem;max-width:68ch}
+.lede{font-size:1.18rem;line-height:1.6;color:var(--fg);max-width:64ch}
+.muted{color:var(--muted)}
+small,.fine{font-size:.86rem;line-height:1.55;color:var(--muted)}
+
+a{color:var(--blue);text-decoration:none;
+ border-bottom:1px solid color-mix(in oklch,var(--blue) 45%,transparent)}
+a:hover{color:var(--fg);border-bottom-color:var(--gold-500)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold-500);
+ outline-offset:3px}
+
+/* ── shell ──────────────────────────────────────────────────────────────── */
+.wrap{max-width:70rem;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink-700);color:var(--fg);
+ padding:.7rem 1rem;border:1px solid var(--gold-500);z-index:200}
+.skip:focus{left:1rem;top:1rem}
+
+.masthead{background:var(--well);border-bottom:1px solid var(--rule);position:relative;z-index:5}
+.masthead-in{display:flex;align-items:center;gap:.85rem;padding:.8rem 0;flex-wrap:wrap}
+.mark{width:34px;height:34px;flex:none;display:block}
+.wordmark{display:flex;flex-direction:column;gap:.24rem;line-height:1;
+ border-bottom:0;margin-right:.4rem}
+.wordmark:hover b{color:var(--fg)}
+.wordmark .eyebrow{font:600 .56rem/1 var(--plate);letter-spacing:.24em;text-transform:uppercase;
+ color:var(--slate-300);margin:0}
+.wordmark b{font:600 1.02rem/1 var(--display);letter-spacing:.15em;text-transform:uppercase;
+ color:var(--gold-500)}
+.nav{display:flex;gap:.15rem;flex-wrap:wrap;margin-left:auto;align-items:center}
+.nav a{font:600 .68rem/1 var(--plate);letter-spacing:.15em;text-transform:uppercase;
+ color:var(--slate-300);padding:.66rem .7rem;border-bottom:1px solid transparent}
+.nav a:hover{color:var(--fg);background:var(--ink-600);border-bottom-color:var(--gold-700)}
+.nav a[aria-current="page"]{color:var(--gold-500);border-bottom-color:var(--gold-500)}
+.unofficial{padding:.42em .7em;border:1px solid var(--line);
+ font:600 .56rem/1 var(--plate);letter-spacing:.16em;text-transform:uppercase;
+ color:var(--slate-300)}
+@media (max-width:760px){.unofficial{display:none}
+ .nav{margin-left:0;width:100%;border-top:1px solid var(--rule);padding-top:.2rem}
+ /* 44px minimum touch target. */
+ .nav a{padding:1.05rem .7rem}}
+
+section{padding-block:4.6rem;border-top:1px solid var(--rule)}
+section:first-of-type{border-top:0}
+.tight{padding-block:3rem}
+
+/* ── buttons ────────────────────────────────────────────────────────────── */
+.btn{display:inline-block;padding:1.05rem 1.5rem;font:600 .74rem/1 var(--plate);
+ letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--gold-500);
+ background:var(--gold-500);color:var(--ink-900);border-bottom:1px solid var(--gold-500);
+ clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}
+/* A solid button inverts BOTH foreground and background in one rule, so the
+   pair is never half-swapped. Ink 900 on Mist 100 is 17.4:1. */
+.btn:hover{background:var(--mist-100);border-color:var(--mist-100);color:var(--ink-900)}
+/* The ghost cut is framed the way a plate is, not with a border: clip-path cuts
+   a border at the chamfer and leaves the corner hanging open. Background is the
+   hairline, and the pseudo-element paints the ground back inside it. */
+.btn.ghost{background:var(--gold-700);border:0;color:var(--gold-500);
+ padding:calc(1.05rem + 1px) calc(1.5rem + 1px);position:relative;isolation:isolate}
+.btn.ghost::after{content:"";position:absolute;inset:1px;z-index:-1;background:var(--bg);
+ clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.btn.ghost:hover{background:var(--gold-500);color:var(--fg)}
+.btn.ghost:hover::after{background:var(--ink-600)}
+.actions{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;margin-top:1.8rem}
+
+/* ── code ───────────────────────────────────────────────────────────────── */
+code,kbd,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{font-size:.92em;color:var(--gold-500)}
+pre{margin:0;padding:1rem 1.15rem;background:var(--ink-900);border:1px solid var(--rule);
+ font-size:.94rem;line-height:1.5;color:var(--fg);
+ white-space:pre-wrap;overflow-wrap:anywhere}
+pre .p{color:var(--slate-400);user-select:none}
+.ask{margin:0 0 .7rem;padding:.8rem 1.1rem;background:var(--ink-900);
+ border-left:1px solid var(--gold-700);color:var(--fg);font-size:.98rem;line-height:1.5}
+.ask:last-child{margin-bottom:0}
+
+/* ── grids ──────────────────────────────────────────────────────────────── */
+.cols{display:grid;gap:1.4rem}
+.cols.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.cols.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3rem;align-items:center}
+.split.wide-left{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+@media (max-width:900px){
+ .cols.two,.cols.three{grid-template-columns:1fr}
+ .split,.split.wide-left{grid-template-columns:1fr;gap:2rem}
+}
+
+/* ── the stat ───────────────────────────────────────────────────────────── */
+.stat{display:block;margin:0;max-width:none;
+ font:400 clamp(3.6rem,2rem + 8vw,6.4rem)/.9 var(--display);
+ color:var(--gold-500);letter-spacing:-.015em}
+.stat-sub{font:600 .7rem/1.5 var(--plate);letter-spacing:.18em;text-transform:uppercase;
+ color:var(--slate-300);margin-top:.9rem;display:block}
+
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:.62rem .8rem;border-bottom:1px solid var(--rule);
+ vertical-align:top}
+th{font:600 .62rem/1.4 var(--plate);letter-spacing:.14em;text-transform:uppercase;
+ color:var(--slate-300);white-space:nowrap}
+td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--fg)}
+tr:last-child td{border-bottom:0}
+tr.hi td{color:var(--gold-500)}
+
+/* ── figures ────────────────────────────────────────────────────────────── */
+figure{margin:0}
+figure.shot img{display:block;width:100%;border:1px solid var(--rule)}
+figcaption{margin-top:.75rem;font-size:.86rem;line-height:1.55;color:var(--muted);
+ max-width:60ch}
+
+/* The diagram is a derived artifact and ships byte-for-byte as generated, in
+   the Fireworks Blueprint palette it was exported in. It is quarantined inside
+   its own plate — an image region — exactly as painterly art would be. */
+.diagram{padding:1.1rem;background:var(--ink-800)}
+.diagram-scroll img{display:block;width:100%;height:auto}
+.pan-hint{display:none}
+/* The map is 1206px of technical drawing. Squeezing it to 360px makes the step
+   labels unreadable, so below the breakpoint it becomes a panning region at a
+   legible width instead. */
+@media (max-width:760px){
+ .diagram{padding:.6rem}
+ .diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .diagram-scroll img{width:auto;max-width:none;min-width:720px}
+ .pan-hint{display:block;margin:.55rem 0 0}
+}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+
+.dl-grid{display:grid;gap:0;margin:0}
+.dl-grid div{padding:1rem 0;border-top:1px solid var(--rule)}
+.dl-grid div:first-child{border-top:0;padding-top:0}
+.dl-grid dt{font:600 .64rem/1.4 var(--plate);letter-spacing:.15em;text-transform:uppercase;
+ color:var(--gold-500);margin:0 0 .35rem}
+.dl-grid dd{margin:0;color:var(--muted);font-size:.96rem;line-height:1.6;max-width:62ch}
+
+/* ── footer ─────────────────────────────────────────────────────────────── */
+footer{border-top:1px solid var(--rule);background:var(--well);
+ padding-block:2.8rem 3.4rem}
+footer .cols{gap:2rem}
+footer p{font-size:.88rem;line-height:1.6;color:var(--muted);max-width:56ch}
+footer h4{font:600 .62rem/1 var(--plate);letter-spacing:.18em;text-transform:uppercase;
+ color:var(--slate-300);margin:0 0 .8rem}
+footer ul{list-style:none;margin:0;padding:0}
+footer li{margin:0 0 .45rem;font-size:.9rem}
+.disclaim{margin-top:2.2rem;padding-top:1.6rem;border-top:1px solid var(--rule)}
+
+/* ── primer / explainer pages ───────────────────────────────────────────── */
+.crumb{font:600 .64rem/1 var(--plate);letter-spacing:.16em;text-transform:uppercase;
+ color:var(--slate-300);margin-bottom:1.4rem;display:block}
+.metrics{display:flex;flex-wrap:wrap;gap:0;margin-top:1.6rem;border-top:1px solid var(--rule)}
+.metric{padding:.9rem 1.6rem .9rem 0;margin-right:1.6rem;border-right:1px solid var(--rule)}
+.metric:last-child{border-right:0;margin-right:0}
+/* Flexed metrics wrap into a second row and leave a divider hanging off the end
+   of the first. Below this width they become a grid ruled on the top edge. */
+@media (max-width:620px){
+ .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(7.5rem,1fr));
+  border-top:0;gap:0 1.4rem}
+ .metric{border-right:0;border-top:1px solid var(--rule);margin-right:0;padding:.85rem 0}
+}
+.metric b{display:block;font:600 .6rem/1 var(--plate);letter-spacing:.16em;
+ text-transform:uppercase;color:var(--slate-300);margin-bottom:.42rem}
+.metric span{font:400 1.5rem/1 var(--display);color:var(--gold-500)}
+
+.step{margin:0 0 1.4rem}
+.step-head{display:flex;align-items:baseline;gap:.85rem;flex-wrap:wrap;margin-bottom:.7rem}
+.step-n{font:400 1.35rem/1 var(--display);color:var(--gold-500);flex:none}
+.step-head h3{margin:0;font-size:1.14rem;flex:1 1 14rem}
+.step p{margin:0 0 1rem}
+
+.cites{margin:0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.cites li{padding:.72rem 0;border-bottom:1px solid var(--rule);
+ display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:.9rem;align-items:start}
+.cites li:last-child{border-bottom:0}
+.rid{font:600 .78rem/1.5 var(--plate);letter-spacing:.06em;color:var(--gold-500);
+ white-space:nowrap;border-bottom:1px solid color-mix(in oklch,var(--gold-500) 40%,transparent)}
+.rid:hover{color:var(--fg);border-bottom-color:var(--gold-500)}
+.quote{font-size:.94rem;line-height:1.6;color:var(--fg);max-width:62ch}
+.quote::before{content:"\201C"}
+.quote::after{content:"\201D"}
+.verified{font:600 .58rem/1 var(--plate);letter-spacing:.14em;text-transform:uppercase;
+ color:var(--slate-300);white-space:nowrap}
+@media (max-width:620px){.cites li{grid-template-columns:1fr;gap:.4rem}}
+
+.exits{margin:1.3rem 0 0;padding:0;list-style:none}
+.exits li{display:grid;grid-template-columns:2.1rem minmax(0,1fr);gap:.8rem;
+ padding:.85rem 0;border-top:1px solid var(--rule)}
+.exit-n{font:600 .78rem/1.5 var(--plate);color:var(--ink-900);background:var(--gold-500);
+ width:1.75rem;height:1.75rem;display:grid;place-items:center;
+ clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)}
+.exit-n.dashed{background:var(--blue)}
+.exit-when{display:block;font-size:.97rem;line-height:1.55;max-width:60ch}
+.exit-goto{display:block;margin-top:.35rem;font:600 .62rem/1.5 var(--plate);
+ letter-spacing:.13em;text-transform:uppercase;color:var(--slate-300)}
+.exit-goto b{color:var(--gold-500);font-weight:600}
+.exit-cites{margin-top:.45rem;font-size:.86rem;color:var(--muted)}
+.exit-cites a{font-family:var(--plate);letter-spacing:.05em}
+
+.misc{margin:0;padding:0;list-style:none}
+.misc li{padding:1.15rem 0;border-top:1px solid var(--rule)}
+.misc li:first-child{border-top:0;padding-top:0}
+.belief{font-size:1rem;line-height:1.5;color:var(--slate-300);margin:0 0 .5rem;
+ max-width:62ch}
+.belief::before{content:"\201C"}
+.belief::after{content:"\201D"}
+.why{margin:0;font-size:.97rem;line-height:1.6;max-width:64ch}
+.why b{color:var(--gold-500);font-family:var(--plate);font-size:.62rem;letter-spacing:.15em;
+ text-transform:uppercase;font-weight:600;display:block;margin-bottom:.3rem}
+
+/* ── plate used as a link (the mechanic cards) ──────────────────────────── */
+a.plate{display:block;border-bottom:0;color:inherit}
+a.plate h3{color:var(--fg)}
+a.plate:hover{background:var(--gold-500)}
+a.plate:hover::after{background:var(--ink-600)}
+a.plate:hover h3{color:var(--gold-500)}
+a.plate:focus-visible{outline-offset:4px}
+
+/* .dl-grid inherits .cols' columns but sets its own rhythm, so the column gap
+   has to be restated or the three ruled columns touch. */
+.dl-grid{gap:0 2.4rem}
+.dl-grid.cols div{border-top:1px solid var(--rule);padding:1.15rem 0}
+@media (max-width:900px){.dl-grid.cols div:first-child{padding-top:0;border-top:0}}
