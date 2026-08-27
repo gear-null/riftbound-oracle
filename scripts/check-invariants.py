@@ -57,6 +57,8 @@ INVARIANTS = {
         "a mis-set override is refused",
         "naming an SVG that could not be produced is not reported as success"],
     "10. A failure never leaves a stale artifact looking current": [
+        "refuses the whole export", "refuses when the overlay markup",
+        "refuses when the rulebook lacks", "refuses input that is not a rendered report",
         "failed write leaves the previous ruling intact",
         "rulebook render leaves the previous one intact",
         "committed rulebook matches", "crash inside render leaves the previous report intact",

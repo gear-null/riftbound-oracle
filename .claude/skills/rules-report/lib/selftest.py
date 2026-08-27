@@ -593,6 +593,114 @@ def card_rendering():
           malformed is not None and len(malformed) == 1, repr(malformed))
 
 
+def export_and_history():
+    """A shared report carries its evidence, or it is not written.
+
+    The failure this group exists for is invisible on the machine that makes
+    the export: a report reaches out for `../data/rules.html` and for artwork on
+    Riot's CDN, and BOTH resolve here. So the file looks complete locally and
+    arrives at the reader with its evidence links dead — which is worse than an
+    obviously broken file, because nothing on the page says so.
+
+    That is why the checks below assert what ARRIVED. An earlier version only
+    asserted that nothing still pointed outward, and shipped a file whose
+    rulebook link read "open full page" and went to `#`.
+    """
+    print("\n=== export and history ===")
+    import export_report as E
+    import corpus as _c
+
+    src = os.path.join(_c.reports_dir(), "flow-counter.html")
+    if not os.path.exists(src):
+        note("no rendered report on disk; skipping export checks")
+        return
+    html = open(src, encoding="utf-8").read()
+    rules = open(_c.rulebook_html_path(), encoding="utf-8").read()
+    stub = lambda u: "data:image/png;base64,AAAA"
+
+    doc = safely(lambda: E.export(html, rules, fetch=stub), "", "export")
+    check("an export is produced from a rendered report", bool(doc))
+    if not doc:
+        return
+
+    remote = re.findall(r'(?:src|href)="https?://', doc)
+    check("nothing in an export points outside the file",
+          not remote, f"{len(remote)} remote reference(s) remain")
+
+    # ...and the other direction, which is the one that was missed. A file with
+    # its rulebook deleted passes the check above perfectly.
+    check("an export carries the rulebook it cites", 'id="rb-doc"' in doc)
+    check("an export carries the loader that shows it", "fr.srcdoc=doc" in doc)
+    check("an export inlines every image the report had",
+          doc.count("data:image/") >= len(E.REMOTE_IMG.findall(html)),
+          f"{len(E.REMOTE_IMG.findall(html))} in, {doc.count('data:image/')} out")
+    check("an export stops promising a full rulebook it does not carry",
+          "open full page" not in doc.lower(),
+          "the overlay still offers a page that is not in the file")
+
+    # Each refusal below is asserted BY ITS REASON, not merely by "something
+    # refused". The exporter guards the same property twice on purpose — an
+    # internal raise, then a final sweep of the finished document — and a
+    # mutation battery changes one site at a time, so a check that accepts any
+    # refusal reports both guards as covered while neither is pinned. Naming
+    # the reason is what tells them apart. `docs/invariants.md` has the general
+    # form of this; the export is where it bit most recently.
+    def refusal(fetch=None, doc_html=None, doc_rules=None):
+        try:
+            E.export(doc_html or html, doc_rules or rules, fetch=fetch or stub)
+            return ""
+        except E.ExportRefused as err:
+            return str(err)
+
+    why = refusal(fetch=lambda u: None)
+    check("one image that cannot be inlined refuses the whole export",
+          "could not be inlined" in why and "nothing was written" in why,
+          f"got {why[:90]!r}")
+
+    why = refusal(doc_html=html.replace(
+        '<iframe class="rb-frame" id="rb-frame" title="Rulebook"></iframe>', "", 1))
+    check("an export refuses when the overlay markup it rewrites is gone",
+          "expected exactly one" in why, f"got {why[:90]!r}")
+
+    why = refusal(doc_rules=rules.replace('id="CR-829.1.c"', 'id="CR-NOPE"', 1))
+    check("an export refuses when the rulebook lacks a rule the report cites",
+          "no anchor for" in why, f"got {why[:90]!r}")
+
+    why = refusal(doc_html="<html><body>no citations here</body></html>")
+    check("an export refuses input that is not a rendered report",
+          "links no rules" in why, f"got {why[:90]!r}")
+
+    # The history page is derived from the directory, so it cannot list a
+    # report that is not there.
+    import rules_cli
+    records = safely(rules_cli._report_records, [], "report records")
+    check("the history lists the reports that exist",
+          any(r["file"] == "flow-counter.html" for r in records),
+          f"{len(records)} record(s)")
+    check("the history does not list itself as a report",
+          not any(r["file"] == rules_cli.INDEX_NAME for r in records))
+
+    # Diagrams used to land in `reports/` beside the answers, so the folder a
+    # user browses held `combat.svg` and `ok.fireworks.json` as siblings of the
+    # documents. Separated rather than filtered: a reader should not have to
+    # know which extensions to ignore.
+    # The portable marker is APPENDED after the overlay, ~2.5MB into a 2.6MB
+    # file, so a head-only scan never saw it and the column was decorative:
+    # every report listed as not-portable, including the portable ones. A flag
+    # that cannot be true is the same defect as a check that cannot fail.
+    portable = [r for r in records if r["portable"]]
+    check("an exported report is listed as portable",
+          any(r["file"].endswith(".portable.html") for r in portable),
+          f"{len(portable)} of {len(records)} marked portable")
+    check("a plain report is not listed as portable",
+          not any(r["file"] == "flow-counter.html" for r in portable))
+
+    check("a diagram is written under reports/diagrams, not among the reports",
+          os.path.basename(rules_cli.DIAGRAMS) == "diagrams"
+          and os.path.dirname(rules_cli.DIAGRAMS) == rules_cli.REPORTS,
+          rules_cli.DIAGRAMS)
+
+
 def primer_invariants(idx):
     """The primer document kind: routing, the transition rule, and the diagram.
 
@@ -3148,6 +3256,7 @@ def main():
     metric_consistency(idx)
     rendered_surfaces(idx)
     primer_invariants(idx)
+    export_and_history()
     shipped_primers(idx)
     fireworks_export(idx)
     committed_diagrams(idx)

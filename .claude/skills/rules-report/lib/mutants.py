@@ -1385,6 +1385,65 @@ MUTANTS = [
          find='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{2,}")',
          repl='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{3,}")',
          expect="two-letter fusion is detected"),
+    # ---- the portable export -------------------------------------------------
+    # An export is the one artifact that leaves the machine that made it, so a
+    # defect here is invisible exactly where it matters. Each of the first three
+    # produces a file that OPENS and looks right.
+    dict(name="ship an export with the rulebook left out",
+         file="export_report.py",
+         find='        f\'<script id="rb-doc" type="application/octet-stream">{payload}</script>\',',
+         repl="        f'',",
+         # Caught by the arrival sweep inside `export`, which refuses before a
+         # document exists — so the check that goes red is the one asserting an
+         # export was produced at all, not the one inspecting its contents.
+         # Both guard the same property; naming the one that actually fires is
+         # what keeps this mutant honest.
+         expect="an export is produced from a rendered report"),
+    dict(name="inline what artwork you can, ship the rest pointing at the CDN",
+         file="export_report.py",
+         find='    if failures:\n        raise ExportRefused(\n            f"{len(failures)} image(s) could not be inlined, so nothing was "\n            f"written: {\', \'.join(failures[:3])}"\n        )',
+         repl="    if failures:\n        pass",
+         # The remaining guard is the outward sweep, which refuses for a
+         # DIFFERENT reason ("still point outside the file"). The check asserts
+         # the reason, so it goes red on the wrong refusal rather than passing
+         # on any refusal — which is how two guards over one property stay
+         # separately pinned.
+         expect="one image that cannot be inlined refuses the whole export"),
+    # The silent no-op that shipped once: a replacement matching nothing returns
+    # its input unchanged and says nothing, so the overlay kept offering a full
+    # rulebook the file does not contain.
+    dict(name="let a rewrite that matches nothing pass silently",
+         file="export_report.py",
+         find='    if n != 1:\n        raise ExportRefused(\n            f"expected exactly one {what} to rewrite, found {n} — the "\n            "renderer\'s markup changed and this exporter was not updated"\n        )',
+         repl="    if False:\n        pass",
+         expect="refuses when the overlay markup it rewrites is gone"),
+    dict(name="list the history index as one of the reports",
+         file="rules_cli.py",
+         find='        if not name.endswith(".html") or name == INDEX_NAME:',
+         repl='        if not name.endswith(".html"):',
+         expect="does not list itself as a report"),
+    dict(name="export against a rulebook that lacks a cited rule",
+         file="export_report.py",
+         find='    missing = [a for a in anchors if f\'id="{a}"\' not in rules_html]\n    if missing:',
+         repl='    missing = []\n    if missing:',
+         expect="refuses when the rulebook lacks"),
+    dict(name="export anything, whether or not it is a report",
+         file="export_report.py",
+         find='    if not anchors:',
+         repl="    if False:",
+         expect="refuses input that is not a rendered report"),
+    dict(name="write diagrams back among the reports the user browses",
+         file="rules_cli.py",
+         find='DIAGRAMS = os.path.join(REPORTS, "diagrams")',
+         repl='DIAGRAMS = REPORTS',
+         expect="not among the reports"),
+    # Restores the head-only scan: the marker lives at the end of the file, so
+    # every export gets listed as not-portable and the column means nothing.
+    dict(name="look for the portable marker only in the head of the file",
+         file="rules_cli.py",
+         find='''            "portable": 'id="rb-doc"' in head or 'id="rb-doc"' in tail,''',
+         repl='''            "portable": 'id="rb-doc"' in head,''',
+         expect="listed as portable"),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

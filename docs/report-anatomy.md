@@ -131,6 +131,28 @@ question, saying so with the gap named is more useful than a confident answer yo
 cannot check — and it is the one thing a general-purpose chatbot will not give you.
 
 
+## Sending one to someone
+
+A report on disk is not portable, and it does not look unportable. The rulebook overlay
+loads `../data/rules.html` — a sibling of the report's folder, which travels nowhere —
+and card artwork is fetched from Riot's CDN. Both resolve on the machine that wrote the
+file, so it renders perfectly there and arrives at a reader with its evidence links dead.
+Nothing on the page says so, which is the worst part: the argument, the citations and the
+`✓ VERIFIED` stamps all still render, so a reader has no reason to suspect the missing
+piece is the one that lets them check the claim.
+
+`rules_cli.py export <report.html>` rebuilds it as one file. The rules it cites travel
+inside it — not the whole 3,316-rule rulebook, the ones this report can actually reach —
+and every card image is inlined. Nothing is fetched when it opens.
+
+It is **whole or refused**. If one image cannot be inlined, or the rulebook lacks a rule
+the report cites, nothing is written and the reason is printed. A partial export is
+indistinguishable from a good one by looking at it, so it is not offered.
+
+`rules_cli.py reports` lists everything you have answered and writes a browsable
+`index.html` next to them. The listing is read from the directory itself rather than a
+sidecar file, so it cannot claim a report that is no longer there.
+
 ## Primers
 
 A primer answers *"how does this work"* rather than *"what happens here"*. It shares
