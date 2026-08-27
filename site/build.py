@@ -468,6 +468,34 @@ def rulebook(src: str) -> str:
     return out.replace(marker, marker + BACK_NAV, 1)
 
 
+def check_page_declares_no_extra_transitions(slug: str, primer: dict, page: str) -> None:
+    """Invariant 12, restated for the website.
+
+    A diagram draws exactly the transitions the document declares — no more, no
+    fewer — and that is the only reason a picture is publishable in this
+    project at all. The website is where that guarantee is easiest to lose: a
+    page is prose around an image, and prose is free to describe an arrow that
+    is not there, or to omit one that is.
+
+    So the numbers rendered on the page are compared against the numbers the
+    primer declares. Not a spot check — the exact set, both directions.
+    """
+    declared = sum(len(step.get("exits") or []) for step in primer["steps"])
+    expected = set(range(1, declared + 1))
+    # `exit-n dashed` for a structural transition — matching the class
+    # attribute exactly missed every one of them, and this check's first run
+    # reported combat.html as missing transition 4 when the page was correct.
+    # A verifier that cannot see a legitimate variant fails honest pages and
+    # trains whoever hits it to stop believing the check.
+    shown = {int(n) for n in re.findall(r'class="exit-n[^"]*"[^>]*>(\d+)<', page)}
+    if shown != expected:
+        raise SystemExit(
+            f"{slug}.html shows transitions {sorted(shown)} but the primer "
+            f"declares {sorted(expected)} — the page and the document it is "
+            "derived from disagree, which is invariant 12"
+        )
+
+
 def check_handwritten_corpus_claims() -> None:
     """The hand-written pages state a rule count. Prove it is still true.
 
@@ -520,8 +548,11 @@ def main() -> None:
         shutil.copyfile(
             SKILL / "data" / "diagrams" / f"{slug}.svg", SITE / "diagrams" / f"{slug}.svg"
         )
-        (SITE / f"{slug}.html").write_text(explainer(slug, primer, anchors), encoding="utf-8")
-        print(f"wrote  {slug}.html  ({len(primer['steps'])} steps)")
+        page = explainer(slug, primer, anchors)
+        check_page_declares_no_extra_transitions(slug, primer, page)
+        (SITE / f"{slug}.html").write_text(page, encoding="utf-8")
+        print(f"wrote  {slug}.html  ({len(primer['steps'])} steps, "
+              f"{sum(len(s.get('exits') or []) for s in primer['steps'])} transitions)")
 
     # The samples are COMMITTED, and refreshed only when the source report is
     # present. `reports/` is a working directory the skill writes into and git
