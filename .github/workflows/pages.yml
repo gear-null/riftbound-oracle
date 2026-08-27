@@ -1,0 +1,67 @@
+name: Pages
+
+# The site is GENERATED from the corpus, so it is rebuilt here rather than
+# served from whatever was committed. That closes the gap the build already
+# guards locally: if `site/` on main has drifted from the skill it is derived
+# from, this rebuild produces something different from the committed tree and
+# the drift check below fails, instead of publishing a page that quietly
+# describes a corpus the repository no longer has.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.claude/skills/rules-report/data/**'
+      - '.claude/skills/rules-report/lib/*primer*.json'
+      - 'docs/images/**'
+      - '.github/workflows/pages.yml'
+  # Publishing is a deliberate act, so it can always be triggered by hand.
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      # Rebuild, then require the result to match what is committed. A build
+      # that silently rewrote pages here would publish content nobody reviewed.
+      - name: Rebuild the site from the corpus
+        run: python3 site/build.py
+
+      - name: Refuse to publish a site that has drifted from its corpus
+        run: |
+          if ! git diff --quiet -- site/; then
+            echo "::error::site/ does not match what site/build.py produces from the current corpus."
+            echo "Run 'python3 site/build.py' and commit the result."
+            git diff --stat -- site/
+            exit 1
+          fi
+          echo "site/ matches the corpus it is derived from"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
