@@ -673,15 +673,25 @@ def export_and_history(idx):
     # Tear the closing tag off THE CITED RULE, not off the file's first
     # section — removing an unrelated one leaves this rule's block perfectly
     # well-formed, and the check passed while proving nothing.
-    one = cited[0]
-    at = rules.index(f'id="{one}"')
-    shut = rules.index("</section>", at)
-    torn = rules[:shut] + rules[shut + len("</section>"):]
-    why = ""
-    try:
-        E.build_minibook([one], torn)
-    except E.ExportRefused as err:
-        why = str(err)
+    # Every lookup here is guarded. Two mutants — renaming the generated
+    # rulebook, and changing the anchor format — leave `cited` empty or the id
+    # absent, and the raw `cited[0]` / `.index()` this used took the whole run
+    # down with IndexError and ValueError. The battery scores that as
+    # "detected, but not by the check it is filed under", which is right and is
+    # a real loss: the defect was found and the check meant to name it never
+    # got to speak.
+    def tear_and_ask():
+        one = cited[0]
+        at = rules.index(f'id="{one}"')
+        shut = rules.index("</section>", at)
+        torn = rules[:shut] + rules[shut + len("</section>"):]
+        try:
+            E.build_minibook([one], torn)
+        except E.ExportRefused as err:
+            return str(err)
+        return ""
+
+    why = safely(tear_and_ask, None, "tear a rule block")
     # The export's spine guarantee is not the exporter's to keep. `build_minibook`
     # carries the anchors it is given; the ancestors are there only because the
     # RENDERER links them. Pin it where it actually lives, or the spine could
@@ -702,7 +712,9 @@ def export_and_history(idx):
           if orphans else f"{len(cite_ids)} citation link(s), spine intact")
 
     check("a rule block that is not one whole section is refused",
-          "whole" in why or "never closed" in why, f"got {why[:80]!r}")
+          why is not None and ("whole" in why or "never closed" in why),
+          f"got {why[:80]!r}" if why is not None
+          else "could not construct the torn case — see the note above")
 
     doc = safely(lambda: E.export(html, rules, fetch=stub), "", "export")
     check("an export is produced from a rendered report", bool(doc))
