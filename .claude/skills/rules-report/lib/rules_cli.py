@@ -482,10 +482,21 @@ def find_fireworks():
 
     $RIFTBOUND_FIREWORKS overrides, for an install somewhere else entirely.
     """
-    candidates = [os.environ.get("RIFTBOUND_FIREWORKS")] + list(FIREWORKS_HOMES)
-    for candidate in candidates:
-        if not candidate:
-            continue
+    # An override the caller SET is a statement, not a hint. Falling through to
+    # the default search meant a single typo in $RIFTBOUND_FIREWORKS rendered
+    # from a different install entirely and said nothing — or, on a machine with
+    # no default install, reported "you have none" when what was wrong was the
+    # spelling.
+    override = os.environ.get("RIFTBOUND_FIREWORKS")
+    if override:
+        script = os.path.join(os.path.expanduser(override), "scripts", "fireworks.py")
+        if not os.path.exists(script):
+            raise SystemExit(
+                f"$RIFTBOUND_FIREWORKS is set to {override!r}, but there is no\n"
+                f"  scripts/fireworks.py under it. Fix the path or unset it to search\n"
+                f"  the usual places: {', '.join(FIREWORKS_HOMES)}")
+        return script
+    for candidate in FIREWORKS_HOMES:
         script = os.path.join(os.path.expanduser(candidate), "scripts", "fireworks.py")
         if os.path.exists(script):
             return script
@@ -495,6 +506,41 @@ def find_fireworks():
 # Generous. A diagram is seconds of work; this exists so a renderer that wedges
 # cannot wedge the command that called it, with no output and nothing to read.
 RENDER_TIMEOUT = 120
+
+
+def _renderer_said(run):
+    """Whatever the renderer actually complained with.
+
+    `run.stdout or run.stderr` picks stdout whenever it is truthy, and
+    whitespace is truthy — a renderer that prints blank lines to stdout and its
+    real traceback to stderr produced "could not render it: " with nothing after
+    the colon, and the reason the user needed was discarded.
+    """
+    for stream in (run.stderr, run.stdout):
+        text = (stream or "").strip()
+        if text:
+            return text[:300]
+    return f"no output; exit code {run.returncode}"
+
+
+def _looks_like_svg(path):
+    """Is there a whole SVG at this path?
+
+    Deliberately shallow — this is not an SVG validator, and it is not trying to
+    be. It answers the one question the exit code cannot: did the renderer
+    finish. A truncated file has no closing tag, and that is the failure this
+    catches.
+    """
+    try:
+        if os.path.getsize(path) < 64:
+            return False
+        with open(path, "rb") as fh:
+            head = fh.read(512).lstrip()
+            fh.seek(max(0, os.path.getsize(path) - 512))
+            tail = fh.read()
+    except OSError:
+        return False
+    return head.startswith(b"<") and b"<svg" in head and b"</svg>" in tail
 
 
 def _discard(path):
@@ -590,12 +636,17 @@ def cmd_graph(args):
 
     fireworks = find_fireworks()
     if not fireworks:
-        print("\nno Fireworks Tech Graph install found — the IR above is complete and\n"
-              "any install can render it:\n"
-              f"  python3 <fireworks>/scripts/fireworks.py render architecture {ir_out} out.svg\n"
+        print(f"\nno Fireworks Tech Graph install found, so {os.path.basename(svg_out)} "
+              "was NOT written.\n"
+              "The IR above is complete and any install can render it:\n"
+              f"  python3 <fireworks>/scripts/fireworks.py render architecture "
+              f"{ir_out} {svg_out}\n"
               "  (npx skills add yizhiyanhua-ai/fireworks-tech-graph, or set "
               "$RIFTBOUND_FIREWORKS)")
-        return
+        # Exit 0 only when the destination was OURS to choose. A caller who
+        # named `out.svg` and did not get one did not get what they asked for,
+        # and a green exit code says they did.
+        sys.exit(1 if explicit else 0)
     # Rendered BESIDE the destination, then moved into place — never straight
     # over it. The renderer is not ours and may do anything on the way out: a
     # stub that writes half a file and exits 1 left a 36-byte fragment where a
@@ -614,12 +665,17 @@ def cmd_graph(args):
               f"The IR at {ir_out} is complete; render it yourself to see why.",
               file=sys.stderr)
         sys.exit(1)
-    if run.returncode != 0 or not os.path.exists(staged):
+    complaint = _renderer_said(run)
+    if run.returncode != 0 or not _looks_like_svg(staged):
         _discard(staged)
-        # Reported, not paraphrased. The IR is written and valid either way, and
-        # the renderer's own message says more than anything restated here.
-        print(f"\nFireworks could not render it: {(run.stdout or run.stderr).strip()[:300]}",
-              file=sys.stderr)
+        # The EXIT CODE IS NOT THE ARTIFACT. A renderer that writes `<svg><g>`
+        # and exits 0 was reported as "wrote out.svg", and neither the suite nor
+        # the mutation battery noticed — an unclosed fragment no viewer will
+        # open, announced as a success. What is on disk is checked instead.
+        #
+        # Reported, not paraphrased: the renderer's own message says more than
+        # anything restated here.
+        print(f"\nFireworks could not render it: {complaint}", file=sys.stderr)
         sys.exit(1)
     os.replace(staged, svg_out)
     print(f"wrote {svg_out}")

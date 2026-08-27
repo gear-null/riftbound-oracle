@@ -1032,9 +1032,9 @@ MUTANTS = [
          repl='            "label": str(edge["from"] + 1),',
          expect='exported arrows carry the same numbers as the prose'),
     dict(name='let a committed diagram drift from its generator, so a picture shipped '
-              'in docs/ goes on asserting a procedure the corpus no longer describes',
+              'with the skill goes on asserting a procedure the corpus no longer describes',
          file='fireworks_ir.py',
-         find='    END_GAP = 520' if False else '''BOX_H = 72''',
+         find='BOX_H = 72',
          repl='''BOX_H = 73''',
          expect='committed diagram matches what this corpus now produces'),
     dict(name='export a diagram edge in its declared class even when its citation '
@@ -1087,6 +1087,58 @@ MUTANTS = [
          repl='''    if run.returncode != 0 or not os.path.exists(staged):
         pass''',
          expect='clears up after itself rather than leaving a staging file'),
+    dict(name='trust the renderer exit code instead of the artifact, so `<svg><g>` and '
+              'exit 0 is announced as a diagram no viewer will open',
+         file='rules_cli.py',
+         find='    if run.returncode != 0 or not _looks_like_svg(staged):',
+         repl='    if run.returncode != 0:',
+         expect='a truncated render is not announced as a diagram'),
+    dict(name='prefer stdout however blank it is, so a renderer that prints whitespace '
+              'there and its real error to stderr reports nothing at all',
+         file='rules_cli.py',
+         find='''    for stream in (run.stderr, run.stdout):
+        text = (stream or "").strip()
+        if text:
+            return text[:300]''',
+         repl='''    return ((run.stdout or run.stderr) or "")[:300]''',
+         expect="the renderer's own complaint reaches the user"),
+    dict(name='fall through a mis-set $RIFTBOUND_FIREWORKS to whatever else is '
+              'installed, so a typo renders from a different install in silence',
+         file='rules_cli.py',
+         find='''        if not os.path.exists(script):
+            raise SystemExit(''',
+         repl='''        if False:
+            raise SystemExit(''',
+         expect='a mis-set override is refused'),
+    dict(name='exit 0 when the caller named an SVG that was never produced, so a '
+              'green exit code says they got the file they asked for',
+         file='rules_cli.py',
+         find='        sys.exit(1 if explicit else 0)',
+         repl='        sys.exit(0)',
+         expect='not reported as success'),
+    # Breaks the GRAPH BUILDER, not the check. Mutating the guard out changes
+    # nothing while flowgraph is healthy — the defect is the pair, and this is
+    # the half a single-site mutant can express: with no edges to compare, the
+    # `len(drawn) > 0` guard is what makes the check go red instead of passing
+    # on three empty fallbacks.
+    dict(name='derive a graph with no transitions at all, so every per-primer diagram '
+              'assertion has nothing left to compare',
+         file='flowgraph.py',
+         find='    _assign_lanes(nodes, edges)\n    _assign_ports(nodes, edges)\n    return nodes, edges',
+         repl='    _assign_lanes(nodes, edges)\n    _assign_ports(nodes, edges)\n    return nodes, []',
+         expect='the report, the map and the export agree on every transition'),
+    dict(name='stop noticing a truncated committed SVG, so a half-written picture '
+              'ships beside a correct derivation',
+         file='selftest.py',
+         find='    if not body.rstrip().endswith("</svg>"):\n        return "the committed SVG is truncated"',
+         repl='    if False:\n        return "the committed SVG is truncated"',
+         expect='a truncated committed SVG is detected'),
+    dict(name='stop comparing a committed SVG to the arrows its own IR declares, so a '
+              'picture of a different procedure ships beside the right derivation',
+         file='selftest.py',
+         find='    if drawn and sorted(labels) and drawn != sorted(labels):',
+         repl='    if False:',
+         expect='drawing different arrows from its IR is detected'),
     dict(name='test only whether a step is named by something, so a disconnected '
               'island of steps that name each other passes',
          file='render_primer.py',

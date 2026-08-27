@@ -54,6 +54,30 @@ def safely(fn, fallback, label):
         return fallback
 
 
+def diagram_complaint(body, labels):
+    """What is wrong with a committed SVG, or None if nothing is.
+
+    A FUNCTION, not three inline branches, because the battery mutates Python
+    and not data files: inline, these could only be exercised by corrupting a
+    committed diagram on disk, so no mutant could reach them and they were
+    pinned by nothing. Pulled out, they are checked directly against synthetic
+    input below and a mutant can break them.
+
+    Deliberately shallow. It answers the two questions a committed picture must
+    answer for itself — did the renderer finish, and does it draw the arrows its
+    own IR declares — and not "is this the same bytes Fireworks produces today",
+    which would go red on any version bump of theirs and teach everyone to
+    ignore it.
+    """
+    if not body.rstrip().endswith("</svg>"):
+        return "the committed SVG is truncated"
+    drawn = sorted(int(n) for n in
+                   re.findall(r'class="fg-num"[^>]*>(\d+)</text>', body))
+    if drawn and sorted(labels) and drawn != sorted(labels):
+        return f"the SVG draws {drawn} but the IR declares {sorted(labels)}"
+    return None
+
+
 def parser_fidelity():
     """Test parse_doc itself on fixtures.
 
@@ -1301,6 +1325,9 @@ def shipped_primers(idx):
                    "; ".join(ans["_problems"][:2])
                    or f'{len(cites)} citations, all verbatim')
         if not ok:
+            check(f"{name}: transition agreement was checked", False,
+                  "skipped — this primer did not verify, so nothing downstream "
+                  "of it was compared")
             continue
         page = safely(lambda: render(ans, idx), "", f"{name}: render")
         _nodes, edges = safely(lambda: flowgraph.build(ans["steps"]), ([], []),
@@ -1310,8 +1337,14 @@ def shipped_primers(idx):
                     f"{name}: fireworks_ir.build")
         written = sorted(int(n) for n in
                          re.findall(r'class="exit-n">(\d+)</span>', page))
+        # `len(drawn) > 0` is the whole check. Without it this compared three
+        # `safely` fallbacks against each other: break flowgraph.build and all
+        # three primers reported "0 in prose, 0 on the map, 0 exported" and
+        # PASSED — the group docs/maintaining.md names as the thing a rules
+        # update is run for, asserting nothing.
         check(f"{name}: the report, the map and the export agree on every transition",
-              written == sorted(e["n"] for e in drawn)
+              len(drawn) > 0
+              and written == sorted(e["n"] for e in drawn)
               == sorted(int(a["label"]) for a in ir["arrows"]),
               f'{len(written)} in prose, {len(drawn)} on the map, '
               f'{len(ir["arrows"])} exported')
@@ -1347,23 +1380,76 @@ def committed_diagrams(idx):
         return
 
     stale = []
+    seen = set()
     for path in sorted(glob.glob(os.path.join(HERE, "*-primer.json"))):
         name = os.path.basename(path).replace("-primer.json", "")
         committed = os.path.join(shipped, f"{name}.fireworks.json")
+        svg = os.path.join(shipped, f"{name}.svg")
+        seen.update({os.path.basename(committed), os.path.basename(svg)})
         if not os.path.exists(committed):
             stale.append(f"{name}: never committed")
             continue
-        ans = verify_primer(json.load(open(path, encoding="utf-8")), idx)
+        ans = safely(lambda path=path: verify_primer(
+            json.load(open(path, encoding="utf-8")), idx), None, f"{name}: verify")
+        if ans is None:
+            stale.append(f"{name}: could not be verified at all")
+            continue
         # `{}` and not None: the fallback is iterated two lines down, so a
         # generator that raises would have swapped one crash for another.
-        fresh = safely(lambda: fireworks_ir.build(ans), {},
+        fresh = safely(lambda ans=ans: fireworks_ir.build(ans), {},
                        f"{name}: fireworks_ir.build")
-        saved = json.load(open(committed, encoding="utf-8"))
-        if not fresh:
+        # The one unguarded load in this group. A committed file truncated to
+        # `{"nodes": [` took the whole suite down with a JSONDecodeError — two
+        # later groups never ran and no summary line printed, which under the
+        # battery reads as "<suite crashed>": the exact outcome guarding these
+        # exists to eliminate.
+        saved = safely(lambda: json.load(open(committed, encoding="utf-8")), None,
+                       f"{name}: reading the committed IR")
+        if saved is None:
+            stale.append(f"{name}: committed IR is unreadable")
+        elif not fresh:
             stale.append(f"{name}: could not be regenerated at all")
         elif fresh != saved:
             diffs = [k for k in set(fresh) | set(saved) if fresh.get(k) != saved.get(k)]
             stale.append(f"{name}: {', '.join(sorted(diffs))} differ")
+
+        # The IR is compared above because it is what this project derives. The
+        # SVG was compared by NOTHING — a blank one passed, and so did an orphan
+        # pair with no primer behind it. Not a full render comparison, which
+        # would break on any Fireworks version bump; the two questions the
+        # committed picture must answer for itself.
+        if not os.path.exists(svg):
+            stale.append(f"{name}: no rendered diagram beside its IR")
+        else:
+            body = safely(lambda svg=svg: open(svg, encoding="utf-8").read(), "",
+                          f"{name}: reading the committed SVG")
+            labels = [int(a["label"]) for a in (fresh or {}).get("arrows", [])]
+            complaint = diagram_complaint(body, labels)
+            if complaint:
+                stale.append(f"{name}: {complaint}")
+
+    orphans = sorted(f for f in os.listdir(shipped)
+                     if f not in seen and not f.startswith("."))
+    if orphans:
+        stale.append("no primer behind: " + ", ".join(orphans[:4]))
+
+    # The judgement itself, against synthetic input. Corrupting a real committed
+    # diagram would exercise this too, but no mutant can corrupt a data file, so
+    # that path pinned nothing.
+    whole = '<svg><text class="fg-num" fill="x">1</text>' \
+            '<text class="fg-num" fill="x">2</text></svg>'
+    check("a truncated committed SVG is detected",
+          diagram_complaint(whole[:20], [1, 2]) == "the committed SVG is truncated",
+          repr(diagram_complaint(whole[:20], [1, 2])))
+    check("a blank committed SVG is detected",
+          diagram_complaint("", [1, 2]) is not None)
+    check("a committed SVG drawing different arrows from its IR is detected",
+          "draws" in (diagram_complaint(whole, [1, 2, 3]) or ""),
+          repr(diagram_complaint(whole, [1, 2, 3])))
+    check("and a whole one agreeing with its IR is not",
+          diagram_complaint(whole, [1, 2]) is None,
+          repr(diagram_complaint(whole, [1, 2])))
+
     check("every committed diagram matches what this corpus now produces",
           not stale, "; ".join(stale[:3])
           or "regenerate with `rules_cli.py graph <primer> ../data/diagrams/<name>.svg`")
@@ -1410,7 +1496,8 @@ def fireworks_export(idx):
           len(ir["arrows"]) == len(drawn) and len(drawn) > 0,
           f'{len(ir["arrows"])} arrows / {len(drawn)} drawable transitions')
     check("and every arrow joins two nodes the export declares",
-          all(a["source"] in ir_ids and a["target"] in ir_ids for a in ir["arrows"]))
+          bool(ir["arrows"])
+          and all(a["source"] in ir_ids and a["target"] in ir_ids for a in ir["arrows"]))
 
     # The number on the exported arrow is the number in the prose. They come
     # from one counter in flowgraph, and this is what keeps them from drifting
@@ -1433,7 +1520,7 @@ def fireworks_export(idx):
           f"exported {d_labels}")
 
     check("the exported arrows carry the same numbers as the prose",
-          exported == sorted(e["n"] for e in drawn),
+          bool(exported) and exported == sorted(e["n"] for e in drawn),
           f"{exported[:6]}…")
 
     # Fireworks names its edge classes by role; this project names them by
@@ -1460,14 +1547,18 @@ def fireworks_export(idx):
     # Same rule as the report's basis key: a legend row for a style that does
     # not appear is a line the reader holds for nothing.
     check("the legend lists only the edge classes actually drawn",
-          {r["flow"] for r in ir["legend"]} == {a["flow"] for a in ir["arrows"]},
+          bool(ir["legend"])
+          and {r["flow"] for r in ir["legend"]} == {a["flow"] for a in ir["arrows"]},
           f'legend {[r["flow"] for r in ir["legend"]]}')
 
     # This artifact leaves the report behind, so it has to carry its own
     # provenance — which corpus, and that it is unofficial.
     corpus_version = (ans.get("corpus") or {}).get("CR", "")
+    # `"" in anything` is True, so an absent corpus.CR made this pass on a
+    # subtitle carrying no version at all.
     check("the exported diagram carries its corpus version and says it is unofficial",
-          corpus_version in ir["subtitle"] and "unofficial" in ir["subtitle"],
+          bool(corpus_version) and corpus_version in ir["subtitle"]
+          and "unofficial" in ir["subtitle"],
           ir["subtitle"][:70])
 
     print("\n=== primer: the export refuses what the report refuses ===")
@@ -1533,20 +1624,79 @@ def fireworks_export(idx):
         check("and the IR it wrote is still there to render later",
               os.path.exists(os.path.join(d, "kept.fireworks.json")))
 
+    # The exit code is not the artifact. A renderer that writes `<svg><g>` and
+    # exits 0 was announced as "wrote out.svg" — an unclosed fragment no viewer
+    # will open, reported as a success, with neither the suite nor the battery
+    # noticing. What is on disk is what gets checked.
+    with tempfile.TemporaryDirectory() as d:
+        primer = os.path.join(d, "ok-primer.json")
+        json.dump(base, open(primer, "w", encoding="utf-8"))
+        dest = os.path.join(d, "truncated.svg")
+
+        liar = os.path.join(d, "liar")
+        os.makedirs(os.path.join(liar, "scripts"))
+        open(os.path.join(liar, "scripts", "fireworks.py"), "w", encoding="utf-8").write(
+            "import sys\nopen(sys.argv[-1], 'w').write('<svg><g>')\nsys.exit(0)\n")
+        run = subprocess.run([sys.executable, cli, "graph", primer, dest],
+                             capture_output=True, text=True, cwd=d,
+                             env=dict(os.environ, RIFTBOUND_FIREWORKS=liar))
+        check("a truncated render is not announced as a diagram",
+              run.returncode != 0 and not os.path.exists(dest)
+              and "wrote " + dest not in run.stdout,
+              f"rc={run.returncode}, exists={os.path.exists(dest)}")
+
+        # `run.stdout or run.stderr` picks stdout whenever it is truthy, and
+        # whitespace is truthy — the real traceback went in the bin.
+        mute = os.path.join(d, "mute")
+        os.makedirs(os.path.join(mute, "scripts"))
+        open(os.path.join(mute, "scripts", "fireworks.py"), "w", encoding="utf-8").write(
+            "import sys\nprint('   \\n  ')\n"
+            "print('RealError: style unsupported', file=sys.stderr)\nsys.exit(1)\n")
+        run = subprocess.run([sys.executable, cli, "graph", primer,
+                              os.path.join(d, "m.svg")],
+                             capture_output=True, text=True, cwd=d,
+                             env=dict(os.environ, RIFTBOUND_FIREWORKS=mute))
+        check("the renderer's own complaint reaches the user",
+              "RealError: style unsupported" in (run.stderr or ""),
+              (run.stderr or "").strip()[-80:] or "nothing on stderr")
+
+        # An override the caller SET is a statement. Falling through to the
+        # default search meant one typo rendered from a different install and
+        # said nothing about it.
+        run = subprocess.run([sys.executable, cli, "graph", primer,
+                              os.path.join(d, "t.svg")],
+                             capture_output=True, text=True, cwd=d,
+                             env=dict(os.environ,
+                                      RIFTBOUND_FIREWORKS=os.path.join(d, "typo-here")))
+        check("a mis-set override is refused rather than quietly ignored",
+              run.returncode != 0 and "RIFTBOUND_FIREWORKS" in (run.stderr or run.stdout),
+              f"rc={run.returncode}")
+
     # Fireworks lives outside the skill folder and ADR 0004 forbids depending on
     # anything out there. A missing install must cost a picture, never the IR.
     with tempfile.TemporaryDirectory() as d:
         good = os.path.join(d, "ok-primer.json")
         json.dump(base, open(good, "w", encoding="utf-8"))
-        env = dict(os.environ, RIFTBOUND_FIREWORKS=os.path.join(d, "nowhere"))
-        env["HOME"] = d          # so the default search paths miss too
+        env = dict(os.environ)
+        env.pop("RIFTBOUND_FIREWORKS", None)   # an unset override, not a broken one
+        env["HOME"] = d                        # so the default search paths miss too
         run = subprocess.run([sys.executable, cli, "graph", good, os.path.join(d, "x.svg")],
                              capture_output=True, text=True, cwd=d, env=env)
         ir_file = os.path.join(d, "x.fireworks.json")
         check("with no Fireworks install the IR is still written, and says how to render it",
-              run.returncode == 0 and os.path.exists(ir_file)
-              and "render architecture" in run.stdout,
+              os.path.exists(ir_file) and "render architecture" in run.stdout,
               f"rc={run.returncode}")
+        # Exit 0 here would say the caller got `x.svg`. They did not.
+        check("and naming an SVG that could not be produced is not reported as success",
+              run.returncode != 0 and not os.path.exists(os.path.join(d, "x.svg"))
+              and "x.svg" in run.stdout,
+              f"rc={run.returncode}; the message must name the file it did not write")
+        # Whereas a destination WE chose is a soft degradation, not a failure:
+        # the export ran, and the IR is the artifact this project stands behind.
+        run2 = subprocess.run([sys.executable, cli, "graph", good],
+                              capture_output=True, text=True, cwd=d, env=env)
+        check("but a defaulted destination degrades quietly and exits 0",
+              run2.returncode == 0, f"rc={run2.returncode}")
         check("and that IR is complete on its own",
               os.path.exists(ir_file) and all(
                   k in json.load(open(ir_file, encoding="utf-8"))
@@ -1571,7 +1721,15 @@ def cli_output_paths():
     ruling = os.path.join(HERE, "heron-answer.json")
 
     with tempfile.TemporaryDirectory() as d:
-        r = subprocess.run([sys.executable, cli, "graph", primer, "graph.mmd"],
+        # `--format=mermaid` explicitly. `graph` defaults to Fireworks now, so
+        # this silently started requiring an optional EXTERNAL tool — the suite
+        # failed outright on any machine without it, in a skill whose whole
+        # premise is that copying the folder is enough (ADR 0004). It also
+        # asserted the wrong thing where the tool WAS present, writing an SVG
+        # into a file called graph.mmd. What is under test here is where a
+        # relative path lands, and mermaid needs nothing to test that.
+        r = subprocess.run([sys.executable, cli, "graph", primer, "graph.mmd",
+                            "--format=mermaid"],
                            capture_output=True, text=True, cwd=d)
         landed = os.path.exists(os.path.join(d, "graph.mmd"))
         check("a relative output path lands where the caller ran the command",
