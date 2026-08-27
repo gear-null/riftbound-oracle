@@ -656,6 +656,25 @@ def export_and_history():
         E.build_minibook([one], torn)
     except E.ExportRefused as err:
         why = str(err)
+    # The export's spine guarantee is not the exporter's to keep. `build_minibook`
+    # carries the anchors it is given; the ancestors are there only because the
+    # RENDERER links them. Pin it where it actually lives, or the spine could
+    # quietly disappear from every export while the exporter stayed correct and
+    # its docstring went on promising a spine.
+    # Scoped to CITATION links. `sym-rule` and `card-rule` point at the rule
+    # defining a symbol or a keyword, and those legitimately have no spine
+    # rendered — the first version of this check flagged two of them and would
+    # have failed an honest report, which is the failure mode recorded in
+    # known-issues.md arriving one check later.
+    cite_ids = {m.group(1) for m in re.finditer(
+        r'<a class="(?:anc-link|rulebook-link)"[^>]*href="[^"]*#(?:CR|TR)-([^"]+)"', html)}
+    orphans = [r for r in cite_ids
+               if "." in r and r.rsplit(".", 1)[0] not in cite_ids]
+    check("a report links a citation's ancestor spine, which is what puts it in an export",
+          not orphans and bool(cite_ids),
+          f"{len(orphans)} cited rule(s) with no linked parent: {sorted(orphans)[:4]}"
+          if orphans else f"{len(cite_ids)} citation link(s), spine intact")
+
     check("a rule block that is not one whole section is refused",
           "whole" in why or "never closed" in why, f"got {why[:80]!r}")
 

@@ -77,11 +77,25 @@ def _cited_anchors(html):
 
 
 def build_minibook(anchors, rules_html):
-    """A rulebook holding only the rules this report cites, plus their spine.
+    """A rulebook holding exactly the rules this report links to.
 
-    The full rulebook is ~1MB of 3,316 rules; a report cites a few dozen. The
-    export carries what the report can actually reach — every anchor it links
-    to — and nothing else, so the file stays small enough to send.
+    The full rulebook is ~1MB of 3,316 rules; a report reaches a few dozen. The
+    guarantee is stated in terms of REACHABILITY, not citation: every anchor a
+    reader can click arrives, and nothing else does.
+
+    That distinction matters because the two counts differ and the difference
+    looks like a leak. A report links each cited rule AND its ancestor spine —
+    a rule is meaningless without the clause it sits under — so 6 cited rules
+    can link 13 anchors, of which 5 are ancestors and 2 are children shown
+    alongside. None of those is a passenger; each is a link that would
+    otherwise dead-end.
+
+    An earlier version of this docstring said "plus their spine", which implied
+    this function adds ancestors. It does not — it takes the anchors it is
+    given. The spine is present because the RENDERER links it. If that ever
+    stopped being true the spine would quietly vanish from exports while this
+    sentence went on promising it, which is the sort of claim that outlives the
+    behaviour it describes.
 
     Reusing the REAL rulebook's markup rather than re-rendering: this document
     is what the citation links resolve against, and a re-render would be a
