@@ -1269,6 +1269,38 @@ def minted_identifiers():
             os.remove(path)
 
 
+    # `importer.save` arbitrates collisions INSIDE gauntlet/. Nothing arbitrated
+    # across gauntlet/ and decks/: two legitimately distinct files sharing a
+    # lookup key were tie-broken alphabetically, so `decks` beat `gauntlet` and
+    # a personal draft silently answered to a tournament list's name. The
+    # docstring promised the opposite order, which is how it stayed unnoticed.
+    import deckfile
+    twin = os.path.join(deckfile.DECKS_DIR, "viktor-core-meta.json")
+    real = os.path.join(deckfile.GAUNTLET_DIR, "viktor-core-meta.json")
+    check("no deck name is claimed by both gauntlet/ and decks/ today",
+          not os.path.exists(twin), f"{twin} shadows the gauntlet list")
+    try:
+        draft = deckfile.load(real)
+        draft.name = "MY PERSONAL DRAFT"
+        deckfile.save(draft, twin)
+        why = ""
+        try:
+            got = deckfile.resolve("viktor-core-meta").name
+        except KeyError as err:
+            why = str(err)
+            got = None
+        check("a name claimed by two decks is refused, not silently picked",
+              got is None, f"resolved to {got!r} without saying there were two")
+        check("the refusal names both directories so the caller can choose",
+              "gauntlet/viktor-core-meta.json" in why and "decks/viktor-core-meta.json" in why,
+              f"got {why!r}")
+        check("an unambiguous name still resolves",
+              deckfile.resolve("irelia-core-meta") is not None)
+    finally:
+        if os.path.exists(twin):
+            os.remove(twin)
+
+
 def guards():
     """Every refusal the table makes, pinned individually.
 

@@ -266,17 +266,23 @@ export function cardText(card: RiftcodexCard): string {
  * REPORT it: silently deleting text is its own way of asserting something about
  * a card, and a second occurrence should be seen rather than swallowed.
  *
- * NARROW ON PURPOSE, and it must stay narrow. A corpus-integrity check on the
- * rules-report side scans for the same artifact signature UNANCHORED, and is
- * deliberately wider than this. The asymmetry is the design: deletion is the
- * operation that can destroy a real card's rules text, so it is conservative;
- * reporting cannot destroy anything, so it casts wide.
+ * NARROW ON PURPOSE, and it must stay narrow. The intended companion is a
+ * corpus-integrity check on the rules-report side that scans for the same
+ * artifact signature UNANCHORED, deliberately wider than this. That check does
+ * NOT exist yet — it is owed, and it belongs on the rules-report side rather
+ * than here. `docs/known-issues.md` tracks the class as open. This paragraph
+ * described it in the present tense before it was written, which is worse than
+ * saying nothing: it told the next maintainer that a wider net was already
+ * catching what this function misses, and nothing was.
  *
- * If that detector fires on something this function leaves alone, that is the
- * check working. Go and look at the card. Do NOT widen this to make the
- * detector green — a stripper widened until its detector agrees is a stripper
- * with no detector, because a check derived from the thing it checks can only
- * ever find what that thing already does.
+ * The asymmetry is the point, whenever it does land: deletion is the operation
+ * that can destroy a real card's rules text, so it stays conservative;
+ * reporting cannot destroy anything, so it casts wide. If that detector ever
+ * fires on something this function leaves alone, that is the check working. Go
+ * and look at the card. Do NOT widen this to make the detector green — a
+ * stripper widened until its detector agrees is a stripper with no detector,
+ * because a check derived from the thing it checks can only ever find what that
+ * thing already does.
  */
 export function stripTrailingArtifact(text: string): { text: string; removed?: string } {
   const m = /([).!])([a-z]{3,})$/.exec(text);

@@ -66,6 +66,20 @@ not to work around. Decklists are card names and counts — facts about a tourna
 result, not Riot's copyrighted text — and each pulled deck records the URL and date it
 came from.
 
+Four gauntlet decks did not come through that path at all. Most sites publishing
+competitive lists refuse scripted requests, so the importer also accepts decklist text
+**pasted by hand** — no request is made and nothing is crawled. Those four record
+`hextechanalytics.com` and the date they were entered, the same fields the puller writes,
+so `source.url` remains the answer to "where did this list come from" for every committed
+deck. Recorded here because this file is the authoritative account of committed content:
+a reader checking provenance should not have to infer a second source, or a second way in,
+from the deck files themselves.
+
+The distinction that matters for etiquette is that a paste is a person reading a page in
+their own browser. It has no rate to limit and no User-Agent to identify, so nothing here
+constrains it — but it also cannot be automated later without becoming a crawl, and would
+need the same treatment as `rift-atlas.com` if it were.
+
 A deck whose page does not parse cleanly is **not written**. Overwriting a good committed
 list with a half-rendered one loses data that was correct, so those are reported by name
 and left out; a named hole in the gauntlet is recoverable and silent corruption is not.

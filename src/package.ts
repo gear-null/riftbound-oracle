@@ -198,9 +198,17 @@ export interface PackageOptions {
   /** Where the licence lives. A seam so the refusal below can be tested. */
   licencePath?: string;
   /**
-   * Update the skill's committed SKILL-VERSION.json as well as the archive's.
-   * Defaults to true — `oracle package` is meant to keep it current. Pass false
-   * when packaging at a throwaway version so the working tree is left alone.
+   * Also rewrite the skill's committed SKILL-VERSION.json in the source tree.
+   *
+   * Defaults to FALSE, and the default is the guard. `oracle package` opts in —
+   * it is the one caller whose job is keeping that file current. Everything
+   * else, tests included, gets an archive and an untouched working tree.
+   *
+   * It defaulted to on briefly, with each test opting out. That leaves the trap
+   * armed for whoever writes the next packaging test and does not know to pass
+   * the flag: their suite quietly edits a tracked file, and the failure surfaces
+   * later as a stale manifest in someone else's commit. A default that is safe
+   * when forgotten beats a check that catches forgetting.
    */
   updateSourceManifest?: boolean;
 }
@@ -232,12 +240,12 @@ export function packageSkill(opts: PackageOptions = {}) {
   // included. It shows up in `git status` when the corpus moves, which is the
   // reminder to commit it.
   //
-  // Off for callers that package at a throwaway version. This used to be
-  // unconditional, so a test packaging at "9.9.9" rewrote the committed
-  // manifest as a side effect; a `git add -A` then committed it, and CI failed
-  // on a stale manifest nobody had knowingly touched. A build step that edits
-  // tracked files is a trap whoever runs the suite next walks into.
-  if (opts.updateSourceManifest !== false) {
+  // Opt-in, because a build step that edits tracked files is a trap whoever
+  // runs the suite next walks into. This was unconditional, so a test packaging
+  // at "9.9.9" rewrote the committed manifest as a side effect; a `git add -A`
+  // then committed it, and CI failed on a stale manifest nobody had knowingly
+  // touched — for rules-report as readily as for deck-lab.
+  if (opts.updateSourceManifest) {
     writeFileSync(join(skillDir, "SKILL-VERSION.json"), manifestJson, "utf-8");
   }
 

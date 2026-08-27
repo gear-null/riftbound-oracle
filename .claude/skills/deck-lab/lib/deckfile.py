@@ -272,13 +272,36 @@ def load(path):
 
 
 def resolve(name_or_path):
-    """A deck by path, by filename, or by slug — gauntlet first, then decks/."""
+    """A deck by path, by filename, or by slug. An ambiguous name is refused.
+
+    This used to promise "gauntlet first, then decks/" and deliver the opposite:
+    `available()` sorts full paths, and `decks` sorts before `gauntlet`, so a
+    personal draft silently shadowed the tournament list it was named after and
+    every number downstream described the wrong deck.
+
+    Picking a side would have fixed the docstring without fixing the problem —
+    whichever directory loses, a real deck is discarded without a word. Nothing
+    minted the collision here (`importer.save` already refuses those inside
+    `gauntlet/`); two legitimately distinct files simply share a lookup key, and
+    the tie-break was alphabetical accident rather than anyone's decision. So
+    say so and let the caller name the one they meant, which is what the
+    substring branch below has always done.
+    """
     if os.path.isfile(name_or_path):
         return load(name_or_path)
     stem = os.path.splitext(os.path.basename(name_or_path))[0].lower()
-    for candidate in available():
-        if os.path.splitext(os.path.basename(candidate))[0].lower() == stem:
-            return load(candidate)
+    exact = [
+        c for c in available()
+        if os.path.splitext(os.path.basename(c))[0].lower() == stem
+    ]
+    if len(exact) > 1:
+        raise KeyError(
+            f"{name_or_path!r} names {len(exact)} different decks: "
+            + ", ".join(_where(c) for c in sorted(exact))
+            + " — pass the path to say which"
+        )
+    if exact:
+        return load(exact[0])
     matches = [c for c in available() if stem in os.path.basename(c).lower()]
     if len(matches) == 1:
         return load(matches[0])
@@ -288,6 +311,11 @@ def resolve(name_or_path):
             + ", ".join(os.path.basename(m) for m in sorted(matches)[:6])
         )
     raise KeyError(f"no deck named {name_or_path!r} in gauntlet/ or decks/")
+
+
+def _where(path):
+    """`gauntlet/x.json` — enough to tell two same-named decks apart."""
+    return os.path.join(os.path.basename(os.path.dirname(path)), os.path.basename(path))
 
 
 def available():

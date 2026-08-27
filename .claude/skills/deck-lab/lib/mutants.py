@@ -266,6 +266,22 @@ MUTANTS = [
          find="            if attacker_assignment is None else dict(attacker_assignment)",
          repl="            if not attacker_assignment else dict(attacker_assignment)",
          expect="repelled attacker"),
+    dict(name="tie-break a two-directory name collision instead of refusing",
+         file="deckfile.py",
+         find="    if len(exact) > 1:",
+         repl="    if False:",
+         expect="refused, not silently picked"),
+    dict(name="report the collision without saying which decks collided",
+         file="deckfile.py",
+         find='            + ", ".join(_where(c) for c in sorted(exact))',
+         repl='            + "two decks"',
+         expect="names both directories"),
+    # The over-broad direction — refusing a name that matches ONE deck — has no
+    # mutant here on purpose. It breaks every lookup in the suite, so the run
+    # dies before any named check reports, and this battery counts a crash as
+    # "not caught by a named check" rather than pretending otherwise. The
+    # "unambiguous name still resolves" check does cover the behaviour; what it
+    # cannot do is fail politely when the damage is that wide.
     dict(name="let a permanent rest in another player's base (323.7)",
          file="table.py",
          find='            if where == BASE and perm.location != f"{BASE}:{perm.controller}":',

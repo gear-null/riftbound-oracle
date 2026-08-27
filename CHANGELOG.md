@@ -64,19 +64,35 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ### Fixed
 
-- **Packaging checked the first skill and reported on all of them.** Three places in one
-  path made the same assumption, and none of them could fail once a second skill
-  existed. CI ran `unzip -q dist/*.zip`, which takes the first archive and reads the
-  rest as member names *inside* it — so the job that proves an install works was one
-  glob-ordering away from passing while installing nothing. The reproducibility check
-  compared only the first checksum, and the stale-manifest check named `rules-report`
-  outright. CI now loops, and runs the verify command each skill's manifest names, which
-  meant shipping `verify` into `SKILL-VERSION.json` so an archive knows how to check
-  itself.
-- **The licence test had the same shape**, asserting `rules-report/LICENSE` by name, so a
-  second skill could ship unlicensed with the suite green. It loops now. The copy itself
-  was always generic, so nothing shipped wrong — but nothing would have caught it if it
-  had.
+- **Packaging checked the first skill and reported on all of them.** Five places made
+  that assumption, and none of them could have failed while only one skill existed —
+  these are defects the second skill *revealed*, not ones it caused. CI ran
+  `unzip -q dist/*.zip`, which takes the first archive and reads the rest as member
+  names *inside* it, so the job that proves an install works was one glob-ordering away
+  from passing while installing nothing. The reproducibility check compared only the
+  first checksum; the stale-manifest check named `rules-report` outright; the licence
+  test asserted `rules-report/LICENSE` by name; and the "records nothing
+  self-referential" invariant, which exists so a release rebuilds from its own tag,
+  called one of the two manifest producers — a commit hash in the other passed the
+  entire suite. All five now iterate the skill registry, and CI runs the verify command
+  each skill's manifest names, which meant shipping `verify` into `SKILL-VERSION.json`
+  so an archive knows how to check itself.
+- **Running the tests no longer edits tracked files.** Packaging rewrote each skill's
+  committed `SKILL-VERSION.json` unconditionally, which is right for
+  `npm run oracle package` and a trap from a test: the licence test packages at a
+  throwaway version, so merely running the suite rewrote a manifest to a version that
+  does not exist — `rules-report`'s as readily as `deck-lab`'s — and a `git add -A`
+  then committed it. `SKILL-VERSION.json` is the file a consumer reads to know what
+  they have. The source-tree write is now opt-in and `oracle package` is the only
+  caller that asks for it, so forgetting the flag is safe rather than damaging; the
+  archive's manifest is written separately, and states the version it was actually
+  built at either way.
+- **A deck name claimed by two files is refused instead of silently picked.** `resolve()`
+  promised "gauntlet first, then decks/" and delivered the reverse — `available()` sorts
+  full paths and `decks` sorts before `gauntlet` — so a personal draft answered to a
+  tournament list's name and every number downstream described the wrong deck. Neither
+  order is right: whichever directory loses, a real deck is discarded without a word.
+  It now names both files and asks which you meant.
 - **A missing licence now stops the build** instead of being skipped by an `existsSync`.
   A renamed or moved `LICENSE` silently restored the unlicensed archive that work existed
   to prevent, which is worse than never having fixed it: the fix is what stops anyone

@@ -56,6 +56,28 @@ describe("packageSkill", () => {
     } finally { rmSync(dir, { recursive: true }); }
   });
 
+  it("records nothing self-referential in ANY skill's manifest", () => {
+    // The test above predates the second skill and calls one producer through
+    // `describeSkill`. Splitting manifest generation in two left the other
+    // producer outside the invariant: a commit hash added to deck-lab's
+    // manifest passed the whole suite, with its SKILL-VERSION.json committed
+    // and the instability therefore fully reachable. An invariant that covers
+    // half the producers is not an invariant, and the count of producers is
+    // exactly the thing that changed.
+    //
+    // Run against the real skill dirs rather than a fixture: these are the
+    // manifests that actually ship, and purity has to hold for the corpus we
+    // have, not a synthetic one.
+    for (const [key, spec] of Object.entries(SKILLS)) {
+      const m = spec.describe(spec.dir, "1.2.3") as unknown as Record<string, unknown>;
+      expect(m, `${key} records a commit`).not.toHaveProperty("commit");
+      expect(JSON.stringify(m), `${key} records something hash-shaped`)
+        .not.toMatch(/\b[0-9a-f]{7,40}\b/);
+      expect(spec.describe(spec.dir, "1.2.3"), `${key} is not a pure function of its corpus`)
+        .toEqual(m);
+    }
+  });
+
   it("is byte-reproducible across builds", () => {
     // A release checksum is meaningless if archiving identical bytes twice
     // yields two different files.
@@ -98,7 +120,7 @@ describe("packageSkill", () => {
     // covered the day it is added.
     const out = mkdtempSync(join(tmpdir(), "dist-"));
     try {
-      const built = packageAll({ distDir: out, version: "9.9.9", updateSourceManifest: false });
+      const built = packageAll({ distDir: out, version: "9.9.9" });
       expect(built.length).toBe(Object.keys(SKILLS).length);
       for (const { archive, skill } of built) {
         const list = execFileSync("unzip", ["-Z1", archive], { encoding: "utf-8" });
@@ -124,13 +146,17 @@ describe("packageSkill", () => {
     // Packaging rewrites each skill's SKILL-VERSION.json on purpose, so the
     // committed one tracks the corpus. A TEST doing it is a trap: the suite
     // dirties tracked files, a `git add -A` sweeps them in, and CI then fails
-    // on a stale manifest nobody knowingly edited. That happened once; this is
-    // the check that stops it happening twice.
+    // on a stale manifest nobody knowingly edited. That happened once.
+    //
+    // Note what is NOT passed below: the safety is the default, so a packaging
+    // test written later that has never heard of this flag is safe by writing
+    // nothing. That is the point — this check would otherwise only catch the
+    // authors who already knew.
     const before = Object.values(SKILLS).map(
       (spec) => readFileSync(join(spec.dir, "SKILL-VERSION.json"), "utf-8"));
     const out = mkdtempSync(join(tmpdir(), "dist-"));
     try {
-      packageAll({ distDir: out, version: "9.9.9", updateSourceManifest: false });
+      packageAll({ distDir: out, version: "9.9.9" });
       const after = Object.values(SKILLS).map(
         (spec) => readFileSync(join(spec.dir, "SKILL-VERSION.json"), "utf-8"));
       expect(after).toEqual(before);
@@ -144,7 +170,7 @@ describe("packageSkill", () => {
     const out = mkdtempSync(join(tmpdir(), "dist-"));
     const unpacked = mkdtempSync(join(tmpdir(), "unz-"));
     try {
-      packageAll({ distDir: out, version: "9.9.9", updateSourceManifest: false });
+      packageAll({ distDir: out, version: "9.9.9" });
       for (const spec of Object.values(SKILLS)) {
         execFileSync("unzip", ["-qo", join(out, `riftbound-${spec.name}-v9.9.9.zip`),
                                "-d", unpacked]);
@@ -155,6 +181,27 @@ describe("packageSkill", () => {
     } finally {
       rmSync(out, { recursive: true, force: true });
       rmSync(unpacked, { recursive: true, force: true });
+    }
+  });
+
+  it("still updates the committed manifest when the CLI asks it to", () => {
+    // The flip side of the safe default: `oracle package` is the one caller
+    // that MUST write into the source tree, because CI's stale-manifest check
+    // and every git install depend on that file tracking the corpus. Making the
+    // default safe is only correct if the opt-in still works — otherwise the
+    // manifest quietly stops being maintained and nothing says so.
+    const dir = mkdtempSync(join(tmpdir(), "sk-"));
+    const out = mkdtempSync(join(tmpdir(), "dist-"));
+    try {
+      fakeSkill(dir);
+      rmSync(join(dir, "SKILL-VERSION.json"), { force: true });
+      packageSkill({ skillDir: dir, distDir: out, version: "4.5.6",
+                     updateSourceManifest: true });
+      const written = JSON.parse(readFileSync(join(dir, "SKILL-VERSION.json"), "utf-8"));
+      expect(written.version).toBe("4.5.6");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+      rmSync(out, { recursive: true, force: true });
     }
   });
 

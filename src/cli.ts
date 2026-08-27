@@ -458,7 +458,12 @@ async function handlePackage() {
     // A release carries every shipping skill or it carries none. Packaging was
     // hardcoded to rules-report while a second skill shipped in the same repo,
     // so that skill had no release archive and `install.sh` could not fetch it.
-    const results = only ? [packageSkill({ skill: only })] : packageAll();
+    // The one caller that owns the committed SKILL-VERSION.json: packaging is
+    // what keeps it current, and its showing up in `git status` is the reminder
+    // to commit it. Nothing else may write into the source tree.
+    const results = only
+      ? [packageSkill({ skill: only, updateSourceManifest: true })]
+      : packageAll({ updateSourceManifest: true });
     s.stop(`${results.length} archive(s)`);
 
     for (const r of results) {
