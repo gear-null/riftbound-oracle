@@ -11,6 +11,37 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ## [Unreleased]
 
+### Added
+
+- **Primers — a second kind of report, for questions that aren't rulings.** Ask *"explain
+  the HOT FEPR loop"* and the old format fought you: it wanted one holding sentence for a
+  five-step state machine, one crux among five equally load-bearing steps, and an opposing
+  reading for a phase order nobody disputes. A primer is numbered steps with the
+  transitions out of each one, and no verdict. Rulings are unchanged — an answer file
+  with no `kind` field is still a ruling, verified and rendered byte-for-byte as before.
+- **A transition is a claim, and it must cite the rule that says so.** Prose is where a
+  model's fluency does the most damage, so a primer is deliberately *stricter* than a
+  ruling in the place a reader acts on: an exit's default basis is `grounded`, so an
+  uncited "this sends you to step 4" fails verification instead of rendering as confident
+  prose. Declaring it `structural` is allowed and costs what it should — the document's
+  confidence drops and the arrow is drawn dashed.
+- **A diagram of the procedure, derived rather than drawn.** The map at the top of a
+  primer is computed from those cited transitions and from nothing else, so every arrow
+  is one of them and every one of them is an arrow — numbered to match the prose beneath.
+  There is no field an author can draw an edge in. Recorded as invariant 12 and pinned by
+  nine checks, each proven by a mutant.
+- **`rules_cli.py graph`** emits the same graph as Mermaid source, and refuses on an
+  unverified primer.
+- **Invariant 12** — *a diagram draws exactly the transitions the document declares,
+  no more and no fewer*. An arrow is absorbed at a glance and audited by nobody, so
+  the map is computed from the declared transitions and shows which kind of claim
+  each one rests on: solid for stated outright, dashed for inferred or unsettled, and
+  a heavy inverted arrow for one whose citation failed, so a `--force` page has no
+  element left claiming everything is fine.
+- A shipped HOT FEPR primer (CR 332–340, 33 citations, 12 transitions) as the worked
+  example. Run `python3 scripts/check-invariants.py` for the live check and mutant
+  counts — a total written into prose here only goes stale.
+
 ## [1.2.1] — 2026-08-20
 
 ### Fixed

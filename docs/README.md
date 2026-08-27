@@ -15,7 +15,7 @@ installing and asking questions, see the [main README](../README.md).
 
 | | |
 |---|---|
-| [invariants.md](invariants.md) | The eleven things that must never be false, and the checks that pin them |
+| [invariants.md](invariants.md) | The twelve things that must never be false, and the checks that pin them |
 | [known-issues.md](known-issues.md) | Found, reproduced, and deliberately not fixed |
 
 ## Reference
@@ -38,3 +38,4 @@ chosen.
 | [0004](adr/0004-the-skill-is-the-product.md) | The skill is the product; the repo is the workshop |
 | [0005](adr/0005-generate-the-rulebook.md) | Generate the anchored rulebook from the parsed corpus |
 | [0006](adr/0006-derive-the-symbol-legend.md) | Derive the symbol legend from the rules |
+| [0008](adr/0008-two-document-kinds.md) | Two document kinds (ruling, primer), one verification core |

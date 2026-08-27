@@ -40,9 +40,13 @@ is less useful.
 
 ## Coverage
 
-About two thirds of the 205 checks are proven by the mutation battery. The
-unproven third is mostly display detail and data-shape assertions. The eleven
+About two thirds of the 260 checks are proven by the mutation battery. The
+unproven third is mostly display detail and data-shape assertions. The twelve
 invariants are fully pinned, which is the property the release gate enforces.
+
+`scripts/check-invariants.py` prints both numbers, so read them from it rather
+than from this paragraph — a hardcoded count in prose is how the README's
+version of this went stale in the first place.
 
 Two checks are known to be weaker than their names suggest and were kept rather
 than deleted, because deleting them would lose the documentation value:

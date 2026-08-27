@@ -139,6 +139,17 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   rule that actually resolved, never from a default — 790 IDs exist only in the
   Tournament Rules.
 - **`build` is maintainer-only.** Don't document it as a user step.
+- **A shared check has one definition.** Both document kinds verify the corpus stamp,
+  `considered_rejected`, `rules_checked`, card `rule_sections`, citation shape, id
+  uniqueness and the required keys. Those
+  live once, in `render_report.py`, and `render_primer.py` calls them. Copying one to
+  "adapt it" is how three citation-tally comprehensions drifted into disagreeing about
+  the same answer file.
+- **A diagram is derived or it does not ship.** `flowgraph.py` reads `steps` and
+  `exits` and nothing else. Do not add a field that lets an author place an edge, a
+  node or a label — see [ADR 0008](adr/0008-two-document-kinds.md). The same rule
+  governs anything downstream: `graph` refuses on an unverified primer so that a
+  picture can never travel further than its citations.
 
 ## Repository layout
 
@@ -146,6 +157,10 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
 .claude/skills/rules-report/   <- THE PRODUCT. Copy this folder; nothing else is needed.
   SKILL.md                     the procedure an agent follows
   lib/                         rules_cli.py and the deterministic tools
+    verify_citations.py        the verbatim gate — shared by both document kinds
+    render_report.py           a RULING, plus the checks and chrome both kinds share
+    render_primer.py           a PRIMER: steps, transitions, misconceptions
+    flowgraph.py               derives a primer's diagram from its cited transitions
   data/                        vendored + committed (~2.6MB)
   reports/                     generated HTML reports (gitignored)
 

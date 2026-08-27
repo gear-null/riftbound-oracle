@@ -1,6 +1,6 @@
 ---
 name: rules-report
-description: Answer a Riftbound rules question as a verified, citation-checked interactive HTML report. Use whenever the user asks how a Riftbound rule, card interaction, keyword, or tournament procedure works — including "does X still happen if Y", "can I respond to Z", deck/sideboard legality, and any ruling dispute. Also use when asked to re-verify a saved ruling after a rules update.
+description: Answer a Riftbound rules question as a verified, citation-checked interactive HTML report — either a RULING that settles a disputed situation ("does X still happen if Y", "can I respond to Z", deck/sideboard legality, how much does this cost) or a PRIMER that explains how a mechanic or procedure works ("explain the HOT FEPR loop", "how do Showdowns work", "walk me through combat"). Use whenever the user asks about a Riftbound rule, card interaction, keyword, turn structure, or tournament procedure. Also use when asked to re-verify a saved report after a rules update.
 ---
 
 # Riftbound rules report
@@ -11,6 +11,32 @@ structured answer whose every citation is then mechanically verified.
 You are the reasoning step. The tools below are deterministic and exist so that the
 parts which must not be improvised — does this rule exist, does it say this verbatim,
 which rule is the tightest one that says it — are not left to judgement.
+
+## Two documents. Pick one first.
+
+| | **Ruling** | **Primer** |
+|---|---|---|
+| answers | a *situation* | a *mechanic* |
+| the ask | "does X still happen if Y", "can I respond", "how much", "who chooses" | "explain X", "how does X work", "walk me through X" |
+| shape | one holding line, typed into spans, one crux, the opposing reading confronted | numbered steps, each with the transitions out of it, plus a derived diagram |
+| file | `answer.json`, no `kind` field | `primer.json`, `"kind": "primer"` |
+
+**The test:** could someone put this to a judge at a table and get a yes, a no, or
+a number? Then it is a ruling. Is it a topic rather than a moment — something you
+would want *before* the game rather than during it? Then it is a primer.
+
+Do not write a ruling for a question that has no proposition to defend. Ask for the
+HOT FEPR loop and the honest answer is five steps and twelve transitions between
+them, four of which send you backwards; forcing that into a holding line and a
+single crux produces a worse document and an arbitrary choice of which step is
+"load-bearing". Equally, do not write a primer to duck a question that *does* have
+an answer — a primer that explains the machinery around a question the user actually
+asked is an evasion, not an explanation.
+
+**Both are held to the same standard of proof.** Same verbatim gate, same basis
+vocabulary, same `min()` confidence, same refusal to render on a failed citation.
+The primer is stricter in exactly one place, and it is the important one: see
+*A transition is a claim* below.
 
 ## Why it works this way
 
@@ -48,8 +74,13 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 | `report <answer.json>` | **How you finish.** Verify + render + open, in one step |
 | `verify <answer.json>` | The citation gate alone. Exit 1 if anything fails |
 | `render <answer.json> [out]` | Render alone; prefer `report` |
+| `graph <primer.json> [out.mmd]` | A primer's step graph as Mermaid source, derived from its verified transitions |
 
-## Procedure
+`card`, `rule`, `section` and `grep` are how you research either document. `report`,
+`verify`, `render` and `graph` read the file's `kind` and route themselves — you never
+name the document type on the command line.
+
+## Procedure — a ruling
 
 1. **Reframe.** Restate the question in *rules* vocabulary. Card and slang terms
    ("defy", "rebuttal", "fizzle", "stack") mostly do not appear in the rules — translate
@@ -144,6 +175,115 @@ Rules the renderer enforces, so write to them:
   whole answer structural, and the report says so.
 - If any citation fails verification the disposition is **forced to UNSETTLED**. You
   cannot outrun the verifier — fix the citation instead.
+
+## Procedure — a primer
+
+Steps 1–3 are the same: reframe, resolve every card named, navigate the rules. Read
+the *whole* topic before writing anything — a primer that stops at the first section
+describes half a procedure, which is worse than describing none.
+
+4. **Lay out the steps.** One step per thing that actually happens, in the order the
+   rules put them in. Use the rules' own names for them (`337. Step 1: Finalize`
+   becomes `F — Finalize`), because a reader who learns your names cannot then read
+   Riot's document.
+
+5. **Write the transitions out of each step.** For every step, answer: *what sends
+   you somewhere else, and where?* One `exits` entry per condition, each naming the
+   step it leads to — or omitting `goto` entirely, which is how you say the procedure
+   ends there.
+
+   **A transition is a claim.** `exits[]` is not decoration for the diagram; it is
+   the assertion "the rules send you from here to there when this holds", and it is
+   the part a reader will act on at the table. Its default basis is `grounded`, so an
+   uncited transition **fails verification** — it is not rendered as confident prose
+   the way an uncited sentence in a paragraph would be. If a move genuinely follows
+   from the rules rather than being written in one place, declare
+   `"basis": "structural"` and it may go uncited — but the whole document's
+   confidence then drops to structural, and the diagram draws that arrow dashed.
+
+6. **Do not draw the diagram.** There is no field for it. The map is derived from
+   `steps` and `exits` by `flowgraph.py`, so it cannot show an arrow you did not cite
+   — which is the only reason a picture is publishable here at all. If the map looks
+   wrong, the transitions are wrong; fix those.
+
+7. **Find what people get wrong.** `misconceptions` is the primer's counterargument:
+   the belief stated at full strength, then the rule that refutes it. A primer with
+   none is usually a primer that has not been read against how the mechanic is
+   actually played.
+
+8. **Finish with `report`**, exactly as a ruling does. It routes on `kind`, verifies,
+   renders and opens. **A primer is not delivered until this has run.**
+
+## primer.json
+
+```json
+{
+  "kind": "primer",
+  "topic": "HOT FEPR",
+  "question": "verbatim as asked",
+  "reframe": "the same question in rules vocabulary",
+  "corpus": {"CR": "2026-07-16", "TR": "2026-07-16", "generated": "YYYY-MM-DD"},
+  "in_one_line": "what the whole thing does, in one sentence — no verdict word",
+  "steps": [{
+    "id": "s1",
+    "heading": "H — Handle Outstanding Tasks",
+    "body": "prose, as long as it needs to be",
+    "basis": "grounded | structural | gap",
+    "rules_checked": ["332", "333"],
+    "cites": [{"rule": "CR:334", "quote": "verbatim span"}],
+    "exits": [{
+      "when": "the condition that sends you there",
+      "goto": "s2",
+      "basis": "grounded (default) | structural | gap",
+      "cites": [{"rule": "CR:336", "quote": "verbatim span"}]
+    }]
+  }],
+  "misconceptions": [{"belief": "stated at full strength",
+                      "why_wrong": "...", "cites": [...]}],
+  "considered_rejected": [{"rule": "CR:305", "why": "one line"}],
+  "open_questions": ["..."],
+  "cards": ["Astral Heron"]
+}
+```
+
+Rules the verifier enforces, so write to them:
+
+- A transition with **no `cites`** and no declared basis **fails**. Grounded is the
+  default and grounded means a rule says it.
+- Every `goto` must name a step in this primer. There is no cross-document jump.
+- Once *any* step declares an exit, the document is claiming to describe a procedure:
+  every step must be **reachable by some run of it from the first step**, and **one
+  transition must omit `goto`** so the procedure has a way out. A primer with no
+  exits at all is a linear explainer — "the parts of a card" — and none of this
+  applies to it.
+- A `gap` step or transition must list `rules_checked`.
+- Confidence is **min()** over steps **and transitions**, and the page names whichever
+  is weakest — "transition 3", not the step it leaves.
+- At most **40 steps** and **200 transitions**. Not a performance limit: past that the
+  derived map is a wall rather than a diagram. Split the topic.
+- Step ids are the page's anchors, so they must be unique.
+- There is **no disposition and no crux**. A primer states no verdict; if you find
+  yourself wanting one, you are writing a ruling.
+- If any citation fails verification the primer **does not render at all**. There is
+  no UNSETTLED to fall back to.
+
+**And two rules nothing enforces, which is exactly why they are yours:**
+
+- **A step's `body` must stay inside what that step cites.** The basis chip is a
+  claim about the whole step — `grounded` reads as *a rule states this in so many
+  words* — so a synthesis across neighbouring steps does not belong in the prose of
+  a grounded one. Either ground it, or say it in a step you have marked
+  `structural`. This is where fluency will cost you: the sentence that reads best is
+  often the one drawing on three rules the step never cited.
+- **`in_one_line` must not say anything the steps do not.** Unlike a ruling's holding
+  line it carries no typed spans and no coverage floor — the verifier checks only
+  that it is present. It is the largest gap between the two document kinds and the
+  most prominent sentence on the page, and there is no mechanical backstop behind it
+  at all.
+
+Once it renders, `rules_cli.py graph <primer.json>` emits the same graph as Mermaid
+source for the website and for diagramming tools. It refuses on an unverified primer,
+so a diagram can never travel further than its citations.
 
 ## Two ways to wrongly conclude the rules are silent
 

@@ -85,7 +85,9 @@ Type-specific fields:
 6. `npm run oracle skill-data` — rebuilds every skill's vendored card data (needs network)
 7. `npm run oracle decks pull` — pulls current tournament decklists into `output/decks/`
 8. `npm run oracle vault-sync` — optional; mirrors `output/` into an Obsidian wiki's `raw/`
-9. Answer questions via the `rules-report` skill (see `.claude/skills/rules-report/SKILL.md`)
+9. Answer questions via the `rules-report` skill (see `.claude/skills/rules-report/SKILL.md`).
+   It writes two documents: a **ruling** (a disputed situation) and a **primer**
+   (how a mechanic works, with a diagram derived from its cited transitions).
 
 ## Environment Variables
 
@@ -107,6 +109,7 @@ copies. Read these before changing the corresponding behaviour:
 | [ADR 0004](docs/adr/0004-the-skill-is-the-product.md) | Why everything is vendored into the skill folder |
 | [ADR 0005](docs/adr/0005-generate-the-rulebook.md) | Why the rulebook is generated, not converted from PDF |
 | [ADR 0006](docs/adr/0006-derive-the-symbol-legend.md) | Why the symbol legend is derived from the rules |
+| [ADR 0008](docs/adr/0008-two-document-kinds.md) | Why there are two document kinds, and why the diagram is derived |
 
 [`docs/maintaining.md`](docs/maintaining.md) has the rules-update procedure, the
 repository layout, and the invariants that must hold when editing the skill —

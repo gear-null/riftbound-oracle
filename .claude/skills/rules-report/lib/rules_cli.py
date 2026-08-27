@@ -15,6 +15,7 @@ with — each one exact, deterministic, and free of model judgement:
     rules grep <pattern>    lexical search over rule text (agent-driven, not RAG)
     rules section <id>      a whole numbered section, in document order
     rules report <json>     verify + render + open — the ONLY way to finish an answer
+    rules graph <primer>    a primer's step graph as Mermaid, derived from its exits
     rules verify <json>     mechanical citation gate (report runs this for you)
     rules rulebook          (re)generate the anchored HTML rulebook
     rules selftest          regression harness; run after every rules update
@@ -29,10 +30,26 @@ import json, os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+# The directory the user actually ran the command from. `main()` chdirs into
+# HERE so the tools can find their data, which silently relocated every RELATIVE
+# OUTPUT path into the skill folder: `graph primer.json out.mmd` printed "wrote
+# out.mmd" and put it in lib/. Input paths were already resolved before the
+# chdir for the mirror-image reason — a relative input found a shipped sample of
+# the same name. Captured at import, because by the time a command runs the cwd
+# is gone.
+CWD = os.getcwd()
+
 from corpus import rules_json as _rules_json
 RULES_JSON = _rules_json()
 RULES_DB = os.path.join(HERE, "rules.db")
 REPORTS = os.path.normpath(os.path.join(HERE, "..", "reports"))
+
+
+def _out_path(path, default_dir=None):
+    """Resolve a caller-supplied output path against the caller's directory."""
+    if os.path.isabs(path):
+        return path
+    return os.path.join(default_dir or CWD, path)
 
 
 def _idx():
@@ -301,6 +318,36 @@ def ensure_rulebook():
         cmd_rulebook([])
 
 
+# `kind` decides which document an answer file is, and it is the ONE place that
+# decision is made. Absent means "ruling": every answer written before primers
+# existed omits the field, and those files must keep verifying and rendering
+# byte-for-byte as they did — a format migration that silently reinterprets old
+# artifacts is how a saved ruling comes back changed.
+#
+# An unknown value is refused rather than defaulted. Defaulting would route a
+# typo'd "primmer" down the ruling path, where every primer-shaped key is simply
+# unread — producing a confident report about a document nobody wrote.
+KINDS = ("ruling", "primer")
+
+
+def _kind(ans, src):
+    kind = ans.get("kind", "ruling")
+    if kind not in KINDS:
+        raise SystemExit(
+            f"{src}: kind {kind!r} is not one of {', '.join(KINDS)}.\n"
+            "  Omit `kind` for a ruling; set it to \"primer\" for an explainer.")
+    return kind
+
+
+def _verify_for(kind):
+    """(verify, all_cites, renderer module path) for a document kind."""
+    if kind == "primer":
+        from render_primer import all_cites, verify_primer
+        return verify_primer, all_cites, os.path.join(HERE, "render_primer.py")
+    from render_report import all_cites, verify_answer
+    return verify_answer, all_cites, os.path.join(HERE, "render_report.py")
+
+
 def cmd_report(args):
     """Verify, render and open — one step, so an answer cannot be half-delivered.
 
@@ -310,13 +357,18 @@ def cmd_report(args):
     """
     src = args[0]
     explicit = args[1] if len(args) > 1 and not args[1].startswith("-") else None
+    # `-answer` only. Stripping `-primer` too was tidier and collided:
+    # heron-answer.json and heron-primer.json both resolved to reports/heron.html,
+    # so rendering one silently destroyed the other — a ruling and a primer about
+    # the same subject is the NORMAL pairing, not an edge case.
     slug = os.path.splitext(os.path.basename(src))[0].replace("-answer", "")
-    out = explicit or os.path.join(REPORTS, f"{slug}.html")
+    out = _out_path(explicit) if explicit else os.path.join(REPORTS, f"{slug}.html")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
 
     # Verify first; a failing gate must not silently produce a pretty report.
-    from render_report import verify_answer
-    ans = verify_answer(json.load(open(src, encoding="utf-8")), _idx())
+    raw = json.load(open(src, encoding="utf-8"))
+    verify, _all_cites, renderer = _verify_for(_kind(raw, src))
+    ans = verify(raw, _idx())
     if ans["_problems"]:
         print("VERIFICATION FAILED — not rendering:")
         for pb in ans["_problems"]:
@@ -324,7 +376,7 @@ def cmd_report(args):
         sys.exit(1)
 
     ensure_rulebook()
-    subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
+    subprocess.run([sys.executable, renderer, src, out], check=True)
     print(f"\nreport: {os.path.normpath(os.path.abspath(out))}")
     if "--no-open" not in args:
         # Sandboxed runners (Claude Desktop / mobile skills) have no browser and
@@ -343,30 +395,100 @@ def cmd_report(args):
 
 
 def cmd_verify(args):
-    from render_report import all_cites, verify_answer
-    ans = json.load(open(args[0], encoding="utf-8"))
-    ans = verify_answer(ans, _idx())
+    """The citation gate alone. Exit 1 if anything failed."""
+    raw = json.load(open(args[0], encoding="utf-8"))
+    kind = _kind(raw, args[0])
+    verify, all_cites, _renderer = _verify_for(kind)
+    ans = verify(raw, _idx())
     cites = all_cites(ans)
     nc = len(cites)
     nv = sum(1 for c in cites if c["verified"])
-    print(f"disposition : {ans['holding']['disposition']}"
-          + (f"  (FORCED from {ans['holding']['_forced']})" if ans["holding"].get("_forced") else ""))
+    if kind == "primer":
+        print(f"topic       : {ans.get('topic', '')}")
+        print(f"steps       : {len(ans.get('steps', []))}")
+    else:
+        print(f"disposition : {ans['holding']['disposition']}"
+              + (f"  (FORCED from {ans['holding']['_forced']})"
+                 if ans["holding"].get("_forced") else ""))
     print(f"citations   : {nv}/{nc} verified verbatim")
-    print(f"weakest link: {ans['_weakest']} ({ans['_strength']})")
-    for n in ans["notes"]:
-        for c in n.get("cites", []):
+    label = "weakest step" if kind == "primer" else "weakest link"
+    print(f"{label}: {ans['_weakest']} ({ans['_strength']})")
+    # Narrowing is worth surfacing on both paths: it means the id written was
+    # vaguer than the rule that actually says the thing.
+    for src_item in _cite_sources(ans, kind):
+        for c in src_item.get("cites", []) or []:
             if c.get("narrowed"):
-                print(f"  narrowed: {n['id']} {c['rule']} -> {c['cite_as']}")
+                print(f"  narrowed: {src_item.get('id', '?')} {c['rule']} -> {c['cite_as']}")
     for p in ans["_problems"]:
         print(f"  ! {p}")
     sys.exit(1 if ans["_problems"] else 0)
 
 
+def _cite_sources(ans, kind):
+    """The id-bearing blocks whose citations `verify` annotated."""
+    if kind == "primer":
+        for step in ans.get("steps", []):
+            yield step
+            for ex in step.get("exits", []) or []:
+                yield dict(ex, id=f"{step.get('id', '?')}→{ex.get('goto') or 'end'}")
+        # Misconceptions carry citations too, so a narrowed one there printed
+        # no `narrowed:` line — the id the author wrote was vaguer than the rule
+        # that says the thing, and nothing said so.
+        for m in ans.get("misconceptions", []) or []:
+            if isinstance(m, dict):
+                yield dict(m, id=f"misconception {m.get('belief', '')[:24]}")
+    else:
+        for note in ans.get("notes", []):
+            yield note
+
+
 def cmd_render(args):
-    src = args[0]
-    out = args[1] if len(args) > 1 else "report.html"
+    # Positionals separated from flags. `out = args[1]` bound `--force` as the
+    # destination, so the documented escape hatch rendered to a path the caller
+    # never named — the renderer then dropped the flag from its own positionals
+    # and wrote report.html into the skill folder, reporting success.
+    pos = [a for a in args if not a.startswith("-")]
+    src = pos[0]
+    out = _out_path(pos[1]) if len(pos) > 1 else _out_path("report.html")
+    _v, _c, renderer = _verify_for(_kind(json.load(open(src, encoding="utf-8")), src))
     ensure_rulebook()
-    subprocess.run([sys.executable, os.path.join(HERE, "render_report.py"), src, out], check=True)
+    # Flags are forwarded, not dropped: --force is the documented escape hatch
+    # and it lives in the renderer, so swallowing it here made the flag a no-op
+    # on the one path a caller reaches for it.
+    subprocess.run([sys.executable, renderer, src, out]
+                   + [a for a in args if a.startswith("-")], check=True)
+
+
+def cmd_graph(args):
+    """Emit a primer's step graph as Mermaid source.
+
+    Derived from the same verified transitions the report draws, so a diagram
+    produced from this cannot assert an edge the document does not. That is the
+    point of having it: the website and any restyling pass work from the graph,
+    not from a fresh reading of the prose.
+    """
+    src = args[0]
+    raw = json.load(open(src, encoding="utf-8"))
+    if _kind(raw, src) != "primer":
+        raise SystemExit(f"{src}: `graph` needs a primer — a ruling has no step graph.")
+    # Verified first. Emitting the graph from an unchecked file would hand the
+    # website a diagram this project never stood behind.
+    from render_primer import verify_primer
+    ans = verify_primer(raw, _idx())
+    if ans["_problems"]:
+        print("VERIFICATION FAILED — not emitting a graph:", file=sys.stderr)
+        for pb in ans["_problems"]:
+            print(f"  ! {pb}", file=sys.stderr)
+        sys.exit(1)
+    import flowgraph
+    text = flowgraph.mermaid(ans["steps"], ans.get("topic", "Procedure"))
+    if len(args) > 1 and not args[1].startswith("-"):
+        dest = _out_path(args[1])
+        with open(dest, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        print(f"wrote {dest}")
+    else:
+        print(text, end="")
 
 
 def cmd_mutants(args):
@@ -407,7 +529,7 @@ def cmd_build(args):
 COMMANDS = {"rule": cmd_rule, "section": cmd_section, "grep": cmd_grep,
             "card": cmd_card, "verify": cmd_verify, "render": cmd_render,
             "build": cmd_build, "selftest": cmd_selftest, "report": cmd_report,
-            "mutants": cmd_mutants,
+            "mutants": cmd_mutants, "graph": cmd_graph,
             "rulebook": cmd_rulebook}
 
 
