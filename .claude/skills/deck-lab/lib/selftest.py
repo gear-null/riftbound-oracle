@@ -11,6 +11,7 @@ decided by code, so they have to be decided correctly.
 Exit 0 = the table can be trusted to hold a game.
 """
 import copy
+import inspect
 import json
 import os
 import re
@@ -26,10 +27,14 @@ from table import RulesError
 
 FAILS = []
 RAN = [0]
+#: Every check name that actually EXECUTED, so the proven ratio counts the
+#: checks this run performed rather than the ones the source file contains.
+NAMES = []
 
 
 def check(name, ok, detail=""):
     RAN[0] += 1
+    NAMES.append(name)
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}{'  — ' + detail if detail else ''}")
     if not ok:
         FAILS.append(name)
@@ -355,10 +360,16 @@ def setup_rules():
     check("the same seed replays the same game exactly",
           [p.hand for p in a.players] == [p.hand for p in b.players]
           and [bf.name for bf in a.battlefields] == [bf.name for bf in b.battlefields])
-    firsts = {table.Table(list(two_decks()), seed=771).setup().first_player for _ in range(6)}
+    # 24 samples, not 6. The defect this catches is a clock-seeded RNG, under
+    # which each table is a coin flip — so six agreeing happens by chance once
+    # in 32 runs, and the mutant reporting it survives that often. A battery
+    # that cries wolf 3% of the time teaches people to re-run it, which is how
+    # a real survivor gets waved through. 24 puts the false pass at ~1e-7.
+    firsts = {table.Table(list(two_decks()), seed=771).setup().first_player
+              for _ in range(24)}
     check("who goes first is decided by the seed, not the clock (115)",
           len(firsts) == 1,
-          "six tables built at one seed all chose the same first player")
+          "24 tables built at one seed all chose the same first player")
 
     c = fresh(seed=100)
     check("a different seed deals a different game",
@@ -1514,6 +1525,61 @@ def guards():
           raises(lambda: deck_cli._act(t2, ["frobnicate"]), "unknown action"))
 
 
+def proven_ratio():
+    """The suite reports how much of itself has been tested. Pin that too."""
+    line = proven_line()
+    check("the ratio line says what it means",
+          "have been observed to fail" in line and "%" in line, line)
+    # Reading main()'s BODY, not calling proven_line() again: a check that only
+    # exercised the function would pass with the print deleted, and then the
+    # number stops being reported while every check about it stays green. Same
+    # shape as a report command that no longer refreshes its own index.
+    body = inspect.getsource(main)
+    check("main() actually prints the ratio, not merely computes it",
+          "proven_line()" in body and "print(proven_line())" in body,
+          "the call site is what makes it reach a reader")
+
+    # The arithmetic runs the wrong way on purpose, and that is the point of
+    # printing it: an untested check RAISES the headline count while LOWERING
+    # this ratio. Without the second number a suite looks stronger for having
+    # grown weaker per check.
+    before = proven_line()
+    NAMES.append("a brand new check nobody has ever watched fail")
+    # Captured HERE, not at the assertion: every check() below appends its own
+    # name, so reading len(NAMES) later measures a list this test has since
+    # grown. The instrument perturbs what it is measuring, which is the whole
+    # reason the number is computed once and compared, not recomputed.
+    expected = len(set(NAMES))
+    after = proven_line()
+    pct = lambda t: int(re.search(r"\((\d+)%\)", t).group(1))
+    check("an untested check LOWERS the proven ratio rather than raising it",
+          pct(after) <= pct(before), f"{pct(before)}% -> {pct(after)}%")
+    check("and it is counted, so the two numbers disagree visibly",
+          f"of {expected} distinct" in after, after)
+    NAMES.pop()
+
+    # Read from mutants.py, so a deleted mutant shows up as a lower ratio
+    # rather than as nothing at all.
+    check("the ratio is derived from mutants.py, not asserted",
+          "mutants.py unreadable" in _proven_line_without_mutants(),
+          "a missing battery must be reported, not silently scored 100%")
+
+
+def _proven_line_without_mutants():
+    """proven_line() with mutants.py out of reach, to pin the failure path."""
+    import builtins
+    real = builtins.open
+    def fake(path, *a, **k):
+        if str(path).endswith("mutants.py"):
+            raise OSError("gone")
+        return real(path, *a, **k)
+    builtins.open = fake
+    try:
+        return proven_line()
+    finally:
+        builtins.open = real
+
+
 def documentation():
     """SKILL.md is the procedure an agent follows. Its examples have to run.
 
@@ -1597,18 +1663,53 @@ def action_scripts():
     check("an empty script is not an error", deck_cli.split_actions("") == [])
 
 
+def proven_line():
+    """How many checks have ever been SEEN to fail, alongside how many passed.
+
+    "188/188 passed" is the number everyone quotes, including me, and on its own
+    it overstates the suite. A check nobody has watched go red is a check that
+    holds today and has never been tested against a defect — which is where the
+    ones that CANNOT go red hide. Both numbers or neither.
+
+    The arithmetic is perverse in the direction that matters: adding an untested
+    check raises the headline count while lowering this ratio. A suite can look
+    stronger precisely by growing weaker per check, which is the one direction a
+    coverage figure should never be able to move quietly.
+
+    Read out of mutants.py rather than recomputed: a mutant's `expect` is the
+    fragment that must appear in a failing check's name, so a check named by one
+    has been observed to fail by construction.
+    """
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "mutants.py"), encoding="utf-8") as fh:
+            expects = re.findall(r'expect="([^"]*)"', fh.read())
+    except OSError:
+        return "  (mutants.py unreadable — cannot say how many checks can fail)"
+    names = set(NAMES)
+    proven = {n for n in names if any(e in n for e in expects)}
+    pct = 100 * len(proven) // len(names) if names else 0
+    return (
+        f"  of {len(names)} distinct checks, {len(proven)} have been observed to "
+        f"fail ({pct}%). The rest hold\n"
+        "  today and have never been tested against a defect — "
+        "run `mutants` to move it."
+    )
+
+
 def main():
     print("deck-lab selftest\n")
     for section in (
         card_lookup, card_text_display, deck_legality, setup_rules, turn_structure, resources,
         paying, movement, combat, scoring, burn_out, persistence, rendering,
         privacy, journalling, atomicity, importing, minted_identifiers, guards,
-        documentation, action_scripts,
+        documentation, action_scripts, proven_ratio,
     ):
         print(f"{section.__name__}:")
         section()
         print()
     print(f"{RAN[0] - len(FAILS)}/{RAN[0]} passed")
+    print(proven_line())
     if FAILS:
         print("\nFAILED:")
         for name in FAILS:
