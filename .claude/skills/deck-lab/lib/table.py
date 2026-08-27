@@ -170,7 +170,25 @@ class Table:
             raise RulesError("1v1 Duel seats exactly two players (485.1)")
         self.mode = mode
         self.seed = seed
+        #: The shared stream: things that belong to the game rather than a seat
+        #: (who goes first).
         self.rng = random.Random(seed)
+        #: One stream per seat, derived from the seed alone.
+        #:
+        #: A single shared generator made a seat's shuffle depend on what the
+        #: OTHER seat was playing: both shuffles were drawn from one stream, so
+        #: the opponent's deck order was a function of how many numbers your
+        #: deck's shuffle had consumed. With equal-length decks that happened to
+        #: pair the two arms perfectly; with a 39-card list against a 40-card one
+        #: it silently unpaired them. Neither property was chosen, and the run
+        #: that exposed it read 18 games as independent when they were six
+        #: situations played three times.
+        #:
+        #: Deriving per seat makes the pairing DELIBERATE: at a fixed seed a
+        #: seat always draws the same cards, whatever it is facing, so two decks
+        #: can be compared over identical opposition. Independent samples come
+        #: from distinct seeds, not from replaying one.
+        self.seat_rng = [random.Random(f"{seed}/seat{i}") for i in range(2)]
         self.players = [Player(0, decks[0]), Player(1, decks[1])]
         self.battlefields = []
         self.permanents = []
@@ -245,16 +263,17 @@ class Table:
         for p in self.players:
             p.main_deck = list(p.deck.main_cards())
             p.rune_deck = list(p.deck.rune_cards())
-            # 114: shuffled separately.
-            self.rng.shuffle(p.main_deck)
-            self.rng.shuffle(p.rune_deck)
+            # 114: shuffled separately, and on this seat's own stream so the
+            # order does not depend on what the opponent brought.
+            self.seat_rng[p.seat].shuffle(p.main_deck)
+            self.seat_rng[p.seat].shuffle(p.rune_deck)
 
         # 485.5: each player randomly selects one of their three battlefields.
         for p in self.players:
             provided = p.deck.battlefield_cards()
             if not provided:
                 raise RulesError(f"seat {p.seat} provided no battlefields (103.4)")
-            chosen = self.rng.choice(provided)
+            chosen = self.seat_rng[p.seat].choice(provided)
             self.battlefields.append(Battlefield(len(self.battlefields), chosen, p.seat))
 
         # 116: players each draw 4.
@@ -310,7 +329,7 @@ class Table:
         self.draw(seat, len(set_aside), reason="mulligan")
         p.main_deck.extend(set_aside)
         # 431.2.b: cards recycled together are randomised.
-        self.rng.shuffle(p.main_deck)
+        self.seat_rng[seat].shuffle(p.main_deck)
         return self.note(
             f"seat {seat} mulligans {len(set_aside)}, keeping {len(remaining)}"
         )
@@ -369,7 +388,7 @@ class Table:
             recycled = len(p.trash)
             p.main_deck.extend(p.trash)
             p.trash = []
-            self.rng.shuffle(p.main_deck)
+            self.seat_rng[seat].shuffle(p.main_deck)
             self.note(f"  seat {seat} recycles {recycled} card(s) from trash into their Main Deck (431.2.b)")
         else:
             self.note(f"  seat {seat}'s trash is empty; the Main Deck stays empty (431.3)")
@@ -1197,6 +1216,7 @@ class Table:
             # which makes "replay it with the same seed" untrue exactly when it
             # matters, comparing two decks over the same shuffles.
             "rng_state": _jsonable_rng(self.rng.getstate()),
+            "seat_rng_state": [_jsonable_rng(r.getstate()) for r in self.seat_rng],
             "turn": self.turn,
             "phase": self.phase,
             "turn_player": self.turn_player,
@@ -1225,6 +1245,8 @@ class Table:
         """
         other = Table.from_dict(snapshot, [p.deck for p in self.players])
         self.rng.setstate(other.rng.getstate())
+        for mine, theirs in zip(self.seat_rng, other.seat_rng):
+            mine.setstate(theirs.getstate())
         for field in ("turn", "phase", "turn_player", "first_player", "winner",
                       "victory_target", "second_player_channel_bonus_used",
                       "setup_done", "_next_id", "chain", "log", "text_shown",
@@ -1250,6 +1272,8 @@ class Table:
         t.chain = list(raw.get("chain", []))
         if raw.get("rng_state"):
             t.rng.setstate(_rng_from_json(raw["rng_state"]))
+        for i, state in enumerate(raw.get("seat_rng_state") or []):
+            t.seat_rng[i].setstate(_rng_from_json(state))
         t.text_shown = set(raw.get("text_shown", []))
         t.log = list(raw.get("log", []))
         for p, saved in zip(t.players, raw["players"]):

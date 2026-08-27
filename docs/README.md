@@ -1,7 +1,12 @@
 # Documentation
 
-**Maintainer and contributor documentation.** None of this is needed to use the skill — for
+**Maintainer and contributor documentation.** None of this is needed to use the skills — for
 installing and asking questions, see the [main README](../README.md).
+
+The repo ships **two** skills. `rules-report` answers rules questions with mechanically
+verified citations; `deck-lab` builds and tests decks against real tournament lists. They
+are packaged, installed and released together, and share one card corpus written from a
+single fetch so they cannot disagree about what a card says.
 
 ## Working on it
 
@@ -23,6 +28,7 @@ installing and asking questions, see the [main README](../README.md).
 | | |
 |---|---|
 | [How to read a report](report-anatomy.md) | Basis, weakest link, crux, citations, the symbol legend |
+| [The deck lab](../.claude/skills/deck-lab/SKILL.md) | Building a deck, playing it out, and reporting results honestly |
 | [Content and licensing](content-and-licensing.md) | What is committed, artwork policy, crawling etiquette |
 
 ## Decision records

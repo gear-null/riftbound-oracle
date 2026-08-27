@@ -85,7 +85,8 @@ ${color.bold("Commands:")}
   ${color.cyan("skill-data")}         Rebuild the skill's vendored card data (needs network)
   ${color.cyan("decks pull")}         Pull competitive decklists into the deck-lab gauntlet (needs network)
   ${color.cyan("gear-gaps")}          Collect artwork + a YAML stub for cards the API can't supply
-  ${color.cyan("package")}            Build the distributable skill archive into dist/
+  ${color.cyan("package")}            Build every skill's release archive into dist/
+  ${color.cyan("package --skill=X")}  Build just that skill's archive
   ${color.cyan("changelog")}          Draft the next changelog entry from git + the corpus
   ${color.cyan("watch")}              Check upstream for new sets or changed card counts
   ${color.cyan("vault-sync")}         Mirror output/ into an Obsidian wiki's raw/ folder
@@ -441,25 +442,46 @@ async function handleChangelog() {
   p.log.message(renderEntry(version, date, commits, corpusDiff(now, before)));
 }
 
-/** Build the archive a release attaches and a non-building agent installs. */
+/** Build the archives a release attaches and a non-building agent installs. */
 async function handlePackage() {
-  const { packageSkill } = await import("./package.js");
+  const { packageAll, packageSkill, SKILLS } = await import("./package.js");
+  const only = process.argv.find((a) => a.startsWith("--skill="))?.split("=")[1];
+  if (only && !(only in SKILLS)) {
+    p.log.error(`Unknown skill ${only} — known: ${Object.keys(SKILLS).join(", ")}`);
+    process.exitCode = 1;
+    return;
+  }
+
   const s = p.spinner();
-  s.start("Packaging the skill");
+  s.start(only ? `Packaging ${only}` : "Packaging every shipping skill");
   try {
-    const r = packageSkill();
-    s.stop(`${Math.round(r.bytes / 1024)}KB → ${color.cyan(r.archive)}`);
-    p.log.info(
-      `rules ${r.manifest.rules_version} · ${r.manifest.rules} rules · ` +
-        `${r.manifest.cards} cards`
-    );
-    if (r.manifest.cards_awaiting_transcription) {
-      p.log.warning(
-        `${r.manifest.cards_awaiting_transcription} card(s) still awaiting transcription ` +
-          `(${color.cyan("oracle gear-gaps")})`
+    // A release carries every shipping skill or it carries none. Packaging was
+    // hardcoded to rules-report while a second skill shipped in the same repo,
+    // so that skill had no release archive and `install.sh` could not fetch it.
+    const results = only ? [packageSkill({ skill: only })] : packageAll();
+    s.stop(`${results.length} archive(s)`);
+
+    for (const r of results) {
+      p.log.success(
+        `${r.skill}  ${Math.round(r.bytes / 1024)}KB → ${color.cyan(r.archive)}`
       );
+      const m = r.manifest;
+      const facts = [
+        m.rules_version ? `rules ${m.rules_version}` : null,
+        m.rules ? `${m.rules} rules` : null,
+        `${m.cards} cards`,
+        m.gauntlet_decks !== undefined ? `${m.gauntlet_decks} gauntlet decks` : null,
+        m.gauntlet_pulled ? `pulled ${m.gauntlet_pulled}` : null,
+      ].filter(Boolean);
+      p.log.info(`  ${facts.join(" · ")}`);
+      if (m.cards_awaiting_transcription) {
+        p.log.warning(
+          `  ${m.cards_awaiting_transcription} card(s) still awaiting transcription ` +
+            `(${color.cyan("oracle gear-gaps")})`
+        );
+      }
+      p.log.message(`  sha256  ${r.sha256}`);
     }
-    p.log.message(`sha256  ${r.sha256}`);
   } catch (err) {
     s.error("Packaging failed");
     p.log.error(String(err instanceof Error ? err.message : err));

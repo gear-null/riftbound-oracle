@@ -78,10 +78,14 @@ def fresh(seed=7, first=0):
 
 
 def _next_random(t):
-    """The next number from t's generator, taken from a copy so t is untouched."""
+    """The next number from t's shared generator, from a copy so t is untouched."""
+    return _next_random_of(t.rng)
+
+
+def _next_random_of(gen):
     import random as _r
     clone = _r.Random()
-    clone.setstate(t.rng.getstate())
+    clone.setstate(gen.getstate())
     return clone.random()
 
 
@@ -298,9 +302,42 @@ def setup_rules():
     check("the same seed replays the same game exactly",
           [p.hand for p in a.players] == [p.hand for p in b.players]
           and [bf.name for bf in a.battlefields] == [bf.name for bf in b.battlefields])
+    firsts = {table.Table(list(two_decks()), seed=771).setup().first_player for _ in range(6)}
+    check("who goes first is decided by the seed, not the clock (115)",
+          len(firsts) == 1,
+          "six tables built at one seed all chose the same first player")
+
     c = fresh(seed=100)
     check("a different seed deals a different game",
           [p.hand for p in a.players] != [p.hand for p in c.players])
+
+    # A seat's shuffle must not depend on what the OTHER seat brought. One shared
+    # generator drew both shuffles from one stream, so the opponent's order was a
+    # function of how many numbers your deck's shuffle consumed — accidental
+    # pairing for equal-length decks, and silent UNpairing the moment the lists
+    # differed in size.
+    # The sizes have to DIFFER for this to test anything: shuffling a list of n
+    # consumes n-1 draws whatever it contains, so two 39-card decks pair even on
+    # a shared stream. Every gauntlet deck is 39, which is why the obvious
+    # version of this check passed against the bug it was named for.
+    opp = deckfile.resolve("master-yi-wuju-bladesman-shanghai-national-open-2nd-place-a6810f")
+    base = deckfile.resolve("irelia-blade-dancer-irelia-2025-12-17-43d7e2")
+    hands, sizes = [], []
+    for pad in (0, 6):
+        deck = copy.deepcopy(base)
+        if pad:
+            deck.main = deck.main + [("Called Shot", pad)]
+        t = table.Table([deck, opp], seed=4242, first=0).setup()
+        hands.append(tuple(t.player(1).hand))
+        sizes.append(len(deck.main_cards()))
+    check("a seat's shuffle does not depend on the opposing deck",
+          len(set(hands)) == 1,
+          f"decks of {sizes[0]} and {sizes[1]} shuffled cards deal the same opponent hand")
+    other = table.Table([deckfile.resolve("irelia-blade-dancer-irelia-2025-12-17-43d7e2"), opp],
+                        seed=4243, first=0).setup()
+    check("a different seed still deals the opponent a different hand",
+          tuple(other.player(1).hand) != hands[0],
+          "pairing must come from reusing a seed, never from being unable to vary")
 
     # A game is played across many commands, each of which reloads the table.
     # Continuing the SAME stream is what makes a seed reproduce a game.
@@ -834,7 +871,10 @@ def burn_out():
 # -- persistence ---------------------------------------------------------
 
 def persistence():
-    t = fresh(first=0)
+    # first=None so the SHARED stream is actually consumed (115 rolls for first
+    # player). With first passed explicitly it never advances, and a check on its
+    # restored position compares two untouched generators and proves nothing.
+    t = table.Table(list(two_decks()), seed=7).setup()
     t.begin_turn()
     stub_unit(t, 0, "Irelia, Fervent", "bf:0")
     t.battlefield(0).controller = 0
@@ -874,6 +914,9 @@ def persistence():
         # the table, so a generator restarting at position 0 each time replays
         # numbers the game has already used — same seed, different game.
         ("rng position", back.rng.random() == _next_random(t)),
+        ("seat rng positions",
+         [back.seat_rng[i].random() for i in (0, 1)]
+         == [_next_random_of(t.seat_rng[i]) for i in (0, 1)]),
     ]
     lost = [name for name, ok in restored if not ok]
     check("a saved game restores every field of its state",

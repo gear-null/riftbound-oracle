@@ -6400,7 +6400,7 @@
  },
  "gemhand hunter": {
   "name": "Gemhand Hunter",
-  "text": "[Hunt] (When I conquer or hold, gain 1 XP.)[Level 6][>] I have +1 :rb_might:. (While you have 6+ XP, get the effect.)ambush",
+  "text": "[Hunt] (When I conquer or hold, gain 1 XP.)[Level 6][>] I have +1 :rb_might:. (While you have 6+ XP, get the effect.)",
   "stats": {
    "energy": 2,
    "might": 2,

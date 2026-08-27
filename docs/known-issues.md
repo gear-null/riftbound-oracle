@@ -93,3 +93,15 @@ all Units" into a Combat Special Cleanup whose step 3b kills lethally damaged
 units; the table kills and then heals directly. The order is right and the
 outcome matches, but an effect keying off that cleanup would have nothing to key
 off.
+
+**A card carried a stray token from extraction, and it cost real work.**
+`Gemhand Hunter` arrived from the API as `…get the effect.)ambush` — a bare lowercase word
+fused to the closing paren, the only card in the pool shaped that way. It is not a mangled
+keyword: all 19 genuine `[Ambush]` entries are bracketed, lead the text and carry the
+standard reminder, and this had none of those properties. Two agents nevertheless built and
+piloted decks around a keyword the card does not have, and it decided a logged game.
+`stripTrailingArtifact` removes it during extraction and REPORTS every removal, because
+silently deleting text is its own way of asserting something about a card. Fixed, but listed
+here because the class of defect is not: a stray token that happens to spell a real keyword
+is invisible to both skills — `card_bridge.py` maps brackets, and deck-lab reads printed
+text — and only the fused-punctuation signature caught this one.

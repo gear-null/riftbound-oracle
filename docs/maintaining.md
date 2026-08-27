@@ -115,6 +115,19 @@ would churn the corpus for nothing.
 
 ## Packaging a release
 
+Both skills ship together. `oracle package` builds an archive per skill —
+`riftbound-rules-report-vX.zip` and `riftbound-deck-lab-vX.zip` — each with its own
+`SKILL-VERSION.json` and `.sha256`, and `install.sh` fetches both by default
+(`--skill <name>` for one). A release carries every shipping skill or it carries none:
+packaging was hardcoded to one of them for a while, and the other quietly had no release
+archive at all. `install.test.ts` now asserts the installer handles every skill the
+packager produces, and that check has been seen to fail.
+
+deck-lab's manifest records what a rulebook cannot: how many gauntlet decks it carries and
+the date they were pulled. A gauntlet of tournament lists goes stale on its own clock, and
+an installed copy is cut off from the repo that could say so.
+
+
 ```bash
 npm run oracle package        # -> dist/riftbound-rules-report-v<version>.zip + .sha256
 ```
@@ -208,6 +221,12 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   table means adding a check to `selftest.py` AND a mutant to `mutants.py` that has been
   seen to make that check fail. The first run of the battery found five checks that
   passed while the behaviour they named was deleted.
+- **Seeds pair, they do not multiply.** Each seat shuffles on its own generator derived
+  from the seed, so at a fixed seed a seat draws the same cards whatever it is facing —
+  two decks can be compared over identical opposition. That is a paired design, not an
+  independent one: reusing a seed across decks does NOT give you independent samples, and
+  a run that read 18 such games as independent was really six situations played three
+  times. Vary the seed for independence.
 - **A turn must stay cheap.** Card text prints once per game, batches are one round trip,
   and SKILL.md carries everything a normal turn needs so playing never requires a rules
   lookup. Count the tool calls a feature costs before counting the rules it covers.
