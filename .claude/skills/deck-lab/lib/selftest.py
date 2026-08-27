@@ -1234,6 +1234,121 @@ def minted_identifiers():
             os.remove(path)
 
 
+def guards():
+    """Every refusal the table makes, pinned individually.
+
+    A sweep that neutered each `raise` in turn found 20 of 37 could be deleted
+    with the suite still green. Some were never checked; several were MASKED by
+    a second guard behind them — `standard_move`'s "exhausted, cannot pay its
+    move cost" (144.2) is covered by `exhaust()`'s own "already exhausted", so
+    removing either alone changes nothing observable.
+
+    Where a pair masks, the checks below are written to distinguish WHICH fired,
+    by asserting on the message. A guard that cannot be told apart from the one
+    behind it cannot be pinned separately.
+    """
+    import deck_cli
+
+    check("1v1 seats exactly two players (485.1)",
+          raises(lambda: table.Table([deckfile.resolve("kennen-tempest-meta")], seed=1),
+                 "exactly two players"))
+
+    t = fresh(first=0)
+    check("setup cannot run twice", raises(lambda: t.setup(), "already run"))
+
+    no_bf = copy.deepcopy(deckfile.resolve("kennen-tempest-meta"))
+    no_bf.battlefields = []
+    check("a deck with no battlefields cannot start a game (103.4)",
+          raises(lambda: table.Table([no_bf, deckfile.resolve("irelia-core-meta")], seed=1).setup(),
+                 "no battlefields"))
+
+    t = fresh(first=0)
+    t.begin_turn()
+    absent = next(n for n in t.player(0).main_deck if n not in t.player(0).hand)
+    check("a spell not in hand cannot be played (157)",
+          raises(lambda: t.play_spell(0, absent), "not in seat"))
+    check("a card cannot be discarded from a hand that lacks it (422)",
+          raises(lambda: t.discard(0, absent), "not in seat"))
+    check("a card cannot be recycled from a zone it is not in (416)",
+          raises(lambda: t.recycle_card(0, absent, "hand"), "not in seat"))
+    check("a card cannot enter play from a zone it is not in",
+          raises(lambda: t.put_into_play(0, absent, "base:0", source="trash"), "not in seat"))
+
+    check("an unknown permanent id is refused, not silently ignored",
+          raises(lambda: t.permanent("u999"), "no permanent"))
+    check("an unknown rune id is refused",
+          raises(lambda: t.rune("r999"), "no rune"))
+    check("an unknown object id is refused",
+          raises(lambda: t.exhaust("z999"), "no object"))
+    check("a location that is not a location is refused",
+          raises(lambda: t._require_location("moon:3"), "is not a location"))
+
+    rune = [r for r in t.runes if r.controller == 0][0]
+    check("a rune cannot be recycled by the player who does not control it",
+          raises(lambda: t.recycle_rune_for_power(1, rune.id), "not controlled"))
+
+    unit = stub_unit(t, 0, "Stellacorn Herder", "base:0")
+    check("a unit cannot move to where it already is (447)",
+          raises(lambda: t.move(unit.id, "base:0"), "already at"))
+
+    gear = t.put_into_play(0, "Zhonya's Hourglass", "base:0", source="elsewhere")
+    check("only units have a Standard Move (144)",
+          raises(lambda: t.standard_move(gear.id, "bf:0"), "not a unit"))
+
+    # The masking pair, distinguished by message: the move-cost guard must fire
+    # BEFORE exhaust() gets a chance to complain, or deleting it changes nothing.
+    tired = stub_unit(t, 0, "Stellacorn Herder", "base:0", exhausted=True)
+    try:
+        t.standard_move(tired.id, "bf:0")
+        why = ""
+    except RulesError as err:
+        why = str(err)
+    check("an exhausted unit is refused by the MOVE COST guard, not by exhaust() (144.2)",
+          "cannot pay its move cost" in why,
+          f"got {why!r} — 'already exhausted' would mean the near guard is dead")
+
+    ready = stub_unit(t, 0, "Stellacorn Herder", "base:0")
+    t.exhaust(ready.id)
+    check("exhausting an already-exhausted object is refused (414)",
+          raises(lambda: t.exhaust(ready.id), "already exhausted"))
+
+    t2 = fresh(first=0)
+    t2.begin_turn()
+    check("combat needs units from two players to resolve (461)",
+          raises(lambda: t2.resolve_combat(0), "no combat staged"))
+
+    # The mulligan validates its argument against the hand. Every other mulligan
+    # check passes cards that ARE in hand, so this guard was reachable only by a
+    # test written for it.
+    t3 = fresh(first=0)
+    absent3 = next(n for n in t3.player(0).main_deck if n not in t3.player(0).hand)
+    check("a mulligan cannot set aside a card that is not in hand (117.1)",
+          raises(lambda: t3.mulligan(0, set_aside=[absent3]), "not in seat"))
+
+    # `pay` re-checks what `can_pay` already promised. That inner guard is
+    # unreachable while the two agree — which is exactly why it exists, and why
+    # pinning it means forcing them to DISAGREE rather than finding an input
+    # that reaches it.
+    t4 = fresh(first=0)
+    t4.begin_turn()
+    powered = next((n for n in t4.player(0).main_deck if (cards.power_cost(n) or 0) >= 1), None)
+    if powered is None:
+        check("a Power-costed card exists to test the payment safety net with", False)
+    else:
+        t4.player(0).hand.append(powered)
+        for r in list(t4.runes):
+            t4.runes.remove(r)                       # no runes at all
+        t4.can_pay = lambda seat, name: (True, "")   # a lying can_pay
+        check("`pay` still refuses when `can_pay` wrongly says yes",
+              raises(lambda: t4.pay(0, powered), "no rune to produce"),
+              "the safety net for a can_pay/pay divergence, which has happened")
+
+    check("a seat other than 0 or 1 is refused",
+          raises(lambda: deck_cli._seat("7"), "seat must be"))
+    check("an unknown action verb is refused by name",
+          raises(lambda: deck_cli._act(t2, ["frobnicate"]), "unknown action"))
+
+
 def documentation():
     """SKILL.md is the procedure an agent follows. Its examples have to run.
 
@@ -1322,7 +1437,7 @@ def main():
     for section in (
         card_lookup, deck_legality, setup_rules, turn_structure, resources,
         paying, movement, combat, scoring, burn_out, persistence, rendering,
-        privacy, journalling, atomicity, importing, minted_identifiers,
+        privacy, journalling, atomicity, importing, minted_identifiers, guards,
         documentation, action_scripts,
     ):
         print(f"{section.__name__}:")

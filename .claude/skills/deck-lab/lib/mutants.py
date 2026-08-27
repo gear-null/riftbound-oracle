@@ -483,6 +483,17 @@ MUTANTS = [
          repl='        "site2": "x",',
          expect="records its own provenance"),
 
+    dict(name="let the move-cost guard be masked by exhaust()'s complaint",
+         file="table.py",
+         find='            raise RulesError(f"{perm.name} is exhausted and cannot pay its move cost (144.2)")',
+         repl="            pass",
+         expect="refused by the MOVE COST guard"),
+    dict(name="drop the payment safety net behind can_pay",
+         file="table.py",
+         find='                raise RulesError(f"seat {seat} has no rune to produce {\'/\'.join(wanted)} Power")',
+         repl="                pass",
+         expect="still refuses when `can_pay` wrongly says yes"),
+
     # ---- minted identifiers -----------------------------------------------
     dict(name="trust the saved id counter instead of deriving it from the board",
          file="table.py",

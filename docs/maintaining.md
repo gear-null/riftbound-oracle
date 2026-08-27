@@ -221,6 +221,21 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   table means adding a check to `selftest.py` AND a mutant to `mutants.py` that has been
   seen to make that check fail. The first run of the battery found five checks that
   passed while the behaviour they named was deleted.
+- **A second guard makes the system safer and the suite blinder.** Redundant guards are
+  good; only their safety is visible. Delete either half of a masking pair and nothing goes
+  red, so a one-at-a-time mutant battery reports both as covered while neither is pinned.
+  When you add a guard behind an existing one, add the check that tells them APART at the
+  same time — assert on which message fired, not merely that something refused. A guard
+  indistinguishable from the guard behind it cannot be pinned separately, and if the two
+  print the same string you have to make them differ before you can check them.
+
+  The sweep that finds these is cheap and worth re-running after any batch of guard work:
+  neuter each `raise` in turn and see whether the suite still passes. It found **20 of 37
+  unpinned** in deck-lab, including a 144.2 move-cost refusal masked by `exhaust()`'s own
+  complaint. (Credit to `riftbound-oracle-c1`, which found the same class on the
+  rules-report side — a `cmd_report` gate whose docstring called it "the ONLY way to finish
+  an answer", pinned by nothing.)
+
 - **Narrow where you delete, wide where you only report — and let them disagree.**
   `stripTrailingArtifact` removes a stray token from card text and is anchored and
   conservative, because a false positive destroys a real card's rules text. The
