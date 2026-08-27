@@ -1294,8 +1294,47 @@ def minted_identifiers():
         check("the refusal names both directories so the caller can choose",
               "gauntlet/viktor-core-meta.json" in why and "decks/viktor-core-meta.json" in why,
               f"got {why!r}")
-        check("an unambiguous name still resolves",
-              deckfile.resolve("irelia-core-meta") is not None)
+        # `is not None` was a tautology: `resolve` returns `load(...)`, which
+        # yields a Deck or raises, so the predicate could pass or the suite
+        # could die before reaching it — never go red. Assert the FILE instead,
+        # which is the property that actually distinguishes a working lookup
+        # from an over-broad refusal, and catch the raise so it reports as a
+        # failed check rather than a traceback.
+        try:
+            landed = deckfile.resolve("irelia-core-meta").path
+        except KeyError as err:
+            landed = f"refused: {err}"
+        check("an unambiguous name resolves to the gauntlet file it names",
+              str(landed).endswith(os.path.join("gauntlet", "irelia-core-meta.json")),
+              f"landed on {landed}")
+
+        # A saved game stores deck REFS, so "pass the path to say which" is
+        # advice about a CLI argument the player is not holding. Aborting the
+        # load is right; saying where the refs live is what makes it actionable.
+        import session as session_mod
+        os.makedirs(session_mod.GAMES_DIR, exist_ok=True)
+        game = session_mod.path_for("selftest-collision")
+        with open(game, "w", encoding="utf-8") as fh:
+            json.dump({"name": "selftest-collision",
+                       "decks": ["viktor-core-meta"], "table": {}}, fh)
+        try:
+            said = ""
+            try:
+                session_mod.load("selftest-collision")
+            except KeyError as err:
+                # args[0], not str(): KeyError's str() reprs its argument, so
+                # every quote in the message comes back backslash-escaped and a
+                # substring match on the naming phrase silently never matches.
+                said = err.args[0]
+            # NOT `"selftest-collision" in said` — the games PATH contains the
+            # game name, so dropping the name entirely left that true and the
+            # mutant survived. Look for the naming phrase itself, and for the
+            # path, as two separately destroyable facts.
+            check("a saved game naming an ambiguous deck says WHICH game and where",
+                  "saved game 'selftest-collision'" in said and game in said,
+                  f"got {said!r}")
+        finally:
+            os.remove(game)
     finally:
         if os.path.exists(twin):
             os.remove(twin)

@@ -271,17 +271,29 @@ MUTANTS = [
          find="    if len(exact) > 1:",
          repl="    if False:",
          expect="refused, not silently picked"),
+    dict(name="let a session collision report without naming the session",
+         file="session.py",
+         find='                f"saved game {name!r} cannot be loaded — {err}. "',
+         repl='                f"{err}. "',
+         expect="says WHICH game and where"),
+    dict(name="resolve an unambiguous name to whatever sorts first",
+         file="deckfile.py",
+         find="    if exact:\n        return load(exact[0])",
+         repl="    if exact:\n        return load(sorted(available())[0])",
+         expect="resolves to the gauntlet file it names"),
     dict(name="report the collision without saying which decks collided",
          file="deckfile.py",
          find='            + ", ".join(_where(c) for c in sorted(exact))',
          repl='            + "two decks"',
          expect="names both directories"),
     # The over-broad direction — refusing a name that matches ONE deck — has no
-    # mutant here on purpose. It breaks every lookup in the suite, so the run
-    # dies before any named check reports, and this battery counts a crash as
-    # "not caught by a named check" rather than pretending otherwise. The
-    # "unambiguous name still resolves" check does cover the behaviour; what it
-    # cannot do is fail politely when the damage is that wide.
+    # mutant here on purpose, and the reason is worth stating precisely because
+    # the first version of this comment got it wrong. `resolve()` is load-
+    # bearing for the whole suite, so the mutant aborts in `setup_rules`, three
+    # groups before the collision checks are reached. It is not that the
+    # collision check fails impolitely; it is that the run never gets there.
+    # This battery counts a crash as "not caught by a named check" rather than
+    # claiming a catch, so the mutant would be scored as a survivor either way.
     dict(name="let a permanent rest in another player's base (323.7)",
          file="table.py",
          find='            if where == BASE and perm.location != f"{BASE}:{perm.controller}":',

@@ -47,7 +47,21 @@ def load(name=None):
         raise FileNotFoundError(f"no saved game {name!r} at {path}")
     with open(path, encoding="utf-8") as fh:
         payload = json.load(fh)
-    decks = [deckfile.resolve(ref) for ref in payload["decks"]]
+    # `resolve` refuses an ambiguous name with "pass the path to say which",
+    # which is advice about a CLI argument that does not exist here — the refs
+    # are baked into the saved game, so a player's actual recourse is to rename
+    # a deck or edit this file. Aborting the whole load is right (a session
+    # naming an ambiguous deck cannot be loaded meaningfully); saying where the
+    # name came from is what makes it actionable.
+    decks = []
+    for ref in payload["decks"]:
+        try:
+            decks.append(deckfile.resolve(ref))
+        except KeyError as err:
+            raise KeyError(
+                f"saved game {name!r} cannot be loaded — {err}. "
+                f"Its deck refs live in {path}, so that is where a path goes"
+            ) from err
     t = table.Table.from_dict(payload["table"], decks)
     return payload["name"], t, payload["decks"]
 
