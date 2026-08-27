@@ -1019,6 +1019,12 @@ MUTANTS = [
          find='    drawn = [e for e in edges if e["kind"] != "broken"]',
          repl='    drawn = list(edges)',
          expect='cannot be placed is not exported'),
+    dict(name='mint the exit node id without checking the steps, so a primer that '
+              'declares that id exports two nodes sharing one',
+         file='fireworks_ir.py',
+         find='    while end_id in taken:\n        end_id += "_"',
+         repl='    while False:\n        end_id += "_"',
+         expect='survives shapes the shipped primers do not have'),
     dict(name='rename the nodes on the way out, so the exported picture names steps '
               'the document does not declare',
          file='fireworks_ir.py',

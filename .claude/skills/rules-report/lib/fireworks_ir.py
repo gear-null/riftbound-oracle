@@ -112,6 +112,16 @@ def build(ans, style=STYLE_BLUEPRINT):
         for node in nodes
     ]
 
+    # The exit node's id must not be one a step already uses. `__procedure_ends`
+    # is unlikely, not impossible, and a primer declaring it produced an IR with
+    # two nodes sharing an id — which verified clean, because the collision is
+    # created HERE and not in the document. Same failure as `_mid` collapsing
+    # two step ids in the mermaid export, in the other direction.
+    end_id = _END_ID
+    taken = {node["id"] for node in nodes}
+    while end_id in taken:
+        end_id += "_"
+
     end_x = PAD_X + BOX_W + END_GAP
     leaves = any(e["kind"] == "out" for e in drawn)
     if leaves:
@@ -119,7 +129,7 @@ def build(ans, style=STYLE_BLUEPRINT):
         # step's exit arrow travelled the whole height of the page to reach it.
         middle = y_of((len(nodes) - 1) / 2.0) if nodes else PAD_Y
         ir_nodes.append({
-            "id": _END_ID, "kind": "rect", "x": end_x, "y": int(middle),
+            "id": end_id, "kind": "rect", "x": end_x, "y": int(middle),
             "width": END_W, "height": BOX_H,
             "type_label": "EXIT", "label": "procedure ends",
         })
@@ -129,7 +139,7 @@ def build(ans, style=STYLE_BLUEPRINT):
         arrow = {
             "id": f't{edge["n"]}',
             "source": nodes[edge["from"]]["id"],
-            "target": _END_ID if edge["to"] is None else nodes[edge["to"]]["id"],
+            "target": end_id if edge["to"] is None else nodes[edge["to"]]["id"],
             "flow": _flow(edge),
             "label": str(edge["n"]),
         }

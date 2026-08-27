@@ -1624,6 +1624,47 @@ def fireworks_export(idx):
         check("and the IR it wrote is still there to render later",
               os.path.exists(os.path.join(d, "kept.fireworks.json")))
 
+    # Edge shapes the shipped primers do not exercise. The exit node's id is
+    # minted HERE rather than taken from the document, so a primer that happens
+    # to declare that id produced an IR with two nodes sharing one — and it
+    # verified clean, because the collision does not exist in the document.
+    # Same failure as `_mid` collapsing two step ids in the mermaid export.
+    cite = [{"rule": "CR:334", "quote": "Handle Outstanding Tasks"}]
+    shapes = {
+        "a step named like the exit node": [
+            {"id": fireworks_ir._END_ID, "heading": "A", "body": "b",
+             "basis": "grounded", "cites": cite,
+             "exits": [{"when": "done", "cites": cite}]}],
+        "a single step that only exits": [
+            {"id": "s1", "heading": "Only", "body": "b", "basis": "grounded",
+             "cites": cite, "exits": [{"when": "done", "cites": cite}]}],
+        "a single step that loops to itself": [
+            {"id": "s1", "heading": "Only", "body": "b", "basis": "grounded",
+             "cites": cite, "exits": [{"when": "again", "goto": "s1", "cites": cite},
+                                      {"when": "done", "cites": cite}]}],
+        "a linear primer with no transitions": [
+            {"id": "s1", "heading": "A", "body": "b", "basis": "grounded", "cites": cite},
+            {"id": "s2", "heading": "B", "body": "b", "basis": "grounded", "cites": cite}],
+    }
+    broken_shapes = []
+    for label, steps in shapes.items():
+        shaped = copy.deepcopy(base)
+        shaped["steps"] = steps
+        ir_shape = safely(lambda shaped=shaped: fireworks_ir.build(
+            verify_primer(shaped, idx)), None, f"fireworks_ir.build: {label}")
+        if ir_shape is None:
+            broken_shapes.append(f"{label}: raised")
+            continue
+        node_ids = [n["id"] for n in ir_shape["nodes"]]
+        if len(node_ids) != len(set(node_ids)):
+            broken_shapes.append(f"{label}: two nodes share an id")
+        dangling = [a for a in ir_shape["arrows"]
+                    if a["source"] not in node_ids or a["target"] not in node_ids]
+        if dangling:
+            broken_shapes.append(f"{label}: {len(dangling)} arrow(s) point at no node")
+    check("the export survives shapes the shipped primers do not have",
+          not broken_shapes, "; ".join(broken_shapes[:3]))
+
     # The exit code is not the artifact. A renderer that writes `<svg><g>` and
     # exits 0 was announced as "wrote out.svg" — an unclosed fragment no viewer
     # will open, reported as a success, with neither the suite nor the battery
