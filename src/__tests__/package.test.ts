@@ -98,7 +98,7 @@ describe("packageSkill", () => {
     // covered the day it is added.
     const out = mkdtempSync(join(tmpdir(), "dist-"));
     try {
-      const built = packageAll({ distDir: out, version: "9.9.9" });
+      const built = packageAll({ distDir: out, version: "9.9.9", updateSourceManifest: false });
       expect(built.length).toBe(Object.keys(SKILLS).length);
       for (const { archive, skill } of built) {
         const list = execFileSync("unzip", ["-Z1", archive], { encoding: "utf-8" });
@@ -118,6 +118,44 @@ describe("packageSkill", () => {
         .toThrow(/must carry one/);
       expect(existsSync(join(out, "riftbound-rules-report-v1.0.0.zip"))).toBe(false);
     } finally { rmSync(out, { recursive: true, force: true }); }
+  });
+
+  it("leaves the committed manifests alone when packaging at a throwaway version", () => {
+    // Packaging rewrites each skill's SKILL-VERSION.json on purpose, so the
+    // committed one tracks the corpus. A TEST doing it is a trap: the suite
+    // dirties tracked files, a `git add -A` sweeps them in, and CI then fails
+    // on a stale manifest nobody knowingly edited. That happened once; this is
+    // the check that stops it happening twice.
+    const before = Object.values(SKILLS).map(
+      (spec) => readFileSync(join(spec.dir, "SKILL-VERSION.json"), "utf-8"));
+    const out = mkdtempSync(join(tmpdir(), "dist-"));
+    try {
+      packageAll({ distDir: out, version: "9.9.9", updateSourceManifest: false });
+      const after = Object.values(SKILLS).map(
+        (spec) => readFileSync(join(spec.dir, "SKILL-VERSION.json"), "utf-8"));
+      expect(after).toEqual(before);
+    } finally { rmSync(out, { recursive: true, force: true }); }
+  });
+
+  it("states the packaged version in the archive's manifest regardless", () => {
+    // The archive's manifest must describe the build it is in, even when the
+    // source tree was deliberately left untouched — otherwise turning off the
+    // source write would silently ship whatever version was committed last.
+    const out = mkdtempSync(join(tmpdir(), "dist-"));
+    const unpacked = mkdtempSync(join(tmpdir(), "unz-"));
+    try {
+      packageAll({ distDir: out, version: "9.9.9", updateSourceManifest: false });
+      for (const spec of Object.values(SKILLS)) {
+        execFileSync("unzip", ["-qo", join(out, `riftbound-${spec.name}-v9.9.9.zip`),
+                               "-d", unpacked]);
+        const shipped = JSON.parse(
+          readFileSync(join(unpacked, spec.name, "SKILL-VERSION.json"), "utf-8"));
+        expect(shipped.version, `${spec.name}'s archive states the wrong version`).toBe("9.9.9");
+      }
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+      rmSync(unpacked, { recursive: true, force: true });
+    }
   });
 
   it("ships a runnable verify command in every skill's manifest", () => {

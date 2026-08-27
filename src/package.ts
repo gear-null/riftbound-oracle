@@ -197,6 +197,12 @@ export interface PackageOptions {
   version?: string;
   /** Where the licence lives. A seam so the refusal below can be tested. */
   licencePath?: string;
+  /**
+   * Update the skill's committed SKILL-VERSION.json as well as the archive's.
+   * Defaults to true — `oracle package` is meant to keep it current. Pass false
+   * when packaging at a throwaway version so the working tree is left alone.
+   */
+  updateSourceManifest?: boolean;
 }
 
 export function packageSkill(opts: PackageOptions = {}) {
@@ -220,15 +226,20 @@ export function packageSkill(opts: PackageOptions = {}) {
     opts.version ??
     (JSON.parse(readFileSync(resolve("package.json"), "utf-8")).version as string);
   const manifest = spec.describe(skillDir, version);
+  const manifestJson = JSON.stringify(manifest, null, 2) + "\n";
 
   // Write it into the source tree so every channel carries it — git installs
   // included. It shows up in `git status` when the corpus moves, which is the
   // reminder to commit it.
-  writeFileSync(
-    join(skillDir, "SKILL-VERSION.json"),
-    JSON.stringify(manifest, null, 2) + "\n",
-    "utf-8"
-  );
+  //
+  // Off for callers that package at a throwaway version. This used to be
+  // unconditional, so a test packaging at "9.9.9" rewrote the committed
+  // manifest as a side effect; a `git add -A` then committed it, and CI failed
+  // on a stale manifest nobody had knowingly touched. A build step that edits
+  // tracked files is a trap whoever runs the suite next walks into.
+  if (opts.updateSourceManifest !== false) {
+    writeFileSync(join(skillDir, "SKILL-VERSION.json"), manifestJson, "utf-8");
+  }
 
   const staging = mkdtempSync(join(tmpdir(), "skill-pkg-"));
   try {
@@ -253,6 +264,10 @@ export function packageSkill(opts: PackageOptions = {}) {
       );
     }
     cpSync(licence, join(root, "LICENSE"));
+    // Written into the staging copy directly rather than relying on the source
+    // tree having just been updated, so the archive states the version it was
+    // actually built at even when the source manifest is left alone.
+    writeFileSync(join(root, "SKILL-VERSION.json"), manifestJson, "utf-8");
     stampRecursively(root);
 
     mkdirSync(distDir, { recursive: true });
