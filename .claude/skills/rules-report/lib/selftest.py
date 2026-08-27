@@ -1485,6 +1485,54 @@ def fireworks_export(idx):
             for f in wrote:
                 os.remove(os.path.join(d, f))
 
+    # The renderer is NOT ours, and it may do anything on the way out. A stub
+    # that writes half a file and exits 1 left a 36-byte fragment where a
+    # 19,868-byte diagram had been, and the destination then looked like an
+    # artifact — invariant 10, on a path the ruling and primer renderers had
+    # already been taught to protect.
+    #
+    # Driven with a stub rather than the real Fireworks, deliberately: the
+    # property is "however the renderer fails, the previous diagram survives",
+    # and the real one cannot be made to fail on demand.
+    import stat
+    with tempfile.TemporaryDirectory() as d:
+        primer = os.path.join(d, "ok-primer.json")
+        json.dump(base, open(primer, "w", encoding="utf-8"))
+        keep = os.path.join(d, "kept.svg")
+        open(keep, "w", encoding="utf-8").write("PREVIOUS GOOD DIAGRAM")
+
+        stub_home = os.path.join(d, "stub")
+        os.makedirs(os.path.join(stub_home, "scripts"))
+        stub = os.path.join(stub_home, "scripts", "fireworks.py")
+        open(stub, "w", encoding="utf-8").write(
+            "import sys\n"
+            "open(sys.argv[-1], 'w').write('<svg>PARTIAL')\n"
+            "print('{\"ok\": false, \"error\": \"renderer exploded\"}')\n"
+            "sys.exit(1)\n")
+        os.chmod(stub, os.stat(stub).st_mode | stat.S_IEXEC)
+
+        run = subprocess.run(
+            [sys.executable, cli, "graph", primer, keep],
+            capture_output=True, text=True, cwd=d,
+            env=dict(os.environ, RIFTBOUND_FIREWORKS=stub_home))
+        # Read defensively. Rendering straight over the destination and then
+        # discarding the wreckage DELETES it, so a bare open() raised here and
+        # the battery reported "<suite crashed>" instead of this check going
+        # red by name — the third time in this work that a check crashed on the
+        # exact failure it exists to watch for.
+        survived = (open(keep, encoding="utf-8").read()
+                    if os.path.exists(keep) else "<destination was destroyed>")
+        check("a failed render leaves the previous diagram untouched",
+              run.returncode != 0 and survived == "PREVIOUS GOOD DIAGRAM",
+              f"rc={run.returncode}, destination now {survived[:26]!r}")
+        check("and clears up after itself rather than leaving a staging file",
+              not [f for f in os.listdir(d) if f.endswith(".rendering")],
+              f'{[f for f in os.listdir(d) if f.endswith(".rendering")]}')
+        # The IR is the artifact this project stands behind, so it is written
+        # even when the picture could not be.
+        check("and the IR it wrote is still there to render later",
+              os.path.exists(os.path.join(d, "kept.fireworks.json")))
+
     # Fireworks lives outside the skill folder and ADR 0004 forbids depending on
     # anything out there. A missing install must cost a picture, never the IR.
     with tempfile.TemporaryDirectory() as d:

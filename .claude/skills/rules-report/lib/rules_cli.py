@@ -492,6 +492,38 @@ def find_fireworks():
     return None
 
 
+# Generous. A diagram is seconds of work; this exists so a renderer that wedges
+# cannot wedge the command that called it, with no output and nothing to read.
+RENDER_TIMEOUT = 120
+
+
+def _discard(path):
+    """Remove a staging file, and never fail because of it."""
+    try:
+        if os.path.exists(path):
+            os.remove(path)
+    except OSError:
+        pass
+
+
+def _write_atomically(path, write):
+    """Write beside the destination, then move it into place.
+
+    `open(path, "w")` truncates before the first byte is written, so a failure
+    part-way destroys whatever was already there. The ruling and primer
+    renderers learned this the hard way; anything that writes an artifact here
+    does it the same way.
+    """
+    tmp = path + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            write(fh)
+        os.replace(tmp, path)
+    except BaseException:
+        _discard(tmp)
+        raise
+
+
 def cmd_graph(args):
     """Emit a primer's step graph for something else to draw.
 
@@ -551,9 +583,8 @@ def cmd_graph(args):
     svg_out = _out_path(explicit) if explicit else os.path.join(REPORTS, f"{slug}.svg")
     ir_out = os.path.splitext(svg_out)[0] + ".fireworks.json"
     os.makedirs(os.path.dirname(os.path.abspath(ir_out)), exist_ok=True)
-    with open(ir_out, "w", encoding="utf-8") as fh:
-        json.dump(ir, fh, indent=1, ensure_ascii=False)
-        fh.write("\n")
+    _write_atomically(ir_out, lambda fh: (json.dump(ir, fh, indent=1, ensure_ascii=False),
+                                          fh.write("\n")))
     print(f"wrote {ir_out}")
     print(f"  {len(ir['nodes'])} nodes, {len(ir['arrows'])} arrows, style {ir['style']}")
 
@@ -565,14 +596,32 @@ def cmd_graph(args):
               "  (npx skills add yizhiyanhua-ai/fireworks-tech-graph, or set "
               "$RIFTBOUND_FIREWORKS)")
         return
-    run = subprocess.run([sys.executable, fireworks, "render", "architecture",
-                          ir_out, svg_out], capture_output=True, text=True)
-    if run.returncode != 0:
-        # Reported, not raised. The IR is written and valid either way, and the
-        # renderer's own message is more useful than anything paraphrased here.
+    # Rendered BESIDE the destination, then moved into place — never straight
+    # over it. The renderer is not ours and may do anything on the way out: a
+    # stub that writes half a file and exits 1 left a 36-byte fragment where a
+    # 19,868-byte diagram had been, and the destination then looked like an
+    # artifact. Invariant 10: a failure never leaves a stale artifact looking
+    # current. The ruling and primer renderers already write this way; this is
+    # the same rule applied to a renderer we do not control.
+    staged = svg_out + ".rendering"
+    try:
+        run = subprocess.run([sys.executable, fireworks, "render", "architecture",
+                              ir_out, staged], capture_output=True, text=True,
+                             timeout=RENDER_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        _discard(staged)
+        print(f"\nFireworks did not finish within {RENDER_TIMEOUT}s and was stopped. "
+              f"The IR at {ir_out} is complete; render it yourself to see why.",
+              file=sys.stderr)
+        sys.exit(1)
+    if run.returncode != 0 or not os.path.exists(staged):
+        _discard(staged)
+        # Reported, not paraphrased. The IR is written and valid either way, and
+        # the renderer's own message says more than anything restated here.
         print(f"\nFireworks could not render it: {(run.stdout or run.stderr).strip()[:300]}",
               file=sys.stderr)
         sys.exit(1)
+    os.replace(staged, svg_out)
     print(f"wrote {svg_out}")
 
 

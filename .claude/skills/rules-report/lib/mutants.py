@@ -1073,6 +1073,20 @@ MUTANTS = [
          find='    fireworks = find_fireworks()\n    if not fireworks:',
          repl='    fireworks = find_fireworks()\n    if not fireworks:\n        sys.exit(1)\n    if False:',
          expect='the IR is still written'),
+    dict(name='render straight over the destination again, so an external renderer '
+              'that fails part-way destroys the diagram already sitting there',
+         file='rules_cli.py',
+         find='    staged = svg_out + ".rendering"',
+         repl='    staged = svg_out',
+         expect='failed render leaves the previous diagram untouched'),
+    dict(name='leave the staging file behind when a render fails, so a half-written '
+              'diagram sits beside the good one looking like an artifact',
+         file='rules_cli.py',
+         find='''    if run.returncode != 0 or not os.path.exists(staged):
+        _discard(staged)''',
+         repl='''    if run.returncode != 0 or not os.path.exists(staged):
+        pass''',
+         expect='clears up after itself rather than leaving a staging file'),
     dict(name='test only whether a step is named by something, so a disconnected '
               'island of steps that name each other passes',
          file='render_primer.py',
