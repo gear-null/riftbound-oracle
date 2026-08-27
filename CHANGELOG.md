@@ -1,6 +1,7 @@
 # Changelog
 
-Notable changes to the Riftbound rules-report skill.
+Notable changes to the Riftbound skills — `rules-report`, which answers rules questions
+with verified citations, and `deck-lab`, which builds and plays out decks.
 
 Entries are drafted with `npm run oracle changelog` — which reads the git history *and* diffs
 the corpus — then edited for readability. The **Corpus** section is usually what matters most:
@@ -48,6 +49,43 @@ This project follows [Semantic Versioning](https://semver.org/) and
 - A shipped HOT FEPR primer (CR 332–340, 33 citations, 12 transitions) as the worked
   example. Run `python3 scripts/check-invariants.py` for the live check and mutant
   counts — a total written into prose here only goes stale.
+- **`deck-lab` — a second skill, for building decks and playing them out.** Deck design
+  needs games, and games were the expensive part: an agent asked to imagine a shuffle
+  imagines a convenient one. So the skill simulates the *table*, not the player — it
+  deals, tracks the board, enforces the rules and refuses illegal actions, and leaves
+  every decision to whoever is playing. It carries a gauntlet of real tournament lists
+  to test against, imported from decklist text because four of the six sites that
+  publish them block scripts. See [ADR 0007](docs/adr/0007-the-table-not-the-player.md).
+- **The table refuses rather than assumes.** It never interprets card text — it prints
+  it verbatim and stops. A table that quietly applies an effect it half-understands
+  turns every card it does not handle into a confident wrong game, which is worse than
+  no table at all. Rules it *does* enforce are cited in the code and pinned by a
+  mutation battery, on the same terms as the rules-report skill.
+
+### Fixed
+
+- **Packaging checked the first skill and reported on all of them.** Three places in one
+  path made the same assumption, and none of them could fail once a second skill
+  existed. CI ran `unzip -q dist/*.zip`, which takes the first archive and reads the
+  rest as member names *inside* it — so the job that proves an install works was one
+  glob-ordering away from passing while installing nothing. The reproducibility check
+  compared only the first checksum, and the stale-manifest check named `rules-report`
+  outright. CI now loops, and runs the verify command each skill's manifest names, which
+  meant shipping `verify` into `SKILL-VERSION.json` so an archive knows how to check
+  itself.
+- **The licence test had the same shape**, asserting `rules-report/LICENSE` by name, so a
+  second skill could ship unlicensed with the suite green. It loops now. The copy itself
+  was always generic, so nothing shipped wrong — but nothing would have caught it if it
+  had.
+- **A missing licence now stops the build** instead of being skipped by an `existsSync`.
+  A renamed or moved `LICENSE` silently restored the unlicensed archive that work existed
+  to prevent, which is worse than never having fixed it: the fix is what stops anyone
+  looking again.
+- **Permanents left in another player's base are recalled at cleanup (CR 323.7)**, along
+  with unattached Gear left at a battlefield. A unit walked into the enemy base used to
+  stay there for the rest of the game, reading on the board as a presence it does not
+  have. The rule had no implementation at all, so no guard sweep could have found it —
+  it turned up by constructing board states no fixture builds.
 
 ## [1.2.1] — 2026-08-20
 
