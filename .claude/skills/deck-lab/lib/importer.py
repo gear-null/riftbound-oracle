@@ -169,10 +169,35 @@ def resolve_champion(deck, explicit=None):
     )
 
 
-def save(deck, slug=None):
+def save(deck, slug=None, force=False):
+    """Write a deck into the gauntlet, refusing to destroy a different one.
+
+    The filename is minted from the deck's name, and names that differ can
+    slugify the same — "Rengar Aggro" and "rengar  aggro!!" both become
+    `rengar-aggro`. The gauntlet holds committed tournament decklists, so an
+    import that silently took a slug already in use replaced real data with no
+    warning at all.
+
+    Re-importing under the SAME name overwrites, because that is an update.
+    A different name landing on an occupied slug is a collision and is refused.
+    """
+    import json
     slug = slug or re.sub(r"[^a-z0-9]+", "-", deck["name"].lower()).strip("-") or "deck"
     path = os.path.join(deckfile.GAUNTLET_DIR, f"{slug}.json")
-    import json
+
+    if os.path.exists(path) and not force:
+        try:
+            with open(path, encoding="utf-8") as fh:
+                existing = json.load(fh)
+        except (ValueError, OSError):
+            existing = None
+        if existing and existing.get("name") != deck["name"]:
+            raise ImportError_(
+                f"  {slug}.json already holds {existing.get('name')!r}, and "
+                f"{deck['name']!r} would overwrite it.\n"
+                f"  Pass --slug <name> to file this one elsewhere."
+            )
+
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(deck, fh, indent=1, ensure_ascii=False)

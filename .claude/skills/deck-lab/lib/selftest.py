@@ -77,6 +77,11 @@ def fresh(seed=7, first=0):
     return table.Table([a, b], seed=seed, first=first).setup()
 
 
+def _id_num(oid):
+    digits = "".join(ch for ch in str(oid) if ch.isdigit())
+    return int(digits) if digits else 0
+
+
 def _next_random(t):
     """The next number from t's shared generator, from a copy so t is untouched."""
     return _next_random_of(t.rng)
@@ -1156,6 +1161,79 @@ def importing():
           d2["chosen_champion"] is None and "only the pilot knows" in d2.get("chosen_champion_note", ""))
 
 
+def minted_identifiers():
+    """Anything the code mints itself can collide with something already there.
+
+    A saved game is internally consistent — every id on it is unique — but that
+    says nothing about what the LOADER mints afterwards. Same for a filename
+    derived from a deck's name.
+    """
+    import importer
+    import json as _json
+
+    t = fresh(first=0)
+    t.begin_turn()
+    raw = _json.loads(_json.dumps(t.as_dict()))
+    raw["permanents"] = [{
+        "id": "u1", "name": "Irelia, Fervent", "controller": 0, "owner": 0,
+        "location": "bf:0", "exhausted": False, "damage": 0, "buffs": 0,
+        "attached_to": None, "note": "",
+    }]
+    raw.pop("next_id", None)          # an older save, or a dropped field
+    back = table.Table.from_dict(raw, list(two_decks()))
+    minted = back._oid("u")
+    check("a loaded game never mints an id an object already has",
+          minted not in {o.id for o in back.permanents + back.runes},
+          "two objects sharing an id makes permanent() return whichever comes "
+          "first, so a kill hits the wrong unit and says nothing")
+
+    # Two guards stand behind that: the counter is DERIVED on load, and the
+    # minting site SKIPS anything in use. Each is checked alone, because either
+    # one alone hides a defect in the other — and a battery that mutates one at
+    # a time would report both as covered while neither was.
+    back2 = table.Table.from_dict(raw, list(two_decks()))
+    on_board = max(_id_num(o.id) for o in back2.permanents + back2.runes)
+    check("loading derives the id counter past every id on the board",
+          back2._next_id > on_board,
+          f"counter {back2._next_id} vs highest id {on_board}; the file carried none")
+
+    t3 = fresh(first=0)
+    t3.begin_turn()
+    held = stub_unit(t3, 0, "Irelia, Fervent", "bf:0").id
+    t3._next_id = _id_num(held)          # a stale counter, however it got there
+    check("minting skips an id already in use",
+          t3._oid("u") != held,
+          "the second guard, checked with the first one deliberately defeated")
+
+    t = fresh(first=0)
+    t.begin_turn()
+    stub_unit(t, 0, "Irelia, Fervent", "bf:0")
+    ids = [t._oid("u") for _ in range(20)]
+    check("minted ids are unique among themselves",
+          len(set(ids)) == len(ids) and not ({*ids} & {o.id for o in t.permanents}))
+
+    # A filename minted from a deck's name is the same hazard: the gauntlet holds
+    # committed tournament lists, and two names can slugify identically.
+    LIST = "Legend: Rengar, Pridestalker\n3x Pit Rookie\n12x Body Rune\n1x Seat of Power\n"
+    first = importer.build(LIST, name="Collision Fixture Alpha")
+    path = importer.save(first, slug="collision-fixture")
+    try:
+        second = importer.build(LIST, name="Collision Fixture Beta")
+        refused = False
+        try:
+            importer.save(second, slug="collision-fixture")
+        except importer.ImportError_ as err:
+            refused = "would overwrite" in str(err)
+        check("an import refuses to overwrite a DIFFERENT deck on the same slug",
+              refused, "the gauntlet holds real tournament lists")
+        again = importer.save(first, slug="collision-fixture")
+        check("re-importing the same deck is an update, not a collision",
+              again == path)
+    finally:
+        if os.path.exists(path):
+            os.remove(path)
+
+
 def documentation():
     """SKILL.md is the procedure an agent follows. Its examples have to run.
 
@@ -1244,7 +1322,8 @@ def main():
     for section in (
         card_lookup, deck_legality, setup_rules, turn_structure, resources,
         paying, movement, combat, scoring, burn_out, persistence, rendering,
-        privacy, journalling, atomicity, importing, documentation, action_scripts,
+        privacy, journalling, atomicity, importing, minted_identifiers,
+        documentation, action_scripts,
     ):
         print(f"{section.__name__}:")
         section()

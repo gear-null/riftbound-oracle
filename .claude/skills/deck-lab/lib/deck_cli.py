@@ -426,7 +426,12 @@ def cmd_import(args):
         print("could not import this list:")
         print(err)
         return 1
-    path = importer.save(deck, slug=args.slug)
+    try:
+        path = importer.save(deck, slug=args.slug, force=args.force)
+    except importer.ImportError_ as err:
+        print("refusing to overwrite a different deck:")
+        print(err)
+        return 1
     loaded = deckfile.load(path)
     result = deckfile.check(loaded)
     print(f"{deck['name']} → {path}")
@@ -581,6 +586,7 @@ def main(argv=None):
     p = sub.add_parser("import"); p.add_argument("file")
     p.add_argument("--name"); p.add_argument("--source"); p.add_argument("--slug")
     p.add_argument("--legend"); p.add_argument("--champion")
+    p.add_argument("--force", action="store_true")
     p = sub.add_parser("gauntlet"); p.add_argument("--against")
     p = sub.add_parser("record")
     p.add_argument("--game"); p.add_argument("--note"); p.add_argument("--force", action="store_true")

@@ -31,6 +31,12 @@ class RulesError(Exception):
     """An action the rules do not allow. Raised instead of quietly proceeding."""
 
 
+def _id_number(oid):
+    """The numeric part of an object id like `u12`, or 0 if it has none."""
+    digits = "".join(ch for ch in str(oid) if ch.isdigit())
+    return int(digits) if digits else 0
+
+
 def _jsonable_rng(state):
     """`random.getstate()` as JSON: its middle element is a tuple of 625 ints."""
     version, internal, gauss = state
@@ -217,9 +223,18 @@ class Table:
     # -- identity --------------------------------------------------------
 
     def _oid(self, prefix):
-        oid = f"{prefix}{self._next_id}"
-        self._next_id += 1
-        return oid
+        """A fresh object id. Never one already on the board.
+
+        The counter is derived on load, so this is belt and braces — but an id
+        collision is silent and mis-targets a kill, which is the kind of defect
+        worth two guards.
+        """
+        taken = {o.id for o in self.permanents + self.runes}
+        while True:
+            oid = f"{prefix}{self._next_id}"
+            self._next_id += 1
+            if oid not in taken:
+                return oid
 
     def note(self, message, private_to=None, detail=""):
         """Record something that happened.
@@ -1301,4 +1316,13 @@ class Table:
             perm.note = saved.get("note", "")
             t.permanents.append(perm)
         t.runes = [Rune(s["id"], s["name"], s["controller"], s["exhausted"]) for s in raw["runes"]]
+
+        # Derive the id counter from the board instead of trusting the file.
+        # A saved game is internally consistent — every id on it is unique — but
+        # that says nothing about what the LOADER then mints: a save written
+        # without `next_id`, or with a stale one, left the counter behind the
+        # board and the next `_oid` handed out an id an object already had. Two
+        # permanents then answered to the same id and `permanent()` returned
+        # whichever came first, so a kill or a move hit the wrong unit silently.
+        t._next_id = max([t._next_id] + [_id_number(o.id) + 1 for o in t.permanents + t.runes])
         return t

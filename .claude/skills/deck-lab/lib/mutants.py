@@ -483,6 +483,23 @@ MUTANTS = [
          repl='        "site2": "x",',
          expect="records its own provenance"),
 
+    # ---- minted identifiers -----------------------------------------------
+    dict(name="trust the saved id counter instead of deriving it from the board",
+         file="table.py",
+         find="        t._next_id = max([t._next_id] + [_id_number(o.id) + 1 for o in t.permanents + t.runes])",
+         repl="        pass",
+         expect="derives the id counter past every id"),
+    dict(name="hand out an id that is already in use",
+         file="table.py",
+         find="            if oid not in taken:\n                return oid",
+         repl="            return oid",
+         expect="minting skips an id already in use"),
+    dict(name="let an import overwrite a different deck on the same slug",
+         file="importer.py",
+         find="        if existing and existing.get(\"name\") != deck[\"name\"]:",
+         repl="        if False:",
+         expect="refuses to overwrite a DIFFERENT deck"),
+
     # ---- the action layer ------------------------------------------------
     dict(name="split an action script on ; without respecting quotes",
          file="deck_cli.py",
