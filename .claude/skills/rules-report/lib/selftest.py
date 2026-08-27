@@ -609,6 +609,36 @@ def primer_invariants(idx):
     check("and the page then reports structural as its weakest link",
           r["_strength"] == "structural", f'-> {r["_strength"]}')
 
+    # THE ONE THAT MATTERS MOST ON THIS PATH. `all()` over a generator
+    # short-circuits, and these are not predicates — each call verifies a
+    # citation and records the result on it. Stopping at the first False meant
+    # a failing quote HID EVERY CITATION AFTER IT in the same block: a
+    # fabrication two lines down was never checked and reported by nothing,
+    # which is the exact failure this project exists to prevent.
+    #
+    # It surfaced as a KeyError in the renderer, on the `cite_as` that was
+    # never set. The crash was the least of it.
+    for where, place in (("a step", lambda a: a["steps"][0]),
+                         ("a transition", lambda a: a["steps"][0]["exits"][0]),
+                         ("a misconception", lambda a: a["misconceptions"][0])):
+        hidden = copy.deepcopy(base)
+        block = place(hidden)
+        block["cites"] = [
+            {"rule": "CR:333", "quote": "   "},                    # fails first
+            {"rule": "CR:334.1", "quote": "a sentence nobody wrote"},   # must still be checked
+        ]
+        hr = safely(lambda hidden=hidden: verify_primer(hidden, idx),
+                    {"_problems": []}, f"verify_primer: {where}")
+        problems = hr.get("_problems", [])
+        check(f"a failing citation in {where} does not hide the ones after it",
+              any("empty once normalised" in p for p in problems)
+              and any("not found verbatim" in p for p in problems),
+              f"{len(problems)} problems: "
+              + "; ".join(p[:44] for p in problems[:2]))
+        # And the page must still render, since every cite was stamped.
+        check(f"and every citation in {where} is stamped, so the page can render",
+              bool(safely(lambda hr=hr: render(hr, idx), "", f"render: {where}")))
+
     print("\n=== primer: abstention is audited ===")
     # Invariant 8. Prose invites filling a gap from memory more than a ruling
     # does, so a primer's abstentions are held to the same standard.
@@ -853,6 +883,24 @@ def primer_invariants(idx):
     used = set(re.findall(r"\bS_\w+", mmd))
     check("the mermaid export names only real steps", bool(used) and used <= ids,
           f"unknown: {sorted(used - ids)}")
+
+    # A transition that cannot be placed is dropped from the SVG; the mermaid
+    # path has to drop it too, or the text graph carries an edge the picture
+    # refuses. "Names only real steps" cannot see this — a broken edge points at
+    # DONE, and DONE is real.
+    unplaceable = verify_primer(copy.deepcopy(base), idx)
+    unplaceable["steps"][1]["exits"][2]["goto"] = "nowhere"
+    _un_nodes, un_edges = safely(lambda: flowgraph.build(unplaceable["steps"]),
+                                 ([], []), "flowgraph.build with a dangling goto")
+    placeable = [e for e in un_edges if e["kind"] != "broken"]
+    dangling_mmd = safely(lambda: flowgraph.mermaid(unplaceable["steps"], "T"), "",
+                          "flowgraph.mermaid with a dangling goto")
+    mmd_edges = len(re.findall(r"-\.?->\|", dangling_mmd))
+    check("and drops the transitions it cannot place, as the picture does",
+          len(placeable) > 0 and mmd_edges == len(placeable)
+          and len(placeable) < len(un_edges),
+          f"{mmd_edges} mermaid edges, {len(placeable)} placeable "
+          f"of {len(un_edges)} declared")
 
     # The SVG is escaped by the page that embeds it; this export leaves the
     # project entirely, and Mermaid renders labels as HTML by default — so a
@@ -1561,8 +1609,66 @@ def fireworks_export(idx):
           and "unofficial" in ir["subtitle"],
           ir["subtitle"][:70])
 
-    print("\n=== primer: the export refuses what the report refuses ===")
+    # Found by sweeping every guard and deleting it: 25 of 59 could be removed
+    # with the whole suite still green. Most were display paths; these are the
+    # ones whose removal would change what the tool ACCEPTS. None was masked —
+    # they were simply never on a path any check walked, which is the quieter
+    # half of the same blind spot.
     cli = os.path.join(HERE, "rules_cli.py")
+    with tempfile.TemporaryDirectory() as d:
+        ruling = os.path.join(d, "r-answer.json")
+        json.dump(json.load(open(os.path.join(HERE, "heron-answer.json"),
+                                 encoding="utf-8")),
+                  open(ruling, "w", encoding="utf-8"))
+        run = subprocess.run([sys.executable, cli, "graph", ruling],
+                             capture_output=True, text=True, cwd=d)
+        check("`graph` refuses a ruling, which has no step graph",
+              run.returncode != 0 and "needs a primer" in (run.stdout + run.stderr),
+              f"rc={run.returncode}")
+
+        primer_path = os.path.join(d, "p-primer.json")
+        json.dump(base, open(primer_path, "w", encoding="utf-8"))
+        run = subprocess.run([sys.executable, cli, "graph", primer_path,
+                              "--format=svg"], capture_output=True, text=True, cwd=d)
+        check("an unknown --format is refused rather than silently defaulted",
+              run.returncode != 0
+              and "unknown --format" in (run.stdout + run.stderr)
+              and not [f for f in os.listdir(d) if f.endswith((".svg", ".json"))
+                       if f not in ("p-primer.json", "r-answer.json")],
+              f"rc={run.returncode}")
+
+        # Invariant 9. A relative input that does not exist must be refused, not
+        # quietly resolved against the skill folder — where a same-named shipped
+        # sample would be verified instead, and reported as the caller's answer.
+        run = subprocess.run([sys.executable, cli, "verify", "hot-fepr-primer.json"],
+                             capture_output=True, text=True, cwd=d)
+        check("a relative input that is not there is refused, not substituted",
+              run.returncode != 0 and "no such answer file" in (run.stdout + run.stderr),
+              "the skill ships a file of that name; resolving to it would verify "
+              "a document the caller never wrote")
+
+    # Shape guards on the document itself, none of which any check reached.
+    malformed_shapes = {
+        "steps that are not a list": (lambda a: a.__setitem__("steps", "s1"),
+                                      "at least one step"),
+        "no steps at all": (lambda a: a.__setitem__("steps", []), "at least one step"),
+        "a step with an unknown basis": (
+            lambda a: a["steps"][0].__setitem__("basis", "definitional"), "unknown basis"),
+        "a transition with no condition": (
+            lambda a: a["steps"][0]["exits"][0].pop("when"), "no `when`"),
+    }
+    missed = []
+    for label, (mutate, phrase) in malformed_shapes.items():
+        bad = copy.deepcopy(base)
+        mutate(bad)
+        got = safely(lambda bad=bad: verify_primer(bad, idx), {"_problems": []},
+                     f"verify_primer: {label}")
+        if not any(phrase in p for p in got.get("_problems", [])):
+            missed.append(f"{label} (wanted {phrase!r})")
+    check("every malformed document shape is reported by name",
+          not missed, "; ".join(missed))
+
+    print("\n=== primer: the export refuses what the report refuses ===")
     with tempfile.TemporaryDirectory() as d:
         bad = os.path.join(d, "bad-primer.json")
         json.dump(broken, open(bad, "w", encoding="utf-8"))

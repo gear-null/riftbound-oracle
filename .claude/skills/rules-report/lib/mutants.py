@@ -718,6 +718,88 @@ MUTANTS = [
          find='    kind = ans.get("kind", "ruling")',
          repl='    kind = ans.get("kind", "primer")',
          expect='an answer with no `kind` is a ruling'),
+    # One mutant per block: three sites, three ways to hide a fabrication.
+    dict(name='short-circuit the citation loop in a step again, so a failing quote '
+              'hides every fabrication after it',
+         file='render_primer.py',
+         find='''        step_ok = True
+        for c in check_cites(s, sid, problems):
+            if not _check(c, idx, sid, problems):
+                step_ok = False''',
+         repl='''        step_ok = all(_check(c, idx, sid, problems)
+                      for c in check_cites(s, sid, problems))''',
+         expect='a failing citation in a step does not hide'),
+    dict(name='short-circuit the citation loop in a transition, so the part a reader '
+              'acts on can hide a fabrication behind a failure',
+         file='render_primer.py',
+         find='''            ex_ok = True
+            for c in check_cites(ex, where, problems):
+                if not _check(c, idx, where, problems):
+                    ex_ok = False''',
+         repl='''            ex_ok = all(_check(c, idx, where, problems)
+                        for c in check_cites(ex, where, problems))''',
+         expect='a failing citation in a transition does not hide'),
+    dict(name='short-circuit the citation loop in a misconception, so the text a '
+              'reader checks first can hide a fabrication',
+         file='render_primer.py',
+         find='''        m["verified"] = True
+        for c in check_cites(m, f"misconception {i}", problems):
+            if not _check(c, idx, f"misconception {i}", problems):
+                m["verified"] = False''',
+         repl='''        m["verified"] = all(
+            _check(c, idx, f"misconception {i}", problems)
+            for c in check_cites(m, f"misconception {i}", problems))''',
+         expect='a failing citation in a misconception does not hide'),
+    dict(name='treat a whitespace-only heading as present, since whitespace is truthy',
+         file='render_primer.py',
+         find='        if not str(s.get("heading") or "").strip():',
+         repl='        if not s.get("heading"):',
+         expect='every malformed document shape is reported by name'),
+    # Found by sweeping every guard and deleting it. None of these was masked;
+    # each was simply never on a path any check walked — the quieter half of
+    # the same blind spot, and the more common one.
+    dict(name='let `graph` run on a ruling, which has no steps and no transitions '
+              'to derive anything from',
+         file='rules_cli.py',
+         find='    if _kind(raw, src) != "primer":',
+         repl='    if False:',
+         expect='refuses a ruling, which has no step graph'),
+    dict(name='accept any --format and silently render Fireworks anyway, so a caller '
+              'asking for something else is told nothing',
+         file='rules_cli.py',
+         find='    if fmt not in ("fireworks", "mermaid"):',
+         repl='    if False:',
+         expect='unknown --format is refused'),
+    dict(name='resolve a relative input that does not exist against the skill folder, '
+              'so a shipped sample is verified as though it were the caller\'s answer',
+         file='rules_cli.py',
+         find='        if not os.path.exists(full):',
+         repl='        if False:',
+         expect='is not there is refused, not substituted'),
+    dict(name='accept a primer whose `steps` is not a list, or is empty, so a document '
+              'with nothing in it verifies',
+         file='render_primer.py',
+         find='    if not isinstance(steps, list) or not steps:',
+         repl='    if False:',
+         expect='every malformed document shape is reported by name'),
+    dict(name='accept a transition with no condition, so the map draws an arrow a '
+              'reader has no way to follow',
+         file='render_primer.py',
+         find='            if not ex.get("when"):',
+         repl='            if False:',
+         expect='every malformed document shape is reported by name'),
+    dict(name='accept an unknown step basis instead of coercing and reporting it, so '
+              'the page grades a step by a word nothing defines',
+         file='render_primer.py',
+         find='        if s.get("basis") not in RANK:',
+         repl='        if False:',
+         expect='every malformed document shape is reported by name'),
+    dict(name='export a transition that cannot be drawn to mermaid, so the text graph '
+              'carries an edge the SVG refuses',
+         file='flowgraph.py',
+         find='        if e["kind"] == "broken":\n            continue\n        target = "DONE"',
+         repl='        if False:\n            continue\n        target = "DONE"',
+         expect='drops the transitions it cannot place'),
     # Masked until now: deleting this gate left the suite green, because the
     # renderer it shells out to refuses again. Two guards, each hiding the
     # other from a one-at-a-time battery.

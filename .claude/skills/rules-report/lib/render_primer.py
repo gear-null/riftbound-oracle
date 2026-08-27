@@ -86,6 +86,15 @@ def all_cites(ans):
     return [c for src in _cite_carriers(ans) for c in src.get("cites", []) or []]
 
 
+# `all()` over a GENERATOR short-circuits, and these are not predicates — each
+# call verifies a citation and records the result on it. Stopping at the first
+# False meant a failing quote hid every citation after it in the same block:
+# they were never checked, never stamped, and a fabrication two lines down was
+# reported by nothing. The renderer then raised KeyError on the `cite_as` that
+# was never set, which is how it surfaced — but the crash was the least of it.
+#
+# `verify_answer` uses an explicit loop for exactly this reason. A list
+# comprehension would also work; the loop says why.
 def verify_primer(ans, idx):
     """Verify every citation, grade every step and transition, refuse on anything false.
 
@@ -180,13 +189,15 @@ def verify_primer(ans, idx):
 
     for s in steps:
         sid = s.get("id", "?")
-        if not s.get("heading"):
+        if not str(s.get("heading") or "").strip():
             problems.append(f"{sid}: no heading")
-        if not s.get("body"):
+        if not str(s.get("body") or "").strip():
             problems.append(f"{sid}: no body — a step with a heading and nothing "
                             "under it explains nothing")
-        step_ok = all(_check(c, idx, sid, problems)
-                      for c in check_cites(s, sid, problems))
+        step_ok = True
+        for c in check_cites(s, sid, problems):
+            if not _check(c, idx, sid, problems):
+                step_ok = False
         # Scoped to `grounded` for the same reason it is on a ruling's notes:
         # `structural` legitimately rests on the rules its neighbours cite, and
         # `gap` pays for its abstention with rules_checked below. Grounded is
@@ -210,8 +221,10 @@ def verify_primer(ans, idx):
                     f"{where}: goto names {goto!r}, which is not a step in this "
                     "primer — the diagram is drawn from these, so it would point "
                     "at nothing")
-            ex_ok = all(_check(c, idx, where, problems)
-                        for c in check_cites(ex, where, problems))
+            ex_ok = True
+            for c in check_cites(ex, where, problems):
+                if not _check(c, idx, where, problems):
+                    ex_ok = False
             # The strict default, and the whole reason this document kind is
             # safe to write as prose. An edge is the load-bearing part of a
             # procedure — it is what a reader will act on at the table — so it
@@ -247,9 +260,10 @@ def verify_primer(ans, idx):
                 problems.append(f"misconception {i}: no {key}")
         # Held to the same standard as a ruling's counterargument: this is the
         # text a reader who believes the wrong thing will go check first.
-        m["verified"] = all(
-            _check(c, idx, f"misconception {i}", problems)
-            for c in check_cites(m, f"misconception {i}", problems))
+        m["verified"] = True
+        for c in check_cites(m, f"misconception {i}", problems):
+            if not _check(c, idx, f"misconception {i}", problems):
+                m["verified"] = False
     if "misconceptions" in ans:
         ans["misconceptions"] = kept_misc
 

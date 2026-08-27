@@ -155,6 +155,18 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   transitions still a procedure, and the report, the map and the export still
   agreeing on every transition number. A renumbering invalidates a committed
   document silently, and these are the documents a reader opens first.
+- **Sweep the guards after any batch of guard work.** Delete each `if` that
+  refuses, reports or bails, and run the suite: anything that stays green is
+  pinned by nothing. 25 of 59 did here. Most were display paths; the rest were
+  guards no check had ever walked, plus two that masked each other. The
+  technique and the reason are in [invariants.md](invariants.md).
+- **Then probe shapes no fixture produces.** A sweep can only test code that
+  exists — it cannot flag a missing rule, because there is no line to neuter.
+  Degenerate DOCUMENTS are the analogue of a degenerate board: an empty step
+  id, a whitespace heading, a quote spanning two sibling rules, a corpus
+  stamped with a version that does not exist. That probe is what found `all()`
+  short-circuiting the citation loop, where a failing quote hid every
+  fabrication after it in the same block.
 - **The IR is the product; the renderer is not.** Fireworks Tech Graph lives outside
   the skill folder, so nothing here may require it. `graph` always writes the IR —
   self-contained, checkable, diffable — and renders an SVG only if an install is
