@@ -739,6 +739,16 @@ def export_and_history():
     check("the history lists the reports that exist",
           any(r["file"] == "flow-counter.html" for r in records),
           f"{len(records)} record(s)")
+    # The index must be refreshed by `report`, not only by `reports`. An index
+    # that updates on a second command nobody is told to run is stale by
+    # default, and stale in the worst way: it lists every answer except the one
+    # just written, which is the one its reader came for.
+    src_lines = open(os.path.join(HERE, "rules_cli.py"), encoding="utf-8").read()
+    body = src_lines[src_lines.index("def cmd_report("):src_lines.index("def cmd_render(")]
+    check("writing a report refreshes the history index",
+          "write_report_index()" in body,
+          "cmd_report never updates the index, so `reports` must be run by hand")
+
     check("the history does not list itself as a report",
           not any(r["file"] == rules_cli.INDEX_NAME for r in records))
 

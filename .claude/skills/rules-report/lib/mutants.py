@@ -1462,6 +1462,11 @@ MUTANTS = [
          find='        if block.count("<section") != 1 or not block.endswith("</section>"):',
          repl='        if False:',
          expect="whole section is refused"),
+    dict(name="leave the history index stale after writing a report",
+         file="rules_cli.py",
+         find="        try:\n            write_report_index()",
+         repl="        try:\n            pass",
+         expect="refreshes the history index"),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

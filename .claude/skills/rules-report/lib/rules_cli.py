@@ -427,6 +427,17 @@ def cmd_report(args):
     ensure_rulebook()
     subprocess.run([sys.executable, renderer, src, out], check=True)
     print(f"\nreport: {os.path.normpath(os.path.abspath(out))}")
+
+    # Refresh the history here, not only in `reports`. A browsable index that
+    # updates only when someone runs a second command is stale by default —
+    # it would list every answer except the one just written, which is the one
+    # its reader is looking for. Best-effort: an index that cannot be written
+    # must not fail a report that already rendered.
+    if os.path.dirname(os.path.abspath(out)) == REPORTS:
+        try:
+            write_report_index()
+        except OSError as err:
+            print(f"  (could not refresh the report index: {err})")
     if "--no-open" not in args:
         # Sandboxed runners (Claude Desktop / mobile skills) have no browser and
         # no opener binary. Report what actually happened rather than claiming a
