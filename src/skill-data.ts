@@ -265,6 +265,18 @@ export function cardText(card: RiftcodexCard): string {
  * cannot eat legitimate prose. Every removal is returned so the build can
  * REPORT it: silently deleting text is its own way of asserting something about
  * a card, and a second occurrence should be seen rather than swallowed.
+ *
+ * NARROW ON PURPOSE, and it must stay narrow. A corpus-integrity check on the
+ * rules-report side scans for the same artifact signature UNANCHORED, and is
+ * deliberately wider than this. The asymmetry is the design: deletion is the
+ * operation that can destroy a real card's rules text, so it is conservative;
+ * reporting cannot destroy anything, so it casts wide.
+ *
+ * If that detector fires on something this function leaves alone, that is the
+ * check working. Go and look at the card. Do NOT widen this to make the
+ * detector green — a stripper widened until its detector agrees is a stripper
+ * with no detector, because a check derived from the thing it checks can only
+ * ever find what that thing already does.
  */
 export function stripTrailingArtifact(text: string): { text: string; removed?: string } {
   const m = /([).!])([a-z]{3,})$/.exec(text);

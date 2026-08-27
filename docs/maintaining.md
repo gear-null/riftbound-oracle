@@ -221,6 +221,14 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   table means adding a check to `selftest.py` AND a mutant to `mutants.py` that has been
   seen to make that check fail. The first run of the battery found five checks that
   passed while the behaviour they named was deleted.
+- **Narrow where you delete, wide where you only report — and let them disagree.**
+  `stripTrailingArtifact` removes a stray token from card text and is anchored and
+  conservative, because a false positive destroys a real card's rules text. The
+  corpus-integrity check that scans for the same signature is deliberately wider,
+  because reporting cannot destroy anything. When the wide one fires on something the
+  narrow one ignores, that is the check working: look at the card. Widening the deleter
+  until its detector goes green leaves you with a deleter and no detector, since a check
+  derived from what it checks can only find what that thing already does.
 - **Seeds pair, they do not multiply.** Each seat shuffles on its own generator derived
   from the seed, so at a fixed seed a seat draws the same cards whatever it is facing —
   two decks can be compared over identical opposition. That is a paired design, not an
