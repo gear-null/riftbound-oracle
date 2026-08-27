@@ -236,6 +236,25 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   rules-report side — a `cmd_report` gate whose docstring called it "the ONLY way to finish
   an answer", pinned by nothing.)
 
+- **The guard sweep only finds code you wrote; probe for states you never build.** A
+  battery over `raise` sites cannot flag a rule with no code behind it at all, because
+  there is no line to neuter. The complement is to construct board shapes no fixture
+  produces and ask whether each is refused, handled, or silently wrong: negative Might, a
+  Victory Score of zero, both players on the target at once, a draw of nothing, a
+  battlefield contested by a player with no units, every rune recycled, a unit parked in
+  the opponent's base. Ten such probes found 323.7 missing — a permanent in a foreign base
+  was never recalled, so a unit walked into the enemy base stayed there for the rest of the
+  game, reading on the board as a presence it does not have. Nine of the ten were already
+  correct, which is the expected yield; the probe is cheap enough that the ratio is fine.
+
+  Two habits make the probes pay. Assert on the **log**, not just on state, when the two
+  cannot be told apart: recalling a unit to the base it already occupies moves nothing, so
+  a check on `location` passes whether or not the sweep wrongly picked it up — the mutation
+  battery caught exactly that weak check here. And write a mutant per **clause**, not per
+  rule: 323.7 has one condition for foreign bases and one for unattached Gear, and each of
+  the two conditions has an over-broad failure as well as an off one, so a single rule
+  earned five mutants.
+
 - **Narrow where you delete, wide where you only report — and let them disagree.**
   `stripTrailingArtifact` removes a stray token from card text and is anchored and
   conservative, because a false positive destroys a real card's rules text. The

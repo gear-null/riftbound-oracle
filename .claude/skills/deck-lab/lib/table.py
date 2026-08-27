@@ -913,6 +913,25 @@ class Table:
             if perm.is_unit and perm.damage > 0 and perm.damage >= perm.might:
                 self.to_trash(perm.id, reason="lethal damage marked (323.5)")
 
+        # 323.7 (5): anything resting where it does not belong goes home. Two of
+        # the rule's clauses can bite here — unattached non-Unit Gear left at a
+        # battlefield, and ANY permanent in a base that is not its controller's.
+        # Without this a unit walked into the opponent's base stays there for the
+        # rest of the game, which reads on the board as a presence it never has.
+        # The rule's two Rune clauses are vacuous in this model: a Rune has no
+        # location (161.1.a keeps it in its controller's base by construction),
+        # so no rune can be at a battlefield or in a foreign base to recall.
+        for perm in list(self.permanents):
+            where, _, _idx = perm.location.partition(":")
+            if where == BASE and perm.location != f"{BASE}:{perm.controller}":
+                self.note(f"{perm.name} [{perm.id}] is in another player's base (323.7)")
+                self.recall(perm.id)
+            elif where == BATTLEFIELD and not perm.is_unit and perm.attached_to is None:
+                self.note(
+                    f"{perm.name} [{perm.id}] is unattached Gear at a battlefield (323.7)"
+                )
+                self.recall(perm.id)
+
         for bf in self.battlefields:
             here = self.units_at(bf.location)
             controllers = {u.controller for u in here}

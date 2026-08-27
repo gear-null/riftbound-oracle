@@ -816,6 +816,41 @@ def scoring():
     check("a cleanup does not hand control to either side while a combat is staged (190.4.b)",
           t.battlefield(0).controller is None and t.battlefield(0).contested)
 
+    # 323.7: nothing rests in a base that is not its controller's. Found by
+    # probing a board shape no fixture builds — a unit walked into the enemy
+    # base sat there for the rest of the game, reading as a presence it does
+    # not have. Neither clause is reachable from the other, so both are pinned.
+    t = fresh(first=0)
+    t.begin_turn()
+    trespasser = stub_unit(t, 0, "Irelia, Fervent", "base:1")
+    homebody = stub_unit(t, 0, "Stellacorn Herder", "base:0")
+    t.cleanup()
+    check("a unit in the opponent's base is recalled at cleanup (323.7)",
+          trespasser.location == "base:0",
+          f"left at {trespasser.location}")
+    # Location alone cannot see this one: recalling a unit to the base it is
+    # already in moves nothing, so only the log distinguishes "left alone" from
+    # "swept and put back". The mutation battery caught the weaker version.
+    accused = [e["text"] for e in t.log if homebody.id in e["text"] and "323.7" in e["text"]]
+    check("a unit in its OWN base is left alone by the same sweep (323.7)",
+          homebody.location == "base:0" and not accused,
+          f"the sweep picked it up: {accused}")
+
+    t = fresh(first=0)
+    t.begin_turn()
+    loose = table.Permanent(t._oid("g"), "Blade of the Ruined King", 0, "bf:0")
+    worn = table.Permanent(t._oid("g"), "Blade of the Ruined King", 0, "bf:0")
+    holder = stub_unit(t, 0, "Irelia, Fervent", "bf:0")
+    worn.attached_to = holder.id
+    t.permanents += [loose, worn]
+    t.cleanup()
+    check("unattached Gear left at a battlefield is recalled at cleanup (323.7)",
+          loose.location == "base:0", f"left at {loose.location}")
+    check("Gear attached to a unit is NOT recalled off the battlefield (323.7)",
+          worn.location == "bf:0", f"moved to {worn.location}")
+    check("a unit at a battlefield is untouched by the Gear clause (323.7)",
+          holder.location == "bf:0")
+
     # "Aspirant's Climb" reads "Increase the points needed to win the game by 1".
     # A hard-coded 8 would hand the game over a full point early.
     t = fresh(first=0)
