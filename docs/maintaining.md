@@ -200,6 +200,24 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   stamped with a version that does not exist. That probe is what found `all()`
   short-circuiting the citation loop, where a failing quote hid every
   fabrication after it in the same block.
+
+- **Never match on `str(exception)`; match on `err.args[0]`.** `str(KeyError(msg))`
+  is `repr(msg)`, and `repr` picks its wrapper from the content. A message holding
+  only single quotes comes back wrapped in double ones, inner quotes intact, so a
+  match on `saved game 'x'` fires. Put a double quote anywhere else in that same
+  message — nest another error's text, quote a filename — and repr flips to
+  single-quote wrapping and escapes every inner single quote, and the identical
+  match silently stops firing. Nothing goes red; the check simply never fires
+  again.
+
+  That is worse than escaping unconditionally, which fails while you are writing
+  the check and looking straight at it. This one passes when written and dies
+  later, from an edit that appears unrelated and lands in someone else's commit.
+  The wrapper defeats `startswith`/`endswith` on a raw `str()` too. The whole
+  class disappears if the predicate reads `args[0]`, so make that the habit
+  rather than reasoning about which row you are in. It is a check-that-cannot-fail
+  with a cause unlike the others here: not a behaviour with no check behind it,
+  but a predicate that cannot become true no matter what the code does.
 - **The IR is the product; the renderer is not.** Fireworks Tech Graph lives outside
   the skill folder, so nothing here may require it. `graph` always writes the IR —
   self-contained, checkable, diffable — and renders an SVG only if an install is

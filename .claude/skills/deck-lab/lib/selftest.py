@@ -1322,9 +1322,20 @@ def minted_identifiers():
             try:
                 session_mod.load("selftest-collision")
             except KeyError as err:
-                # args[0], not str(): KeyError's str() reprs its argument, so
-                # every quote in the message comes back backslash-escaped and a
-                # substring match on the naming phrase silently never matches.
+                # args[0], not str(). `str(KeyError(msg))` is `repr(msg)`, and
+                # repr PICKS ITS WRAPPER from the content: a message containing
+                # only single quotes comes back wrapped in double ones with the
+                # inner quotes intact, so a match on `saved game 'x'` fires. Add
+                # a double quote anywhere else in that message and repr flips to
+                # single-quote wrapping and escapes every inner single quote —
+                # and the same match silently stops firing.
+                #
+                # That is worse than always escaping, which would go red while
+                # you were writing the check. This passes when written and dies
+                # later, from an edit elsewhere in the message that looks
+                # unrelated — and this message nests `resolve`'s, so it acquires
+                # both quote kinds the moment the inner one is quoted at all.
+                # The wrapper also defeats startswith/endswith on a raw str().
                 said = err.args[0]
             # NOT `"selftest-collision" in said` — the games PATH contains the
             # game name, so dropping the name entirely left that true and the
