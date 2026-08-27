@@ -139,6 +139,54 @@ def stub_unit(t, seat, name, location, exhausted=False):
 
 # -- card data -----------------------------------------------------------
 
+def card_text_display():
+    """Upstream serves reminder text butted against rules text. That is the
+    corpus's business; what a player READS is this skill's."""
+    seam = re.compile(r"[)\]][A-Z]")
+    seams = [c["name"] for c in cards.pool().values() if seam.search(c.get("text") or "")]
+    check("the corpus really does run sentences together (so this is not dead code)",
+          len(seams) > 100, f"only {len(seams)} cards")
+
+    check("display spacing separates reminder text from rules text",
+          cards.for_reading("Acceptable Losses")
+          == "[Action] (Play on your turn or in showdowns.) Each player kills one of their gear.",
+          repr(cards.for_reading("Acceptable Losses")))
+    check("a keyword bracket is separated from the sentence after it",
+          cards.for_reading("Kai'Sa, Survivor").startswith("[Accelerate] When"),
+          repr(cards.for_reading("Kai'Sa, Survivor"))[:70])
+
+    # Invariant 5: the vendored text is Riot's, or is marked as not being it.
+    # Spacing is a choice about this terminal, so it must not reach the data.
+    check("text() is left byte-identical, so the corpus is still Riot's",
+          cards.text("Acceptable Losses")
+          == "[Action] (Play on your turn or in showdowns.)Each player kills one of their gear.")
+    untouched = [n for n in seams if cards.text(n) == cards.for_reading(n)]
+    check("every affected card differs between the raw and the readable form",
+          not untouched, f"{len(untouched)} unchanged, e.g. {untouched[:2]}")
+
+    # The widening c1 measured: `:` matches :rb_might: and fires corpus-wide.
+    check("symbol markup is not treated as a seam",
+          cards.space_seams("Pay :rb_might:Then draw") == "Pay :rb_might:Then draw")
+    check("a lowercase word after punctuation is left alone — that is the "
+          "extraction-artifact signature, not a sentence break",
+          cards.space_seams("...get the effect.)ambush") == "...get the effect.)ambush")
+    # Riftbound cards speak in the first person, so the sentence after the seam
+    # often opens on a bare capital `I` with no lowercase tail. A pattern
+    # requiring one — the natural way to "tighten" this — silently drops these
+    # 20 cards. That is how the two independent measurements of this defect
+    # disagreed by exactly this set.
+    first_person = [c["name"] for c in cards.pool().values()
+                    if re.search(r"\)I\b", c.get("text") or "")]
+    check("the bare first-person 'I' after a seam is spaced too",
+          len(first_person) == 20
+          and all(") I" in cards.for_reading(n) for n in first_person),
+          f"{len(first_person)} such cards")
+
+    check("spacing is idempotent",
+          cards.space_seams(cards.for_reading("Acceptable Losses"))
+          == cards.for_reading("Acceptable Losses"))
+
+
 def card_lookup():
     check(
         "a subtitled card resolves across the separator both sources use",
@@ -1552,7 +1600,7 @@ def action_scripts():
 def main():
     print("deck-lab selftest\n")
     for section in (
-        card_lookup, deck_legality, setup_rules, turn_structure, resources,
+        card_lookup, card_text_display, deck_legality, setup_rules, turn_structure, resources,
         paying, movement, combat, scoring, burn_out, persistence, rendering,
         privacy, journalling, atomicity, importing, minted_identifiers, guards,
         documentation, action_scripts,

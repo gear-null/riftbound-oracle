@@ -147,8 +147,41 @@ def might(name):
 
 
 def text(name):
-    """Printed rules text, verbatim."""
+    """Printed rules text, verbatim. Do not add spacing here — see for_reading."""
     return require(name).get("text", "")
+
+
+#: A closing paren or keyword bracket butted against the next sentence's capital.
+#: Upstream serves reminder text and rules text with no separator between them —
+#: `(Play on your turn or in showdowns.)Each player kills...` — on 309 spots
+#: across 304 of the 1037 cards.
+_SEAM = re.compile(r"([)\]])([A-Z])")
+
+
+def space_seams(printed):
+    """Put a space where the source ran two sentences together.
+
+    DISPLAY ONLY, and deliberately not done in the data. The vendored text is
+    Riot's, and invariant 5 says it is Riot's current text or is marked as not
+    being it — so editing the corpus to read better would be asserting something
+    about a card that Riot did not print. Spacing at the point of display is a
+    typographic choice about this terminal, and it leaves `text()` byte-identical
+    for the citation machinery that compares against it.
+
+    NARROW, and it stays narrow. `)` or `]` then a capital is the measured set:
+    all 309 occurrences are reminder-text or keyword seams, none legitimate.
+    Admitting `:` here would match `:rb_might:` and fire on over a thousand
+    innocent spots — the widening that looks harmless and buys an allowlist.
+    An em dash runs into a capital too (`Choose one —Counter a spell`), and that
+    is left alone for the same reason: it is a different shape and has not been
+    measured.
+    """
+    return _SEAM.sub(r"\1 \2", printed or "")
+
+
+def for_reading(name):
+    """Card text as a human should see it. Use at every print site."""
+    return space_seams(text(name))
 
 
 _CHAMPION_TAGS = None
