@@ -62,6 +62,10 @@
           "quote": "When Combat opens, it either opens with a Combat Showdown, or the current Showdown becomes a Combat Showdown."
         },
         {
+          "rule": "CR:464.2.a",
+          "quote": "The following Tasks become Outstanding, in the order described:"
+        },
+        {
           "rule": "CR:464.2.c.1",
           "quote": "The Attacker is the player whose unit(s) applied the Contested status to the Battlefield."
         },
@@ -164,6 +168,10 @@
       "basis": "grounded",
       "body": "A Combat Cleanup runs first, and it heals every unit and recalls surviving Attackers if Defenders are still there. Only then is the result read: a player won if they are the only one with units left here, lost if they are the only one without. If both still have units, or neither does, there is No Result. Control and any Conquer are settled last, and it need not be the player who contested it.",
       "cites": [
+        {
+          "rule": "CR:466.1",
+          "quote": "1. Perform a Combat Cleanup."
+        },
         {
           "rule": "CR:466.1.a.1",
           "quote": "Insert “3c. Heal all Units.”"

@@ -67,6 +67,18 @@
         {
           "rule": "CR:347.2",
           "quote": "Pass."
+        },
+        {
+          "rule": "CR:343.1.a",
+          "quote": "Cards of all Categories, by default, cannot be played during a Showdown State."
+        },
+        {
+          "rule": "CR:343.1.b",
+          "quote": "Card abilities, by default, cannot be played during a Showdown State."
+        },
+        {
+          "rule": "CR:338.1.a.2",
+          "quote": "A Legally Timed Card or Activated Ability would be one with Reaction or one that will have Reaction when played under appropriate circumstances."
         }
       ],
       "exits": [
@@ -119,6 +131,10 @@
         {
           "rule": "CR:346",
           "quote": "When the last item on the chain resolves and the turn returns to an Open State during a Showdown, Focus passes, and the next Player gains both Focus and Priority."
+        },
+        {
+          "rule": "CR:336",
+          "quote": "When there are no outstanding Tasks and there are pending Chain Items on the Chain, players should refer to the FEPR process to proceed."
         }
       ],
       "exits": [

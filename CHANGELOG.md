@@ -38,7 +38,7 @@ This project follows [Semantic Versioning](https://semver.org/) and
   picture carries its own corpus version and an "unofficial" mark, because it travels
   away from the citations that back it.
 - **Three shipped primers**: HOT FEPR (CR 332–340), Showdowns (CR 341–348) and Combat
-  (CR 459–466) — 104 citations between them, every one verbatim.
+  (CR 459–466) — 110 citations between them, every one verbatim.
 - **Invariant 12** — *a diagram draws exactly the transitions the document declares,
   no more and no fewer*. An arrow is absorbed at a glance and audited by nobody, so
   the map is computed from the declared transitions and shows which kind of claim
