@@ -65,7 +65,7 @@ export const SKILLS: Record<string, SkillSpec> = {
     dir: SKILL_SRC,
     requires: ["data/rules.json", "data/cards.json"],
     buildHint: "npm run oracle skill-data && (cd .claude/skills/rules-report/lib && python3 rules_cli.py build)",
-    verify: "rules_cli.py selftest",
+    verify: "python3 rules_cli.py selftest",
     describe: describeRulesReport,
   },
   "deck-lab": {
@@ -73,7 +73,7 @@ export const SKILLS: Record<string, SkillSpec> = {
     dir: DECK_LAB_SRC,
     requires: ["data/cards.json", "gauntlet"],
     buildHint: "npm run oracle skill-data && npm run oracle decks pull",
-    verify: "deck_cli.py selftest",
+    verify: "python3 deck_cli.py selftest",
     describe: describeDeckLab,
   },
 };
@@ -88,6 +88,16 @@ export interface SkillManifest {
   name: string;
   version: string;
   built_from: string;
+  /**
+   * How an installed copy checks itself: a complete command, run from the
+   * skill's `lib/`.
+   *
+   * The packager's registry already knew this; the archive did not, so anything
+   * downstream that wanted to verify an install had to hard-code a per-skill
+   * command and silently skipped whatever it had not been told about. Shipping
+   * it means a consumer can verify a skill it has never heard of.
+   */
+  verify: string;
   cards: number;
   /** rules-report only. */
   rules_version?: string;
@@ -128,6 +138,7 @@ function describeRulesReport(skillDir: string, version: string): RulesReportMani
     name: "rules-report",
     version,
     built_from: "https://github.com/gear-null/riftbound-oracle",
+    verify: SKILLS["rules-report"].verify,
     rules_version: rules[0]?.version ?? "unknown",
     rules: rules.length,
     cards: names.size,
@@ -162,6 +173,7 @@ function describeDeckLab(skillDir: string, version: string): SkillManifest {
     name: "deck-lab",
     version,
     built_from: "https://github.com/gear-null/riftbound-oracle",
+    verify: SKILLS["deck-lab"].verify,
     cards: names.size,
     gauntlet_decks: decks.length,
     gauntlet_pulled: pulled,
@@ -183,6 +195,8 @@ export interface PackageOptions {
   skillDir?: string;
   distDir?: string;
   version?: string;
+  /** Where the licence lives. A seam so the refusal below can be tested. */
+  licencePath?: string;
 }
 
 export function packageSkill(opts: PackageOptions = {}) {
@@ -227,8 +241,18 @@ export function packageSkill(opts: PackageOptions = {}) {
     // someone the code without the repository around it, so without this they
     // receive an unlicensed copy — which is the state the licence was added to
     // end, and the state most likely to be redistributed further.
-    const licence = resolve("LICENSE");
-    if (existsSync(licence)) cpSync(licence, join(root, "LICENSE"));
+    // Refusing is the point: an `existsSync` guard here would mean a moved or
+    // renamed LICENSE silently restores the unlicensed archive this exists to
+    // prevent — and quietly restored is worse than never fixed, because the fix
+    // is what stops anyone from looking again.
+    const licence = opts.licencePath ?? resolve("LICENSE");
+    if (!existsSync(licence)) {
+      throw new Error(
+        `no LICENSE at ${licence} — every archive must carry one, so packaging stops here ` +
+          "rather than shipping an unlicensed copy"
+      );
+    }
+    cpSync(licence, join(root, "LICENSE"));
     stampRecursively(root);
 
     mkdirSync(distDir, { recursive: true });

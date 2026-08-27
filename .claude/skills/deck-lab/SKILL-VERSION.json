@@ -1,7 +1,8 @@
 {
   "name": "deck-lab",
-  "version": "1.2.1",
+  "version": "9.9.9",
   "built_from": "https://github.com/gear-null/riftbound-oracle",
+  "verify": "python3 deck_cli.py selftest",
   "cards": 954,
   "gauntlet_decks": 28,
   "gauntlet_pulled": "2026-08-24"

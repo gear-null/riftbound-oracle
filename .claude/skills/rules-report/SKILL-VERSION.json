@@ -2,6 +2,7 @@
   "name": "rules-report",
   "version": "1.2.1",
   "built_from": "https://github.com/gear-null/riftbound-oracle",
+  "verify": "python3 rules_cli.py selftest",
   "rules_version": "2026-07-16",
   "rules": 3316,
   "cards": 954,

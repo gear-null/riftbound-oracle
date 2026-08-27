@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { describeSkill, packageSkill } from "../package.js";
+import { describeSkill, packageSkill, packageAll, SKILLS } from "../package.js";
 
 function fakeSkill(dir: string, over: Record<string, unknown> = {}) {
   mkdirSync(join(dir, "data"), { recursive: true });
@@ -85,18 +85,56 @@ describe("packageSkill", () => {
     } finally { rmSync(src, { recursive: true }); rmSync(out, { recursive: true }); }
   });
 
-  it("ships the licence inside the archive", () => {
+  it("ships the licence inside EVERY archive", () => {
     // The zip and install.sh hand someone the code WITHOUT the repository
     // around it. Without this they receive an unlicensed copy — the exact
     // state the licence was added to end, in the path most likely to be
     // redistributed onward.
+    //
+    // Written first against rules-report alone, by name, while it was the only
+    // skill. That made it the third place in this packaging path to check the
+    // first of N and report on all of them: a second skill could ship
+    // unlicensed with this test still green. It loops now, so a skill is
+    // covered the day it is added.
     const out = mkdtempSync(join(tmpdir(), "dist-"));
     try {
-      packageSkill({ distDir: out, version: "9.9.9" });
-      const list = execFileSync("unzip", ["-Z1", join(out, "riftbound-rules-report-v9.9.9.zip")],
-                                { encoding: "utf-8" });
-      expect(list).toContain("rules-report/LICENSE");
+      const built = packageAll({ distDir: out, version: "9.9.9" });
+      expect(built.length).toBe(Object.keys(SKILLS).length);
+      for (const { archive, skill } of built) {
+        const list = execFileSync("unzip", ["-Z1", archive], { encoding: "utf-8" });
+        expect(list, `${skill} shipped without a licence`).toContain(`${skill}/LICENSE`);
+      }
     } finally { rmSync(out, { recursive: true, force: true }); }
+  });
+
+  it("refuses to package at all when the licence is missing", () => {
+    // The guard this pins replaced an `existsSync` that skipped the copy
+    // silently. Under it, a moved or renamed LICENSE reproduced the unlicensed
+    // archive the licence work existed to end — with every other check green,
+    // because nothing else in the build looks at the file.
+    const out = mkdtempSync(join(tmpdir(), "dist-"));
+    try {
+      expect(() => packageSkill({ distDir: out, licencePath: join(out, "nope/LICENSE") }))
+        .toThrow(/must carry one/);
+      expect(existsSync(join(out, "riftbound-rules-report-v1.0.0.zip"))).toBe(false);
+    } finally { rmSync(out, { recursive: true, force: true }); }
+  });
+
+  it("ships a runnable verify command in every skill's manifest", () => {
+    // CI installs each archive and runs the command the manifest names, so a
+    // skill whose manifest omits it — or names a file the archive does not
+    // carry — would be published untested. That is not hypothetical: one
+    // `unzip dist/*.zip` used to take the first archive and read the second as
+    // a member name inside it, so deck-lab shipped for a while with its
+    // selftest never once run against a packaged copy.
+    for (const [key, spec] of Object.entries(SKILLS)) {
+      const manifest = spec.describe(spec.dir, "1.2.3");
+      expect(manifest.verify, `${key} has no verify command`).toBeTruthy();
+      const [interpreter, script] = manifest.verify.split(" ");
+      expect(interpreter, `${key}'s verify must name its interpreter`).toBe("python3");
+      expect(existsSync(join(spec.dir, "lib", script)),
+        `${key}'s verify names lib/${script}, which is not in the skill`).toBe(true);
+    }
   });
 
   it("refuses to package a skill with no corpus", () => {

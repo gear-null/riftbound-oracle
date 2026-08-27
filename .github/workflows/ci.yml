@@ -155,30 +155,54 @@ jobs:
 
       - name: Build twice and compare
         run: |
+          # Every archive the packager emits, not just the first: a second skill
+          # can be irreproducible while the one that happens to sort first is
+          # stable, and a release checksum is per-archive.
           npm run oracle package >/dev/null
-          first=$(cut -d' ' -f1 dist/*.zip.sha256)
+          first=$(cat dist/*.zip.sha256)
           npm run oracle package >/dev/null
-          second=$(cut -d' ' -f1 dist/*.zip.sha256)
-          echo "first  $first"
-          echo "second $second"
+          second=$(cat dist/*.zip.sha256)
+          echo "$first"
           test "$first" = "$second" || {
-            echo "::error::the archive is not reproducible — a release checksum would be meaningless"
+            echo "::error::an archive is not reproducible — a release checksum would be meaningless"
+            diff <(echo "$first") <(echo "$second") || true
             exit 1
           }
 
-      - name: The committed manifest matches the corpus
+      - name: The committed manifests match the corpus
         run: |
-          # `oracle package` rewrites SKILL-VERSION.json. If that changes the
-          # tree, someone regenerated the corpus and forgot to commit the
+          # `oracle package` rewrites every SKILL-VERSION.json. If that changes
+          # the tree, someone regenerated the corpus and forgot to commit the
           # manifest — so registry installs would advertise the wrong version.
-          git diff --exit-code -- .claude/skills/rules-report/SKILL-VERSION.json || {
-            echo "::error::SKILL-VERSION.json is stale — run 'npm run oracle package' and commit it"
+          # Globbed, so a new skill is covered the day it is added rather than
+          # the day someone remembers to extend this line.
+          git diff --exit-code -- .claude/skills/*/SKILL-VERSION.json || {
+            echo "::error::a SKILL-VERSION.json is stale — run 'npm run oracle package' and commit it"
             exit 1
           }
 
-      - name: Install the archive the way a user would
+      - name: Install each archive the way a user would
         run: |
+          # One `unzip dist/*.zip` would take the first archive and read the
+          # rest as member names to extract FROM it — which is how a second
+          # skill silently stopped being installed at all. Loop instead, and
+          # run the verify command the skill's own manifest names, so this
+          # step cannot drift from the packager's registry.
           mkdir -p /tmp/consumer
-          unzip -q dist/*.zip -d /tmp/consumer
-          cd /tmp/consumer/rules-report/lib
-          python3 rules_cli.py selftest
+          for zip in dist/*.zip; do
+            unzip -q "$zip" -d /tmp/consumer
+          done
+          shopt -s nullglob
+          found=0
+          for manifest in /tmp/consumer/*/SKILL-VERSION.json; do
+            skill=$(dirname "$manifest")
+            verify=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['verify'])" "$manifest")
+            echo "::group::$(basename "$skill") — $verify"
+            (cd "$skill/lib" && $verify)
+            echo "::endgroup::"
+            found=$((found + 1))
+          done
+          test "$found" -eq "$(ls -1 dist/*.zip | wc -l)" || {
+            echo "::error::$found skills unpacked from $(ls -1 dist/*.zip | wc -l) archives — an archive did not install"
+            exit 1
+          }
