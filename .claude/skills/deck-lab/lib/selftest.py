@@ -1530,13 +1530,14 @@ def proven_ratio():
     line = proven_line()
     check("the ratio line says what it means",
           "have been observed to fail" in line and "%" in line, line)
+
     # Reading main()'s BODY, not calling proven_line() again: a check that only
     # exercised the function would pass with the print deleted, and then the
     # number stops being reported while every check about it stays green. Same
     # shape as a report command that no longer refreshes its own index.
     body = inspect.getsource(main)
     check("main() actually prints the ratio, not merely computes it",
-          "proven_line()" in body and "print(proven_line())" in body,
+          "print(proven_line())" in body,
           "the call site is what makes it reach a reader")
 
     # The arithmetic runs the wrong way on purpose, and that is the point of
@@ -1547,30 +1548,55 @@ def proven_ratio():
     NAMES.append("a brand new check nobody has ever watched fail")
     # Captured HERE, not at the assertion: every check() below appends its own
     # name, so reading len(NAMES) later measures a list this test has since
-    # grown. The instrument perturbs what it is measuring, which is the whole
-    # reason the number is computed once and compared, not recomputed.
+    # grown. The instrument perturbs what it is measuring.
     expected = len(set(NAMES))
     after = proven_line()
-    pct = lambda t: int(re.search(r"\((\d+)%\)", t).group(1))
+    NAMES.pop()
+    # Defensive: with no record there is no percentage, and a crash here would
+    # take the whole suite down instead of reporting which check is unhappy.
+    def pct(t):
+        m = re.search(r"\((\d+)%\)", t)
+        return m and int(m.group(1))
     check("an untested check LOWERS the proven ratio rather than raising it",
-          pct(after) <= pct(before), f"{pct(before)}% -> {pct(after)}%")
+          pct(after) is not None and pct(before) is not None
+          and pct(after) <= pct(before),
+          f"{pct(before)} -> {pct(after)} (None means no record was written)")
     check("and it is counted, so the two numbers disagree visibly",
           f"of {expected} distinct" in after, after)
-    NAMES.pop()
 
-    # Read from mutants.py, so a deleted mutant shows up as a lower ratio
-    # rather than as nothing at all.
-    check("the ratio is derived from mutants.py, not asserted",
-          "mutants.py unreadable" in _proven_line_without_mutants(),
-          "a missing battery must be reported, not silently scored 100%")
+    # The record is ground truth from the battery, not a claim derived from
+    # mutant names. A missing record must SAY so rather than score 100%.
+    check("a missing record is reported, not silently scored",
+          "no record of which checks can fail" in _proven_line_without_record(),
+          "an absent battery record must not read as full coverage")
+
+    # Credit is not inherited by a renamed check: the record holds names, and a
+    # name that no longer exists is dropped on read.
+    record = _read_record()
+    check("the record names checks that actually exist",
+          record is None or bool(proven_among(NAMES, record)),
+          "no recorded name matches any executing check — the record is stale")
+    check("credit is NOT kept for a recorded check that no longer exists",
+          proven_among(NAMES, {"observed_to_fail": ["a check deleted long ago"]}) == set(),
+          "a renamed check must lose its credit until the battery sees the new name")
 
 
-def _proven_line_without_mutants():
-    """proven_line() with mutants.py out of reach, to pin the failure path."""
+def _read_record():
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "proven-checks.json")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return None
+
+
+def _proven_line_without_record():
+    """proven_line() with the record out of reach, to pin the failure path."""
     import builtins
     real = builtins.open
     def fake(path, *a, **k):
-        if str(path).endswith("mutants.py"):
+        if str(path).endswith("proven-checks.json"):
             raise OSError("gone")
         return real(path, *a, **k)
     builtins.open = fake
@@ -1663,10 +1689,21 @@ def action_scripts():
     check("an empty script is not an error", deck_cli.split_actions("") == [])
 
 
+def proven_among(names, record):
+    """Which of these check names the battery has actually watched go red.
+
+    Pure, and separate from the reporting, so the intersection can be tested
+    directly. The intersection IS the guarantee: a name in the record that no
+    longer exists must not keep its credit, or the record becomes the place
+    stale credit accumulates — which is the disease this whole line treats.
+    """
+    return set(names) & set(record.get("observed_to_fail", ()))
+
+
 def proven_line():
     """How many checks have ever been SEEN to fail, alongside how many passed.
 
-    "188/188 passed" is the number everyone quotes, including me, and on its own
+    "193/193 passed" is the number everyone quotes, including me, and on its own
     it overstates the suite. A check nobody has watched go red is a check that
     holds today and has never been tested against a defect — which is where the
     ones that CANNOT go red hide. Both numbers or neither.
@@ -1676,18 +1713,28 @@ def proven_line():
     stronger precisely by growing weaker per check, which is the one direction a
     coverage figure should never be able to move quietly.
 
-    Read out of mutants.py rather than recomputed: a mutant's `expect` is the
-    fragment that must appear in a failing check's name, so a check named by one
-    has been observed to fail by construction.
+    READ FROM WHAT THE BATTERY SAW, not from what its mutants claim. The first
+    version of this matched each mutant's `expect` string against check names,
+    which counts claims: a mutant can name a check that never ran, and report
+    itself caught, for as long as nobody removes the thing it depends on. Only
+    the battery finds that out, because only the battery takes things away. So
+    `mutants.py` writes down the checks it actually watched go red, and this
+    reads the record.
+
+    Names in the record that no longer exist are dropped here, so renaming or
+    editing a check LOWERS the ratio until the battery has seen the new one
+    fail. Stale credit is the failure mode this whole line exists to prevent.
     """
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "proven-checks.json")
     try:
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               "mutants.py"), encoding="utf-8") as fh:
-            expects = re.findall(r'expect="([^"]*)"', fh.read())
-    except OSError:
-        return "  (mutants.py unreadable — cannot say how many checks can fail)"
+        with open(path, encoding="utf-8") as fh:
+            record = json.load(fh)
+    except (OSError, ValueError):
+        return ("  (no record of which checks can fail — run `mutants` to make "
+                "one; until then the count above is all this suite can claim)")
     names = set(NAMES)
-    proven = {n for n in names if any(e in n for e in expects)}
+    proven = proven_among(names, record)
     pct = 100 * len(proven) // len(names) if names else 0
     return (
         f"  of {len(names)} distinct checks, {len(proven)} have been observed to "
