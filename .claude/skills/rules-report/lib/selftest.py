@@ -508,6 +508,60 @@ def card_rendering():
         check("a 0-Energy card still shows its cost",
               "0</b>" in stats_html(zero[0]["stats"]), zero[0]["name"])
 
+    # ---- extraction artifacts in card text (invariant 5) --------------------
+    # `Gemhand Hunter` shipped with `ambush` welded onto the `.)` that ended its
+    # text. It is not a keyword and never was — every genuine Ambush card
+    # brackets it at the START with reminder text — but it read as one, and two
+    # agents built decks around an ability the card does not have. The pipeline
+    # now strips that shape on the way in; this is the second opinion, and it is
+    # deliberately the wider of the two.
+    from corpus import artifact_complaints
+
+    # The corpus assertion. Green today, and it is a REGRESSION check: it earns
+    # its place on the pull that reintroduces the class, not on this one.
+    live = artifact_complaints(cards)
+    check("no card in the corpus carries a fused extraction artifact",
+          not live, f"{len(live)} found: {live[:3]}")
+
+    # ...which on its own would pass just as well if this function returned []
+    # unconditionally. These are the checks that make the one above mean
+    # something, and they are why the detector is testable at all rather than
+    # only observable on a bad pull.
+    check("a fused artifact at the end of card text is detected",
+          artifact_complaints({"k": {"name": "Fake", "text": "where you have units.)ambush"}}))
+
+    # The axis that matters. `stripTrailingArtifact` is anchored to end-of-
+    # string because it DELETES; this only reports, so it must see the same
+    # damage mid-sentence, where the stripper structurally cannot. Narrow this
+    # to match the stripper and the pair collapses into one opinion asked twice.
+    check("a fused artifact mid-sentence is detected, which the stripper cannot see",
+          artifact_complaints({"k": {"name": "Fake", "text": "Deal 2.)ambush then draw."}}))
+
+    # Riftbound symbol markup is `:rb_might:`. Admitting `:` to the punctuation
+    # class takes the corpus check from 0 complaints to 1,183 — every symbol on
+    # every card — which would then be silenced with an allowlist that hides the
+    # real thing.
+    #
+    # This check has NO mutant of its own, and cannot: the corpus carries 1,183
+    # symbol tokens, so every mutation that breaks this one floods the corpus
+    # check in the same run. They are two observations of one decision, not two
+    # defences. The corpus check is the one filed as invariant 5's pin, because
+    # it is the one that fails against real data; this states the reason in a
+    # form a reader can see without running anything.
+    check("symbol markup is not mistaken for an artifact",
+          not artifact_complaints({"k": {"name": "Fake",
+                                         "text": "give a unit +1 :rb_might: this turn."}}))
+
+    # A corpus this cannot read is a corpus it cannot report on. `safely` is what
+    # makes this fail BY NAME rather than take the suite down with it: without
+    # the isinstance guard the scan raises AttributeError, `safely` notes it and
+    # returns the fallback, and this line goes red instead of the run ending here.
+    malformed = safely(lambda: artifact_complaints(
+        {"a": "not a dict", "b": None, "c": {"text": 42},
+         "d": {"name": "Real", "text": "units.)ambush"}}), None, "artifact scan")
+    check("a malformed card entry is skipped, not raised on",
+          malformed is not None and len(malformed) == 1, repr(malformed))
+
 
 def primer_invariants(idx):
     """The primer document kind: routing, the transition rule, and the diagram.

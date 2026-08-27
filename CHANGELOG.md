@@ -64,6 +64,25 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ### Fixed
 
+- **The card-artifact class is now closed at both ends.** `Gemhand Hunter` shipped with
+  `ambush` welded onto the `.)` that ended its text — not a keyword, never bracketed,
+  never carrying the reminder every real Ambush card has — and two agents built and
+  piloted decks around an ability the card does not have. The extraction side already
+  stripped that shape; the corpus side now scans the vendored card text for the same
+  signature and the selftest asserts the pool is clean. The two halves are deliberately
+  asymmetric and must stay that way: the stripper *deletes*, so it is anchored to the end
+  of the text and conservative, because deleting the wrong span destroys a real card's
+  rules and nothing notices afterwards. The detector only *reports*, so it casts wider —
+  unanchored, a larger punctuation class, a two-letter floor. A detector derived from the
+  stripper could only ever find what the stripper already removes, which is the same
+  function asked twice, so a check pins the widening directly: anchor the detector the way
+  the stripper is anchored and a named check goes red.
+
+  One exclusion is measured rather than reasoned. Riftbound symbol markup is written
+  `:rb_might:`, so admitting `:` to the punctuation class takes the corpus from zero
+  complaints to 1,183 — every symbol on every card — which is exactly the kind of noise
+  that gets silenced with an allowlist that then hides the real thing.
+
 - **Packaging checked the first skill and reported on all of them.** Five places made
   that assumption, and none of them could have failed while only one skill existed —
   these are defects the second skill *revealed*, not ones it caused. CI ran

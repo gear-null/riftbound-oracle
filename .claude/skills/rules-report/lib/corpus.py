@@ -16,6 +16,7 @@ user who never clones the repo should never see it mentioned.
 import glob
 import json
 import os
+import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.normpath(os.path.join(HERE, ".."))
@@ -71,6 +72,69 @@ def load_cards():
             return json.load(fh)
     except (OSError, ValueError):
         return {}
+
+
+# A word welded onto the punctuation that closed the clause before it, with no
+# space between: `...where you have units.)ambush`. That is not prose, it is a
+# seam left by whatever turned a PDF or a web page into text, and it reads as
+# rules. On `Gemhand Hunter` it read as the Ambush keyword, and two agents built
+# and piloted decks around an ability the card does not have.
+#
+# Two exclusions, both MEASURED over the shipped pool rather than reasoned. Widen
+# this and you will meet them; they are recorded so you meet them here first.
+#
+# `:` is excluded because Riftbound symbol markup is written `:rb_might:`.
+# Admitting it takes this from 0 complaints to 1,183 — every symbol on every
+# card. `,` and `;` are IN: both are clean today, and a word fused onto a comma
+# is the same seam as a word fused onto a full stop.
+#
+# The following letter must be LOWERCASE, which is the subtler one. Admitting
+# capitals matches 284 cards, all the same benign shape: reminder text closing
+# and rules text beginning with no space between —
+# `(Play on your turn or in showdowns.)Each player kills one of their gear.`
+# That is a cosmetic seam in the source, and it invents nothing, because a
+# capital reads as a new sentence. A LOWERCASE word fused on is the dangerous
+# one precisely because it reads as continuing prose, or as a keyword: that is
+# how `ambush` became an ability `Gemhand Hunter` does not have.
+FUSED_ARTIFACT = re.compile(r"[,;)\].!?][a-z]{2,}")
+
+
+def artifact_complaints(cards):
+    """Card text carrying an extraction artifact. Empty when the corpus is clean.
+
+    DELIBERATELY WIDER than `stripTrailingArtifact` in `src/skill-data.ts`, and
+    it must stay wider. That function DELETES, so it is anchored to the end of
+    the string and demands three trailing letters — deleting the wrong span
+    destroys a real card's rules text, and there is no way to notice afterwards.
+    This only REPORTS, and reporting cannot destroy anything, so it casts wide
+    on three axes: unanchored, a larger punctuation class, and a floor of two
+    letters rather than three.
+
+    The asymmetry is the entire point. A detector derived from the stripper
+    could only ever find what the stripper already removes, which is not a
+    detector — it is the same function asked twice. So when this fires on
+    something the stripper leaves alone, that is this working. Go and look at
+    the card. Do NOT widen the stripper to make this green, and do not narrow
+    this to match the stripper; either one collapses the pair back into one
+    opinion.
+
+    Returns a list of strings so a caller can print them. The corpus is clean as
+    of the 1,037-card pool this shipped against, so a non-empty return means
+    either a new artifact or a false positive, and both want a human.
+    """
+    out = []
+    for key, card in sorted(cards.items()):
+        # Total by construction: a malformed entry is skipped rather than
+        # raised on. Whether the corpus is structurally sound is `card_rendering`
+        # and `corpus_integrity`'s question, and a detector that dies on a bad
+        # card cannot report on the good ones beside it.
+        text = card.get("text") if isinstance(card, dict) else None
+        if not isinstance(text, str):
+            continue
+        for m in FUSED_ARTIFACT.finditer(text):
+            start = max(0, m.start() - 40)
+            out.append(f"{card.get('name') or key}: ...{text[start:m.end() + 20]}...")
+    return out
 
 
 def rulebook_html_path():

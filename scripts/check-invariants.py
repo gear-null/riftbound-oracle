@@ -34,7 +34,9 @@ INVARIANTS = {
         "uncited transition fails verification",
         "reports structural as its weakest link"],
     "5. Card text is Riot's current text, or is marked as not being it": [
-        "override the vendored card text", "EMPTY card index", "missing card"],
+        "override the vendored card text", "EMPTY card index", "missing card",
+        "fused extraction artifact", "fused artifact at the end",
+        "mid-sentence is detected"],
     "6. Riot's illustrations are never presented as normative rules": [
         "Examples list as normative text", "each item stands alone"],
     "7. Provenance matches the corpus it was verified against": [

@@ -1324,6 +1324,42 @@ MUTANTS = [
     if True:
         return cites or []''',
          expect='malformed field is reported'),
+
+    # ---- the card-artifact detector (invariant 5) ---------------------------
+    # This detector is a REGRESSION check: the corpus is clean, so on a normal
+    # day it says nothing, and a detector that says nothing is indistinguishable
+    # from one that cannot speak. These three make it distinguishable.
+    dict(name="a detector that reports nothing, whatever the text says",
+         file="corpus.py",
+         find="    return out",
+         repl="    return []",
+         expect="at the end of card text is detected"),
+    # The one that matters. `stripTrailingArtifact` is anchored to end-of-string
+    # because it deletes; this reports, so it has to see the same damage mid-
+    # sentence. Anchoring it here re-derives the detector from the stripper, and
+    # a check derived from the thing it checks finds only what that thing
+    # already does.
+    dict(name="anchor the detector to end-of-string, matching the stripper",
+         file="corpus.py",
+         find='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{2,}")',
+         repl='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{2,}$")',
+         expect="mid-sentence is detected"),
+    # Admitting `:` puts Riftbound symbol markup (`:rb_might:`) in the class,
+    # which is the widening someone reaches for without measuring. It takes the
+    # corpus from 0 complaints to 1,183. Filed under the CORPUS check rather
+    # than the symbol one on purpose: this is the only mutant that makes the
+    # real-data scan go red, so it is the one proving that check can fail at
+    # all. The symbol check goes red too — one guard, two observations of it.
+    dict(name="admit `:` and drown the corpus scan in symbol markup",
+         file="corpus.py",
+         find='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{2,}")',
+         repl='FUSED_ARTIFACT = re.compile(r"[,;:)\\].!?][a-z]{2,}")',
+         expect="no card in the corpus carries a fused extraction artifact"),
+    dict(name="let a malformed card entry take the whole scan down",
+         file="corpus.py",
+         find='        text = card.get("text") if isinstance(card, dict) else None',
+         repl='        text = card.get("text")',
+         expect="malformed card entry is skipped"),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

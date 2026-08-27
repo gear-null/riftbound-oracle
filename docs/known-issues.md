@@ -101,7 +101,17 @@ keyword: all 19 genuine `[Ambush]` entries are bracketed, lead the text and carr
 standard reminder, and this had none of those properties. Two agents nevertheless built and
 piloted decks around a keyword the card does not have, and it decided a logged game.
 `stripTrailingArtifact` removes it during extraction and REPORTS every removal, because
-silently deleting text is its own way of asserting something about a card. Fixed, but listed
-here because the class of defect is not: a stray token that happens to spell a real keyword
-is invisible to both skills — `card_bridge.py` maps brackets, and deck-lab reads printed
-text — and only the fused-punctuation signature caught this one.
+silently deleting text is its own way of asserting something about a card.
+
+The class is now closed at both ends. `corpus.artifact_complaints()` scans the vendored card
+text for the same signature UNANCHORED, and the selftest asserts the pool is clean — 334
+checks, three mutants. The two halves are deliberately asymmetric: the stripper deletes, so
+it stays anchored and conservative; the detector only reports, so it casts wider on three
+axes (unanchored, a larger punctuation class, a floor of two letters rather than three). A
+detector derived from the stripper could only find what the stripper already removes, so
+neither may be moved toward the other.
+
+What remains genuinely open is narrower than it was: a stray token that happens to spell a
+real keyword AND is separated by a space is still invisible to both skills — `card_bridge.py`
+maps brackets, deck-lab reads printed text, and the fused-punctuation signature is what
+caught this one. Nothing here detects a well-formed lie.
