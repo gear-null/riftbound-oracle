@@ -708,6 +708,141 @@ MUTANTS = [
          find='    kind = ans.get("kind", "ruling")\n    if kind not in KINDS:',
          repl='    kind = ans.get("kind", "ruling")\n    kind = kind if kind in KINDS else "ruling"\n    if False:',
          expect='unknown `kind` is refused'),
+    # The backward-compatibility guarantee, and the most consequential thing in
+    # the whole two-document design: every answer file written before primers
+    # existed omits `kind`, and defaulting the other way routes all of them at a
+    # verifier that reads none of their keys.
+    dict(name='default a `kind`-less answer to primer, so every ruling ever written '
+              'routes to a verifier that reads none of its keys',
+         file='rules_cli.py',
+         find='    kind = ans.get("kind", "ruling")',
+         repl='    kind = ans.get("kind", "primer")',
+         expect='an answer with no `kind` is a ruling'),
+    # One mutant per block: three sites, three ways to hide a fabrication.
+    dict(name='short-circuit the citation loop in a step again, so a failing quote '
+              'hides every fabrication after it',
+         file='render_primer.py',
+         find='''        step_ok = True
+        for c in check_cites(s, sid, problems):
+            if not _check(c, idx, sid, problems):
+                step_ok = False''',
+         repl='''        step_ok = all(_check(c, idx, sid, problems)
+                      for c in check_cites(s, sid, problems))''',
+         expect='a failing citation in a step does not hide'),
+    dict(name='short-circuit the citation loop in a transition, so the part a reader '
+              'acts on can hide a fabrication behind a failure',
+         file='render_primer.py',
+         find='''            ex_ok = True
+            for c in check_cites(ex, where, problems):
+                if not _check(c, idx, where, problems):
+                    ex_ok = False''',
+         repl='''            ex_ok = all(_check(c, idx, where, problems)
+                        for c in check_cites(ex, where, problems))''',
+         expect='a failing citation in a transition does not hide'),
+    dict(name='short-circuit the citation loop in a misconception, so the text a '
+              'reader checks first can hide a fabrication',
+         file='render_primer.py',
+         find='''        m["verified"] = True
+        for c in check_cites(m, f"misconception {i}", problems):
+            if not _check(c, idx, f"misconception {i}", problems):
+                m["verified"] = False''',
+         repl='''        m["verified"] = all(
+            _check(c, idx, f"misconception {i}", problems)
+            for c in check_cites(m, f"misconception {i}", problems))''',
+         expect='a failing citation in a misconception does not hide'),
+    dict(name='treat a whitespace-only heading as present, since whitespace is truthy',
+         file='render_primer.py',
+         find='        if not str(s.get("heading") or "").strip():',
+         repl='        if not s.get("heading"):',
+         expect='every malformed document shape is reported by name'),
+    # Found by sweeping every guard and deleting it. None of these was masked;
+    # each was simply never on a path any check walked — the quieter half of
+    # the same blind spot, and the more common one.
+    dict(name='let `graph` run on a ruling, which has no steps and no transitions '
+              'to derive anything from',
+         file='rules_cli.py',
+         find='    if _kind(raw, src) != "primer":',
+         repl='    if False:',
+         expect='refuses a ruling, which has no step graph'),
+    dict(name='accept any --format and silently render Fireworks anyway, so a caller '
+              'asking for something else is told nothing',
+         file='rules_cli.py',
+         find='    if fmt not in ("fireworks", "mermaid"):',
+         repl='    if False:',
+         expect='unknown --format is refused'),
+    dict(name='resolve a relative input that does not exist against the skill folder, '
+              'so a shipped sample is verified as though it were the caller\'s answer',
+         file='rules_cli.py',
+         find='        if not os.path.exists(full):',
+         repl='        if False:',
+         expect='is not there is refused, not substituted'),
+    dict(name='accept a primer whose `steps` is not a list, or is empty, so a document '
+              'with nothing in it verifies',
+         file='render_primer.py',
+         find='    if not isinstance(steps, list) or not steps:',
+         repl='    if False:',
+         expect='every malformed document shape is reported by name'),
+    dict(name='accept a transition with no condition, so the map draws an arrow a '
+              'reader has no way to follow',
+         file='render_primer.py',
+         find='            if not ex.get("when"):',
+         repl='            if False:',
+         expect='every malformed document shape is reported by name'),
+    dict(name='accept an unknown step basis instead of coercing and reporting it, so '
+              'the page grades a step by a word nothing defines',
+         file='render_primer.py',
+         find='        if s.get("basis") not in RANK:',
+         repl='        if False:',
+         expect='every malformed document shape is reported by name'),
+    dict(name='export a transition that cannot be drawn to mermaid, so the text graph '
+              'carries an edge the SVG refuses',
+         file='flowgraph.py',
+         find='        if e["kind"] == "broken":\n            continue\n        target = "DONE"',
+         repl='        if False:\n            continue\n        target = "DONE"',
+         expect='drops the transitions it cannot place'),
+    # Masked until now: deleting this gate left the suite green, because the
+    # renderer it shells out to refuses again. Two guards, each hiding the
+    # other from a one-at-a-time battery.
+    dict(name="delete `report`'s own verification gate, leaving the renderer's to "
+              'catch what it lets through — the documented gate, pinned by nothing',
+         file='rules_cli.py',
+         find='''    ans = verify(raw, _idx())
+    if ans["_problems"]:''',
+         repl='''    ans = verify(raw, _idx())
+    if False:''',
+         expect='at its OWN gate'),
+    dict(name="make `verify` exit 0 whatever it found, so its whole contract — the "
+              'exit code — stops meaning anything',
+         file='rules_cli.py',
+         find='    sys.exit(1 if ans["_problems"] else 0)',
+         repl='    sys.exit(0)',
+         expect='through its exit code'),
+    # A primer need not be a procedure. If the shape checks stop exempting one
+    # with no transitions, the only primers this skill can write are loops —
+    # "the parts of a card" becomes unrepresentable.
+    dict(name='apply the procedure shape checks to a primer that declares no '
+              'transitions, so a linear explainer is refused for having no way out',
+         file='render_primer.py',
+         find='    if not any(s.get("exits") for s in steps):\n        return problems',
+         repl='    if False:\n        return problems',
+         expect='a linear primer with no transitions is still valid'),
+    # The sweep replaced an O(E x lanes) scan. Correctness is the property it
+    # had to preserve, and "it is fast now" is not evidence of it.
+    dict(name='hand every gutter transition the same lane, so overlapping arrows are '
+              'drawn on top of each other',
+         file='flowgraph.py',
+         find='        if free:\n            lane = heapq.heappop(free)\n        else:\n            lane, next_lane = next_lane, next_lane + 1',
+         repl='        lane = 0',
+         expect='share a lane while their spans overlap'),
+    # The concession has to stay available. If `structural` also demanded a
+    # citation there would be no honest way to record a move the rules imply,
+    # and an author would either invent a citation or omit the transition.
+    dict(name='demand a citation from a transition that declares itself structural, so '
+              'a move the rules only imply cannot be recorded at all',
+         file='render_primer.py',
+         find='            if ex["basis"] == "grounded" and not ex.get("cites"):',
+         repl='            if not ex.get("cites"):',
+         expect='may go uncited if it DECLARES itself structural'),
     dict(name='let a transition assert that the rules send you somewhere without '
               'citing the rule that says so',
          file='render_primer.py',
@@ -1009,6 +1144,142 @@ MUTANTS = [
          find='    undrawable = declared_exits and not diagram',
          repl='    undrawable = False',
          expect='undrawable map says so rather than disappearing'),
+
+    # ---- the exported diagram ------------------------------------------------
+    # Invariant 12 does not stop at the report: a Fireworks SVG travels to a
+    # website and a deck, away from the prose and the ✓ VERIFIED stamps.
+    dict(name='export an arrow for a transition that cannot be drawn, so the picture '
+              'shows a move the document could not place',
+         file='fireworks_ir.py',
+         find='    drawn = [e for e in edges if e["kind"] != "broken"]',
+         repl='    drawn = list(edges)',
+         expect='cannot be placed is not exported'),
+    dict(name='mint the exit node id without checking the steps, so a primer that '
+              'declares that id exports two nodes sharing one',
+         file='fireworks_ir.py',
+         find='    while end_id in taken:\n        end_id += "_"',
+         repl='    while False:\n        end_id += "_"',
+         expect='survives shapes the shipped primers do not have'),
+    dict(name='rename the nodes on the way out, so the exported picture names steps '
+              'the document does not declare',
+         file='fireworks_ir.py',
+         find='            "id": node["id"],\n            "kind": "rect",',
+         repl='            "id": node["id"] + "_x",\n            "kind": "rect",',
+         expect='every node in the export is a declared step'),
+    dict(name='number the exported arrows by their source step instead of by the '
+              'transition, so the picture and the prose stop agreeing',
+         file='fireworks_ir.py',
+         find='            "label": str(edge["n"]),',
+         repl='            "label": str(edge["from"] + 1),',
+         expect='exported arrows carry the same numbers as the prose'),
+    dict(name='let a committed diagram drift from its generator, so a picture shipped '
+              'with the skill goes on asserting a procedure the corpus no longer describes',
+         file='fireworks_ir.py',
+         find='BOX_H = 72',
+         repl='''BOX_H = 73''',
+         expect='committed diagram matches what this corpus now produces'),
+    dict(name='export a diagram edge in its declared class even when its citation '
+              'failed, so the picture that travels looks fully verified',
+         file='fireworks_ir.py',
+         find='''def _flow(edge):
+    if not edge.get("verified", True):
+        return FLOW_UNVERIFIED''',
+         repl='''def _flow(edge):
+    if False:
+        return FLOW_UNVERIFIED''',
+         expect='exported in the failed class'),
+    dict(name='drop a basis from the export mapping, so a structural transition is '
+              'drawn in the class the legend calls "the rules do not settle it"',
+         file='fireworks_ir.py',
+         find='    "structural": "read",\n    "inferred": "read",',
+         repl='    "inferred": "read",',
+         expect='every basis maps to an edge class'),
+    dict(name='print the whole legend regardless of what was drawn, so a reader holds '
+              'three rules for a diagram that uses one',
+         file='fireworks_ir.py',
+         find='    used = {_flow(e) for e in edges if e["kind"] != "broken"}\n'
+              '    return [{"flow": flow, "label": label} for flow, label in rows if flow in used]',
+         repl='    return [{"flow": flow, "label": label} for flow, label in rows]',
+         expect='legend lists only the edge classes actually drawn'),
+    dict(name='strip the provenance from the exported subtitle, so a diagram that '
+              'leaves the report cannot say which corpus it came from',
+         file='fireworks_ir.py',
+         find='''    return ("derived from the transitions this primer declares"
+            f"{stamp} · unofficial")''',
+         repl='''    return "derived from the transitions this primer declares"''',
+         expect='carries its corpus version and says it is unofficial'),
+    dict(name='require a Fireworks install before writing the IR, so a machine '
+              'without one gets nothing instead of a renderable document',
+         file='rules_cli.py',
+         find='    fireworks = find_fireworks()\n    if not fireworks:',
+         repl='    fireworks = find_fireworks()\n    if not fireworks:\n        sys.exit(1)\n    if False:',
+         expect='the IR is still written'),
+    dict(name='render straight over the destination again, so an external renderer '
+              'that fails part-way destroys the diagram already sitting there',
+         file='rules_cli.py',
+         find='    staged = svg_out + ".rendering"',
+         repl='    staged = svg_out',
+         expect='failed render leaves the previous diagram untouched'),
+    dict(name='leave the staging file behind when a render fails, so a half-written '
+              'diagram sits beside the good one looking like an artifact',
+         file='rules_cli.py',
+         find='''    if run.returncode != 0 or not _looks_like_svg(staged):
+        _discard(staged)''',
+         repl='''    if run.returncode != 0 or not _looks_like_svg(staged):
+        pass''',
+         expect='clears up after itself rather than leaving a staging file'),
+    dict(name='trust the renderer exit code instead of the artifact, so `<svg><g>` and '
+              'exit 0 is announced as a diagram no viewer will open',
+         file='rules_cli.py',
+         find='    if run.returncode != 0 or not _looks_like_svg(staged):',
+         repl='    if run.returncode != 0:',
+         expect='a truncated render is not announced as a diagram'),
+    dict(name='prefer stdout however blank it is, so a renderer that prints whitespace '
+              'there and its real error to stderr reports nothing at all',
+         file='rules_cli.py',
+         find='''    for stream in (run.stderr, run.stdout):
+        text = (stream or "").strip()
+        if text:
+            return text[:300]''',
+         repl='''    return ((run.stdout or run.stderr) or "")[:300]''',
+         expect="the renderer's own complaint reaches the user"),
+    dict(name='fall through a mis-set $RIFTBOUND_FIREWORKS to whatever else is '
+              'installed, so a typo renders from a different install in silence',
+         file='rules_cli.py',
+         find='''        if not os.path.exists(script):
+            raise SystemExit(''',
+         repl='''        if False:
+            raise SystemExit(''',
+         expect='a mis-set override is refused'),
+    dict(name='exit 0 when the caller named an SVG that was never produced, so a '
+              'green exit code says they got the file they asked for',
+         file='rules_cli.py',
+         find='        sys.exit(1 if explicit else 0)',
+         repl='        sys.exit(0)',
+         expect='not reported as success'),
+    # Breaks the GRAPH BUILDER, not the check. Mutating the guard out changes
+    # nothing while flowgraph is healthy — the defect is the pair, and this is
+    # the half a single-site mutant can express: with no edges to compare, the
+    # `len(drawn) > 0` guard is what makes the check go red instead of passing
+    # on three empty fallbacks.
+    dict(name='derive a graph with no transitions at all, so every per-primer diagram '
+              'assertion has nothing left to compare',
+         file='flowgraph.py',
+         find='    _assign_lanes(nodes, edges)\n    _assign_ports(nodes, edges)\n    return nodes, edges',
+         repl='    _assign_lanes(nodes, edges)\n    _assign_ports(nodes, edges)\n    return nodes, []',
+         expect='the report, the map and the export agree on every transition'),
+    dict(name='stop noticing a truncated committed SVG, so a half-written picture '
+              'ships beside a correct derivation',
+         file='selftest.py',
+         find='    if not body.rstrip().endswith("</svg>"):\n        return "the committed SVG is truncated"',
+         repl='    if False:\n        return "the committed SVG is truncated"',
+         expect='a truncated committed SVG is detected'),
+    dict(name='stop comparing a committed SVG to the arrows its own IR declares, so a '
+              'picture of a different procedure ships beside the right derivation',
+         file='selftest.py',
+         find='    if drawn and sorted(labels) and drawn != sorted(labels):',
+         repl='    if False:',
+         expect='drawing different arrows from its IR is detected'),
     dict(name='test only whether a step is named by something, so a disconnected '
               'island of steps that name each other passes',
          file='render_primer.py',

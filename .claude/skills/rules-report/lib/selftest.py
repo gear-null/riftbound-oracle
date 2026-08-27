@@ -32,6 +32,52 @@ def note(msg):
     print(f"  [note] {msg}")
 
 
+def safely(fn, fallback, label):
+    """Run something that may be broken, turning a crash into a failed check.
+
+    MODULE LEVEL, and that is the point. This started nested inside one check
+    group, so every group written afterwards called into flowgraph bare — and a
+    mutant that breaks the layout took the whole suite down three separate
+    times, reported as "<suite crashed>": detection by traceback rather than by
+    the check whose job it is. A check that only holds while the code is healthy
+    is not a check, and a guard that only exists in one function is a guard the
+    next function will not use.
+
+    Reaches `note` so the exception is visible, and returns a fallback the
+    caller can assert against. Callers must still guard a NEGATIVE assertion
+    with `bool(result)` — an empty fallback satisfies "does not contain X".
+    """
+    try:
+        return fn()
+    except Exception as exc:
+        note(f"{label} raised {type(exc).__name__}: {exc}")
+        return fallback
+
+
+def diagram_complaint(body, labels):
+    """What is wrong with a committed SVG, or None if nothing is.
+
+    A FUNCTION, not three inline branches, because the battery mutates Python
+    and not data files: inline, these could only be exercised by corrupting a
+    committed diagram on disk, so no mutant could reach them and they were
+    pinned by nothing. Pulled out, they are checked directly against synthetic
+    input below and a mutant can break them.
+
+    Deliberately shallow. It answers the two questions a committed picture must
+    answer for itself — did the renderer finish, and does it draw the arrows its
+    own IR declares — and not "is this the same bytes Fireworks produces today",
+    which would go red on any version bump of theirs and teach everyone to
+    ignore it.
+    """
+    if not body.rstrip().endswith("</svg>"):
+        return "the committed SVG is truncated"
+    drawn = sorted(int(n) for n in
+                   re.findall(r'class="fg-num"[^>]*>(\d+)</text>', body))
+    if drawn and sorted(labels) and drawn != sorted(labels):
+        return f"the SVG draws {drawn} but the IR declares {sorted(labels)}"
+    return None
+
+
 def parser_fidelity():
     """Test parse_doc itself on fixtures.
 
@@ -490,22 +536,6 @@ def primer_invariants(idx):
         return
     base = json.load(open(src, encoding="utf-8"))
 
-    def safely(fn, fallback, label):
-        """Run a drawing step, turning a crash into a failed check.
-
-        Defined up here because the FIRST call into flowgraph is the
-        linear-primer check further down, not the diagram section. Wrapping
-        only the diagram section left that one call bare, so a mutant that
-        breaks the layout took the whole suite down — reported as
-        "<suite crashed>", which is detection by traceback rather than by the
-        check whose job it is. A check that only holds while the code is
-        healthy is not a check.
-        """
-        try:
-            return fn()
-        except Exception as exc:
-            note(f"{label} raised {type(exc).__name__}: {exc}")
-            return fallback
 
     good = verify_primer(copy.deepcopy(base), idx)
     check("the shipped primer verifies clean", not good["_problems"],
@@ -578,6 +608,36 @@ def primer_invariants(idx):
     # free way to launder a guess: min() runs over transitions, not just steps.
     check("and the page then reports structural as its weakest link",
           r["_strength"] == "structural", f'-> {r["_strength"]}')
+
+    # THE ONE THAT MATTERS MOST ON THIS PATH. `all()` over a generator
+    # short-circuits, and these are not predicates — each call verifies a
+    # citation and records the result on it. Stopping at the first False meant
+    # a failing quote HID EVERY CITATION AFTER IT in the same block: a
+    # fabrication two lines down was never checked and reported by nothing,
+    # which is the exact failure this project exists to prevent.
+    #
+    # It surfaced as a KeyError in the renderer, on the `cite_as` that was
+    # never set. The crash was the least of it.
+    for where, place in (("a step", lambda a: a["steps"][0]),
+                         ("a transition", lambda a: a["steps"][0]["exits"][0]),
+                         ("a misconception", lambda a: a["misconceptions"][0])):
+        hidden = copy.deepcopy(base)
+        block = place(hidden)
+        block["cites"] = [
+            {"rule": "CR:333", "quote": "   "},                    # fails first
+            {"rule": "CR:334.1", "quote": "a sentence nobody wrote"},   # must still be checked
+        ]
+        hr = safely(lambda hidden=hidden: verify_primer(hidden, idx),
+                    {"_problems": []}, f"verify_primer: {where}")
+        problems = hr.get("_problems", [])
+        check(f"a failing citation in {where} does not hide the ones after it",
+              any("empty once normalised" in p for p in problems)
+              and any("not found verbatim" in p for p in problems),
+              f"{len(problems)} problems: "
+              + "; ".join(p[:44] for p in problems[:2]))
+        # And the page must still render, since every cite was stamped.
+        check(f"and every citation in {where} is stamped, so the page can render",
+              bool(safely(lambda hr=hr: render(hr, idx), "", f"render: {where}")))
 
     print("\n=== primer: abstention is audited ===")
     # Invariant 8. Prose invites filling a gap from memory more than a ruling
@@ -823,6 +883,24 @@ def primer_invariants(idx):
     used = set(re.findall(r"\bS_\w+", mmd))
     check("the mermaid export names only real steps", bool(used) and used <= ids,
           f"unknown: {sorted(used - ids)}")
+
+    # A transition that cannot be placed is dropped from the SVG; the mermaid
+    # path has to drop it too, or the text graph carries an edge the picture
+    # refuses. "Names only real steps" cannot see this — a broken edge points at
+    # DONE, and DONE is real.
+    unplaceable = verify_primer(copy.deepcopy(base), idx)
+    unplaceable["steps"][1]["exits"][2]["goto"] = "nowhere"
+    _un_nodes, un_edges = safely(lambda: flowgraph.build(unplaceable["steps"]),
+                                 ([], []), "flowgraph.build with a dangling goto")
+    placeable = [e for e in un_edges if e["kind"] != "broken"]
+    dangling_mmd = safely(lambda: flowgraph.mermaid(unplaceable["steps"], "T"), "",
+                          "flowgraph.mermaid with a dangling goto")
+    mmd_edges = len(re.findall(r"-\.?->\|", dangling_mmd))
+    check("and drops the transitions it cannot place, as the picture does",
+          len(placeable) > 0 and mmd_edges == len(placeable)
+          and len(placeable) < len(un_edges),
+          f"{mmd_edges} mermaid edges, {len(placeable)} placeable "
+          f"of {len(un_edges)} declared")
 
     # The SVG is escaped by the page that embeds it; this export leaves the
     # project entirely, and Mermaid renders labels as HTML by default — so a
@@ -1266,6 +1344,563 @@ def primer_invariants(idx):
           and sr["_weakest"] in {st["id"] for st in sr["steps"]})
 
 
+def shipped_primers(idx):
+    """Every primer this skill ships still verifies against the current corpus.
+
+    This is the check a rules update is run for. A renumbering — Movement
+    440->445, Scoring 462-467->467-472 in the 2026-07-16 update — silently
+    invalidates citations in a committed document, and the shipped primers are
+    the ones a reader is most likely to open first. Each is asserted whole:
+    every citation verbatim, the transitions still form a procedure, and the
+    derived export still matches.
+    """
+    print("\n=== the shipped primers ===")
+    import glob
+    import fireworks_ir
+    import flowgraph
+    from render_primer import all_cites, render, verify_primer
+
+    found = sorted(glob.glob(os.path.join(HERE, "*-primer.json")))
+    check("the skill ships primers at all", bool(found),
+          "a primer nobody wrote is a format nobody uses")
+    for path in found:
+        name = os.path.basename(path).replace("-primer.json", "")
+        ans = verify_primer(json.load(open(path, encoding="utf-8")), idx)
+        cites = all_cites(ans)
+        ok = check(f"{name}: verifies clean against this corpus",
+                   not ans["_problems"] and bool(cites)
+                   and all(c["verified"] for c in cites),
+                   "; ".join(ans["_problems"][:2])
+                   or f'{len(cites)} citations, all verbatim')
+        if not ok:
+            check(f"{name}: transition agreement was checked", False,
+                  "skipped — this primer did not verify, so nothing downstream "
+                  "of it was compared")
+            continue
+        page = safely(lambda: render(ans, idx), "", f"{name}: render")
+        _nodes, edges = safely(lambda: flowgraph.build(ans["steps"]), ([], []),
+                               f"{name}: flowgraph.build")
+        drawn = [e for e in edges if e["kind"] != "broken"]
+        ir = safely(lambda: fireworks_ir.build(ans), {"arrows": []},
+                    f"{name}: fireworks_ir.build")
+        written = sorted(int(n) for n in
+                         re.findall(r'class="exit-n">(\d+)</span>', page))
+        # `len(drawn) > 0` is the whole check. Without it this compared three
+        # `safely` fallbacks against each other: break flowgraph.build and all
+        # three primers reported "0 in prose, 0 on the map, 0 exported" and
+        # PASSED — the group docs/maintaining.md names as the thing a rules
+        # update is run for, asserting nothing.
+        check(f"{name}: the report, the map and the export agree on every transition",
+              len(drawn) > 0
+              and written == sorted(e["n"] for e in drawn)
+              == sorted(int(a["label"]) for a in ir["arrows"]),
+              f'{len(written)} in prose, {len(drawn)} on the map, '
+              f'{len(ir["arrows"])} exported')
+
+
+def committed_diagrams(idx):
+    """A shipped diagram must still be the one this code and corpus produce.
+
+    `data/diagrams/` holds rendered pictures so they are ready to use without a
+    Fireworks install — which means they are a copy, and a copy drifts. The
+    same failure the rulebook has a check for: a shipped artifact that no
+    longer matches its generator goes on looking current, and here it would go
+    on asserting a procedure the rules have since renumbered.
+
+    The IR is compared, not the SVG: the IR is what this project derives and
+    stands behind, while the SVG is Fireworks' rendering of it and would differ on
+    any version bump of theirs. Maintainer-side only — a standalone install has
+    no repo around it and nothing to compare.
+    """
+    print("\n=== committed diagrams ===")
+    import glob
+    import fireworks_ir
+    from render_primer import verify_primer
+
+    # INSIDE the skill folder. These first went to docs/diagrams/, which put
+    # them out of reach of the mutation battery — it sandboxes the skill — and
+    # out of reach of anyone who copies the folder, which ADR 0004 says is the
+    # product. One location, shipped with the thing it describes.
+    shipped = os.path.join(HERE, "..", "data", "diagrams")
+    shipped = os.path.normpath(shipped)
+    if not check("the shipped diagrams directory is present", os.path.isdir(shipped),
+                 "a primer whose diagram is not shipped is a diagram nobody has"):
+        return
+
+    stale = []
+    seen = set()
+    for path in sorted(glob.glob(os.path.join(HERE, "*-primer.json"))):
+        name = os.path.basename(path).replace("-primer.json", "")
+        committed = os.path.join(shipped, f"{name}.fireworks.json")
+        svg = os.path.join(shipped, f"{name}.svg")
+        seen.update({os.path.basename(committed), os.path.basename(svg)})
+        if not os.path.exists(committed):
+            stale.append(f"{name}: never committed")
+            continue
+        ans = safely(lambda path=path: verify_primer(
+            json.load(open(path, encoding="utf-8")), idx), None, f"{name}: verify")
+        if ans is None:
+            stale.append(f"{name}: could not be verified at all")
+            continue
+        # `{}` and not None: the fallback is iterated two lines down, so a
+        # generator that raises would have swapped one crash for another.
+        fresh = safely(lambda ans=ans: fireworks_ir.build(ans), {},
+                       f"{name}: fireworks_ir.build")
+        # The one unguarded load in this group. A committed file truncated to
+        # `{"nodes": [` took the whole suite down with a JSONDecodeError — two
+        # later groups never ran and no summary line printed, which under the
+        # battery reads as "<suite crashed>": the exact outcome guarding these
+        # exists to eliminate.
+        saved = safely(lambda: json.load(open(committed, encoding="utf-8")), None,
+                       f"{name}: reading the committed IR")
+        if saved is None:
+            stale.append(f"{name}: committed IR is unreadable")
+        elif not fresh:
+            stale.append(f"{name}: could not be regenerated at all")
+        elif fresh != saved:
+            diffs = [k for k in set(fresh) | set(saved) if fresh.get(k) != saved.get(k)]
+            stale.append(f"{name}: {', '.join(sorted(diffs))} differ")
+
+        # The IR is compared above because it is what this project derives. The
+        # SVG was compared by NOTHING — a blank one passed, and so did an orphan
+        # pair with no primer behind it. Not a full render comparison, which
+        # would break on any Fireworks version bump; the two questions the
+        # committed picture must answer for itself.
+        if not os.path.exists(svg):
+            stale.append(f"{name}: no rendered diagram beside its IR")
+        else:
+            body = safely(lambda svg=svg: open(svg, encoding="utf-8").read(), "",
+                          f"{name}: reading the committed SVG")
+            labels = [int(a["label"]) for a in (fresh or {}).get("arrows", [])]
+            complaint = diagram_complaint(body, labels)
+            if complaint:
+                stale.append(f"{name}: {complaint}")
+
+    orphans = sorted(f for f in os.listdir(shipped)
+                     if f not in seen and not f.startswith("."))
+    if orphans:
+        stale.append("no primer behind: " + ", ".join(orphans[:4]))
+
+    # The judgement itself, against synthetic input. Corrupting a real committed
+    # diagram would exercise this too, but no mutant can corrupt a data file, so
+    # that path pinned nothing.
+    whole = '<svg><text class="fg-num" fill="x">1</text>' \
+            '<text class="fg-num" fill="x">2</text></svg>'
+    check("a truncated committed SVG is detected",
+          diagram_complaint(whole[:20], [1, 2]) == "the committed SVG is truncated",
+          repr(diagram_complaint(whole[:20], [1, 2])))
+    check("a blank committed SVG is detected",
+          diagram_complaint("", [1, 2]) is not None)
+    check("a committed SVG drawing different arrows from its IR is detected",
+          "draws" in (diagram_complaint(whole, [1, 2, 3]) or ""),
+          repr(diagram_complaint(whole, [1, 2, 3])))
+    check("and a whole one agreeing with its IR is not",
+          diagram_complaint(whole, [1, 2]) is None,
+          repr(diagram_complaint(whole, [1, 2])))
+
+    check("every committed diagram matches what this corpus now produces",
+          not stale, "; ".join(stale[:3])
+          or "regenerate with `rules_cli.py graph <primer> ../data/diagrams/<name>.svg`")
+
+
+def fireworks_export(idx):
+    """The exported diagram, which travels away from the citations that back it.
+
+    Invariant 12 does not stop at the report. A Fireworks SVG ends up on a
+    website, in a deck, on a phone — everywhere the prose and the ✓ VERIFIED
+    stamps are not. It is derived from the same `flowgraph.build` the in-report
+    map is, and these assert the derivation survives the trip in both
+    directions: nothing drawn that was not declared, nothing declared that is
+    not drawn.
+
+    The IR is what this project produces and stands behind. Fireworks itself
+    lives outside the skill folder, so nothing here may require it.
+    """
+    print("\n=== primer: the exported diagram ===")
+    import copy
+    import tempfile
+    import fireworks_ir
+    import flowgraph
+    from render_primer import verify_primer
+
+    src = os.path.join(HERE, "hot-fepr-primer.json")
+    if not check("the primer fixture is present for the export checks",
+                 os.path.exists(src)):
+        return
+    base = json.load(open(src, encoding="utf-8"))
+    ans = verify_primer(copy.deepcopy(base), idx)
+    ir = safely(lambda: fireworks_ir.build(ans), {"nodes": [], "arrows": [], "legend": [],
+                                                  "subtitle": ""}, "fireworks_ir.build")
+    nodes, edges = safely(lambda: flowgraph.build(ans["steps"]), ([], []),
+                          "flowgraph.build")
+    drawn = [e for e in edges if e["kind"] != "broken"]
+    step_ids = {s["id"] for s in ans["steps"]}
+    ir_ids = {n["id"] for n in ir["nodes"]}
+
+    check("every node in the export is a declared step",
+          ir_ids - {fireworks_ir._END_ID} == step_ids,
+          f"extra: {sorted(ir_ids - step_ids - {fireworks_ir._END_ID})}")
+    check("every arrow in the export is a declared transition, and none is missing",
+          len(ir["arrows"]) == len(drawn) and len(drawn) > 0,
+          f'{len(ir["arrows"])} arrows / {len(drawn)} drawable transitions')
+    check("and every arrow joins two nodes the export declares",
+          bool(ir["arrows"])
+          and all(a["source"] in ir_ids and a["target"] in ir_ids for a in ir["arrows"]))
+
+    # The number on the exported arrow is the number in the prose. They come
+    # from one counter in flowgraph, and this is what keeps them from drifting
+    # if a second one is ever introduced.
+    exported = sorted(int(a["label"]) for a in ir["arrows"])
+    # A transition whose goto names no step keeps its NUMBER but cannot be
+    # placed. The export must omit the arrow and leave every other number
+    # where it was — drawing it would put a move on the picture that the
+    # document itself could not locate, and renumbering would break the one
+    # thing tying the picture to the prose.
+    dangling = copy.deepcopy(base)
+    dangling["steps"][1]["exits"][2]["goto"] = "nowhere"
+    dr = verify_primer(dangling, idx)
+    dir_ = safely(lambda: fireworks_ir.build(dr), {"arrows": []},
+                  "fireworks_ir.build with a dangling goto")
+    d_labels = sorted(int(a["label"]) for a in dir_["arrows"])
+    check("a transition that cannot be placed is not exported, and renumbers nothing",
+          len(d_labels) == len(drawn) - 1 and 5 not in d_labels
+          and d_labels == [n for n in range(1, len(drawn) + 1) if n != 5],
+          f"exported {d_labels}")
+
+    check("the exported arrows carry the same numbers as the prose",
+          bool(exported) and exported == sorted(e["n"] for e in drawn),
+          f"{exported[:6]}…")
+
+    # Fireworks names its edge classes by role; this project names them by
+    # basis. A basis with no mapping would silently fall through to "neutral" —
+    # the class this diagram's own legend calls "the rules do not settle it".
+    from render_report import RANK
+    check("every basis maps to an edge class, so none silently reads as a gap",
+          set(RANK) <= set(fireworks_ir.FLOW_FOR_BASIS),
+          f"unmapped: {sorted(set(RANK) - set(fireworks_ir.FLOW_FOR_BASIS))}")
+
+    # A failed citation must not travel as a confident arrow. The in-report map
+    # inverts it; the export has to say so too, in Fireworks' own vocabulary.
+    broken = copy.deepcopy(base)
+    broken["steps"][0]["exits"][0]["cites"][0]["quote"] = "not in rule 336 at all"
+    br = verify_primer(broken, idx)
+    bir = safely(lambda: fireworks_ir.build(br), {"arrows": [], "legend": []},
+                 "fireworks_ir.build with a failed cite")
+    flows = {a["id"]: a["flow"] for a in bir["arrows"]}
+    check("an unverified transition is exported in the failed class, not its declared one",
+          flows.get("t1") == fireworks_ir.FLOW_UNVERIFIED
+          and any(r["flow"] == fireworks_ir.FLOW_UNVERIFIED for r in bir["legend"]),
+          f'transition 1 exported as {flows.get("t1")!r}')
+
+    # Same rule as the report's basis key: a legend row for a style that does
+    # not appear is a line the reader holds for nothing.
+    check("the legend lists only the edge classes actually drawn",
+          bool(ir["legend"])
+          and {r["flow"] for r in ir["legend"]} == {a["flow"] for a in ir["arrows"]},
+          f'legend {[r["flow"] for r in ir["legend"]]}')
+
+    # This artifact leaves the report behind, so it has to carry its own
+    # provenance — which corpus, and that it is unofficial.
+    corpus_version = (ans.get("corpus") or {}).get("CR", "")
+    # `"" in anything` is True, so an absent corpus.CR made this pass on a
+    # subtitle carrying no version at all.
+    check("the exported diagram carries its corpus version and says it is unofficial",
+          bool(corpus_version) and corpus_version in ir["subtitle"]
+          and "unofficial" in ir["subtitle"],
+          ir["subtitle"][:70])
+
+    # Found by sweeping every guard and deleting it: 25 of 59 could be removed
+    # with the whole suite still green. Most were display paths; these are the
+    # ones whose removal would change what the tool ACCEPTS. None was masked —
+    # they were simply never on a path any check walked, which is the quieter
+    # half of the same blind spot.
+    cli = os.path.join(HERE, "rules_cli.py")
+    with tempfile.TemporaryDirectory() as d:
+        ruling = os.path.join(d, "r-answer.json")
+        json.dump(json.load(open(os.path.join(HERE, "heron-answer.json"),
+                                 encoding="utf-8")),
+                  open(ruling, "w", encoding="utf-8"))
+        run = subprocess.run([sys.executable, cli, "graph", ruling],
+                             capture_output=True, text=True, cwd=d)
+        check("`graph` refuses a ruling, which has no step graph",
+              run.returncode != 0 and "needs a primer" in (run.stdout + run.stderr),
+              f"rc={run.returncode}")
+
+        primer_path = os.path.join(d, "p-primer.json")
+        json.dump(base, open(primer_path, "w", encoding="utf-8"))
+        run = subprocess.run([sys.executable, cli, "graph", primer_path,
+                              "--format=svg"], capture_output=True, text=True, cwd=d)
+        check("an unknown --format is refused rather than silently defaulted",
+              run.returncode != 0
+              and "unknown --format" in (run.stdout + run.stderr)
+              and not [f for f in os.listdir(d) if f.endswith((".svg", ".json"))
+                       if f not in ("p-primer.json", "r-answer.json")],
+              f"rc={run.returncode}")
+
+        # Invariant 9. A relative input that does not exist must be refused, not
+        # quietly resolved against the skill folder — where a same-named shipped
+        # sample would be verified instead, and reported as the caller's answer.
+        run = subprocess.run([sys.executable, cli, "verify", "hot-fepr-primer.json"],
+                             capture_output=True, text=True, cwd=d)
+        check("a relative input that is not there is refused, not substituted",
+              run.returncode != 0 and "no such answer file" in (run.stdout + run.stderr),
+              "the skill ships a file of that name; resolving to it would verify "
+              "a document the caller never wrote")
+
+    # Shape guards on the document itself, none of which any check reached.
+    malformed_shapes = {
+        "steps that are not a list": (lambda a: a.__setitem__("steps", "s1"),
+                                      "at least one step"),
+        "no steps at all": (lambda a: a.__setitem__("steps", []), "at least one step"),
+        "a step with an unknown basis": (
+            lambda a: a["steps"][0].__setitem__("basis", "definitional"), "unknown basis"),
+        "a transition with no condition": (
+            lambda a: a["steps"][0]["exits"][0].pop("when"), "no `when`"),
+        # Whitespace is truthy, so `if not s.get("heading")` passed a heading of
+        # spaces. The guard was fixed and this table was not, so the mutant
+        # reverting it survived — the fix was real and pinned by nothing.
+        "a heading that is only whitespace": (
+            lambda a: a["steps"][0].__setitem__("heading", "   "), "no heading"),
+        "a body that is only whitespace": (
+            lambda a: a["steps"][0].__setitem__("body", "  \n "), "no body"),
+    }
+    missed = []
+    for label, (mutate, phrase) in malformed_shapes.items():
+        bad = copy.deepcopy(base)
+        mutate(bad)
+        got = safely(lambda bad=bad: verify_primer(bad, idx), {"_problems": []},
+                     f"verify_primer: {label}")
+        if not any(phrase in p for p in got.get("_problems", [])):
+            missed.append(f"{label} (wanted {phrase!r})")
+    check("every malformed document shape is reported by name",
+          not missed, "; ".join(missed))
+
+    print("\n=== primer: the export refuses what the report refuses ===")
+    with tempfile.TemporaryDirectory() as d:
+        bad = os.path.join(d, "bad-primer.json")
+        json.dump(broken, open(bad, "w", encoding="utf-8"))
+        for fmt in ("fireworks", "mermaid"):
+            run = subprocess.run([sys.executable, cli, "graph", bad, f"--format={fmt}"],
+                                 capture_output=True, text=True, cwd=d)
+            wrote = [f for f in os.listdir(d) if f != "bad-primer.json"]
+            check(f"`graph --format={fmt}` refuses an unverified primer",
+                  run.returncode != 0 and not wrote,
+                  f"rc={run.returncode}, wrote {wrote}")
+            for f in wrote:
+                os.remove(os.path.join(d, f))
+
+    # The renderer is NOT ours, and it may do anything on the way out. A stub
+    # that writes half a file and exits 1 left a 36-byte fragment where a
+    # 19,868-byte diagram had been, and the destination then looked like an
+    # artifact — invariant 10, on a path the ruling and primer renderers had
+    # already been taught to protect.
+    #
+    # Driven with a stub rather than the real Fireworks, deliberately: the
+    # property is "however the renderer fails, the previous diagram survives",
+    # and the real one cannot be made to fail on demand.
+    import stat
+    with tempfile.TemporaryDirectory() as d:
+        primer = os.path.join(d, "ok-primer.json")
+        json.dump(base, open(primer, "w", encoding="utf-8"))
+        keep = os.path.join(d, "kept.svg")
+        open(keep, "w", encoding="utf-8").write("PREVIOUS GOOD DIAGRAM")
+
+        stub_home = os.path.join(d, "stub")
+        os.makedirs(os.path.join(stub_home, "scripts"))
+        stub = os.path.join(stub_home, "scripts", "fireworks.py")
+        open(stub, "w", encoding="utf-8").write(
+            "import sys\n"
+            "open(sys.argv[-1], 'w').write('<svg>PARTIAL')\n"
+            "print('{\"ok\": false, \"error\": \"renderer exploded\"}')\n"
+            "sys.exit(1)\n")
+        os.chmod(stub, os.stat(stub).st_mode | stat.S_IEXEC)
+
+        run = subprocess.run(
+            [sys.executable, cli, "graph", primer, keep],
+            capture_output=True, text=True, cwd=d,
+            env=dict(os.environ, RIFTBOUND_FIREWORKS=stub_home))
+        # Read defensively. Rendering straight over the destination and then
+        # discarding the wreckage DELETES it, so a bare open() raised here and
+        # the battery reported "<suite crashed>" instead of this check going
+        # red by name — the third time in this work that a check crashed on the
+        # exact failure it exists to watch for.
+        survived = (open(keep, encoding="utf-8").read()
+                    if os.path.exists(keep) else "<destination was destroyed>")
+        check("a failed render leaves the previous diagram untouched",
+              run.returncode != 0 and survived == "PREVIOUS GOOD DIAGRAM",
+              f"rc={run.returncode}, destination now {survived[:26]!r}")
+        check("and clears up after itself rather than leaving a staging file",
+              not [f for f in os.listdir(d) if f.endswith(".rendering")],
+              f'{[f for f in os.listdir(d) if f.endswith(".rendering")]}')
+        # The IR is the artifact this project stands behind, so it is written
+        # even when the picture could not be.
+        check("and the IR it wrote is still there to render later",
+              os.path.exists(os.path.join(d, "kept.fireworks.json")))
+
+    # Edge shapes the shipped primers do not exercise. The exit node's id is
+    # minted HERE rather than taken from the document, so a primer that happens
+    # to declare that id produced an IR with two nodes sharing one — and it
+    # verified clean, because the collision does not exist in the document.
+    # Same failure as `_mid` collapsing two step ids in the mermaid export.
+    cite = [{"rule": "CR:334", "quote": "Handle Outstanding Tasks"}]
+    shapes = {
+        "a step named like the exit node": [
+            {"id": fireworks_ir._END_ID, "heading": "A", "body": "b",
+             "basis": "grounded", "cites": cite,
+             "exits": [{"when": "done", "cites": cite}]}],
+        "a single step that only exits": [
+            {"id": "s1", "heading": "Only", "body": "b", "basis": "grounded",
+             "cites": cite, "exits": [{"when": "done", "cites": cite}]}],
+        "a single step that loops to itself": [
+            {"id": "s1", "heading": "Only", "body": "b", "basis": "grounded",
+             "cites": cite, "exits": [{"when": "again", "goto": "s1", "cites": cite},
+                                      {"when": "done", "cites": cite}]}],
+        "a linear primer with no transitions": [
+            {"id": "s1", "heading": "A", "body": "b", "basis": "grounded", "cites": cite},
+            {"id": "s2", "heading": "B", "body": "b", "basis": "grounded", "cites": cite}],
+    }
+    broken_shapes = []
+    for label, steps in shapes.items():
+        shaped = copy.deepcopy(base)
+        shaped["steps"] = steps
+        ir_shape = safely(lambda shaped=shaped: fireworks_ir.build(
+            verify_primer(shaped, idx)), None, f"fireworks_ir.build: {label}")
+        if ir_shape is None:
+            broken_shapes.append(f"{label}: raised")
+            continue
+        node_ids = [n["id"] for n in ir_shape["nodes"]]
+        if len(node_ids) != len(set(node_ids)):
+            broken_shapes.append(f"{label}: two nodes share an id")
+        dangling = [a for a in ir_shape["arrows"]
+                    if a["source"] not in node_ids or a["target"] not in node_ids]
+        if dangling:
+            broken_shapes.append(f"{label}: {len(dangling)} arrow(s) point at no node")
+    check("the export survives shapes the shipped primers do not have",
+          not broken_shapes, "; ".join(broken_shapes[:3]))
+
+    # TWO GATES GUARD THIS PATH, AND EACH MASKED THE OTHER. `cmd_report` refuses
+    # a document with problems, and then the renderer it shells out to refuses
+    # again. Delete `cmd_report`'s entirely and the whole suite stays green,
+    # because the renderer catches what it let through — so the gate whose own
+    # docstring calls it "the ONLY way to finish an answer" was pinned by
+    # nothing at all.
+    #
+    # A one-at-a-time mutation battery cannot see this: redundant guards are
+    # good for safety and invisible to it, and it reports both as covered.
+    # The answer is a check per guard, written so it can tell WHICH one fired —
+    # the two announce themselves differently, so the message says who refused.
+    with tempfile.TemporaryDirectory() as d:
+        for label, source, gate in (
+                ("primer", base, "not rendering"),
+                ("ruling", json.load(open(os.path.join(HERE, "heron-answer.json"),
+                                          encoding="utf-8")), "not rendering")):
+            broken_doc = copy.deepcopy(source)
+            if label == "primer":
+                broken_doc["steps"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+            else:
+                broken_doc["notes"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+            bad_doc = os.path.join(d, f"{label}-answer.json")
+            json.dump(broken_doc, open(bad_doc, "w", encoding="utf-8"))
+            run = subprocess.run([sys.executable, cli, "report", bad_doc, "--no-open"],
+                                 capture_output=True, text=True, cwd=d)
+            check(f"`report` refuses a broken {label} at its OWN gate",
+                  run.returncode != 0 and gate in run.stdout
+                  and "refusing to render" not in (run.stderr or ""),
+                  "the renderer's gate must not be what caught it — that is the "
+                  "masking this check exists to expose")
+
+    # Same shape, one layer down: `verify`'s exit code is its whole contract,
+    # and nothing else on that path would notice if it stopped meaning anything.
+    with tempfile.TemporaryDirectory() as d:
+        broken_doc = copy.deepcopy(base)
+        broken_doc["steps"][0]["cites"] = [{"rule": "CR:999.9.z", "quote": "invented"}]
+        bad_doc = os.path.join(d, "v-primer.json")
+        json.dump(broken_doc, open(bad_doc, "w", encoding="utf-8"))
+        run = subprocess.run([sys.executable, cli, "verify", bad_doc],
+                             capture_output=True, text=True, cwd=d)
+        check("`verify` reports a broken primer through its exit code",
+              run.returncode != 0 and "999.9.z" in run.stdout,
+              f"rc={run.returncode}")
+
+    # The exit code is not the artifact. A renderer that writes `<svg><g>` and
+    # exits 0 was announced as "wrote out.svg" — an unclosed fragment no viewer
+    # will open, reported as a success, with neither the suite nor the battery
+    # noticing. What is on disk is what gets checked.
+    with tempfile.TemporaryDirectory() as d:
+        primer = os.path.join(d, "ok-primer.json")
+        json.dump(base, open(primer, "w", encoding="utf-8"))
+        dest = os.path.join(d, "truncated.svg")
+
+        liar = os.path.join(d, "liar")
+        os.makedirs(os.path.join(liar, "scripts"))
+        open(os.path.join(liar, "scripts", "fireworks.py"), "w", encoding="utf-8").write(
+            "import sys\nopen(sys.argv[-1], 'w').write('<svg><g>')\nsys.exit(0)\n")
+        run = subprocess.run([sys.executable, cli, "graph", primer, dest],
+                             capture_output=True, text=True, cwd=d,
+                             env=dict(os.environ, RIFTBOUND_FIREWORKS=liar))
+        check("a truncated render is not announced as a diagram",
+              run.returncode != 0 and not os.path.exists(dest)
+              and "wrote " + dest not in run.stdout,
+              f"rc={run.returncode}, exists={os.path.exists(dest)}")
+
+        # `run.stdout or run.stderr` picks stdout whenever it is truthy, and
+        # whitespace is truthy — the real traceback went in the bin.
+        mute = os.path.join(d, "mute")
+        os.makedirs(os.path.join(mute, "scripts"))
+        open(os.path.join(mute, "scripts", "fireworks.py"), "w", encoding="utf-8").write(
+            "import sys\nprint('   \\n  ')\n"
+            "print('RealError: style unsupported', file=sys.stderr)\nsys.exit(1)\n")
+        run = subprocess.run([sys.executable, cli, "graph", primer,
+                              os.path.join(d, "m.svg")],
+                             capture_output=True, text=True, cwd=d,
+                             env=dict(os.environ, RIFTBOUND_FIREWORKS=mute))
+        check("the renderer's own complaint reaches the user",
+              "RealError: style unsupported" in (run.stderr or ""),
+              (run.stderr or "").strip()[-80:] or "nothing on stderr")
+
+        # An override the caller SET is a statement. Falling through to the
+        # default search meant one typo rendered from a different install and
+        # said nothing about it.
+        run = subprocess.run([sys.executable, cli, "graph", primer,
+                              os.path.join(d, "t.svg")],
+                             capture_output=True, text=True, cwd=d,
+                             env=dict(os.environ,
+                                      RIFTBOUND_FIREWORKS=os.path.join(d, "typo-here")))
+        check("a mis-set override is refused rather than quietly ignored",
+              run.returncode != 0 and "RIFTBOUND_FIREWORKS" in (run.stderr or run.stdout),
+              f"rc={run.returncode}")
+
+    # Fireworks lives outside the skill folder and ADR 0004 forbids depending on
+    # anything out there. A missing install must cost a picture, never the IR.
+    with tempfile.TemporaryDirectory() as d:
+        good = os.path.join(d, "ok-primer.json")
+        json.dump(base, open(good, "w", encoding="utf-8"))
+        env = dict(os.environ)
+        env.pop("RIFTBOUND_FIREWORKS", None)   # an unset override, not a broken one
+        env["HOME"] = d                        # so the default search paths miss too
+        run = subprocess.run([sys.executable, cli, "graph", good, os.path.join(d, "x.svg")],
+                             capture_output=True, text=True, cwd=d, env=env)
+        ir_file = os.path.join(d, "x.fireworks.json")
+        check("with no Fireworks install the IR is still written, and says how to render it",
+              os.path.exists(ir_file) and "render architecture" in run.stdout,
+              f"rc={run.returncode}")
+        # Exit 0 here would say the caller got `x.svg`. They did not.
+        check("and naming an SVG that could not be produced is not reported as success",
+              run.returncode != 0 and not os.path.exists(os.path.join(d, "x.svg"))
+              and "x.svg" in run.stdout,
+              f"rc={run.returncode}; the message must name the file it did not write")
+        # Whereas a destination WE chose is a soft degradation, not a failure:
+        # the export ran, and the IR is the artifact this project stands behind.
+        run2 = subprocess.run([sys.executable, cli, "graph", good],
+                              capture_output=True, text=True, cwd=d, env=env)
+        check("but a defaulted destination degrades quietly and exits 0",
+              run2.returncode == 0, f"rc={run2.returncode}")
+        check("and that IR is complete on its own",
+              os.path.exists(ir_file) and all(
+                  k in json.load(open(ir_file, encoding="utf-8"))
+                  for k in ("schema_version", "mode", "nodes", "arrows")))
+
+
 def cli_output_paths():
     """Where a report actually lands when the caller names a relative path.
 
@@ -1284,7 +1919,15 @@ def cli_output_paths():
     ruling = os.path.join(HERE, "heron-answer.json")
 
     with tempfile.TemporaryDirectory() as d:
-        r = subprocess.run([sys.executable, cli, "graph", primer, "graph.mmd"],
+        # `--format=mermaid` explicitly. `graph` defaults to Fireworks now, so
+        # this silently started requiring an optional EXTERNAL tool — the suite
+        # failed outright on any machine without it, in a skill whose whole
+        # premise is that copying the folder is enough (ADR 0004). It also
+        # asserted the wrong thing where the tool WAS present, writing an SVG
+        # into a file called graph.mmd. What is under test here is where a
+        # relative path lands, and mermaid needs nothing to test that.
+        r = subprocess.run([sys.executable, cli, "graph", primer, "graph.mmd",
+                            "--format=mermaid"],
                            capture_output=True, text=True, cwd=d)
         landed = os.path.exists(os.path.join(d, "graph.mmd"))
         check("a relative output path lands where the caller ran the command",
@@ -2421,6 +3064,9 @@ def main():
     metric_consistency(idx)
     rendered_surfaces(idx)
     primer_invariants(idx)
+    shipped_primers(idx)
+    fireworks_export(idx)
+    committed_diagrams(idx)
     cli_output_paths()
     python_floor()
 

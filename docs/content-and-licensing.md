@@ -73,3 +73,20 @@ and left out; a named hole in the gauntlet is recoverable and silent corruption 
 **Run updates on demand, never on a schedule.** On `ECONNRESET`, wait or change network
 — do not retry into it. This matches Riot's own release cadence, so human-triggered
 updates stay well below bot-detection thresholds.
+
+## Diagrams
+
+`.claude/skills/rules-report/data/diagrams/` holds a rendered SVG per shipped primer,
+and the Fireworks IR each was rendered from. Both are generated — `rules_cli.py graph`
+derives them from the primer's verified transitions — and `selftest` refuses a copy
+that no longer matches what the current code and corpus produce.
+
+They are committed for the same reason the rulebook is: the skill is the product, and
+someone who copies the folder should get the pictures with it rather than needing a
+renderer installed. The IR is the artifact this project stands behind; the SVG is
+[Fireworks Tech Graph](https://github.com/yizhiyanhua-ai/fireworks-tech-graph)'s
+rendering of it, MIT-licensed and used as a library rather than vendored.
+
+Each diagram carries its own provenance in its subtitle — the corpus version it was
+derived from, and that it is unofficial — because a picture travels further than the
+report that backs it.

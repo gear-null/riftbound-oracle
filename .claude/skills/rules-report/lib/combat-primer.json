@@ -1,0 +1,317 @@
+{
+  "kind": "primer",
+  "topic": "Combat",
+  "question": "Walk me through Combat",
+  "reframe": "the procedure rules 459-466 call Combat — when it is staged, the three Steps of Combat, how damage is assigned and dealt, and what settles the Battlefield afterwards.",
+  "corpus": {
+    "CR": "2026-07-16",
+    "TR": "2026-07-16",
+    "generated": "2026-08-26"
+  },
+  "in_one_line": "Combat is three steps at one Battlefield — a Showdown, then damage, then resolution — and it only begins once units of exactly two opposing players are there; the third step can stage the whole thing again rather than ending it.",
+  "steps": [
+    {
+      "id": "s1",
+      "heading": "Staged — two players' units meet",
+      "basis": "grounded",
+      "body": "Combat is Staged the moment units controlled by two opposing players are at a Battlefield and the Steps of Combat have not started. Staged is not the same as happening: the Combat occurs at a Cleanup, with no items on the Chain and no other Showdown or Combat ongoing anywhere. Exactly two players — never three.",
+      "cites": [
+        {
+          "rule": "CR:461",
+          "quote": "Combat is considered Staged if there are units controlled by two opposing players at a Battlefield but the Steps of Combat have not been initiated."
+        },
+        {
+          "rule": "CR:460",
+          "quote": "A Combat occurs when a Cleanup occurs, there are no items on the Chain, there is a staged Combat at a Battlefield, and no Showdown or Combat is ongoing at any other Battlefield. See rule 318. Cleanups for more information."
+        },
+        {
+          "rule": "CR:462",
+          "quote": "Combat can only occur between Units controlled by exactly two players."
+        }
+      ],
+      "exits": [
+        {
+          "when": "a Cleanup arrives with the Chain empty and nothing ongoing elsewhere — the Steps of Combat begin",
+          "goto": "s2",
+          "cites": [
+            {
+              "rule": "CR:460",
+              "quote": "A Combat occurs when a Cleanup occurs, there are no items on the Chain, there is a staged Combat at a Battlefield, and no Showdown or Combat is ongoing at any other Battlefield. See rule 318. Cleanups for more information."
+            }
+          ]
+        },
+        {
+          "when": "the Combat stops being Staged first — the units move or die before the steps start, and nothing is resolved at all",
+          "cites": [
+            {
+              "rule": "CR:461.2",
+              "quote": "If Staged Combats stop being Staged before the Steps of Combat are initiated, they are not resolved or executed."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "heading": "Step 1 — the Combat Showdown",
+      "basis": "grounded",
+      "body": "Combat opens with a Showdown, or turns the one already running into a Combat Showdown. Before anyone acts, the designations are fixed: the Attacker is whoever's units applied the Contested status, the Defender is the one who did not, and the Attacker gains Focus. Then play proceeds on the Chain as normal.",
+      "cites": [
+        {
+          "rule": "CR:464.2",
+          "quote": "When Combat opens, it either opens with a Combat Showdown, or the current Showdown becomes a Combat Showdown."
+        },
+        {
+          "rule": "CR:464.2.a",
+          "quote": "The following Tasks become Outstanding, in the order described:"
+        },
+        {
+          "rule": "CR:464.2.c.1",
+          "quote": "The Attacker is the player whose unit(s) applied the Contested status to the Battlefield."
+        },
+        {
+          "rule": "CR:464.2.c.2",
+          "quote": "The Defender is the player who did not apply the Contested status to the Battlefield."
+        },
+        {
+          "rule": "CR:464.2.d",
+          "quote": "3. The Attacker gains Focus."
+        },
+        {
+          "rule": "CR:464.2.g",
+          "quote": "Players proceed with any play on the Chain as normal."
+        }
+      ],
+      "exits": [
+        {
+          "when": "the Showdown closes with both Attacking and Defending units still at the Battlefield",
+          "goto": "s3",
+          "cites": [
+            {
+              "rule": "CR:465.1",
+              "quote": "If both Attacking and Defending units remain at this battlefield, the following Tasks become Outstanding, in the specified order:"
+            },
+            {
+              "rule": "CR:465.2",
+              "quote": "1. When the Showdown closes, Attackers and Defenders resolve Combat Damage at the Battlefield that was attacked, using their current Might."
+            }
+          ]
+        },
+        {
+          "when": "one side no longer has units here when the Showdown closes — there is nothing to resolve damage between, so the Damage Step's tasks never become Outstanding and the Combat goes straight to Resolution",
+          "goto": "s4",
+          "basis": "structural",
+          "cites": [
+            {
+              "rule": "CR:465.1",
+              "quote": "If both Attacking and Defending units remain at this battlefield, the following Tasks become Outstanding, in the specified order:"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "heading": "Step 2 — Combat Damage",
+      "basis": "grounded",
+      "body": "Both sides sum the Might of their units, and starting with the Attacker each assigns that total among the other's units. Assignment is not dealing: nothing happens to any unit until every point is assigned, and then all of it lands at once. A unit must be assigned lethal damage in full before the next one is assigned any, and no more than the minimum lethal amount unless nothing else is left to assign to.",
+      "cites": [
+        {
+          "rule": "CR:465.2.a",
+          "quote": "Sum the Might of all Attacking Units."
+        },
+        {
+          "rule": "CR:465.2.b",
+          "quote": "Sum the Might of all Defending Units."
+        },
+        {
+          "rule": "CR:465.2.c",
+          "quote": "Starting with the Attacker, each player assigns an amount of damage equal to their summed Might among the other's Units."
+        },
+        {
+          "rule": "CR:465.2.c.1",
+          "quote": "Assigning Damage is not Dealing Damage."
+        },
+        {
+          "rule": "CR:465.2.c.1.a",
+          "quote": "When all Damage is assigned, it will be Dealt simultaneously. These actions are not synonymous."
+        },
+        {
+          "rule": "CR:465.2.c.3",
+          "quote": "Units must have lethal damage assigned to them in full before damage is assigned to a different Unit."
+        },
+        {
+          "rule": "CR:465.2.c.4",
+          "quote": "Units cannot have more damage assigned to them than the minimum required to constitute lethal damage unless no further units remain to have damage assigned to them."
+        },
+        {
+          "rule": "CR:465.2.d",
+          "quote": "Deal Damage to each unit equal to the amount assigned to it."
+        }
+      ],
+      "exits": [
+        {
+          "when": "damage has been dealt — the FEPR process is skipped and any outstanding tasks are cancelled",
+          "goto": "s4",
+          "cites": [
+            {
+              "rule": "CR:465.3",
+              "quote": "2. Skip the FEPR process and cancel any outstanding tasks. Proceed to the Resolution Step."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "heading": "Step 3 — Resolution",
+      "basis": "grounded",
+      "body": "A Combat Cleanup runs first, and it heals every unit and recalls surviving Attackers if Defenders are still there. Only then is the result read: a player won if they are the only one with units left here, lost if they are the only one without. If both still have units, or neither does, there is No Result. Control and any Conquer are settled last, and it need not be the player who contested it.",
+      "cites": [
+        {
+          "rule": "CR:466.1",
+          "quote": "1. Perform a Combat Cleanup."
+        },
+        {
+          "rule": "CR:466.1.a.1",
+          "quote": "Insert “3c. Heal all Units.”"
+        },
+        {
+          "rule": "CR:466.1.a.2",
+          "quote": "Insert “3d. Recall Attackers present at the Battlefield if Defenders are still present.” See rule 454. Recalls for more information."
+        },
+        {
+          "rule": "CR:466.3.a",
+          "quote": "A Player has won a combat if they received either the attacker or defender designation and are the only Player that has units remaining at this battlefield during this step."
+        },
+        {
+          "rule": "CR:466.3.b",
+          "quote": "A Player has lost a combat if they received either the attacker or defender designation and are the only Player that does not have any units remaining at this battlefield during this step."
+        },
+        {
+          "rule": "CR:466.3.d",
+          "quote": "There is “No Result” if units were recalled during step 3d of the Combat Cleanup, if both Players have units present during this task, or if neither player has units present during this task."
+        },
+        {
+          "rule": "CR:466.5",
+          "quote": "1. If no Showdown or Combat is staged at this location, the player with Units remaining here Establishes Control if they didn’t already control this Battlefield."
+        },
+        {
+          "rule": "CR:466.5.d",
+          "quote": "Establishing Control results in a Conquer if that player has not yet scored this Battlefield this turn. See rule 188. Control for more information on Control. See rule 469.1. for more information on Conquering."
+        },
+        {
+          "rule": "CR:466.5.e",
+          "quote": "This does not have to be the player that applied Contested to the Battlefield."
+        }
+      ],
+      "exits": [
+        {
+          "when": "No Result was reached and both players still have units here — a Showdown and a Combat are staged at this Battlefield all over again",
+          "goto": "s1",
+          "cites": [
+            {
+              "rule": "CR:466.3.d.1",
+              "quote": "If “No Result” was reached, and both players have units remaining, stage a Showdown and a Combat at this battlefield."
+            }
+          ]
+        },
+        {
+          "when": "the Battlefield is settled — designations are stripped, end-of-combat effects happen, and every \"this combat\" effect expires",
+          "cites": [
+            {
+              "rule": "CR:466.7",
+              "quote": "1. Combat ends."
+            },
+            {
+              "rule": "CR:466.7.a",
+              "quote": "Remove Attacker and Defender Designation from all Units and Players."
+            },
+            {
+              "rule": "CR:466.7.c",
+              "quote": "All “this combat” effects expire simultaneously."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "misconceptions": [
+    {
+      "belief": "Damage is dealt to each unit as it is assigned, so the first one dies before the next is assigned.",
+      "why_wrong": "Assigning is not dealing. Every point is assigned first, across both sides, and only then is all of it dealt simultaneously — so a unit that will die still has its full Might counted, and abilities that trigger on damage all see the same moment.",
+      "cites": [
+        {
+          "rule": "CR:465.2.c.1",
+          "quote": "Assigning Damage is not Dealing Damage."
+        },
+        {
+          "rule": "CR:465.2.c.1.a",
+          "quote": "When all Damage is assigned, it will be Dealt simultaneously. These actions are not synonymous."
+        },
+        {
+          "rule": "CR:465.2.d",
+          "quote": "Deal Damage to each unit equal to the amount assigned to it."
+        }
+      ]
+    },
+    {
+      "belief": "You can dump all your Might onto their biggest unit.",
+      "why_wrong": "Only up to lethal. A unit must be assigned enough to kill it before any is assigned elsewhere, and no more than that minimum unless there is nothing else left to assign to.",
+      "cites": [
+        {
+          "rule": "CR:465.2.c.3",
+          "quote": "Units must have lethal damage assigned to them in full before damage is assigned to a different Unit."
+        },
+        {
+          "rule": "CR:465.2.c.4",
+          "quote": "Units cannot have more damage assigned to them than the minimum required to constitute lethal damage unless no further units remain to have damage assigned to them."
+        }
+      ]
+    },
+    {
+      "belief": "Damage marked in combat stays on the surviving units afterwards.",
+      "why_wrong": "The Combat Cleanup heals all units as part of the Resolution Step, before the result is even read.",
+      "cites": [
+        {
+          "rule": "CR:466.1.a.1",
+          "quote": "Insert “3c. Heal all Units.”"
+        }
+      ]
+    },
+    {
+      "belief": "Surviving the combat means you took the Battlefield.",
+      "why_wrong": "You win only by being the ONLY player with units left there. If both of you still have units — or neither does — it is No Result, and if both remain the whole thing is staged again.",
+      "cites": [
+        {
+          "rule": "CR:466.3.a",
+          "quote": "A Player has won a combat if they received either the attacker or defender designation and are the only Player that has units remaining at this battlefield during this step."
+        },
+        {
+          "rule": "CR:466.3.d",
+          "quote": "There is “No Result” if units were recalled during step 3d of the Combat Cleanup, if both Players have units present during this task, or if neither player has units present during this task."
+        },
+        {
+          "rule": "CR:466.3.d.1",
+          "quote": "If “No Result” was reached, and both players have units remaining, stage a Showdown and a Combat at this battlefield."
+        }
+      ]
+    }
+  ],
+  "considered_rejected": [
+    {
+      "rule": "CR:341",
+      "why": "Showdowns are their own procedure; Combat's first step runs one, but how Focus moves inside it belongs there."
+    },
+    {
+      "rule": "CR:318",
+      "why": "Cleanups are when a staged Combat becomes a happening one — the trigger, not a step of Combat."
+    },
+    {
+      "rule": "CR:336",
+      "why": "FEPR runs the Chain a Combat Showdown creates, and the Damage Step explicitly skips it; it is machinery inside a step, not a step."
+    }
+  ],
+  "open_questions": [],
+  "cards": []
+}

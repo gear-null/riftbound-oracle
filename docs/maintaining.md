@@ -150,6 +150,33 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   node or a label — see [ADR 0008](adr/0008-two-document-kinds.md). The same rule
   governs anything downstream: `graph` refuses on an unverified primer so that a
   picture can never travel further than its citations.
+- **Re-verify every shipped primer after a rules update.** `selftest` does it —
+  each `lib/*-primer.json` is asserted whole: every citation verbatim, the
+  transitions still a procedure, and the report, the map and the export still
+  agreeing on every transition number. A renumbering invalidates a committed
+  document silently, and these are the documents a reader opens first.
+- **Sweep the guards after any batch of guard work.** Delete each `if` that
+  refuses, reports or bails, and run the suite: anything that stays green is
+  pinned by nothing. 25 of 59 did here. Most were display paths; the rest were
+  guards no check had ever walked, plus two that masked each other. The
+  technique and the reason are in [invariants.md](invariants.md).
+- **Then probe shapes no fixture produces.** A sweep can only test code that
+  exists — it cannot flag a missing rule, because there is no line to neuter.
+  Degenerate DOCUMENTS are the analogue of a degenerate board: an empty step
+  id, a whitespace heading, a quote spanning two sibling rules, a corpus
+  stamped with a version that does not exist. That probe is what found `all()`
+  short-circuiting the citation loop, where a failing quote hid every
+  fabrication after it in the same block.
+- **The IR is the product; the renderer is not.** Fireworks Tech Graph lives outside
+  the skill folder, so nothing here may require it. `graph` always writes the IR —
+  self-contained, checkable, diffable — and renders an SVG only if an install is
+  found (`$RIFTBOUND_FIREWORKS` overrides the search). A missing install must cost a
+  picture, never an answer. Do not add a hard dependency on it.
+- **Do not hand Fireworks a prompt.** It accepts natural language, and that path is
+  closed here on purpose: a described diagram is a model-authored diagram, and
+  invariant 12 is the whole reason a picture is publishable at all. Style 8, the
+  closest match to this project's palette, is refused for exactly this reason —
+  Fireworks will only hand-craft it.
 
 ## Repository layout
 
@@ -161,7 +188,9 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
     render_report.py           a RULING, plus the checks and chrome both kinds share
     render_primer.py           a PRIMER: steps, transitions, misconceptions
     flowgraph.py               derives a primer's diagram from its cited transitions
+    fireworks_ir.py            the same graph as Fireworks IR, for export
   data/                        vendored + committed (~2.6MB)
+    diagrams/                  the shipped primers' diagrams, and the IR they came from
   reports/                     generated HTML reports (gitignored)
 
                                --- maintainer side ---

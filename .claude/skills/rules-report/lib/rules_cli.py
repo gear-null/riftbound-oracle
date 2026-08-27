@@ -411,8 +411,13 @@ def cmd_verify(args):
               + (f"  (FORCED from {ans['holding']['_forced']})"
                  if ans["holding"].get("_forced") else ""))
     print(f"citations   : {nv}/{nc} verified verbatim")
-    label = "weakest step" if kind == "primer" else "weakest link"
-    print(f"{label}: {ans['_weakest']} ({ans['_strength']})")
+    # The same words the page uses. This printed the raw anchor id — "weakest
+    # step: s2" — beside a page reading "Weakest link · transition 4", which is
+    # the two halves describing one answer differently.
+    what = ans.get("_weakest_label") or ans["_weakest"]
+    print(f"weakest link: {what} in {ans['_weakest']} ({ans['_strength']})"
+          if kind == "primer" else
+          f"weakest link: {ans['_weakest']} ({ans['_strength']})")
     # Narrowing is worth surfacing on both paths: it means the id written was
     # vaguer than the rule that actually says the thing.
     for src_item in _cite_sources(ans, kind):
@@ -459,19 +464,142 @@ def cmd_render(args):
                    + [a for a in args if a.startswith("-")], check=True)
 
 
+FIREWORKS_HOMES = (
+    "~/.claude/skills/fireworks-tech-graph",
+    "~/.agents/skills/fireworks-tech-graph",
+    "~/.config/agents/skills/fireworks-tech-graph",
+)
+
+
+def find_fireworks():
+    """Locate a Fireworks Tech Graph install, or None.
+
+    Deliberately soft. Fireworks lives OUTSIDE the skill folder, and ADR 0004
+    says nothing here may depend on anything outside it — so the IR is what this
+    project produces and stands behind, and rendering it is a bonus. A missing
+    install costs a picture, never an answer, and `graph` still writes a
+    document any Fireworks install can render later.
+
+    $RIFTBOUND_FIREWORKS overrides, for an install somewhere else entirely.
+    """
+    # An override the caller SET is a statement, not a hint. Falling through to
+    # the default search meant a single typo in $RIFTBOUND_FIREWORKS rendered
+    # from a different install entirely and said nothing — or, on a machine with
+    # no default install, reported "you have none" when what was wrong was the
+    # spelling.
+    override = os.environ.get("RIFTBOUND_FIREWORKS")
+    if override:
+        script = os.path.join(os.path.expanduser(override), "scripts", "fireworks.py")
+        if not os.path.exists(script):
+            raise SystemExit(
+                f"$RIFTBOUND_FIREWORKS is set to {override!r}, but there is no\n"
+                f"  scripts/fireworks.py under it. Fix the path or unset it to search\n"
+                f"  the usual places: {', '.join(FIREWORKS_HOMES)}")
+        return script
+    for candidate in FIREWORKS_HOMES:
+        script = os.path.join(os.path.expanduser(candidate), "scripts", "fireworks.py")
+        if os.path.exists(script):
+            return script
+    return None
+
+
+# Generous. A diagram is seconds of work; this exists so a renderer that wedges
+# cannot wedge the command that called it, with no output and nothing to read.
+RENDER_TIMEOUT = 120
+
+
+def _renderer_said(run):
+    """Whatever the renderer actually complained with.
+
+    `run.stdout or run.stderr` picks stdout whenever it is truthy, and
+    whitespace is truthy — a renderer that prints blank lines to stdout and its
+    real traceback to stderr produced "could not render it: " with nothing after
+    the colon, and the reason the user needed was discarded.
+    """
+    for stream in (run.stderr, run.stdout):
+        text = (stream or "").strip()
+        if text:
+            return text[:300]
+    return f"no output; exit code {run.returncode}"
+
+
+def _looks_like_svg(path):
+    """Is there a whole SVG at this path?
+
+    Deliberately shallow — this is not an SVG validator, and it is not trying to
+    be. It answers the one question the exit code cannot: did the renderer
+    finish. A truncated file has no closing tag, and that is the failure this
+    catches.
+    """
+    try:
+        if os.path.getsize(path) < 64:
+            return False
+        with open(path, "rb") as fh:
+            head = fh.read(512).lstrip()
+            fh.seek(max(0, os.path.getsize(path) - 512))
+            tail = fh.read()
+    except OSError:
+        return False
+    return head.startswith(b"<") and b"<svg" in head and b"</svg>" in tail
+
+
+def _discard(path):
+    """Remove a staging file, and never fail because of it."""
+    try:
+        if os.path.exists(path):
+            os.remove(path)
+    except OSError:
+        pass
+
+
+def _write_atomically(path, write):
+    """Write beside the destination, then move it into place.
+
+    `open(path, "w")` truncates before the first byte is written, so a failure
+    part-way destroys whatever was already there. The ruling and primer
+    renderers learned this the hard way; anything that writes an artifact here
+    does it the same way.
+    """
+    tmp = path + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            write(fh)
+        os.replace(tmp, path)
+    except BaseException:
+        _discard(tmp)
+        raise
+
+
 def cmd_graph(args):
-    """Emit a primer's step graph as Mermaid source.
+    """Emit a primer's step graph for something else to draw.
 
     Derived from the same verified transitions the report draws, so a diagram
     produced from this cannot assert an edge the document does not. That is the
-    point of having it: the website and any restyling pass work from the graph,
-    not from a fresh reading of the prose.
+    point of having it: a website, a deck or a restyling pass works from the
+    graph, never from a fresh reading of the prose.
+
+        graph <primer.json>                    Fireworks IR, and an SVG if it is installed
+        graph <primer.json> out.svg            same, named
+        graph <primer.json> --format=mermaid   Mermaid source instead
+
+    Fireworks is the default because it draws these far better than anything
+    here would, and it is safe to use because it takes a structured document
+    rather than a prompt — no description of the procedure is handed to
+    anything. Mermaid stays because GitHub renders it inline in markdown, which
+    an SVG cannot do.
     """
     src = args[0]
+    fmt = "fireworks"
+    for a in args[1:]:
+        if a.startswith("--format="):
+            fmt = a.split("=", 1)[1].strip().lower()
+    if fmt not in ("fireworks", "mermaid"):
+        raise SystemExit(f"unknown --format={fmt}; use fireworks or mermaid")
+
     raw = json.load(open(src, encoding="utf-8"))
     if _kind(raw, src) != "primer":
         raise SystemExit(f"{src}: `graph` needs a primer — a ruling has no step graph.")
-    # Verified first. Emitting the graph from an unchecked file would hand the
+    # Verified first. Emitting the graph from an unchecked file would hand a
     # website a diagram this project never stood behind.
     from render_primer import verify_primer
     ans = verify_primer(raw, _idx())
@@ -480,15 +608,77 @@ def cmd_graph(args):
         for pb in ans["_problems"]:
             print(f"  ! {pb}", file=sys.stderr)
         sys.exit(1)
-    import flowgraph
-    text = flowgraph.mermaid(ans["steps"], ans.get("topic", "Procedure"))
-    if len(args) > 1 and not args[1].startswith("-"):
-        dest = _out_path(args[1])
-        with open(dest, "w", encoding="utf-8") as fh:
-            fh.write(text)
-        print(f"wrote {dest}")
-    else:
-        print(text, end="")
+
+    explicit = next((a for a in args[1:] if not a.startswith("-")), None)
+    slug = os.path.splitext(os.path.basename(src))[0].replace("-primer", "")
+
+    if fmt == "mermaid":
+        import flowgraph
+        text = flowgraph.mermaid(ans["steps"], ans.get("topic", "Procedure"))
+        if explicit:
+            dest = _out_path(explicit)
+            with open(dest, "w", encoding="utf-8") as fh:
+                fh.write(text)
+            print(f"wrote {dest}")
+        else:
+            print(text, end="")
+        return
+
+    import fireworks_ir
+    ir = fireworks_ir.build(ans)
+    svg_out = _out_path(explicit) if explicit else os.path.join(REPORTS, f"{slug}.svg")
+    ir_out = os.path.splitext(svg_out)[0] + ".fireworks.json"
+    os.makedirs(os.path.dirname(os.path.abspath(ir_out)), exist_ok=True)
+    _write_atomically(ir_out, lambda fh: (json.dump(ir, fh, indent=1, ensure_ascii=False),
+                                          fh.write("\n")))
+    print(f"wrote {ir_out}")
+    print(f"  {len(ir['nodes'])} nodes, {len(ir['arrows'])} arrows, style {ir['style']}")
+
+    fireworks = find_fireworks()
+    if not fireworks:
+        print(f"\nno Fireworks Tech Graph install found, so {os.path.basename(svg_out)} "
+              "was NOT written.\n"
+              "The IR above is complete and any install can render it:\n"
+              f"  python3 <fireworks>/scripts/fireworks.py render architecture "
+              f"{ir_out} {svg_out}\n"
+              "  (npx skills add yizhiyanhua-ai/fireworks-tech-graph, or set "
+              "$RIFTBOUND_FIREWORKS)")
+        # Exit 0 only when the destination was OURS to choose. A caller who
+        # named `out.svg` and did not get one did not get what they asked for,
+        # and a green exit code says they did.
+        sys.exit(1 if explicit else 0)
+    # Rendered BESIDE the destination, then moved into place — never straight
+    # over it. The renderer is not ours and may do anything on the way out: a
+    # stub that writes half a file and exits 1 left a 36-byte fragment where a
+    # 19,868-byte diagram had been, and the destination then looked like an
+    # artifact. Invariant 10: a failure never leaves a stale artifact looking
+    # current. The ruling and primer renderers already write this way; this is
+    # the same rule applied to a renderer we do not control.
+    staged = svg_out + ".rendering"
+    try:
+        run = subprocess.run([sys.executable, fireworks, "render", "architecture",
+                              ir_out, staged], capture_output=True, text=True,
+                             timeout=RENDER_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        _discard(staged)
+        print(f"\nFireworks did not finish within {RENDER_TIMEOUT}s and was stopped. "
+              f"The IR at {ir_out} is complete; render it yourself to see why.",
+              file=sys.stderr)
+        sys.exit(1)
+    complaint = _renderer_said(run)
+    if run.returncode != 0 or not _looks_like_svg(staged):
+        _discard(staged)
+        # The EXIT CODE IS NOT THE ARTIFACT. A renderer that writes `<svg><g>`
+        # and exits 0 was reported as "wrote out.svg", and neither the suite nor
+        # the mutation battery noticed — an unclosed fragment no viewer will
+        # open, announced as a success. What is on disk is checked instead.
+        #
+        # Reported, not paraphrased: the renderer's own message says more than
+        # anything restated here.
+        print(f"\nFireworks could not render it: {complaint}", file=sys.stderr)
+        sys.exit(1)
+    os.replace(staged, svg_out)
+    print(f"wrote {svg_out}")
 
 
 def cmd_mutants(args):

@@ -46,11 +46,19 @@ INVARIANTS = {
         "gap STEP must list rules_checked", "gap TRANSITION must list rules_checked"],
     "9. The answer verified is the answer the caller asked for": [
         "refused, not substituted", "mistaken for the output path",
-        "unknown `kind` is refused"],
+        "unknown `kind` is refused",
+        "a mis-set override is refused",
+        "naming an SVG that could not be produced is not reported as success"],
     "10. A failure never leaves a stale artifact looking current": [
         "failed write leaves the previous ruling intact",
         "rulebook render leaves the previous one intact",
         "committed rulebook matches", "crash inside render leaves the previous report intact",
+        "committed diagram matches what this corpus now produces",
+        "failed render leaves the previous diagram untouched",
+        "clears up after itself rather than leaving a staging file",
+        "a truncated render is not announced as a diagram",
+        "a truncated committed SVG is detected",
+        "drawing different arrows from its IR is detected",
         "leaves no page behind", "failed write leaves the previous primer intact"],
     "11. The corpus is structurally whole": [
         "matches the recorded corpus exactly", "orphaned parents",
@@ -67,7 +75,18 @@ INVARIANTS = {
         "lands on a step the primer declares", "numbered in the prose beside it",
         "draws no dashed arrow", "structural transition draws a dashed one",
         "names only real steps", "goto naming no step is refused",
-        "refuses to emit a diagram for it too"],
+        "refuses to emit a diagram for it too",
+        # The invariant does not stop at the report. An exported diagram travels
+        # to a website and a deck, away from the prose and the ✓ VERIFIED stamps.
+        "every node in the export is a declared step",
+        "cannot be placed is not exported",
+        "exported arrows carry the same numbers as the prose",
+        "every basis maps to an edge class",
+        "exported in the failed class",
+        "legend lists only the edge classes actually drawn",
+        "carries its corpus version and says it is unofficial",
+        "the IR is still written",
+        "the report, the map and the export agree on every transition"],
 }
 
 
