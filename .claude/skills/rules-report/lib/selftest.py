@@ -807,7 +807,10 @@ def export_and_history(idx):
     # default, and stale in the worst way: it lists every answer except the one
     # just written, which is the one its reader came for.
     src_lines = open(os.path.join(HERE, "rules_cli.py"), encoding="utf-8").read()
-    body = src_lines[src_lines.index("def cmd_report("):src_lines.index("def cmd_render(")]
+    body = safely(
+        lambda: src_lines[src_lines.index("def cmd_report("):
+                          src_lines.index("def cmd_render(")],
+        "", "locate cmd_report")
     check("writing a report refreshes the history index",
           "write_report_index()" in body,
           "cmd_report calls it" if "write_report_index()" in body
