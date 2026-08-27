@@ -126,6 +126,35 @@ all of them, and found three bugs in itself besides.
 `scripts/check-invariants.py` prints the table with each invariant's check count
 and how many of those checks are proven. It exits non-zero on a gap.
 
+## "All N checks passed" is half a sentence
+
+The suite prints a second line beside its headline, and that line is the one
+that means something:
+
+```
+all 350 checks passed — safe to answer against this corpus
+  of 295 distinct checks, 197 have been observed to fail (66%).
+```
+
+A mutation battery reports how many mutants were caught, which reads like
+coverage and is not — it is coverage of the behaviours somebody thought to
+attack. A check with no mutant behind it has never been seen to fail and is
+therefore indistinguishable, from inside a green run, from one that **cannot**.
+The 98 unproven checks here are not evidence of 98 defects; they are the
+population a defect would hide in, and nothing in a passing run points at them.
+
+The perverse part is the arithmetic: adding an untested check raises the
+headline. The number goes up, the evidence does not, and the suite looks
+stronger for having grown weaker per check. So both numbers are printed
+together, because the first one alone was quoted all day by two agents who knew
+better.
+
+Audited for the shapes that cannot fail — `is not None` against something that
+raises, counts compared to zero, truthiness of a value that is always truthy —
+the unproven population currently returns **zero** hits on both this skill and
+deck-lab. That is worth exactly what it says: clean on the two things we knew
+to look for.
+
 ## What this is not
 
 It is not a claim that the code is defect-free. Coverage of the whole suite is

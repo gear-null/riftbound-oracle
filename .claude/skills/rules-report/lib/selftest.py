@@ -3332,6 +3332,34 @@ def main():
     # The count is printed rather than documented. Hardcoding it in the README
     # meant it silently drifted every time a check was added.
     print(f"all {RAN[0]} checks passed — safe to answer against this corpus")
+
+    # ...and immediately, the number that qualifies it.
+    #
+    # "All N checks passed" sounds like coverage and is not. It is coverage of
+    # the behaviours somebody thought to attack: a check with no mutant behind
+    # it has never been observed to fail, and is therefore indistinguishable
+    # from one that CANNOT. Worse, adding such a check raises N, so the
+    # headline improves while the evidence behind it does not.
+    #
+    # Printed here rather than left to `mutants`, because this is the line
+    # people quote. The honest claim is a pair.
+    print(_proof_summary())
+
+
+def _proof_summary():
+    """How many checks have actually been seen to fail. Never blocks a run."""
+    try:
+        import re as _re
+        from mutants import MUTANTS
+        names = set(_re.findall(r'check\(\s*"([^"]{6,})"', open(__file__).read()))
+        expects = [m["expect"] for m in MUTANTS]
+        proven = sum(1 for n in names if any(e in n for e in expects))
+        return (f"  of {len(names)} distinct checks, {proven} have been observed "
+                f"to fail ({proven * 100 // max(len(names), 1)}%). The rest hold "
+                f"today and have never been tested against a defect — run "
+                f"`mutants` to move that number.")
+    except Exception as exc:
+        return f"  (could not compute how many checks are proven: {exc})"
     sys.exit(0)
 
 

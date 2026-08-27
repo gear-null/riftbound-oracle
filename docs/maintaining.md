@@ -48,6 +48,8 @@ npm run oracle skill-data                # rebuild data/cards.json  (network)
 cd .claude/skills/rules-report/lib
 python3 rules_cli.py build               # re-parse -> data/rules.json, index, rulebook
 python3 rules_cli.py selftest            # must end "all N checks passed"
+                                         # read the line under it too — it says
+                                         # how many of those N have ever failed
 ```
 
 `skill-data` writes card data to **both** skills that vendor it — `rules-report` and
