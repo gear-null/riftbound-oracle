@@ -226,7 +226,7 @@
  "rules_checked written as numbers verifies AND renders",
  "script bodies do not reach the legend",
  "showdowns: the report, the map and the export agree on every transition",
- "stats_html survives '4 Energy'",
+ "stats_html survives hostile shapes",
  "style bodies do not reach the legend",
  "the block stops at the next heading",
  "the child-order check saw children",
