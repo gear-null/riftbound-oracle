@@ -47,6 +47,7 @@ INVARIANTS = {
         # a ruling mentioning a primer was filed as one.
         "reads a ruling's verdict", "tells a ruling from a primer by structure",
         "merely mentions a primer is not filed as one",
+        "filed as a primer, not as a ruling",
         "escapes a filename as a URL"],
     "5. Card text is Riot's current text, or is marked as not being it": [
         "override the vendored card text", "EMPTY card index", "missing card",

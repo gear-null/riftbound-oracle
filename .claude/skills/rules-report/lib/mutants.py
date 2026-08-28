@@ -1510,6 +1510,29 @@ MUTANTS = [
          repl="    blocks.sort(key=lambda ab: ab[0])",
          expect="emits 355.2 before 355.10"),
 
+    dict(name="drop the explicit-path condition, so a named destination is deleted",
+         file="rules_cli.py",
+         find="        if explicit is None and os.path.exists(out) and _is_our_export(out):",
+         repl="        if os.path.exists(out) and _is_our_export(out):",
+         expect="leaves the source report alone"),
+    dict(name="mark every minibook link, carried or not, instead of discriminating",
+         file="export_report.py",
+         find="    if (here[id]) {",
+         repl="    if (1) {",
+         expect="does not carry is marked"),
+    dict(name="file a primer as a ruling by ignoring its topic plate",
+         file="rules_cli.py",
+         find='        has_topic = \'class="topic\' in head',
+         repl='        has_topic = False',
+         expect="filed as a primer, not as a ruling"),
+    # The other direction of the same decision: a RULING filed as a primer.
+    # `has_topic = False` only breaks primers, so the ruling-side check had no
+    # mutant and the release gate reported it unpinned — correctly.
+    dict(name="invert the kind decision, so a ruling is filed as a primer",
+         file="rules_cli.py",
+         find='        kind = "primer" if has_topic and not has_disp else "ruling"',
+         repl='        kind = "ruling" if has_topic and not has_disp else "primer"',
+         expect="tells a ruling from a primer by structure"),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

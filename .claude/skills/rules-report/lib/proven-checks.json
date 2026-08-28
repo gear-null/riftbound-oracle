@@ -58,6 +58,7 @@
  "a goto naming no step is refused",
  "a grounded note with no citations fails verification",
  "a linear primer with no transitions is still valid",
+ "a link to a rule the export does not carry is marked, not dead",
  "a mis-set override is refused rather than quietly ignored",
  "a missing answer file is refused, not substituted",
  "a missing corpus entry reads as unstated, not as another date",
@@ -67,6 +68,7 @@
  "a note missing its basis is reported, not crashed",
  "a plural Examples list is split into separate items",
  "a primer and a ruling on one subject do not overwrite each other",
+ "a primer is filed as a primer, not as a ruling",
  "a primer prints no disposition word",
  "a procedure with no way out is refused",
  "a punctuated multi-word query finds the rule holding both words",
@@ -75,6 +77,7 @@
  "a rail claim is shortened even with no early space",
  "a refused export exits non-zero",
  "a refused export leaves a file it did not write alone",
+ "a refused export leaves the source report alone",
  "a refused re-export removes the superseded export it wrote",
  "a relative input that is not there is refused, not substituted",
  "a relative output path lands where the caller ran the command",
@@ -113,6 +116,7 @@
  "an export refuses input that is not a rendered report",
  "an export refuses when the overlay markup it rewrites is gone",
  "an export refuses when the rulebook lacks a rule the report cites",
+ "an exported report is listed as portable",
  "an open question prints no verdict word",
  "an uncited transition fails verification",
  "an undrawable map says so rather than disappearing",
@@ -280,5 +284,6 @@
  "viktor: every legend entry names a symbol on the page",
  "viktor: the rail restates the verified verdict",
  "with no Fireworks install the IR is still written, and says how to render it",
- "wrapped cross-ref is not fabricated as a rule"
+ "wrapped cross-ref is not fabricated as a rule",
+ "writing a report refreshes the history index"
 ]

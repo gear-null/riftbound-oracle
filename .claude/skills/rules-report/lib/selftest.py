@@ -713,10 +713,18 @@ def export_and_history(idx):
     # silently does nothing — which teaches a reader the evidence is unreliable.
     dangling = {h for h in re.findall(r'href="#((?:CR|TR)-[^"]+)"', minibook)
                 if f'id="{h}"' not in minibook}
+    # Asserted on the BRANCH, not on the constant. "not included in this export"
+    # appears in the injected script whatever that script does, so testing for
+    # the string tested that the string is there. What matters is that the code
+    # distinguishes a carried rule from one it does not carry — so require the
+    # `here[id]` discrimination itself, which is what neutering the branch
+    # (`if (1) {`) removes.
+    discriminates = ("if (here[id])" in minibook
+                     and "not included in this export" in minibook)
     check("a link to a rule the export does not carry is marked, not dead",
-          not dangling or "not included in this export" in minibook,
+          not dangling or discriminates,
           f"{len(dangling)} link(s) out of scope"
-          + (" — marked" if "not included in this export" in minibook else " — UNMARKED"))
+          + (" — marked" if discriminates else " — the marking branch is gone"))
 
     # CR-104 and TR-104 are different rules with the same number.
     docs = {a.split("-", 1)[0] for a in cited}
@@ -889,6 +897,24 @@ def export_and_history(idx):
               f"read {plain_rec.get('disposition')!r}")
         check("the history tells a ruling from a primer by structure",
               plain_rec.get("kind") == "ruling", plain_rec.get("kind"))
+        # ...and the primer direction, which nothing covered: a primer filed as
+        # a ruling went unnoticed, so half the classifier was decorative.
+        prim = os.path.join(rules_cli.REPORTS, "_selftest_primer.html")
+        try:
+            import render_primer
+            praw = json.load(open(os.path.join(HERE, "hot-fepr-primer.json"),
+                                  encoding="utf-8"))
+            pans = render_primer.verify_primer(praw, idx)
+            open(prim, "w", encoding="utf-8").write(
+                safely(lambda: render_primer.render(pans, idx), "", "primer render"))
+            precs = {r["file"]: r for r in
+                     safely(rules_cli._report_records, [], "primer records")}
+            check("a primer is filed as a primer, not as a ruling",
+                  precs.get("_selftest_primer.html", {}).get("kind") == "primer",
+                  precs.get("_selftest_primer.html", {}).get("kind"))
+        finally:
+            if os.path.exists(prim):
+                os.remove(prim)
 
         # A ruling whose QUESTION mentions a primer is still a ruling.
         trap = os.path.join(rules_cli.REPORTS, "_selftest_trap.html")
@@ -957,8 +983,25 @@ def export_and_history(idx):
               os.path.exists(victim),
               "the refusal deleted a document the caller named"
               if not os.path.exists(victim) else "left alone")
+        # SOURCE AND DESTINATION THE SAME PATH — the case this check is named
+        # for, which it did not construct. With `explicit is None` dropped from
+        # the guard, `export mine.html mine.html` deletes the user's only copy
+        # while a check called "leaves the source report alone" prints PASS,
+        # because its fixture used two different paths. A check that cannot
+        # reach its own scenario is decoration on a data-loss guard.
+        # The fixture must be a REAL export, or `_is_our_export` blocks the
+        # deletion for the wrong reason and the mutant survives — the danger is
+        # re-exporting a portable file in place, where source and destination
+        # are one path and the file does carry the marker.
+        same = os.path.join(scratch, "same-path.html")
+        open(same, "w", encoding="utf-8").write(doc)
+        _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                 "export", same, same],
+                capture_output=True, text=True, cwd=scratch)
         check("a refused export leaves the source report alone",
-              os.path.exists(source))
+              os.path.exists(same),
+              "export <x> <x> destroyed the source" if not os.path.exists(same)
+              else "src == dest survived")
         check("a refused export exits non-zero", run.returncode == 1,
               f"exit {run.returncode}")
 
