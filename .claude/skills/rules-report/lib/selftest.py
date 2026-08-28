@@ -19,8 +19,18 @@ NOTES = []
 RAN = [0]
 
 
+SEEN = set()
+
+
 def check(name, ok, detail=""):
     RAN[0] += 1
+    # Names are collected AS THEY RUN, not scraped from source. Some are
+    # composed at runtime (`f"{report}: every legend entry names a symbol"`),
+    # and a regex over `check("...")` literals cannot see those — it reported
+    # 41 of them as recorded-but-no-longer-existing, i.e. as stale credit to be
+    # dropped, when every one was a live check with a dynamic name. A suite
+    # that has to be parsed to be counted will be miscounted.
+    SEEN.add(name)
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}{'  — ' + detail if detail else ''}")
     if not ok:
         FAILS.append(name)
@@ -396,13 +406,19 @@ def card_rendering():
         check("stats render as chips, not prose", 'class="chip"' in chips and "**" not in chips)
 
     # Answer JSON may supply a card object, so stats are untrusted input.
+    # ONE name on both paths, with the offending shape in the detail. It used to
+    # name the shape in the failing branch, so the check was proven under
+    # `stats_html survives '4 Energy'` and seen under `…survives hostile
+    # shapes` — two names for one check, and therefore permanently uncreditable:
+    # the run that proves it cannot print the name the passing run records.
+    broke = ""
     for shape in ("4 Energy", ["a"], 7, None, {"domain": "Fury"}, {"energy": True}):
         try:
-            html = stats_html(shape)
+            stats_html(shape)
         except Exception as exc:
-            check(f"stats_html survives {shape!r}", False, repr(exc)); break
-    else:
-        check("stats_html survives hostile shapes", True)
+            broke = f"{shape!r} raised {exc!r}"
+            break
+    check("stats_html survives hostile shapes", not broke, broke)
     check("a string domain is one chip, not one per letter",
           stats_html({"domain": "Fury"}).count("chip-d") == 1)
     check("a boolean is not rendered as a stat value",
@@ -3436,8 +3452,8 @@ def _proof_summary():
     credit rather than carrying a proof nobody has repeated.
     """
     try:
-        import json as _json, re as _re
-        names = set(_re.findall(r'check\(\s*"([^"]{6,})"', open(__file__).read()))
+        import json as _json
+        names = set(SEEN)
         path = os.path.join(HERE, "proven-checks.json")
         if not os.path.exists(path):
             return (f"  {len(names)} distinct checks. How many have been OBSERVED "
