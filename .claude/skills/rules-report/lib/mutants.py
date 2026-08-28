@@ -1572,6 +1572,19 @@ def preflight():
         shutil.copytree(SKILL, skill, ignore=shutil.ignore_patterns(
             "reports", "__pycache__", "*.tmp"))
         there = count(os.path.join(skill, "lib"))
+    # -1 means the suite printed no verdict at all — it crashed, or its output
+    # changed shape. Comparing counts alone made -1 == -1 a PASS, so a suite
+    # that could not run in EITHER environment cleared the gate designed to
+    # prove it runs in both, and every mutant below would then be scored
+    # against a suite that never executed.
+    if here < 0 or there < 0:
+        print(f"  PREFLIGHT FAILED: the suite produced no verdict "
+              f"({'normally' if here < 0 else ''}"
+              f"{' and ' if here < 0 and there < 0 else ''}"
+              f"{'inside the battery copy' if there < 0 else ''}).\n"
+              "  Nothing below would be measuring anything. Run "
+              "`python3 selftest.py` and fix it first.")
+        return False
     if here != there:
         print(f"  PREFLIGHT FAILED: {here} checks run normally, {there} inside "
               "the battery's copy.\n  Some check reads a fixture the copy omits, "
@@ -1585,7 +1598,7 @@ def preflight():
 PROVEN = os.path.join(HERE, "proven-checks.json")
 
 
-def _record_proven(names):
+def _record_proven(names, complete):
     """Write down which checks have actually been SEEN to fail.
 
     A record is the natural home for stale credit: a check gets renamed, the
@@ -1595,10 +1608,36 @@ def _record_proven(names):
     renaming a check lowers the ratio until the battery has watched the new one
     fail, which is the honest direction for that pressure to point.
     """
+    # A DEGRADED RUN MUST NOT ERASE THE RECORD. This wrote an unconditional
+    # snapshot of one run, so a battery that crashed early — or was interrupted
+    # — replaced hard-won evidence with whatever it had managed, and the
+    # project's headline honesty number silently fell. Evidence that one run
+    # can delete is not evidence.
+    #
+    # So: refuse to shrink unless every mutant actually ran. A partial run adds
+    # what it saw and keeps what it did not reach.
+    try:
+        existing = set()
+        if os.path.exists(PROVEN):
+            with open(PROVEN, encoding="utf-8") as fh:
+                existing = set(json.load(fh))
+    except (OSError, ValueError):
+        existing = set()
+
+    if complete:
+        final, how = set(names), "recorded"
+        dropped = len(existing - final)
+        if dropped:
+            print(f"\n  {dropped} previously-proven check(s) were NOT seen this "
+                  "run — dropped, because a full battery is the authority")
+    else:
+        final, how = existing | set(names), "merged into"
+        print("\n  partial run: keeping previously-recorded proofs rather than "
+              "overwriting them with what this run happened to reach")
     try:
         with open(PROVEN, "w", encoding="utf-8") as fh:
-            json.dump(sorted(names), fh, indent=1)
-        print(f"\n  recorded {len(names)} check(s) observed to fail -> "
+            json.dump(sorted(final), fh, indent=1)
+        print(f"  {how} {len(final)} check(s) observed to fail -> "
               f"{os.path.basename(PROVEN)}")
     except OSError as err:
         print(f"\n  (could not record which checks failed: {err})")
@@ -1621,12 +1660,18 @@ def main():
     reddened = set()
     for i, m in enumerate(MUTANTS, 1):
         failures, err = run_one(m)
-        reddened.update(f for f in failures
-                        if not f.startswith(("<suite crashed>", "<verdict>")))
+        # AFTER the stale guard: `run_one` returns (None, err) for a drifted
+        # anchor, and iterating that None took the entire battery down with a
+        # TypeError — destroying the [STALE] report, which is the mechanism
+        # that caught anchors drifting repeatedly while this PR was written.
+        # A collector for the proven record must never be able to break the
+        # thing it is collecting from.
         if err:
             stale.append((m["name"], err))
             print(f"  [STALE] {i:2}. {m['name']}\n           {err}")
             continue
+        reddened.update(f for f in (failures or ())
+                        if not f.startswith(("<suite crashed>", "<verdict>")))
         crashed = [f for f in failures if f.startswith("<suite crashed>")]
         # `caught` is computed over NAMED failures only. Matching it against the
         # crash text let a traceback containing the expect substring be credited
@@ -1660,7 +1705,7 @@ def main():
         print(f"{len(survived)} of {len(MUTANTS)} mutants SURVIVED — the named check "
               "passes while its defect is live.")
         bad += survived
-    _record_proven(reddened)
+    _record_proven(reddened, complete=not (stale or crashes))
     if bad:
         # Exits non-zero for stale and crashed too. Only `survived` used to
         # fail, so a battery in which nothing meaningful ran still printed

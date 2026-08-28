@@ -675,6 +675,45 @@ def export_and_history(idx):
           set(cited) <= got, f"missing {sorted(set(cited) - got)[:4]}")
     check("the embedded rulebook carries NOTHING the report does not cite",
           got <= set(cited), f"{len(got - set(cited))} uncited rule(s) rode along")
+    # Rules are numbered, and a rules document's one ordering guarantee is
+    # numeric. `sorted()` over anchor strings puts 355.10 before 355.2.
+    order = [m for m in re.findall(r'id="((?:CR|TR)-[^"]+)"', minibook)]
+    check("the embedded rulebook comes out in ascending order",
+          order == sorted(order, key=E._rule_sort_key), f"{order[:5]}")
+    # ...and the ordering RULE, on a case that distinguishes the two. This
+    # report's anchors happen to sort the same either way, so the check above
+    # passes with string ordering restored — true of the corpus today and no
+    # evidence about the property. 110 rule ids in the corpus have a component
+    # of 10 or more, where the two orderings disagree.
+    spread = ["CR-355.10", "CR-355.2", "CR-1000", "CR-200", "TR-104"]
+    check("rule ids sort by number, not as strings",
+          sorted(spread, key=E._rule_sort_key)
+          == ["CR-200", "CR-355.2", "CR-355.10", "CR-1000", "TR-104"],
+          str(sorted(spread, key=E._rule_sort_key)))
+
+    # `about:srcdoc` inherits the parent's base URL, so `href="#CR-206"` inside
+    # the minibook resolved against the REPORT and clicking a rule's own
+    # permalink loaded a second copy of the whole report into the overlay.
+    check("the embedded rulebook handles its own internal links",
+          "addEventListener('click'" in minibook and "preventDefault" in minibook,
+          "no click handler — internal links would navigate the overlay away")
+
+    # A `see also` pointing at a rule the export does not carry is a link that
+    # silently does nothing — which teaches a reader the evidence is unreliable.
+    dangling = {h for h in re.findall(r'href="#((?:CR|TR)-[^"]+)"', minibook)
+                if f'id="{h}"' not in minibook}
+    check("a link to a rule the export does not carry is marked, not dead",
+          not dangling or "not included in this export" in minibook,
+          f"{len(dangling)} link(s) out of scope"
+          + (" — marked" if "not included in this export" in minibook else " — UNMARKED"))
+
+    # CR-104 and TR-104 are different rules with the same number.
+    docs = {a.split("-", 1)[0] for a in cited}
+    check("the embedded rulebook keeps the document boundary",
+          all(f'>{E.DOC_TITLES[d]}<' in minibook for d in docs if d in E.DOC_TITLES),
+          f"docs {sorted(docs)}; headings "
+          f"{re.findall(r'class=.rb-doc-sep.>([^<]+)<', minibook)}")
+
     check("every rule in the embedded rulebook arrives whole",
           minibook.count("<section") == minibook.count("</section>")
           and minibook.count("<section") == len(cited),
@@ -817,6 +856,43 @@ def export_and_history(idx):
         # decorative: every report listed as not-portable, including the
         # portable ones. A flag that cannot be true is the same defect as a
         # check that cannot fail.
+        # THE DERIVED FIELDS, pinned. `disposition` and `kind` shipped broken
+        # and green: the verdict lived ~25KB into the file and was read from a
+        # 20KB window, so that column could never be populated — the same
+        # defect as the portable flag, in the adjacent column, in the commit
+        # that fixed the portable flag. `kind` was a substring search that
+        # filed any ruling mentioning "primer" as a primer. Neither had a check.
+        by_file = {r["file"]: r for r in records}
+        plain_rec = by_file.get("_selftest_plain.html", {})
+        check("the history reads a ruling's verdict, not an empty column",
+              plain_rec.get("disposition") in ("YES", "NO", "DEPENDS",
+                                               "UNSETTLED", "ANSWER"),
+              f"read {plain_rec.get('disposition')!r}")
+        check("the history tells a ruling from a primer by structure",
+              plain_rec.get("kind") == "ruling", plain_rec.get("kind"))
+
+        # A ruling whose QUESTION mentions a primer is still a ruling.
+        trap = os.path.join(rules_cli.REPORTS, "_selftest_trap.html")
+        try:
+            open(trap, "w", encoding="utf-8").write(
+                html.replace("<title>", "<title>primer primer primer ", 1))
+            trapped = {r["file"]: r for r in
+                       safely(rules_cli._report_records, [], "trap records")}
+            check("a ruling that merely mentions a primer is not filed as one",
+                  trapped.get("_selftest_trap.html", {}).get("kind") == "ruling",
+                  trapped.get("_selftest_trap.html", {}).get("kind"))
+        finally:
+            if os.path.exists(trap):
+                os.remove(trap)
+
+        # A filename carrying URL syntax must still link to itself.
+        page = safely(lambda: open(
+            rules_cli.write_report_index(records), encoding="utf-8").read(),
+            "", "write index")
+        check("the index escapes a filename as a URL, not only as an attribute",
+              "%23" in rules_cli._url_quote_probe("a#b.html"),
+              rules_cli._url_quote_probe("a#b.html"))
+
         portable = {r["file"] for r in records if r["portable"]}
         check("an exported report is listed as portable",
               "_selftest_port.html" in portable,

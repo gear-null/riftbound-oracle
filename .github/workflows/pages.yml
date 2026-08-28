@@ -14,6 +14,10 @@ on:
       - '.claude/skills/rules-report/data/**'
       - '.claude/skills/rules-report/lib/*primer*.json'
       - 'docs/images/**'
+      # The site banner. build.py reads it (IMAGES, site/build.py) and writes
+      # site/img/banner.png; without it here, changing the banner published
+      # nothing and the site kept serving the old one.
+      - 'riftbound-oracle.png'
       - '.github/workflows/pages.yml'
   # Publishing is a deliberate act, so it can always be triggered by hand.
   workflow_dispatch:
@@ -43,10 +47,16 @@ jobs:
 
       - name: Refuse to publish a site that has drifted from its corpus
         run: |
-          if ! git diff --quiet -- site/; then
+          # `git diff` sees TRACKED files only, and `upload-pages-artifact`
+          # uploads `site/` wholesale — so a page the rebuild CREATED was
+          # invisible to the gate and published anyway, unreviewed and in no
+          # commit. `git status --porcelain` covers modified, deleted AND
+          # untracked, which is the set that actually gets uploaded.
+          DRIFT="$(git status --porcelain -- site/)"
+          if [ -n "$DRIFT" ]; then
             echo "::error::site/ does not match what site/build.py produces from the current corpus."
             echo "Run 'python3 site/build.py' and commit the result."
-            git diff --stat -- site/
+            echo "$DRIFT"
             exit 1
           fi
           echo "site/ matches the corpus it is derived from"

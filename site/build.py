@@ -33,6 +33,7 @@ from __future__ import annotations
 import html
 import json
 import re
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -48,9 +49,16 @@ TOPICS = [
     ("showdowns", "showdowns-primer.json", "Showdowns", "Showdowns"),
 ]
 
+# The samples are RENDERED from the shipped answers, not copied from wherever a
+# report happens to be lying around. Copying meant the committed sample was
+# whatever some past run left in `reports/` — an ephemeral, untracked folder —
+# so it silently drifted to an older renderer's output, and the page saying
+# "this is what the skill produces" showed something the skill had stopped
+# producing. A fresh clone has no `reports/` at all, so the drift gate could
+# not see it either.
 REPORTS = [
-    ("flow-counter.html", "ruling-flow-counter.html"),
-    ("hot-fepr-primer.html", "primer-hot-fepr.html"),
+    ("flow-counter-answer.json", "ruling-flow-counter.html"),
+    ("hot-fepr-primer.json", "primer-hot-fepr.html"),
 ]
 
 IMAGES = [
@@ -315,8 +323,20 @@ def explainer(slug: str, primer: dict, anchors: set[str]) -> str:
                         f'<span class="exit-goto">Go to step <b>{j + 1} &mdash; '
                         f'{e(steps[j]["heading"])}</b></span>'
                     )
-                else:
+                elif goto is None:
                     target = '<span class="exit-goto">The procedure <b>ends here</b></span>'
+                else:
+                    # A goto NAMING A STEP THAT DOES NOT EXIST is a broken
+                    # document, and it used to fall through to "ends here" —
+                    # publishing a page that told a reader the procedure
+                    # terminates where the author said it continues. That is a
+                    # wrong answer stated confidently, which is the failure
+                    # this project exists to refuse. Refuse to build instead.
+                    raise SystemExit(
+                        f"{slug}: transition {n} sends the reader to step "
+                        f"{goto!r}, which no step declares. The page would have "
+                        "said the procedure ends here."
+                    )
                 cites = " &middot; ".join(
                     f'<a href="{rule_href(c["rule"])}">{e(rule_label(c["rule"]))}</a>'
                     for c in ex["cites"]
@@ -511,15 +531,73 @@ def check_handwritten_corpus_claims() -> None:
     """
     raw = json.loads((SKILL / "data" / "rules.json").read_text(encoding="utf-8"))
     actual = len(raw if isinstance(raw, list) else raw.get("rules", raw))
-    for page in ("index.html", "samples.html"):
-        text = (SITE / page).read_text(encoding="utf-8")
-        for claimed in re.findall(r"([0-9,]+) rules\b", text):
-            if int(claimed.replace(",", "")) != actual:
+
+    # The claim can be written several ways and the check has to see all of
+    # them, or it silently stops checking. `([0-9,]+) rules\b` demanded a
+    # literal ASCII space and a lowercase word, so `3,316&nbsp;rules`,
+    # `<b>3,316</b> rules` and `3,316 Rules` — all of them this site's own
+    # house style elsewhere — sailed past while reading as checked.
+    #
+    # Tags and entities are flattened first, then the match is
+    # case-insensitive over any run of whitespace. Missing a claim is the
+    # failure that matters: a stale number on the page selling verification.
+    flat = re.sub(r"<[^>]+>", "", "".join(
+        (SITE / page).read_text(encoding="utf-8") for page in
+        ("index.html", "samples.html")))
+    flat = (flat.replace("&nbsp;", " ").replace("\u00a0", " ")
+                .replace("&#8239;", " ").replace("\u202f", " "))
+    claims = re.findall(r"([0-9][0-9,]*)\s+rules\b", flat, re.I)
+    if not claims:
+        raise SystemExit(
+            "no '<n> rules' claim found on the hand-written pages. Either the "
+            "wording changed and this check has stopped checking anything, or "
+            "the claim was removed — say which in the commit."
+        )
+    for claimed in claims:
+        if int(claimed.replace(",", "")) != actual:
+            raise SystemExit(
+                f"a hand-written page claims {claimed} rules; the corpus has "
+                f"{actual:,}. A rules update moved it — update the page in the "
+                "same commit."
+            )
+    print(f"checked {len(claims)} corpus claim(s) on the hand-written pages "
+          f"({actual:,} rules)")
+
+
+def render_samples() -> None:
+    """Render each sample with the skill's own renderer, here and now.
+
+    So a sample cannot be stale: it is produced by the renderer in this
+    checkout, from an answer committed beside it, every time the site builds.
+    Any drift becomes a diff in `site/reports/` — which the Pages gate refuses
+    to publish — instead of an old page quietly claiming to show current output.
+    """
+    lib = str(SKILL / "lib")
+    if lib not in sys.path:
+        sys.path.insert(0, lib)
+    cwd = os.getcwd()
+    try:
+        os.chdir(lib)          # the skill resolves its data relative to lib/
+        from verify_citations import RuleIndex
+        import render_report
+        import render_primer
+        idx = RuleIndex()
+        for src, dst in REPORTS:
+            raw = json.loads((SKILL / "lib" / src).read_text(encoding="utf-8"))
+            primer = raw.get("kind") == "primer"
+            verify = render_primer.verify_primer if primer else render_report.verify_answer
+            render = render_primer.render if primer else render_report.render
+            ans = verify(raw, idx)
+            if ans["_problems"]:
                 raise SystemExit(
-                    f"{page} claims {claimed} rules; the corpus has {actual:,}. "
-                    "A rules update moved it — update the page in the same commit."
+                    f"the shipped sample {src} no longer verifies "
+                    f"({len(ans['_problems'])} problem(s)) — the site cannot "
+                    f"publish it as an example: {ans['_problems'][:2]}"
                 )
-    print(f"checked hand-written pages against the corpus ({actual:,} rules)")
+            (SITE / "reports" / dst).write_text(render(ans, idx), encoding="utf-8")
+            print(f"rendered reports/{dst}  (from {src}, with this renderer)")
+    finally:
+        os.chdir(cwd)
 
 
 def main() -> None:
@@ -560,19 +638,7 @@ def main() -> None:
     # required one could not rebuild this site, which is the whole property
     # being claimed. So: refresh when the source is there, keep the committed
     # copy when it is not, and refuse when there is neither.
-    for src, dst in REPORTS:
-        source = SKILL / "reports" / src
-        committed = SITE / "reports" / dst
-        if source.exists():
-            shutil.copyfile(source, committed)
-            print(f"copied reports/{dst}  (refreshed from the skill)")
-        elif committed.exists():
-            print(f"kept   reports/{dst}  (committed sample; no local source)")
-        else:
-            raise SystemExit(
-                f"reports/{dst} is missing and {source} does not exist — "
-                f"generate the report, or restore the committed sample."
-            )
+    render_samples()
 
     for src, dst in IMAGES:
         shutil.copyfile(src, SITE / "img" / dst)

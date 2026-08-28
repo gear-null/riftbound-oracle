@@ -76,6 +76,54 @@ def _cited_anchors(html):
     return sorted({m.group(1)[1:] for m in RULEBOOK_HREF.finditer(html) if m.group(1)})
 
 
+DOC_TITLES = {"CR": "Comprehensive Rules", "TR": "Tournament Rules"}
+
+
+def _rule_sort_key(anchor):
+    """Document, then rule number componentwise — 355.2 before 355.10."""
+    doc, _, rid = anchor.partition("-")
+    parts = []
+    for piece in rid.split("."):
+        parts.append((0, int(piece), "") if piece.isdigit() else (1, 0, piece))
+    return (doc, parts)
+
+
+# Runs INSIDE the embedded rulebook. Two jobs, both invisible until you click.
+#
+# 1. An `about:srcdoc` document inherits its base URL from the parent, so every
+#    `href="#CR-206"` in here resolved against the REPORT's URL — clicking a
+#    rule's own permalink, or a `see also`, navigated the overlay to a second
+#    copy of the whole report nested inside itself. Intercepting the click and
+#    scrolling makes those links mean what they look like.
+# 2. A `see also` pointing at a rule this export does not carry cannot be
+#    followed. Saying so is the honest outcome; a link that silently does
+#    nothing teaches a reader that the evidence is unreliable.
+_MINIBOOK_JS = """<script>
+(function(){
+  var here = {};
+  Array.prototype.forEach.call(document.querySelectorAll('[id]'), function(n){
+    here[n.id] = 1;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('a[href^="#"]'), function(a){
+    var id = a.getAttribute('href').slice(1);
+    if (here[id]) {
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        var t = document.getElementById(id);
+        if (t) t.scrollIntoView();
+      });
+    } else {
+      a.setAttribute('title', 'not included in this export \u2014 ' +
+        'the full rulebook has it');
+      a.style.opacity = '.55';
+      a.style.cursor = 'not-allowed';
+      a.addEventListener('click', function(e){ e.preventDefault(); });
+    }
+  });
+})();
+</script>"""
+
+
 def build_minibook(anchors, rules_html):
     """A rulebook holding exactly the rules this report links to.
 
@@ -135,13 +183,34 @@ def build_minibook(anchors, rules_html):
         # satisfied by an opening tag alone; this is what makes it a rule.
         if block.count("<section") != 1 or not block.endswith("</section>"):
             raise ExportRefused(f"the block for {a} did not come out whole")
-        blocks.append(block)
+        blocks.append((a, block))
+
+    # ORDER BY RULE NUMBER, not by string. `sorted()` over anchors puts 355.10
+    # before 355.2, and 1000 before 200 — so a reader scrolling the embedded
+    # rulebook meets the rules out of the order the document numbers them,
+    # which is the one ordering a rules document guarantees.
+    blocks.sort(key=lambda ab: _rule_sort_key(ab[0]))
+
+    # KEEP THE DOCUMENT BOUNDARY. The real rulebook separates CR from TR with a
+    # heading; dropping it left `CR-104` and `TR-104` — different rules with
+    # the same number — as indistinguishable neighbours, and a reader has no
+    # way to tell which document a block came from.
+    body, current_doc = [], None
+    for anchor, block in blocks:
+        doc = anchor.split("-", 1)[0]
+        if doc != current_doc:
+            current_doc = doc
+            body.append(
+                f'<h1 class="rb-doc-sep">{DOC_TITLES.get(doc, doc)}</h1>')
+        body.append(block)
+
     return (
         head
         + "<body class=\"rb minibook\">"
-        + "<p class='minibook-note'>The rules this report cites. "
-        + "The full rulebook is in the repository.</p>"
-        + "".join(blocks)
+        + "<p class='minibook-note'>The rules this report cites, in document "
+        + "order. The full rulebook is in the repository.</p>"
+        + "".join(body)
+        + _MINIBOOK_JS
         + "</body></html>"
     )
 

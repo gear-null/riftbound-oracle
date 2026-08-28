@@ -792,25 +792,41 @@ def _report_records():
         if not name.endswith(".html") or name == INDEX_NAME:
             continue
         path = os.path.join(REPORTS, name)
+        # WINDOWS ARE WHERE THIS KEEPS GOING WRONG. The portable marker sits
+        # ~2.5MB in, and a head-only scan meant that flag could never be true.
+        # The disposition sits at ~25KB, past the 20KB head, so the Verdict
+        # column could never be populated either — the same defect in the
+        # adjacent column, shipped in the same commit as its fix.
+        #
+        # So each field is read from a window chosen for WHERE IT ACTUALLY IS,
+        # and every window is asserted by a check. A report is at most a few MB
+        # and there are few of them; reading generously beats being clever and
+        # wrong twice.
         try:
             with open(path, encoding="utf-8", errors="replace") as fh:
-                head = fh.read(20000)
-                # The portable marker sits at the END — the embedded rulebook
-                # is appended after the overlay's iframe, ~2.5MB into a 2.6MB
-                # file. Read the tail for it rather than the head, or the flag
-                # is never true and the column silently means nothing.
+                head = fh.read(80_000)          # <title>, <body>, the verdict plate
                 fh.seek(0, os.SEEK_END)
                 size = fh.tell()
                 fh.seek(max(0, size - 400_000))
-                tail = fh.read()
+                tail = fh.read()                # the appended portable payload
         except (OSError, ValueError):
             continue
+
         title = re.search(r"<title>(.*?)</title>", head, re.S)
         disp = re.search(r'class="disp[^"]*">([A-Z]+)<', head)
+        # `kind` from STRUCTURE, not from prose. It was `"primer" in
+        # head[:4000].lower()`, which reaches only the <title> and the
+        # stylesheet — so a RULING whose question mentions a primer was filed
+        # as one, and the label a reader scans by was decided by a word in a
+        # sentence. A primer renders a topic plate and no disposition; a ruling
+        # renders a disposition plate. Read the plates.
+        has_topic = 'class="topic' in head
+        has_disp = 'class="disp' in head
+        kind = "primer" if has_topic and not has_disp else "ruling"
         out.append({
             "file": name,
             "title": _html.unescape(title.group(1).strip()) if title else name,
-            "kind": "primer" if "primer" in head[:4000].lower() else "ruling",
+            "kind": kind,
             "disposition": disp.group(1) if disp else "",
             "mtime": os.path.getmtime(path),
             "size": os.path.getsize(path),
@@ -819,11 +835,25 @@ def _report_records():
     return sorted(out, key=lambda r: r["mtime"], reverse=True)
 
 
+def _url_quote_probe(name):
+    """The exact quoting the index applies to a filename. Exists to be checked."""
+    import urllib.parse as _u
+    return _u.quote(name)
+
+
 def cmd_reports(args):
     """List what has been answered, and write a browsable index beside it."""
     import datetime
     records = _report_records()
     if not records:
+        # Refresh FIRST. Returning early left the previous index in place, so
+        # after deleting the last report the folder said "no reports yet" while
+        # index.html still listed them — a stale artifact surviving precisely
+        # the event that should have cleared it.
+        try:
+            write_report_index(records)
+        except OSError:
+            pass
         print(f"no reports yet in {REPORTS}")
         return 0
     for r in records:
@@ -838,14 +868,19 @@ def cmd_reports(args):
 
 def write_report_index(records=None):
     """The history page. Regenerated from the directory on every call."""
-    import datetime, html as _html
+    import datetime, html as _html, urllib.parse as _url
     records = _report_records() if records is None else records
     rows = []
     for r in records:
         when = datetime.datetime.fromtimestamp(r["mtime"]).strftime("%Y-%m-%d %H:%M")
         rows.append(
             f'<tr><td class="w">{when}</td>'
-            f'<td><a href="./{_html.escape(r["file"])}">{_html.escape(r["title"])}</a></td>'
+            # QUOTED as a URL, then escaped as an attribute. `html.escape`
+            # alone leaves `#` and `?` intact — they are URL syntax, so a
+            # report named `q?.html` linked to `q`, a file that does not exist,
+            # and the row silently pointed at nothing.
+            f'<td><a href="./{_html.escape(_url.quote(r["file"]))}">'
+            f'{_html.escape(r["title"])}</a></td>'
             f'<td class="k">{r["kind"]}</td>'
             f'<td class="d">{_html.escape(r["disposition"])}</td>'
             f'<td class="w">{"portable" if r["portable"] else ""}</td></tr>'
@@ -881,6 +916,21 @@ def cmd_export(args):
         doc = export_report.export(html, rules_html)
     except export_report.ExportRefused as err:
         print(f"EXPORT REFUSED — nothing written: {err}")
+        # "Nothing written" was true of this run and false of the folder. The
+        # destination is a deterministic name, so a refused RE-export left the
+        # previous one sitting there — older than the report beside it, no
+        # longer matching it, and listed by `reports` as current and portable.
+        # That is invariant 10 exactly: a failure leaving a stale artifact
+        # looking current. Removing it is the honest outcome; a reader with no
+        # export is not misled, a reader with a superseded one is.
+        if os.path.exists(out):
+            try:
+                os.remove(out)
+                print(f"  removed the previous export at {out} — it no longer "
+                      "matches the report and nothing here can vouch for it")
+            except OSError as rm_err:
+                print(f"  WARNING: a superseded export remains at {out} "
+                      f"({rm_err}) — delete it before sharing")
         return 1
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     _write_atomically(out, lambda fh: fh.write(doc))
@@ -888,7 +938,16 @@ def cmd_export(args):
     print(f"wrote {out}  ({mb:.1f} MB, self-contained)")
     print("Every rule it cites and every card image travel inside the file. "
           "Send it as-is.")
-    write_report_index()
+    # Guarded exactly as `cmd_report` guards it: only when the artifact landed
+    # in the folder the index describes, and never allowed to fail a write that
+    # already succeeded. Unconditional, it fabricated a "0 report(s)" history
+    # for an export written elsewhere, and could turn a successful export into
+    # a traceback.
+    if os.path.dirname(os.path.abspath(out)) == REPORTS:
+        try:
+            write_report_index()
+        except OSError as err:
+            print(f"  (could not refresh the report index: {err})")
     return 0
 
 
@@ -922,7 +981,12 @@ def main():
         args.append(full)
 
     os.chdir(HERE)
-    COMMANDS[sys.argv[1]](args)
+    # The return value is the exit code. It used to be discarded, so
+    # `export` printing "EXPORT REFUSED — nothing written" still exited 0 —
+    # and the whole-or-nothing promise was unenforceable by the only kind of
+    # caller that cannot read prose. Every other failing command in here uses
+    # `sys.exit`; this makes `return 1` mean the same thing.
+    sys.exit(COMMANDS[sys.argv[1]](args) or 0)
 
 
 if __name__ == "__main__":

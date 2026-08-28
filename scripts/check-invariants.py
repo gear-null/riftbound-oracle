@@ -4,6 +4,7 @@
 Exits non-zero on a gap. This is the release gate: not "did the suite pass" but
 "is every invariant held up by a check that has been observed to fail".
 """
+import json
 import os
 import re
 import subprocess
@@ -157,7 +158,28 @@ def main():
         for name in failed:
             print(f"  ! {name}")
         sys.exit(f"\nselftest exited {run.returncode}. Fix the suite, then run this again.")
-    proven = {n for m in mutants.MUTANTS for n in names if m["expect"] in n}
+    # PROVEN MEANS OBSERVED, not claimed.
+    #
+    # This was `{n for m in MUTANTS for n in names if m["expect"] in n}` — the
+    # same name-matching the battery and the suite both stopped using, and for
+    # the reason that matters here: it counts a mutant's CLAIM about which
+    # check it reddens. Ten such claims were false at once when a whole check
+    # group silently did not run inside the battery, and this gate would have
+    # gone on reporting those invariants as pinned. A release gate resting on
+    # claims is the failure it exists to prevent.
+    #
+    # `proven-checks.json` is what the battery WATCHED go red. No record means
+    # unknown, and unknown must not read as pinned.
+    record = os.path.join(LIB, "proven-checks.json")
+    if not os.path.exists(record):
+        sys.exit(
+            "no proven-checks.json — this gate cannot tell which checks have "
+            "actually been seen to fail, and will not guess.\n"
+            "Run: python3 .claude/skills/rules-report/lib/mutants.py"
+        )
+    with open(record, encoding="utf-8") as fh:
+        observed = set(json.load(fh))
+    proven = {n for n in names if n in observed}
 
     gaps = []
     print(f"{'INVARIANT':64}{'checks':>7}{'proven':>8}")

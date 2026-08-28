@@ -169,6 +169,23 @@ jobs:
             exit 1
           }
 
+      - name: The site builds, and its verifiers can fail
+        run: |
+          # `site/build.py` enforces invariant 12 on the website and refuses a
+          # stale corpus claim. It ran nowhere until a push to main, so a PR
+          # could break the published site and nothing said so until after the
+          # merge. Build it, prove the build is reproducible, and run the tests
+          # that watch its two verifiers go red.
+          python3 site/build.py
+          python3 site/build_test.py
+          DRIFT="$(git status --porcelain -- site/)"
+          if [ -n "$DRIFT" ]; then
+            echo "::error::site/ does not match what site/build.py produces."
+            echo "Run 'python3 site/build.py' and commit the result."
+            echo "$DRIFT"
+            exit 1
+          fi
+
       - name: The committed manifests match the corpus
         run: |
           # `oracle package` rewrites every SKILL-VERSION.json. If that changes
@@ -178,6 +195,15 @@ jobs:
           # the day someone remembers to extend this line.
           git diff --exit-code -- .claude/skills/*/SKILL-VERSION.json || {
             echo "::error::a SKILL-VERSION.json is stale — run 'npm run oracle package' and commit it"
+            exit 1
+          }
+          # The battery above writes proven-checks.json, which is committed —
+          # so a run that changes which checks have been WATCHED to fail leaves
+          # the tree dirty. Silently, the recorded ratio would drift from
+          # reality; loudly, it is one commit. Same trap, same guard.
+          git diff --exit-code -- .claude/skills/*/lib/proven-checks.json || {
+            echo "::error::proven-checks.json changed — the set of checks observed to fail moved."
+            echo "Run the battery locally and commit the record."
             exit 1
           }
 
