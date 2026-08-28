@@ -11,6 +11,7 @@ Exit 0 = safe to answer questions against this corpus.
 """
 import glob, json, os, re, subprocess, sys
 
+import shutil
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
@@ -851,7 +852,15 @@ def export_and_history(idx):
     port = os.path.join(rules_cli.REPORTS, "_selftest_port.html")
     try:
         open(plain, "w", encoding="utf-8").write(html)
-        open(port, "w", encoding="utf-8").write(doc)
+        # PADDED so the portable marker lands past any plausible head window.
+        # In a real export the embedded rulebook sits ~2.5MB in; this fixture's
+        # was at 46KB, and widening the head to 80,000 to fix the verdict column
+        # silently put the marker inside it — so the head-only mutant could no
+        # longer fail. One fix disabling another check is why the fixture has to
+        # model the shape it is testing, not merely be an instance of it.
+        pad = "<!-- " + ("padding " * 12_000) + " -->"
+        open(port, "w", encoding="utf-8").write(
+            doc.replace("<body", pad + "<body", 1))
         records = safely(rules_cli._report_records, [], "report records")
         names = {r["file"] for r in records}
         check("the history lists the reports that exist",
@@ -992,15 +1001,26 @@ def export_and_history(idx):
     # that updates on a second command nobody is told to run is stale by
     # default, and stale in the worst way: it lists every answer except the one
     # just written, which is the one its reader came for.
-    src_lines = open(os.path.join(HERE, "rules_cli.py"), encoding="utf-8").read()
-    body = safely(
-        lambda: src_lines[src_lines.index("def cmd_report("):
-                          src_lines.index("def cmd_render(")],
-        "", "locate cmd_report")
-    check("writing a report refreshes the history index",
-          "write_report_index()" in body,
-          "cmd_report calls it" if "write_report_index()" in body
-          else "cmd_report never updates the index, so `reports` must be run by hand")
+    # BEHAVIOURAL, not a grep. This asserted `"write_report_index()" in
+    # cmd_report's source`, which stays true when the call is disabled — a
+    # mutant wrapping it in `if False:` left the check green. Run the command
+    # and look at the file it was supposed to refresh.
+    with _tf.TemporaryDirectory() as scratch:
+        answer = os.path.join(scratch, "idx-probe-answer.json")
+        shutil.copyfile(os.path.join(HERE, "flow-counter-answer.json"), answer)
+        stamp = os.path.join(rules_cli.REPORTS, rules_cli.INDEX_NAME)
+        before = os.path.getmtime(stamp) if os.path.exists(stamp) else 0
+        if os.path.exists(stamp):
+            os.remove(stamp)
+        _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                 "report", answer, "--no-open"],
+                capture_output=True, text=True, cwd=scratch)
+        wrote = os.path.exists(stamp)
+        check("writing a report refreshes the history index",
+              wrote, "the index was not written by `report`" if not wrote
+              else "refreshed")
+        if not wrote and before:
+            rules_cli.write_report_index()
 
     # Diagrams used to land in `reports/` beside the answers, so the folder a
     # user browses held `combat.svg` and `ok.fireworks.json` as siblings of the
