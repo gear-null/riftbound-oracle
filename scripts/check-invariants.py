@@ -28,12 +28,26 @@ INVARIANTS = {
         "TR-only bare id is labelled TR"],
     "3. Every rule id the report shows exists in the corpus": [
         "considered_rejected id", "rules_checked id", "rule_sections",
-        "legend entry names a symbol"],
+        "legend entry names a symbol",
+        # The export is a second surface that shows rule ids, and the embedded
+        # rulebook is where they resolve. A rule that arrives half, out of
+        # order, or under the wrong document heading is the same class of wrong
+        # id as one that does not exist.
+        "carries every rule the report cites", "arrives whole",
+        "does not carry is marked", "keeps the document boundary",
+        "emits 355.2 before 355.10",
+        "handles its own internal links"],
     "4. The page never claims more support than the notes carry": [
         "grounded note with no citations", "span cannot claim more support",
         "gap note is the weakest link",
         "uncited transition fails verification",
-        "reports structural as its weakest link"],
+        "reports structural as its weakest link",
+        # The history states each report's verdict and kind. Both were wrong in
+        # ways nothing could see: the verdict column could never populate, and
+        # a ruling mentioning a primer was filed as one.
+        "reads a ruling's verdict", "tells a ruling from a primer by structure",
+        "merely mentions a primer is not filed as one",
+        "escapes a filename as a URL"],
     "5. Card text is Riot's current text, or is marked as not being it": [
         "override the vendored card text", "EMPTY card index", "missing card",
         "fused extraction artifact", "fused artifact at the end",
@@ -60,6 +74,9 @@ INVARIANTS = {
     "10. A failure never leaves a stale artifact looking current": [
         "refuses the whole export", "refuses when the overlay markup",
         "refuses when the rulebook lacks", "refuses input that is not a rendered report",
+        "leaves a file it did not write alone", "leaves the source report alone",
+        "removes the superseded export it wrote", "a refused export exits non-zero",
+        "clears the history rather than leaving ghosts",
         "failed write leaves the previous ruling intact",
         "rulebook render leaves the previous one intact",
         "committed rulebook matches", "crash inside render leaves the previous report intact",

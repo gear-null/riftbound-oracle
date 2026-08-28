@@ -516,6 +516,42 @@ def check_page_declares_no_extra_transitions(slug: str, primer: dict, page: str)
         )
 
 
+def check_sample_metrics() -> None:
+    """The numbers samples.html quotes must be the numbers the samples show.
+
+    `samples.html` is prose and states each sample's metrics by hand — "6/6",
+    "Six citations", "Weakest link 4". Those come from the report beside them,
+    which is REGENERATED on every build, so a corpus change or a renderer
+    change silently makes the page describe a document that no longer exists.
+    It already had: the ruling carries 7 citations and the page said six.
+
+    A wrong number on the page whose whole subject is verification is the
+    cheapest possible way to lose a reader's trust, so it is checked here
+    rather than remembered.
+    """
+    page = (SITE / "samples.html").read_text(encoding="utf-8")
+    problems = []
+    for slug, label in (("ruling-flow-counter", "ruling"),
+                        ("primer-hot-fepr", "primer")):
+        report = (SITE / "reports" / f"{slug}.html").read_text(encoding="utf-8")
+        tallies = re.findall(r"<b>(\d+)/(\d+)</b>", report)
+        if not tallies:
+            problems.append(f"{slug}: no citation tally found in the report")
+            continue
+        got, total = tallies[0]
+        if f"{got}/{total}" not in page:
+            problems.append(
+                f"{label}: the report shows {got}/{total} citations; "
+                f"samples.html does not say so")
+    if problems:
+        raise SystemExit(
+            "samples.html describes the samples inaccurately:\n  "
+            + "\n  ".join(problems)
+            + "\nThe reports are regenerated each build; update the prose with them."
+        )
+    print("checked samples.html against the samples it describes")
+
+
 def check_handwritten_corpus_claims() -> None:
     """The hand-written pages state a rule count. Prove it is still true.
 
@@ -546,6 +582,19 @@ def check_handwritten_corpus_claims() -> None:
         ("index.html", "samples.html")))
     flat = (flat.replace("&nbsp;", " ").replace("\u00a0", " ")
                 .replace("&#8239;", " ").replace("\u202f", " "))
+    # Cards carrying errata, stated on the landing page. Same shape as the rule
+    # count: a number about the corpus, written by hand, that moves when the
+    # corpus does. It was 28 against a shipped 63.
+    cards = json.loads((SKILL / "data" / "cards.json").read_text(encoding="utf-8"))
+    errata = len([k for k, v in cards.items()
+                  if isinstance(v, dict) and v.get("errata")])
+    for claimed in re.findall(r"([0-9][0-9,]*)\s+cards here say", flat, re.I):
+        if int(claimed.replace(",", "")) != errata:
+            raise SystemExit(
+                f"a hand-written page says {claimed} cards carry errata; the "
+                f"corpus has {errata}. Update the page in the same commit."
+            )
+
     claims = re.findall(r"([0-9][0-9,]*)\s+rules\b", flat, re.I)
     if not claims:
         raise SystemExit(
@@ -645,6 +694,7 @@ def main() -> None:
         print(f"copied img/{dst}")
 
     check_handwritten_corpus_claims()
+    check_sample_metrics()
     print("\nindex.html and samples.html are written by hand — not touched.")
 
 

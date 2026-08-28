@@ -691,6 +691,16 @@ def export_and_history(idx):
           == ["CR-200", "CR-355.2", "CR-355.10", "CR-1000", "TR-104"],
           str(sorted(spread, key=E._rule_sort_key)))
 
+    # ...and the same property THROUGH `build_minibook`, on real corpus rules
+    # where the two orderings disagree. The live report's anchors happen to
+    # sort identically either way, so the ascending check above passed with the
+    # sort removed entirely — a check that could not fail on the data it had.
+    pair = ["CR-355.10", "CR-355.2"]
+    ordered = safely(lambda: re.findall(
+        r'id="((?:CR|TR)-[^"]+)"', E.build_minibook(pair, rules)), [], "ordered pair")
+    check("build_minibook emits 355.2 before 355.10",
+          ordered == ["CR-355.2", "CR-355.10"], str(ordered))
+
     # `about:srcdoc` inherits the parent's base URL, so `href="#CR-206"` inside
     # the minibook resolved against the REPORT and clicking a rule's own
     # permalink loaded a second copy of the whole report into the overlay.
@@ -889,9 +899,23 @@ def export_and_history(idx):
         page = safely(lambda: open(
             rules_cli.write_report_index(records), encoding="utf-8").read(),
             "", "write index")
-        check("the index escapes a filename as a URL, not only as an attribute",
-              "%23" in rules_cli._url_quote_probe("a#b.html"),
-              rules_cli._url_quote_probe("a#b.html"))
+        # Asserted on the INDEX THE TOOL WRITES, with a file that has URL
+        # syntax in its name. This used to assert on a three-line shim wrapping
+        # `urllib.parse.quote`, which is to say it asserted that the standard
+        # library works — true whatever the index does, so the fix was unpinned.
+        odd = os.path.join(rules_cli.REPORTS, "_selftest_q#weird.html")
+        try:
+            open(odd, "w", encoding="utf-8").write(html)
+            page = safely(lambda: open(rules_cli.write_report_index(),
+                                       encoding="utf-8").read(), "", "index")
+            check("the index escapes a filename as a URL, not only as an attribute",
+                  "_selftest_q%23weird.html" in page,
+                  "quoted" if "_selftest_q%23weird.html" in page
+                  else "a '#' in the filename truncates the link")
+        finally:
+            if os.path.exists(odd):
+                os.remove(odd)
+            rules_cli.write_report_index()
 
         portable = {r["file"] for r in records if r["portable"]}
         check("an exported report is listed as portable",
@@ -905,6 +929,64 @@ def export_and_history(idx):
         for f in (plain, port):
             if os.path.exists(f):
                 os.remove(f)
+
+    # THE REFUSAL PATH'S FILE HANDLING, exercised end to end. A first version
+    # of the stale-artifact cleanup deleted whatever sat at the output path —
+    # so `export bad.html my-report.html` destroyed an unrelated file and
+    # `export r.html r.html` destroyed the source, while printing "nothing
+    # written". These run the real CLI in a scratch directory.
+    import subprocess as _sp, tempfile as _tf
+    with _tf.TemporaryDirectory() as scratch:
+        victim = os.path.join(scratch, "someone-elses.html")
+        source = os.path.join(scratch, "not-a-report.html")
+        open(victim, "w").write("A DOCUMENT THIS TOOL DID NOT WRITE")
+        open(source, "w").write("<html><body>no citations</body></html>")
+        run = _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                       "export", source, victim],
+                      capture_output=True, text=True, cwd=scratch)
+        check("a refused export leaves a file it did not write alone",
+              os.path.exists(victim),
+              "the refusal deleted a document the caller named"
+              if not os.path.exists(victim) else "left alone")
+        check("a refused export leaves the source report alone",
+              os.path.exists(source))
+        check("a refused export exits non-zero", run.returncode == 1,
+              f"exit {run.returncode}")
+
+        # ...and the stale artifact IS removed at the destination this command
+        # chose for itself, which is what the cleanup exists for.
+        stale = os.path.join(rules_cli.REPORTS, "_selftest_stale.portable.html")
+        src2 = os.path.join(rules_cli.REPORTS, "_selftest_stale.html")
+        try:
+            open(stale, "w").write(doc)                  # a real previous export
+            open(src2, "w").write("<html><body>no rules</body></html>")
+            _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                     "export", "_selftest_stale.html"],
+                    capture_output=True, text=True, cwd=rules_cli.REPORTS)
+            check("a refused re-export removes the superseded export it wrote",
+                  not os.path.exists(stale),
+                  "a superseded export survived at the default destination"
+                  if os.path.exists(stale) else "removed")
+        finally:
+            for f in (stale, src2):
+                if os.path.exists(f):
+                    os.remove(f)
+
+    # Emptying the folder must clear the index, not leave it listing ghosts.
+    with _tf.TemporaryDirectory() as empty:
+        real_reports = rules_cli.REPORTS
+        try:
+            rules_cli.REPORTS = empty
+            rules_cli.cmd_reports([])
+            ghost = os.path.join(empty, rules_cli.INDEX_NAME)
+            body = open(ghost, encoding="utf-8").read() if os.path.exists(ghost) else ""
+            check("emptying the folder clears the history rather than leaving ghosts",
+                  os.path.exists(ghost) and "<tbody></tbody>" in body,
+                  "cleared" if "<tbody></tbody>" in body
+                  else ("no index written" if not os.path.exists(ghost)
+                        else "the index still lists rows"))
+        finally:
+            rules_cli.REPORTS = real_reports
 
     # The index must be refreshed by `report`, not only by `reports`. An index
     # that updates on a second command nobody is told to run is stale by

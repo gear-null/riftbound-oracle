@@ -893,6 +893,24 @@ def write_report_index(records=None):
     return path
 
 
+def _is_our_export(path):
+    """Did THIS tool write that file? Proven by the marker, not by the name.
+
+    An export carries its rulebook in a `<script id="rb-doc">` appended near the
+    end. Nothing else this project writes has one, so it is the only honest way
+    to answer "is this mine to delete" — a `.portable.html` suffix is a guess
+    about a filename, and guessing wrong costs somebody a document.
+    """
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            fh.seek(0, os.SEEK_END)
+            size = fh.tell()
+            fh.seek(max(0, size - 400_000))
+            return 'id="rb-doc"' in fh.read()
+    except OSError:
+        return False
+
+
 def cmd_export(args):
     """Rebuild a report as ONE portable file, or refuse and write nothing."""
     import corpus
@@ -916,21 +934,30 @@ def cmd_export(args):
         doc = export_report.export(html, rules_html)
     except export_report.ExportRefused as err:
         print(f"EXPORT REFUSED — nothing written: {err}")
-        # "Nothing written" was true of this run and false of the folder. The
-        # destination is a deterministic name, so a refused RE-export left the
-        # previous one sitting there — older than the report beside it, no
-        # longer matching it, and listed by `reports` as current and portable.
-        # That is invariant 10 exactly: a failure leaving a stale artifact
-        # looking current. Removing it is the honest outcome; a reader with no
-        # export is not misled, a reader with a superseded one is.
-        if os.path.exists(out):
+        # A stale export left at the DEFAULT destination is invariant 10: the
+        # folder keeps a superseded file that `reports` lists as current and
+        # sendable. But the first version of this deleted whatever sat at
+        # `out` — and `out` is caller-controlled, so
+        # `export bad.html my-report.html` destroyed an unrelated file, and
+        # `export r.html r.html` destroyed the SOURCE. It printed "nothing
+        # written" in the same breath.
+        #
+        # Two conditions now, and both are necessary. Only the destination this
+        # command chose for itself, never one the caller named — a path the
+        # user typed is a path the user owns. And only a file this tool
+        # produced, proven by the marker every export carries, so a name
+        # collision cannot cost someone a document.
+        if explicit is None and os.path.exists(out) and _is_our_export(out):
             try:
                 os.remove(out)
-                print(f"  removed the previous export at {out} — it no longer "
-                      "matches the report and nothing here can vouch for it")
+                print(f"  removed the superseded export at {out} — it no longer "
+                      "matches this report and nothing here can vouch for it")
             except OSError as rm_err:
                 print(f"  WARNING: a superseded export remains at {out} "
                       f"({rm_err}) — delete it before sharing")
+        elif os.path.exists(out):
+            print(f"  NOTE: {out} already exists and was left alone. If it is a "
+                  "previous export of this report, it is now superseded.")
         return 1
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     _write_atomically(out, lambda fh: fh.write(doc))

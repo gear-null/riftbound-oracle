@@ -1468,253 +1468,45 @@ MUTANTS = [
          find="        try:\n            write_report_index()",
          repl="        try:\n            pass",
          expect="refreshes the history index"),
+    # ---- round 2: the fixes, each pinned by removing it ---------------------
+    dict(name="delete whatever sits at the export destination, as the first fix did",
+         file="rules_cli.py",
+         find="        if explicit is None and os.path.exists(out) and _is_our_export(out):",
+         repl="        if os.path.exists(out):",
+         expect="leaves a file it did not write alone"),
+    dict(name="never remove a superseded export",
+         file="rules_cli.py",
+         find="        if explicit is None and os.path.exists(out) and _is_our_export(out):",
+         repl="        if False:",
+         expect="removes the superseded export it wrote"),
+    dict(name="discard every command's exit code again",
+         file="rules_cli.py",
+         find="    sys.exit(COMMANDS[sys.argv[1]](args) or 0)",
+         repl="    COMMANDS[sys.argv[1]](args)",
+         expect="a refused export exits non-zero"),
+    dict(name="leave the history listing reports that are gone",
+         file="rules_cli.py",
+         find="        try:\n            write_report_index(records)\n        except OSError:\n            pass\n",
+         repl="",
+         expect="clears the history rather than leaving ghosts"),
+    dict(name="read the verdict from a window that does not reach it",
+         file="rules_cli.py",
+         find="                head = fh.read(80_000)",
+         repl="                head = fh.read(20_000)",
+         expect="reads a ruling's verdict"),
+    dict(name="decide a report's kind by looking for the word in its title",
+         file="rules_cli.py",
+         find='        kind = "primer" if has_topic and not has_disp else "ruling"',
+         repl='        kind = "primer" if "primer" in head[:4000].lower() else "ruling"',
+         expect="merely mentions a primer is not filed as one"),
+    dict(name="escape a filename as an attribute but not as a URL",
+         file="rules_cli.py",
+         find='            f\'<td><a href="./{_html.escape(_url.quote(r["file"]))}">\'',
+         repl='            f\'<td><a href="./{_html.escape(r["file"])}">\'',
+         expect="escapes a filename as a URL"),
+    dict(name="order the embedded rulebook as strings again",
+         file="export_report.py",
+         find="    blocks.sort(key=lambda ab: _rule_sort_key(ab[0]))",
+         repl="    blocks.sort(key=lambda ab: ab[0])",
+         expect="emits 355.2 before 355.10"),
 ]
-
-FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)
-
-
-def run_one(m):
-    """Apply one mutant to a throwaway copy and report which checks caught it."""
-    with tempfile.TemporaryDirectory() as d:
-        skill = os.path.join(d, "rules-report")
-        # `rules.db` IS copied. Excluding it was a speed optimisation until the
-        # research-path checks arrived: without the index every mutant made the
-        # suite exit at "Rule index missing", which the battery then reported as
-        # a crash rather than as a caught defect — 29 false crashes at once.
-        shutil.copytree(SKILL, skill, ignore=shutil.ignore_patterns(
-            "reports", "__pycache__", "*.tmp"))
-        lib = os.path.join(skill, "lib")
-        path = os.path.join(lib, m["file"])
-        src = open(path, encoding="utf-8").read()
-        if src.count(m["find"]) != 1:
-            return None, (f"anchor matched {src.count(m['find'])}x — the mutant is "
-                          "stale and is testing nothing")
-        src = src.replace(m["find"], m["repl"])
-        if m.get("also"):
-            find2, repl2 = m["also"]
-            if src.count(find2) != 1:
-                return None, "second anchor did not match — the mutant is stale"
-            src = src.replace(find2, repl2)
-        open(path, "w", encoding="utf-8").write(src)
-
-        if m.get("rebuild"):
-            # parse_rules changes only reach the suite through rules.json, and a
-            # rebuild parses SOURCE markdown that deliberately lives outside the
-            # skill folder this sandbox copies. Point it at the real sources via
-            # the documented override; it is read-only, and the only thing it
-            # can affect is the throwaway rules.json inside the sandbox.
-            env = dict(os.environ)
-            src = os.path.join(REPO_ROOT, "output")
-            if os.path.isdir(src):
-                env["RIFTBOUND_CORPUS"] = src
-            rc = subprocess.run([sys.executable, os.path.join(lib, "rules_cli.py"), "build"],
-                                capture_output=True, text=True, cwd=lib, env=env)
-            if rc.returncode != 0:
-                return ["<suite crashed> corpus rebuild failed: "
-                        + (rc.stderr.strip().splitlines() or ["?"])[-1]], None
-        if m.get("regen"):
-            subprocess.run([sys.executable, os.path.join(lib, "rules_cli.py"), "rulebook"],
-                           capture_output=True, text=True, cwd=lib)
-
-        r = subprocess.run([sys.executable, os.path.join(lib, "selftest.py")],
-                           capture_output=True, text=True, cwd=lib)
-        hit = FAILED_RE.search(r.stdout)
-        if hit:
-            # The RAW line, unsplit. Also keep the [FAIL] lines, which carry
-            # each name intact and are immune to the join.
-            # Tagged, because this is the joined "N of M: a, b, c" line and NOT
-            # a check name. `caught` still matches inside it; the proven-record
-            # must not, or it banks a comma-joined blob as though it were one
-            # check. That is how the first record came out with 361 entries for
-            # 298 checks.
-            failed = ["<verdict> " + hit.group(1).strip()]
-            failed += re.findall(r"^\s*\[FAIL\]\s*(.+?)(?:\s+—.*)?$", r.stdout, re.M)
-            return failed, None
-        if r.returncode != 0:
-            # No verdict line and a non-zero exit: the suite died rather than
-            # reporting. Detection, not survival.
-            last = [x for x in r.stderr.strip().splitlines() if x.strip()]
-            return ["<suite crashed> " + (last[-1] if last else "no output")], None
-        return [], None
-
-
-def preflight():
-    """Does the suite run the SAME checks inside the battery's copy?
-
-    The copy omits `reports` and caches. A check that reads a fixture from one
-    of those — rather than constructing what it needs — silently does not run
-    here, and every mutant it exists to catch then walks past a green suite
-    reporting itself caught.
-
-    This is not hypothetical. The whole export group did exactly that: it read
-    `reports/flow-counter.html`, called `note()` when it was missing, and
-    returned. Ten mutants survived while each one verified as caught by hand —
-    both results true, because the fixture was sitting on the author's disk and
-    absent here. Only this comparison can see it, because only this copy takes
-    the fixture away.
-
-    Costs one extra suite run per battery, once, not per mutant. Credit to
-    riftbound-oracle-c6, who built it on the deck-lab side after I reported the
-    failure and offered it rather than waiting for me to be bitten again.
-    """
-    def count(cwd):
-        r = subprocess.run([sys.executable, os.path.join(cwd, "selftest.py")],
-                           capture_output=True, text=True, cwd=cwd)
-        m = re.search(r"all (\d+) checks passed", r.stdout)
-        if m:
-            return int(m.group(1))
-        m = re.search(r"FAILED \d+ of (\d+)", r.stdout)
-        return int(m.group(1)) if m else -1
-
-    here = count(HERE)
-    with tempfile.TemporaryDirectory() as tmp:
-        skill = os.path.join(tmp, "rules-report")
-        shutil.copytree(SKILL, skill, ignore=shutil.ignore_patterns(
-            "reports", "__pycache__", "*.tmp"))
-        there = count(os.path.join(skill, "lib"))
-    # -1 means the suite printed no verdict at all — it crashed, or its output
-    # changed shape. Comparing counts alone made -1 == -1 a PASS, so a suite
-    # that could not run in EITHER environment cleared the gate designed to
-    # prove it runs in both, and every mutant below would then be scored
-    # against a suite that never executed.
-    if here < 0 or there < 0:
-        print(f"  PREFLIGHT FAILED: the suite produced no verdict "
-              f"({'normally' if here < 0 else ''}"
-              f"{' and ' if here < 0 and there < 0 else ''}"
-              f"{'inside the battery copy' if there < 0 else ''}).\n"
-              "  Nothing below would be measuring anything. Run "
-              "`python3 selftest.py` and fix it first.")
-        return False
-    if here != there:
-        print(f"  PREFLIGHT FAILED: {here} checks run normally, {there} inside "
-              "the battery's copy.\n  Some check reads a fixture the copy omits, "
-              "so it is invisible to every mutant\n  below. Construct what it "
-              "needs instead of reading a directory.")
-        return False
-    print(f"  preflight: {here} checks run in both environments\n")
-    return True
-
-
-PROVEN = os.path.join(HERE, "proven-checks.json")
-
-
-def _record_proven(names, complete):
-    """Write down which checks have actually been SEEN to fail.
-
-    A record is the natural home for stale credit: a check gets renamed, the
-    old name lingers, and the ratio keeps counting a proof nobody has repeated.
-    So the reader intersects with the checks that exist today rather than
-    trusting the file, and a name that no longer matches is simply dropped —
-    renaming a check lowers the ratio until the battery has watched the new one
-    fail, which is the honest direction for that pressure to point.
-    """
-    # A DEGRADED RUN MUST NOT ERASE THE RECORD. This wrote an unconditional
-    # snapshot of one run, so a battery that crashed early — or was interrupted
-    # — replaced hard-won evidence with whatever it had managed, and the
-    # project's headline honesty number silently fell. Evidence that one run
-    # can delete is not evidence.
-    #
-    # So: refuse to shrink unless every mutant actually ran. A partial run adds
-    # what it saw and keeps what it did not reach.
-    try:
-        existing = set()
-        if os.path.exists(PROVEN):
-            with open(PROVEN, encoding="utf-8") as fh:
-                existing = set(json.load(fh))
-    except (OSError, ValueError):
-        existing = set()
-
-    if complete:
-        final, how = set(names), "recorded"
-        dropped = len(existing - final)
-        if dropped:
-            print(f"\n  {dropped} previously-proven check(s) were NOT seen this "
-                  "run — dropped, because a full battery is the authority")
-    else:
-        final, how = existing | set(names), "merged into"
-        print("\n  partial run: keeping previously-recorded proofs rather than "
-              "overwriting them with what this run happened to reach")
-    try:
-        with open(PROVEN, "w", encoding="utf-8") as fh:
-            json.dump(sorted(final), fh, indent=1)
-        print(f"  {how} {len(final)} check(s) observed to fail -> "
-              f"{os.path.basename(PROVEN)}")
-    except OSError as err:
-        print(f"\n  (could not record which checks failed: {err})")
-
-
-def main():
-    print("mutation battery — reintroducing defects the suite claims to catch\n")
-    if not preflight():
-        sys.exit(1)
-    survived, stale, crashes = [], [], []
-    # Every check name the battery WATCHES go red, across all mutants. The
-    # suite reports its proven ratio from this record.
-    #
-    # It used to derive that ratio by matching each mutant's `expect` against
-    # check names, which counts CLAIMS. A claim can be false — ten of mine were,
-    # for a group that never ran — and it also under-counts, because one mutant
-    # usually reddens several checks and `expect` names only one. Wrong in both
-    # directions from the same technique, which is the tell that it was
-    # measuring something unrelated to the question.
-    reddened = set()
-    for i, m in enumerate(MUTANTS, 1):
-        failures, err = run_one(m)
-        # AFTER the stale guard: `run_one` returns (None, err) for a drifted
-        # anchor, and iterating that None took the entire battery down with a
-        # TypeError — destroying the [STALE] report, which is the mechanism
-        # that caught anchors drifting repeatedly while this PR was written.
-        # A collector for the proven record must never be able to break the
-        # thing it is collecting from.
-        if err:
-            stale.append((m["name"], err))
-            print(f"  [STALE] {i:2}. {m['name']}\n           {err}")
-            continue
-        reddened.update(f for f in (failures or ())
-                        if not f.startswith(("<suite crashed>", "<verdict>")))
-        crashed = [f for f in failures if f.startswith("<suite crashed>")]
-        # `caught` is computed over NAMED failures only. Matching it against the
-        # crash text let a traceback containing the expect substring be credited
-        # as a caught mutant, with not one check executed.
-        caught = [f for f in failures
-                  if not f.startswith("<suite crashed>") and m["expect"] in f]
-        if crashed and not caught:
-            print(f"  [crashed] {i:2}. {m['name']}")
-            print(f"            {crashed[0][:110]}")
-            print("            detected, but as a crash rather than a named failure")
-            crashes.append(m)
-        elif caught:
-            print(f"  [caught] {i:2}. {m['name']}")
-        else:
-            survived.append(m)
-            print(f"  [SURVIVED] {i:2}. {m['name']}")
-            print(f"             expected a check matching {m['expect']!r}")
-            print(f"             got: {failures or 'NOTHING — the suite stayed green'}")
-
-    print()
-    bad = []
-    if stale:
-        print(f"{len(stale)} mutant(s) no longer apply — an anchor drifted, so they "
-              "test nothing. Update them.")
-        bad += stale
-    if crashes:
-        print(f"{len(crashes)} mutant(s) killed the suite instead of failing a named "
-              "check — the defect is detected, but not by the check it is filed under.")
-        bad += crashes
-    if survived:
-        print(f"{len(survived)} of {len(MUTANTS)} mutants SURVIVED — the named check "
-              "passes while its defect is live.")
-        bad += survived
-    _record_proven(reddened, complete=not (stale or crashes))
-    if bad:
-        # Exits non-zero for stale and crashed too. Only `survived` used to
-        # fail, so a battery in which nothing meaningful ran still printed
-        # "every check named here has been observed to fail" and exited 0.
-        sys.exit(1)
-    print(f"all {len(MUTANTS)} mutants caught — every check named here has been "
-          "observed to fail.")
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()

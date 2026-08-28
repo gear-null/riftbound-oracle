@@ -49,6 +49,24 @@ jobs:
           cd .claude/skills/rules-report/lib
           python3 mutants.py
 
+      - name: The record of what has been seen to fail is committed
+        if: matrix.python == '3.13'
+        run: |
+          # The battery immediately above writes proven-checks.json, which is
+          # committed. A run that changes which checks have been WATCHED to
+          # fail therefore dirties the tree, and left unguarded the recorded
+          # ratio drifts from reality with nothing saying so — the
+          # SKILL-VERSION.json trap, in the file whose whole job is honesty.
+          #
+          # This lived in the `package` job at first, which never runs the
+          # battery: the file could not change there, so the guard could not
+          # fire. It has to sit beside the thing that writes it.
+          git diff --exit-code -- .claude/skills/*/lib/proven-checks.json || {
+            echo "::error::proven-checks.json changed — the set of checks observed to fail moved."
+            echo "Run the battery locally and commit the record."
+            exit 1
+          }
+
       # The release gate. Not "did the suite pass" but "is every promise in
       # docs/invariants.md still held up by a check that has been SEEN to fail".
       # Ten review rounds produced checks that passed while the defect they were
@@ -195,15 +213,6 @@ jobs:
           # the day someone remembers to extend this line.
           git diff --exit-code -- .claude/skills/*/SKILL-VERSION.json || {
             echo "::error::a SKILL-VERSION.json is stale — run 'npm run oracle package' and commit it"
-            exit 1
-          }
-          # The battery above writes proven-checks.json, which is committed —
-          # so a run that changes which checks have been WATCHED to fail leaves
-          # the tree dirty. Silently, the recorded ratio would drift from
-          # reality; loudly, it is one commit. Same trap, same guard.
-          git diff --exit-code -- .claude/skills/*/lib/proven-checks.json || {
-            echo "::error::proven-checks.json changed — the set of checks observed to fail moved."
-            echo "Run the battery locally and commit the record."
             exit 1
           }
 

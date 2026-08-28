@@ -87,6 +87,28 @@ def main():
           not refuses(b.check_page_declares_no_extra_transitions,
                       "hot-fepr", primer, dashed))
 
+    # --- a goto that names no step -----------------------------------------
+    # It used to fall through to "The procedure ends here" — telling a reader
+    # the procedure terminates where the author said it continues. The build
+    # refuses now, and this is what watches that refusal happen.
+    broken = json.loads(json.dumps(primer))
+    for step in broken["steps"]:
+        for ex in (step.get("exits") or []):
+            if ex.get("goto"):
+                ex["goto"] = "no-such-step"
+                break
+        else:
+            continue
+        break
+    order = {st["id"]: i for i, st in enumerate(broken["steps"])}
+    msg = refuses(b.explainer, "hot-fepr", broken, set())
+    check("a goto naming no step refuses the build",
+          "no step declares" in msg,
+          msg[:90] or "the page was built anyway")
+    check("the refusal does not silently say the procedure ends",
+          "ends here" not in msg.lower() or "no step declares" in msg,
+          msg[:60])
+
     # --- the hand-written corpus claim -------------------------------------
     index = HERE / "index.html"
     original = index.read_text(encoding="utf-8")
