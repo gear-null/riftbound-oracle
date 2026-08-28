@@ -256,6 +256,7 @@
  "the headline agrees with the console",
  "the history does not list itself as a report",
  "the history reads a ruling's verdict, not an empty column",
+ "the history tells a ruling from a primer by structure",
  "the index escapes a filename as a URL, not only as an attribute",
  "the key explains every mark the verdict line uses",
  "the legend lists only the edge classes actually drawn",
