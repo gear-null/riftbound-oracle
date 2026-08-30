@@ -19,6 +19,7 @@ check that is lying about what it covers.
 Nothing here touches the working tree — every mutant is applied to a throwaway
 copy of the whole skill folder.
 """
+import json
 import os
 import re
 import shutil
@@ -292,6 +293,27 @@ MUTANTS = [
          find='_SEAM = re.compile(r"([)\\]])([A-Z])")',
          repl='_SEAM = re.compile(r"([)\\]])([A-Za-z])")',
          expect="lowercase word after punctuation is left alone"),
+    # ---- the suite reporting on itself ----------------------------------
+    dict(name="stop reporting how much of the suite has been tested",
+         file="selftest.py",
+         find="    print(proven_line())",
+         repl="    proven_line()",
+         expect="actually prints the ratio"),
+    dict(name="score a missing record as full coverage instead of saying so",
+         file="selftest.py",
+         find='        return ("  (no record of which checks can fail — run `mutants` to make "',
+         repl='        return ("  of N distinct checks, N have been observed to fail (100%). (",',
+         expect="missing record is reported, not silently scored"),
+    dict(name="keep credit for checks that no longer exist",
+         file="selftest.py",
+         find='    return set(names) & set(record.get("observed_to_fail", ()))',
+         repl='    return set(record.get("observed_to_fail", ()))',
+         expect="NOT kept for a recorded check that no longer exists"),
+    dict(name="count only PROVEN checks, so an untested one cannot lower the ratio",
+         file="selftest.py",
+         find="    names = set(NAMES)\n    proven = proven_among(names, record)",
+         repl="    proven = proven_among(set(NAMES), record)\n    names = proven",
+         expect="LOWERS the proven ratio rather than raising"),
     dict(name="tie-break a two-directory name collision instead of refusing",
          file="deckfile.py",
          find="    if len(exact) > 1:",
@@ -624,10 +646,74 @@ def run_one(m):
         return [], None
 
 
+PROVEN = os.path.join(HERE, "proven-checks.json")
+
+
+def write_proven(reddened):
+    """Record the checks this run actually watched go red.
+
+    The ratio printed by `selftest` used to be derived by matching each mutant's
+    `expect` string against check names. That counts what a mutant CLAIMS, not
+    what has been seen — and a claim can be false for a long time: a whole check
+    group can sit un-run inside the battery while every mutant naming it reports
+    caught. Only the battery knows, because only the battery removes things.
+
+    So the battery writes down what it saw, and `selftest` reads it. Names that
+    no longer exist are dropped on read rather than here, so an edited check
+    lowers the ratio instead of quietly keeping its old credit.
+    """
+    payload = {
+        "mutants": len(MUTANTS),
+        "observed_to_fail": sorted(reddened),
+    }
+    with open(PROVEN, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=1, ensure_ascii=False)
+        fh.write("\n")
+    print(f"recorded {len(reddened)} checks observed to fail -> {os.path.basename(PROVEN)}")
+
+
+def preflight():
+    """Does the suite run the SAME checks inside the battery's copy?
+
+    The copy omits `reports`, `games` and caches. Any check that reads a fixture
+    from one of those — rather than constructing what it needs — silently does
+    not run here, and every mutant that check exists to catch then walks past a
+    green suite reporting itself caught. A skipped group is not a failure, so
+    nothing says so, and hand-verification cannot find it because the fixture is
+    sitting right there on the author's disk. Only this comparison can, because
+    only this copy takes the fixture away.
+
+    Costs one extra suite run per battery, once, not per mutant.
+    """
+    def count(cwd):
+        r = subprocess.run([sys.executable, os.path.join(cwd, "selftest.py")],
+                           capture_output=True, text=True, cwd=cwd)
+        m = re.search(r"(\d+)/(\d+) passed", r.stdout)
+        return int(m.group(2)) if m else -1
+
+    here = count(HERE)
+    with tempfile.TemporaryDirectory() as tmp:
+        skill = os.path.join(tmp, "deck-lab")
+        shutil.copytree(SKILL, skill, ignore=shutil.ignore_patterns(
+            "reports", "games", "__pycache__", "*.tmp"))
+        there = count(os.path.join(skill, "lib"))
+    if here != there:
+        print(f"  PREFLIGHT FAILED: {here} checks run normally, {there} inside the "
+              "battery's copy.\n  Some check reads a fixture the copy omits, so it "
+              "is invisible to every mutant\n  below. Construct what it needs "
+              "instead of reading a directory.")
+        return False
+    print(f"  preflight: {here} checks run in both environments\n")
+    return True
+
+
 def main():
     print("mutation battery — reintroducing defects the suite claims to catch\n")
+    if not preflight():
+        return 1
     survived, stale, crashed_only = [], [], []
     caught = 0
+    reddened = set()   # checks OBSERVED to fail, not merely claimed
     for i, m in enumerate(MUTANTS, 1):
         failures, err = run_one(m)
         if err:
@@ -636,6 +722,7 @@ def main():
             continue
         crashes = [f for f in failures if f.startswith("<suite crashed>")]
         named = [f for f in failures if not f.startswith("<suite crashed>")]
+        reddened.update(named)
         # Credit only a NAMED check. A traceback that happens to contain the
         # expected words is the suite dying, not the suite detecting.
         hit = [f for f in named if m["expect"].lower() in f.lower()]
@@ -655,6 +742,7 @@ def main():
                   f"no check covers this")
 
     print(f"\n{caught}/{len(MUTANTS)} mutants caught")
+    write_proven(reddened)
     if crashed_only:
         print(f"\n{len(crashed_only)} mutant(s) only crashed the suite rather than "
               "failing a named check:")
