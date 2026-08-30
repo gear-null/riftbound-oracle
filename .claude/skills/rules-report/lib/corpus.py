@@ -88,14 +88,27 @@ def load_cards():
 # card. `,` and `;` are IN: both are clean today, and a word fused onto a comma
 # is the same seam as a word fused onto a full stop.
 #
-# The following letter must be LOWERCASE, which is the subtler one. Admitting
-# capitals matches 284 cards, all the same benign shape: reminder text closing
-# and rules text beginning with no space between —
+# The following letter must be LOWERCASE, which is the subtler one. Widening
+# `[a-z]` to `[A-Za-z]` here matches 357 cards / 411 occurrences, all the same
+# benign shape: reminder text closing and rules text beginning with no space —
 # `(Play on your turn or in showdowns.)Each player kills one of their gear.`
 # That is a cosmetic seam in the source, and it invents nothing, because a
-# capital reads as a new sentence. A LOWERCASE word fused on is the dangerous
+# capital reads as a new sentence. (An earlier draft of this comment said 284,
+# which was measured with a narrower probe — `[)\]][A-Z][a-z]+` — and quoted as
+# though it described the widening above. The decision is the same either way;
+# the number was not, and a measurement stated in a comment justifying a design
+# outlives anyone's memory of which pattern produced it.)
+#
+# A LOWERCASE word fused on is the dangerous
 # one precisely because it reads as continuing prose, or as a keyword: that is
 # how `ambush` became an ability `Gemhand Hunter` does not have.
+#
+# KNOWN BLIND SPOT, and it is a trade rather than an oversight: the two-letter
+# floor means a ONE-letter fusion is silent — `...units.)a unit gains Shield`
+# passes. The floor is what holds this at zero false positives over the pool,
+# and a one-letter token is far less likely to read as a keyword. Recorded
+# because a limit nobody wrote down is indistinguishable from a limit nobody
+# knew about. (Found by riftbound-oracle-c6 reviewing this.)
 FUSED_ARTIFACT = re.compile(r"[,;)\].!?][a-z]{2,}")
 
 
