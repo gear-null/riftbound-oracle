@@ -15,8 +15,14 @@ with — each one exact, deterministic, and free of model judgement:
     rules grep <pattern>    lexical search over rule text (agent-driven, not RAG)
     rules section <id>      a whole numbered section, in document order
     rules report <json>     verify + render + open — the ONLY way to finish an answer
-    rules graph <primer>    a primer's step graph as Mermaid, derived from its exits
+    rules graph <primer>    a primer's step graph as a diagram, derived from its
+                            exits — Fireworks SVG, or --format=mermaid
+    rules export <report>   rebuild a report as ONE sendable file: cited rules and
+                            card art inside it. Whole or refused, never partial
+    rules reports           what you have answered, newest first, + a browsable index
     rules verify <json>     mechanical citation gate (report runs this for you)
+    rules build             re-parse the source markdown -> rules.json, the FTS
+                            index and rules.html, which must move as a set
     rules rulebook          (re)generate the anchored HTML rulebook
     rules selftest          regression harness; run after every rules update
     rules mutants           proves the selftest can fail — run before a release
