@@ -179,6 +179,7 @@
  "every arrow in the export is a declared transition, and none is missing",
  "every arrow on the map is numbered in the prose beside it",
  "every basis maps to an edge class, so none silently reads as a gap",
+ "every command the CLI accepts appears in the help it prints",
  "every committed diagram matches what this corpus now produces",
  "every edge lands on a step the primer declares",
  "every legend entry cites a real rule",
