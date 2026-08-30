@@ -269,8 +269,14 @@ export function cardText(card: RiftcodexCard): string {
  * NARROW ON PURPOSE, and it must stay narrow. Its companion is
  * `corpus.artifact_complaints()` on the rules-report side, which scans the
  * vendored card text for the same signature UNANCHORED and is deliberately
- * wider than this on three axes: no end-of-string anchor, a larger punctuation
- * class, and a floor of two letters rather than three.
+ * wider than this on four axes: no end-of-string anchor, a larger punctuation
+ * class, a floor of two letters rather than three, and — at the end of the text
+ * only — any case rather than lowercase.
+ *
+ * That last one closes a hole both halves shared. Every bracketed keyword in
+ * the corpus is capitalised, so a fused KEYWORD arrives as `.)Ambush`, which
+ * this function's `[a-z]{3,}` does not see and the detector's lowercase floor
+ * did not either. `Gemhand Hunter` was lowercase by luck.
  *
  * The asymmetry is the point. Deletion is the operation that can destroy a real
  * card's rules text, so this stays conservative; reporting cannot destroy

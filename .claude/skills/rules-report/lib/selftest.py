@@ -548,6 +548,36 @@ def card_rendering():
     # defences. The corpus check is the one filed as invariant 5's pin, because
     # it is the one that fails against real data; this states the reason in a
     # form a reader can see without running anything.
+    # THE CAPITALISED KEYWORD. Every one of the 35 bracketed keywords in this
+    # corpus is capitalised, so a fused keyword arrives as `.)Ambush` — and both
+    # halves of the pair required lowercase. `Gemhand Hunter` was lowercase by
+    # luck, and the reasoning in `corpus.py` had it backwards.
+    check("a capitalised keyword fused at the end of the text is detected",
+          artifact_complaints({"k": {"name": "Fake",
+                                     "text": "play me as a Reaction.)Ambush"}}))
+    # ...while the benign mid-text seam it would otherwise flag stays silent.
+    # 357 cards carry that shape; anchoring is what makes the capital rule free.
+    check("a mid-text capital seam is still not an artifact",
+          not artifact_complaints({"k": {"name": "Fake",
+                                         "text": "Deal 2.)Each player draws."}}))
+
+    # THE OTHER TWO WIDENING AXES. The docstring claims three — unanchored, a
+    # larger punctuation class, a two-letter floor — and only the anchor was
+    # pinned. Every fixture used `ambush` (six letters) after `.)`, so
+    # collapsing the class and the floor back to the stripper's own
+    # (`[).!][a-z]{3,}`) left the suite green and the pair became one opinion
+    # asked twice.
+    check("a fusion after a comma or semicolon is detected",
+          artifact_complaints({"k": {"name": "Fake", "text": "a unit,gains two"}})
+          and artifact_complaints({"k": {"name": "Fake", "text": "a unit;gains two"}}))
+    # MID-TEXT, or the tail rule answers instead of the floor. The first version
+    # used `units.)ab` — which ends in the fusion, so `FUSED_ARTIFACT_TAIL`
+    # matched it and raising the floor to three left the check green. A fixture
+    # reachable by two rules tests whichever one you were not thinking about.
+    check("a two-letter fusion is detected, not just a long one",
+          artifact_complaints({"k": {"name": "Fake",
+                                     "text": "you have units.)ab then draw."}}))
+
     check("symbol markup is not mistaken for an artifact",
           not artifact_complaints({"k": {"name": "Fake",
                                          "text": "give a unit +1 :rb_might: this turn."}}))

@@ -107,9 +107,16 @@ The class is now closed at both ends. `corpus.artifact_complaints()` scans the v
 text for the same signature UNANCHORED, and the selftest asserts the pool is clean — 334
 checks, three mutants. The two halves are deliberately asymmetric: the stripper deletes, so
 it stays anchored and conservative; the detector only reports, so it casts wider on three
-axes (unanchored, a larger punctuation class, a floor of two letters rather than three). A
-detector derived from the stripper could only find what the stripper already removes, so
-neither may be moved toward the other.
+axes — unanchored, a larger punctuation class, a two-letter floor, and any case at the end
+of the text. A detector derived from the stripper could only find what the stripper already
+removes, so neither may be moved toward the other, and each axis is pinned by a mutant that
+collapses it.
+
+The fourth axis was added on review. The first three shared a blind spot: both halves
+required a LOWERCASE fused word, and every one of the 35 bracketed keywords in this corpus
+is capitalised — so `.)Ambush`, the shape a real keyword has, passed both. Unanchored the
+capital rule would flag 357 cards of benign reminder/rules seam; anchored to the end of the
+text it flags none, and that is exactly where the `Gemhand Hunter` artifact sat.
 
 What remains genuinely open is narrower than it was: a stray token that happens to spell a
 real keyword AND is separated by a space is still invisible to both skills — `card_bridge.py`

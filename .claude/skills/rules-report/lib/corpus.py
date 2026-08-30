@@ -111,6 +111,24 @@ def load_cards():
 # knew about. (Found by riftbound-oracle-c6 reviewing this.)
 FUSED_ARTIFACT = re.compile(r"[,;)\].!?][a-z]{2,}")
 
+# ...and the CAPITALISED shape, anchored to the end of the text.
+#
+# The reasoning above was inverted where it mattered most. It said a capital
+# "reads as a new sentence" and a lowercase word is "the dangerous one because
+# it reads as a keyword". But EVERY ONE of the 35 bracketed keywords in this
+# corpus is capitalised — `Ambush`, `Deathknell`, `Tank`, `Deflect`. So a fused
+# KEYWORD arrives capitalised, exactly as the keyword ships, and `.)Ambush`
+# reads as the Ambush keyword at least as strongly as `.)ambush` did. Both
+# halves of the pair were blind to it: `stripTrailingArtifact` requires
+# lowercase too. `Gemhand Hunter` was lowercase by luck.
+#
+# Unanchored it would cost 357 cards of benign reminder/rules seam. ANCHORED it
+# costs nothing measurable: zero cards in the pool end in punctuation followed
+# by a word, which is also precisely where the Gemhand artifact sat. So the
+# end-of-text position takes both cases, and the interior keeps the lowercase
+# floor that holds the whole scan at zero false positives.
+FUSED_ARTIFACT_TAIL = re.compile(r"[,;)\].!?][A-Za-z]{2,}$")
+
 
 def artifact_complaints(cards):
     """Card text carrying an extraction artifact. Empty when the corpus is clean.
@@ -144,9 +162,14 @@ def artifact_complaints(cards):
         text = card.get("text") if isinstance(card, dict) else None
         if not isinstance(text, str):
             continue
-        for m in FUSED_ARTIFACT.finditer(text):
-            start = max(0, m.start() - 40)
-            out.append(f"{card.get('name') or key}: ...{text[start:m.end() + 20]}...")
+        seen = set()
+        for rx in (FUSED_ARTIFACT, FUSED_ARTIFACT_TAIL):
+            for m in rx.finditer(text):
+                if m.start() in seen:
+                    continue
+                seen.add(m.start())
+                start = max(0, m.start() - 40)
+                out.append(f"{card.get('name') or key}: ...{text[start:m.end() + 20]}...")
     return out
 
 

@@ -1360,6 +1360,31 @@ MUTANTS = [
          find='        text = card.get("text") if isinstance(card, dict) else None',
          repl='        text = card.get("text")',
          expect="malformed card entry is skipped"),
+    # The collapse the docstring forbids: the stripper's own punctuation class
+    # and letter floor. It left the suite green before these checks existed.
+    dict(name="collapse the detector into the stripper it is meant to be wider than",
+         file="corpus.py",
+         find='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{2,}")',
+         repl='FUSED_ARTIFACT = re.compile(r"[).!][a-z]{3,}")',
+         expect="comma or semicolon is detected"),
+    dict(name="drop the anchored capital rule, blinding the pair to `.)Ambush`",
+         file="corpus.py",
+         find="        for rx in (FUSED_ARTIFACT, FUSED_ARTIFACT_TAIL):",
+         repl="        for rx in (FUSED_ARTIFACT,):",
+         expect="capitalised keyword fused at the end"),
+    dict(name="unanchor the capital rule, flagging 357 benign cards",
+         file="corpus.py",
+         find='FUSED_ARTIFACT_TAIL = re.compile(r"[,;)\\].!?][A-Za-z]{2,}$")',
+         repl='FUSED_ARTIFACT_TAIL = re.compile(r"[,;)\\].!?][A-Za-z]{2,}")',
+         expect="mid-text capital seam is still not an artifact"),
+    # The floor ALONE. The collapse mutant above changes the class and the floor
+    # together, so it reddens the punctuation check and leaves the floor's own
+    # check unproven — two axes, one mutant, one of them defended by nothing.
+    dict(name="raise the floor to three letters, matching the stripper",
+         file="corpus.py",
+         find='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{2,}")',
+         repl='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{3,}")',
+         expect="two-letter fusion is detected"),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)
