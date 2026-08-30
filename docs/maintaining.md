@@ -123,6 +123,24 @@ would churn the corpus for nothing.
 **Order matters:** crawl the rules before rebuilding cards, or there is no errata to apply and
 `skill-data` warns that card text may be stale. The update run below is already in that order.
 
+## Adding a check, and keeping the gate green
+
+`scripts/check-invariants.py` is a required CI step and it exits non-zero on a
+gap. A check enters the record only when the battery has WATCHED it fail, so a
+commit that adds a check to an invariant's fragment list, without also
+committing a `proven-checks.json` that covers it, turns CI red on main.
+
+The order that works:
+
+1. add the check, and a mutant that reintroduces the defect it names
+2. run `python3 rules_cli.py mutants` and confirm the mutant is caught
+3. commit the code, the mutant, AND the regenerated `proven-checks.json`
+   **together**
+
+Splitting step 3 leaves main red between the two commits, and the failure reads
+"1 invariant not fully pinned" — which is alarming, correct, and easy to
+misread as a regression by anyone who was not there.
+
 ## Packaging a release
 
 Both skills ship together. `oracle package` builds an archive per skill —

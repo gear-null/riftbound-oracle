@@ -126,6 +126,28 @@ all of them, and found three bugs in itself besides.
 `scripts/check-invariants.py` prints the table with each invariant's check count
 and how many of those checks are proven. It exits non-zero on a gap.
 
+**"Proven" means OBSERVED, and this is the one direction the gate must never be
+changed back in.**
+
+It used to derive that column by matching each mutant's `expect` string against
+check names — counting what a mutant *claims* to redden. A claim can be false.
+Ten of them were false at once when an entire check group silently did not run
+inside the battery: the mutants named checks that were never executing, the gate
+credited the names, and every invariant those checks supported read as pinned.
+
+So the gate now reads `proven-checks.json`, which the battery writes with the
+names it actually watched go red, and refuses to guess when there is no record.
+
+**The number went DOWN when this landed, and that is the change working.**
+Checks that had been reported as pinned turned out never to have been observed —
+they were always unpinned, and the old method could not say so. Anyone meeting
+that drop later will find a gate that used to say 12/12 and now names a gap, and
+the obvious repair is to restore the flattering method. That repair reintroduces
+the exact defect this file exists to refuse, in the file that refuses it.
+
+If a gap appears here, the fix is to write a mutant and let the battery watch
+the check fail. It is never to change how "proven" is counted.
+
 ## "All N checks passed" is half a sentence
 
 The suite prints a second line beside its headline, and that line is the one
