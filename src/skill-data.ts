@@ -266,23 +266,27 @@ export function cardText(card: RiftcodexCard): string {
  * REPORT it: silently deleting text is its own way of asserting something about
  * a card, and a second occurrence should be seen rather than swallowed.
  *
- * NARROW ON PURPOSE, and it must stay narrow. The intended companion is a
- * corpus-integrity check on the rules-report side that scans for the same
- * artifact signature UNANCHORED, deliberately wider than this. That check does
- * NOT exist yet — it is owed, and it belongs on the rules-report side rather
- * than here. `docs/known-issues.md` tracks the class as open. This paragraph
- * described it in the present tense before it was written, which is worse than
- * saying nothing: it told the next maintainer that a wider net was already
- * catching what this function misses, and nothing was.
+ * NARROW ON PURPOSE, and it must stay narrow. Its companion is
+ * `corpus.artifact_complaints()` on the rules-report side, which scans the
+ * vendored card text for the same signature UNANCHORED and is deliberately
+ * wider than this on four axes: no end-of-string anchor, a larger punctuation
+ * class, a floor of two letters rather than three, and — at the end of the text
+ * only — any case rather than lowercase.
  *
- * The asymmetry is the point, whenever it does land: deletion is the operation
- * that can destroy a real card's rules text, so it stays conservative;
- * reporting cannot destroy anything, so it casts wide. If that detector ever
- * fires on something this function leaves alone, that is the check working. Go
- * and look at the card. Do NOT widen this to make the detector green — a
- * stripper widened until its detector agrees is a stripper with no detector,
- * because a check derived from the thing it checks can only ever find what that
- * thing already does.
+ * That last one closes a hole both halves shared. Every bracketed keyword in
+ * the corpus is capitalised, so a fused KEYWORD arrives as `.)Ambush`, which
+ * this function's `[a-z]{3,}` does not see and the detector's lowercase floor
+ * did not either. `Gemhand Hunter` was lowercase by luck.
+ *
+ * The asymmetry is the point. Deletion is the operation that can destroy a real
+ * card's rules text, so this stays conservative; reporting cannot destroy
+ * anything, so that casts wide. If the detector fires on something this
+ * function leaves alone, that is the check working. Go and look at the card. Do
+ * NOT widen this to make the detector green, and do not narrow the detector to
+ * match this — a check derived from the thing it checks can only ever find what
+ * that thing already does, and the pair would collapse into one opinion asked
+ * twice. `selftest.py` pins the widening directly: anchoring the detector to
+ * end-of-string, the way this function is anchored, turns a named check red.
  */
 export function stripTrailingArtifact(text: string): { text: string; removed?: string } {
   const m = /([).!])([a-z]{3,})$/.exec(text);
