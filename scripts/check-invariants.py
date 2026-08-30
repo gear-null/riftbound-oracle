@@ -4,6 +4,7 @@
 Exits non-zero on a gap. This is the release gate: not "did the suite pass" but
 "is every invariant held up by a check that has been observed to fail".
 """
+import json
 import os
 import re
 import subprocess
@@ -27,12 +28,27 @@ INVARIANTS = {
         "TR-only bare id is labelled TR"],
     "3. Every rule id the report shows exists in the corpus": [
         "considered_rejected id", "rules_checked id", "rule_sections",
-        "legend entry names a symbol"],
+        "legend entry names a symbol",
+        # The export is a second surface that shows rule ids, and the embedded
+        # rulebook is where they resolve. A rule that arrives half, out of
+        # order, or under the wrong document heading is the same class of wrong
+        # id as one that does not exist.
+        "carries every rule the report cites", "arrives whole",
+        "does not carry is marked", "keeps the document boundary",
+        "emits 355.2 before 355.10",
+        "handles its own internal links"],
     "4. The page never claims more support than the notes carry": [
         "grounded note with no citations", "span cannot claim more support",
         "gap note is the weakest link",
         "uncited transition fails verification",
-        "reports structural as its weakest link"],
+        "reports structural as its weakest link",
+        # The history states each report's verdict and kind. Both were wrong in
+        # ways nothing could see: the verdict column could never populate, and
+        # a ruling mentioning a primer was filed as one.
+        "reads a ruling's verdict", "tells a ruling from a primer by structure",
+        "merely mentions a primer is not filed as one",
+        "filed as a primer, not as a ruling",
+        "escapes a filename as a URL"],
     "5. Card text is Riot's current text, or is marked as not being it": [
         "override the vendored card text", "EMPTY card index", "missing card",
         "fused extraction artifact", "fused artifact at the end",
@@ -57,6 +73,11 @@ INVARIANTS = {
         "a mis-set override is refused",
         "naming an SVG that could not be produced is not reported as success"],
     "10. A failure never leaves a stale artifact looking current": [
+        "refuses the whole export", "refuses when the overlay markup",
+        "refuses when the rulebook lacks", "refuses input that is not a rendered report",
+        "leaves a file it did not write alone", "leaves the source report alone",
+        "removes the superseded export it wrote", "a refused export exits non-zero",
+        "clears the history rather than leaving ghosts",
         "failed write leaves the previous ruling intact",
         "rulebook render leaves the previous one intact",
         "committed rulebook matches", "crash inside render leaves the previous report intact",
@@ -155,7 +176,28 @@ def main():
         for name in failed:
             print(f"  ! {name}")
         sys.exit(f"\nselftest exited {run.returncode}. Fix the suite, then run this again.")
-    proven = {n for m in mutants.MUTANTS for n in names if m["expect"] in n}
+    # PROVEN MEANS OBSERVED, not claimed.
+    #
+    # This was `{n for m in MUTANTS for n in names if m["expect"] in n}` — the
+    # same name-matching the battery and the suite both stopped using, and for
+    # the reason that matters here: it counts a mutant's CLAIM about which
+    # check it reddens. Ten such claims were false at once when a whole check
+    # group silently did not run inside the battery, and this gate would have
+    # gone on reporting those invariants as pinned. A release gate resting on
+    # claims is the failure it exists to prevent.
+    #
+    # `proven-checks.json` is what the battery WATCHED go red. No record means
+    # unknown, and unknown must not read as pinned.
+    record = os.path.join(LIB, "proven-checks.json")
+    if not os.path.exists(record):
+        sys.exit(
+            "no proven-checks.json — this gate cannot tell which checks have "
+            "actually been seen to fail, and will not guess.\n"
+            "Run: python3 .claude/skills/rules-report/lib/mutants.py"
+        )
+    with open(record, encoding="utf-8") as fh:
+        observed = set(json.load(fh))
+    proven = {n for n in names if n in observed}
 
     gaps = []
     print(f"{'INVARIANT':64}{'checks':>7}{'proven':>8}")

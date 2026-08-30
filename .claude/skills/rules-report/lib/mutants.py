@@ -27,6 +27,7 @@ copy of the whole skill folder. That is not fastidiousness: an earlier review
 sweep ran a truncating build whose output path resolved back to the real
 `data/rules.html` and destroyed it.
 """
+import json
 import os
 import re
 import shutil
@@ -1385,6 +1386,153 @@ MUTANTS = [
          find='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{2,}")',
          repl='FUSED_ARTIFACT = re.compile(r"[,;)\\].!?][a-z]{3,}")',
          expect="two-letter fusion is detected"),
+    # ---- the portable export -------------------------------------------------
+    # An export is the one artifact that leaves the machine that made it, so a
+    # defect here is invisible exactly where it matters. Each of the first three
+    # produces a file that OPENS and looks right.
+    dict(name="ship an export with the rulebook left out",
+         file="export_report.py",
+         find='        f\'<script id="rb-doc" type="application/octet-stream">{payload}</script>\',',
+         repl="        f'',",
+         # Caught by the arrival sweep inside `export`, which refuses before a
+         # document exists — so the check that goes red is the one asserting an
+         # export was produced at all, not the one inspecting its contents.
+         # Both guard the same property; naming the one that actually fires is
+         # what keeps this mutant honest.
+         expect="an export is produced from a rendered report"),
+    dict(name="inline what artwork you can, ship the rest pointing at the CDN",
+         file="export_report.py",
+         find='    if failures:\n        raise ExportRefused(\n            f"{len(failures)} image(s) could not be inlined, so nothing was "\n            f"written: {\', \'.join(failures[:3])}"\n        )',
+         repl="    if failures:\n        pass",
+         # The remaining guard is the outward sweep, which refuses for a
+         # DIFFERENT reason ("still point outside the file"). The check asserts
+         # the reason, so it goes red on the wrong refusal rather than passing
+         # on any refusal — which is how two guards over one property stay
+         # separately pinned.
+         expect="one image that cannot be inlined refuses the whole export"),
+    # The silent no-op that shipped once: a replacement matching nothing returns
+    # its input unchanged and says nothing, so the overlay kept offering a full
+    # rulebook the file does not contain.
+    dict(name="let a rewrite that matches nothing pass silently",
+         file="export_report.py",
+         find='    if n != 1:\n        raise ExportRefused(\n            f"expected exactly one {what} to rewrite, found {n} — the "\n            "renderer\'s markup changed and this exporter was not updated"\n        )',
+         repl="    if False:\n        pass",
+         expect="refuses when the overlay markup it rewrites is gone"),
+    dict(name="list the history index as one of the reports",
+         file="rules_cli.py",
+         find='        if not name.endswith(".html") or name == INDEX_NAME:',
+         repl='        if not name.endswith(".html"):',
+         expect="does not list itself as a report"),
+    dict(name="export against a rulebook that lacks a cited rule",
+         file="export_report.py",
+         find='    missing = [a for a in anchors if f\'id="{a}"\' not in rules_html]\n    if missing:',
+         repl='    missing = []\n    if missing:',
+         expect="refuses when the rulebook lacks"),
+    dict(name="export anything, whether or not it is a report",
+         file="export_report.py",
+         find='    if not anchors:',
+         repl="    if False:",
+         expect="refuses input that is not a rendered report"),
+    dict(name="write diagrams back among the reports the user browses",
+         file="rules_cli.py",
+         find='DIAGRAMS = os.path.join(REPORTS, "diagrams")',
+         repl='DIAGRAMS = REPORTS',
+         expect="not among the reports"),
+    # Restores the head-only scan: the marker lives at the end of the file, so
+    # every export gets listed as not-portable and the column means nothing.
+    dict(name="look for the portable marker only in the head of the file",
+         file="rules_cli.py",
+         find='''            "portable": 'id="rb-doc"' in head or 'id="rb-doc"' in tail,''',
+         repl='''            "portable": 'id="rb-doc"' in head,''',
+         expect="listed as portable"),
+    # The exact defect that shipped: a sentinel matching nothing, so every rule
+    # block became a blind fixed-length slice. It passed every check that asked
+    # whether an anchor ARRIVED, because an opening tag is an anchor.
+    dict(name="slice rule blocks blindly instead of ending them at their tag",
+         file="export_report.py",
+         find='        end = rules_html.find("</section>", m.end())',
+         repl='        end = m.end() + 4000',
+         # The whole-block guard inside `build_minibook` refuses before a
+         # bloated minibook can exist, so the check that fires is the one
+         # asserting every rule arrives whole — not the passenger check, which
+         # never gets a document to count passengers in. The mutant below
+         # removes that guard, so the passenger check is pinned on its own.
+         expect="arrives whole"),
+    dict(name="accept a rule block that is not one whole section",
+         file="export_report.py",
+         find='        if block.count("<section") != 1 or not block.endswith("</section>"):',
+         repl='        if False:',
+         expect="whole section is refused"),
+    dict(name="leave the history index stale after writing a report",
+         file="rules_cli.py",
+         find='    # must not fail a report that already rendered.\n    if os.path.dirname(os.path.abspath(out)) == REPORTS:\n        try:\n            write_report_index()',
+         repl='    # must not fail a report that already rendered.\n    if False:\n        try:\n            write_report_index()',
+         expect="refreshes the history index"),
+    # ---- round 2: the fixes, each pinned by removing it ---------------------
+    dict(name="delete whatever sits at the export destination, as the first fix did",
+         file="rules_cli.py",
+         find="        if explicit is None and os.path.exists(out) and _is_our_export(out):",
+         repl="        if os.path.exists(out):",
+         expect="leaves a file it did not write alone"),
+    dict(name="never remove a superseded export",
+         file="rules_cli.py",
+         find="        if explicit is None and os.path.exists(out) and _is_our_export(out):",
+         repl="        if False:",
+         expect="removes the superseded export it wrote"),
+    dict(name="discard every command's exit code again",
+         file="rules_cli.py",
+         find="    sys.exit(COMMANDS[sys.argv[1]](args) or 0)",
+         repl="    COMMANDS[sys.argv[1]](args)",
+         expect="a refused export exits non-zero"),
+    dict(name="leave the history listing reports that are gone",
+         file="rules_cli.py",
+         find="        try:\n            write_report_index(records)\n        except OSError:\n            pass\n",
+         repl="",
+         expect="clears the history rather than leaving ghosts"),
+    dict(name="read the verdict from a window that does not reach it",
+         file="rules_cli.py",
+         find="                head = fh.read(80_000)",
+         repl="                head = fh.read(20_000)",
+         expect="reads a ruling's verdict"),
+    dict(name="decide a report's kind by looking for the word in its title",
+         file="rules_cli.py",
+         find='        kind = "primer" if has_topic and not has_disp else "ruling"',
+         repl='        kind = "primer" if "primer" in head[:4000].lower() else "ruling"',
+         expect="merely mentions a primer is not filed as one"),
+    dict(name="escape a filename as an attribute but not as a URL",
+         file="rules_cli.py",
+         find='            f\'<td><a href="./{_html.escape(_url.quote(r["file"]))}">\'',
+         repl='            f\'<td><a href="./{_html.escape(r["file"])}">\'',
+         expect="escapes a filename as a URL"),
+    dict(name="order the embedded rulebook as strings again",
+         file="export_report.py",
+         find="    blocks.sort(key=lambda ab: _rule_sort_key(ab[0]))",
+         repl="    blocks.sort(key=lambda ab: ab[0])",
+         expect="emits 355.2 before 355.10"),
+
+    dict(name="drop the explicit-path condition, so a named destination is deleted",
+         file="rules_cli.py",
+         find="        if explicit is None and os.path.exists(out) and _is_our_export(out):",
+         repl="        if os.path.exists(out) and _is_our_export(out):",
+         expect="leaves the source report alone"),
+    dict(name="mark every minibook link, carried or not, instead of discriminating",
+         file="export_report.py",
+         find="    if (here[id]) {",
+         repl="    if (1) {",
+         expect="does not carry is marked"),
+    dict(name="file a primer as a ruling by ignoring its topic plate",
+         file="rules_cli.py",
+         find='        has_topic = \'class="topic\' in head',
+         repl='        has_topic = False',
+         expect="filed as a primer, not as a ruling"),
+    # The other direction of the same decision: a RULING filed as a primer.
+    # `has_topic = False` only breaks primers, so the ruling-side check had no
+    # mutant and the release gate reported it unpinned — correctly.
+    dict(name="invert the kind decision, so a ruling is filed as a primer",
+         file="rules_cli.py",
+         find='        kind = "primer" if has_topic and not has_disp else "ruling"',
+         repl='        kind = "ruling" if has_topic and not has_disp else "primer"',
+         expect="tells a ruling from a primer by structure"),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)
@@ -1439,7 +1587,12 @@ def run_one(m):
         if hit:
             # The RAW line, unsplit. Also keep the [FAIL] lines, which carry
             # each name intact and are immune to the join.
-            failed = [hit.group(1).strip()]
+            # Tagged, because this is the joined "N of M: a, b, c" line and NOT
+            # a check name. `caught` still matches inside it; the proven-record
+            # must not, or it banks a comma-joined blob as though it were one
+            # check. That is how the first record came out with 361 entries for
+            # 298 checks.
+            failed = ["<verdict> " + hit.group(1).strip()]
             failed += re.findall(r"^\s*\[FAIL\]\s*(.+?)(?:\s+—.*)?$", r.stdout, re.M)
             return failed, None
         if r.returncode != 0:
@@ -1450,15 +1603,140 @@ def run_one(m):
         return [], None
 
 
+def preflight():
+    """Does the suite run the SAME checks inside the battery's copy?
+
+    The copy omits `reports` and caches. A check that reads a fixture from one
+    of those — rather than constructing what it needs — silently does not run
+    here, and every mutant it exists to catch then walks past a green suite
+    reporting itself caught.
+
+    This is not hypothetical. The whole export group did exactly that: it read
+    `reports/flow-counter.html`, called `note()` when it was missing, and
+    returned. Ten mutants survived while each one verified as caught by hand —
+    both results true, because the fixture was sitting on the author's disk and
+    absent here. Only this comparison can see it, because only this copy takes
+    the fixture away.
+
+    Costs one extra suite run per battery, once, not per mutant. Credit to
+    riftbound-oracle-c6, who built it on the deck-lab side after I reported the
+    failure and offered it rather than waiting for me to be bitten again.
+    """
+    def count(cwd):
+        r = subprocess.run([sys.executable, os.path.join(cwd, "selftest.py")],
+                           capture_output=True, text=True, cwd=cwd)
+        m = re.search(r"all (\d+) checks passed", r.stdout)
+        if m:
+            return int(m.group(1))
+        m = re.search(r"FAILED \d+ of (\d+)", r.stdout)
+        return int(m.group(1)) if m else -1
+
+    here = count(HERE)
+    with tempfile.TemporaryDirectory() as tmp:
+        skill = os.path.join(tmp, "rules-report")
+        shutil.copytree(SKILL, skill, ignore=shutil.ignore_patterns(
+            "reports", "__pycache__", "*.tmp"))
+        there = count(os.path.join(skill, "lib"))
+    # -1 means the suite printed no verdict at all — it crashed, or its output
+    # changed shape. Comparing counts alone made -1 == -1 a PASS, so a suite
+    # that could not run in EITHER environment cleared the gate designed to
+    # prove it runs in both, and every mutant below would then be scored
+    # against a suite that never executed.
+    if here < 0 or there < 0:
+        print(f"  PREFLIGHT FAILED: the suite produced no verdict "
+              f"({'normally' if here < 0 else ''}"
+              f"{' and ' if here < 0 and there < 0 else ''}"
+              f"{'inside the battery copy' if there < 0 else ''}).\n"
+              "  Nothing below would be measuring anything. Run "
+              "`python3 selftest.py` and fix it first.")
+        return False
+    if here != there:
+        print(f"  PREFLIGHT FAILED: {here} checks run normally, {there} inside "
+              "the battery's copy.\n  Some check reads a fixture the copy omits, "
+              "so it is invisible to every mutant\n  below. Construct what it "
+              "needs instead of reading a directory.")
+        return False
+    print(f"  preflight: {here} checks run in both environments\n")
+    return True
+
+
+PROVEN = os.path.join(HERE, "proven-checks.json")
+
+
+def _record_proven(names, complete):
+    """Write down which checks have actually been SEEN to fail.
+
+    A record is the natural home for stale credit: a check gets renamed, the
+    old name lingers, and the ratio keeps counting a proof nobody has repeated.
+    So the reader intersects with the checks that exist today rather than
+    trusting the file, and a name that no longer matches is simply dropped —
+    renaming a check lowers the ratio until the battery has watched the new one
+    fail, which is the honest direction for that pressure to point.
+    """
+    # A DEGRADED RUN MUST NOT ERASE THE RECORD. This wrote an unconditional
+    # snapshot of one run, so a battery that crashed early — or was interrupted
+    # — replaced hard-won evidence with whatever it had managed, and the
+    # project's headline honesty number silently fell. Evidence that one run
+    # can delete is not evidence.
+    #
+    # So: refuse to shrink unless every mutant actually ran. A partial run adds
+    # what it saw and keeps what it did not reach.
+    try:
+        existing = set()
+        if os.path.exists(PROVEN):
+            with open(PROVEN, encoding="utf-8") as fh:
+                existing = set(json.load(fh))
+    except (OSError, ValueError):
+        existing = set()
+
+    if complete:
+        final, how = set(names), "recorded"
+        dropped = len(existing - final)
+        if dropped:
+            print(f"\n  {dropped} previously-proven check(s) were NOT seen this "
+                  "run — dropped, because a full battery is the authority")
+    else:
+        final, how = existing | set(names), "merged into"
+        print("\n  partial run: keeping previously-recorded proofs rather than "
+              "overwriting them with what this run happened to reach")
+    try:
+        with open(PROVEN, "w", encoding="utf-8") as fh:
+            json.dump(sorted(final), fh, indent=1)
+        print(f"  {how} {len(final)} check(s) observed to fail -> "
+              f"{os.path.basename(PROVEN)}")
+    except OSError as err:
+        print(f"\n  (could not record which checks failed: {err})")
+
+
 def main():
     print("mutation battery — reintroducing defects the suite claims to catch\n")
+    if not preflight():
+        sys.exit(1)
     survived, stale, crashes = [], [], []
+    # Every check name the battery WATCHES go red, across all mutants. The
+    # suite reports its proven ratio from this record.
+    #
+    # It used to derive that ratio by matching each mutant's `expect` against
+    # check names, which counts CLAIMS. A claim can be false — ten of mine were,
+    # for a group that never ran — and it also under-counts, because one mutant
+    # usually reddens several checks and `expect` names only one. Wrong in both
+    # directions from the same technique, which is the tell that it was
+    # measuring something unrelated to the question.
+    reddened = set()
     for i, m in enumerate(MUTANTS, 1):
         failures, err = run_one(m)
+        # AFTER the stale guard: `run_one` returns (None, err) for a drifted
+        # anchor, and iterating that None took the entire battery down with a
+        # TypeError — destroying the [STALE] report, which is the mechanism
+        # that caught anchors drifting repeatedly while this PR was written.
+        # A collector for the proven record must never be able to break the
+        # thing it is collecting from.
         if err:
             stale.append((m["name"], err))
             print(f"  [STALE] {i:2}. {m['name']}\n           {err}")
             continue
+        reddened.update(f for f in (failures or ())
+                        if not f.startswith(("<suite crashed>", "<verdict>")))
         crashed = [f for f in failures if f.startswith("<suite crashed>")]
         # `caught` is computed over NAMED failures only. Matching it against the
         # crash text let a traceback containing the expect substring be credited
@@ -1492,6 +1770,7 @@ def main():
         print(f"{len(survived)} of {len(MUTANTS)} mutants SURVIVED — the named check "
               "passes while its defect is live.")
         bad += survived
+    _record_proven(reddened, complete=not (stale or crashes))
     if bad:
         # Exits non-zero for stale and crashed too. Only `survived` used to
         # fail, so a battery in which nothing meaningful ran still printed

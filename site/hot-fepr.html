@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>HOT FEPR — Riftbound Oracle primer</title>
+<meta name="description" content="Anything that incurs a Task runs the same loop: clear every Task first, then work the Chain one item at a time through Finalize, Execute, Pass and Resolve — where most steps can send you backwards, which is why one Chain runs the loop many times before play moves on. Every step and every transition cites the rule that says so.">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><path d='M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z' fill='none' stroke='%23c8aa6e' stroke-width='4'/><path d='M48 30 L52.8 47.2 L70 52 L52.8 56.8 L48 74 L43.2 56.8 L26 52 L43.2 47.2 Z' fill='%233c8fe0'/></svg>">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#content">Skip to content</a>
+<header class="masthead" data-od-id="site-masthead">
+  <div class="wrap masthead-in">
+    <svg class="mark" viewBox="0 0 96 96" role="img" aria-label="Riftbound Oracle"><path d="M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z" fill="none" stroke="#c8aa6e" stroke-width="2.5"/><circle cx="48" cy="48" r="25" fill="none" stroke="#c8aa6e" stroke-width="3"/><path d="M30.61 43.34 A18 18 0 0 1 43.34 30.61" fill="none" stroke="#e4f1f5" stroke-width="3" stroke-linecap="round"/><path d="M48 37 L50.4 45.6 L59 48 L50.4 50.4 L48 59 L45.6 50.4 L37 48 L45.6 45.6 Z" fill="#3c8fe0"/></svg>
+    <a class="wordmark" href="index.html"><span class="eyebrow">Riftbound</span><b>Oracle</b></a>
+    <span class="unofficial">Unofficial rules companion</span>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Overview</a>
+      <a href="hot-fepr.html" aria-current="page">HOT&nbsp;FEPR</a>
+      <a href="combat.html">Combat</a>
+      <a href="showdowns.html">Showdowns</a>
+      <a href="rulebook.html">Rulebook</a>
+      <a href="samples.html">Sample reports</a>
+    </nav>
+  </div>
+</header>
+<main id="content">
+<section class="wrap" data-od-id="primer-head">
+  <span class="crumb"><a href="index.html">Overview</a> &nbsp;/&nbsp; Diagram explainers</span>
+  <div class="split wide-left">
+    <div>
+      <p class="eyebrow">Primer &middot; derived from verified transitions</p>
+      <h1>HOT FEPR</h1>
+      <p class="lede">Anything that incurs a Task runs the same loop: clear every Task first, then work the Chain one item at a time through Finalize, Execute, Pass and Resolve — where most steps can send you backwards, which is why one Chain runs the loop many times before play moves on.</p>
+      <p class="muted">This page covers the process rule 334 names HOT FEPR — how a player works through outstanding Tasks and then through the Chain, and which condition sends play from each step to the next.</p>
+    </div>
+    <div class="plate rimlit">
+      <div class="pad">
+        <p class="eyebrow cool">The question it answers</p>
+        <p class="ask">Explain the HOT FEPR loop as best you can</p>
+        <div class="metrics">
+          <div class="metric"><b>Steps</b><span>5</span></div>
+          <div class="metric"><b>Stated outright</b><span>5/5</span></div>
+          <div class="metric"><b>Transitions</b><span>12</span></div>
+        </div>
+        <p class="fine" style="margin:1rem 0 0">Core Rules 2026-07-16 &middot;
+        Tournament Rules 2026-07-16 &middot; verified
+        2026-08-26</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap" data-od-id="primer-diagram">
+  <p class="eyebrow">The map</p>
+  <figure>
+    <div class="plate diagram">
+      <div class="diagram-scroll">
+        <img src="diagrams/hot-fepr.svg" alt="HOT FEPR: 5 steps down the left with the 12 transitions between them drawn as numbered arrows. Each number matches a numbered transition in the text below.">
+      </div>
+    </div>
+    <p class="fine pan-hint">Wide diagram &mdash; drag it sideways to follow an arrow.</p>
+    <figcaption>Computed from the cited transitions below and from nothing else &mdash; every
+    arrow here is one of them, and every one of them is here. There is no field in which an
+    author can draw an edge. A solid arrow is a move a rule states outright; a dashed one
+    follows from the rules cited. The numbering is shared: arrow&nbsp;7 on the map is
+    item&nbsp;7 in the prose. Rendered by
+    <a href="https://github.com/yizhiyanhua-ai/fireworks-tech-graph">Fireworks Tech Graph</a> in
+    its Blueprint style, and shipped exactly as generated.</figcaption>
+  </figure>
+</section>
+<section class="wrap" data-od-id="primer-steps">
+  <p class="eyebrow">The steps</p>
+  <article class="plate on-well step" id="s1" data-od-id="step-s1">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">1</span>
+      <h3>H — Handle Outstanding Tasks</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>A Task is anything one or more players must finish before anything else may happen, so nothing else proceeds while one is outstanding. Chain Items created while you work through Tasks are not lost — they sit on the Chain until the Tasks are done. H is also not only the first step: a Task incurred partway through FEPR pauses the process, and you complete the step you are in, handle the Task, then carry on from where you were. That is a pause and resume rather than a restart, which is why no arrow on the map returns here.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-333">CR 333</a><span class="quote">A Task is one or more steps or processes that one or more Players must perform before continuing with any other actions.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-334">CR 334</a><span class="quote">Whenever a Player takes one or more actions that incur Tasks they should refer to the process of HOT FEPR: Handle Outstanding Tasks; then Finalize, Execute, Pass, Resolve.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-334.1">CR 334.1</a><span class="quote">In the course of Handling Outstanding Tasks, Chain Items may be added to the Chain. They will remain there until the Tasks are complete.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-334.2.a">CR 334.2.a</a><span class="quote">During the FEPR process, new Tasks may be incurred. Complete the current step of the process and then pause and complete the necessary Tasks before continuing.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">1</span>
+        <div>
+          <span class="exit-when">every outstanding Task is complete and one or more Chain Items are pending</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; F — Finalize</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-336">CR 336</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">2</span>
+        <div>
+          <span class="exit-when">every outstanding Task is complete and nothing is pending on the Chain — there is no Chain to work, so the loop does not run</span>
+          <span class="exit-goto">The procedure <b>ends here</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-335">CR 335</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s2" data-od-id="step-s2">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">2</span>
+      <h3>F — Finalize</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>The oldest pending item goes first: its controller completes the steps of playing it until it is Finalized or leaves the Chain, and items finalize in the order they were appended. Finalizing is bookkeeping, not a window to act in — it does not pass Priority. Note the numbering: the rules call Finalize &quot;Step 1&quot;, so &quot;return to step 1&quot; inside these rules means Finalize, not Handle Outstanding Tasks.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-337">CR 337</a><span class="quote">Step 1: Finalize</span></li>
+    <li><a class="rid" href="rulebook.html#CR-337.1">CR 337.1</a><span class="quote">If there is at least one Chain Item Pending, the controller of the oldest Pending Chain Item must complete the steps of Playing that Pending Item until it is a Finalized Item or leaves the Chain.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-337.1.a">CR 337.1.a</a><span class="quote">Finalizing an item to the chain does not pass Priority.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-337.1.b">CR 337.1.b</a><span class="quote">Chain Items are Finalized in the order they were appended to the Chain.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">3</span>
+        <div>
+          <span class="exit-when">the item just finalized is a Unit, Gear, or an ability that Adds resources — it never waits on the Chain to be answered</span>
+          <span class="exit-goto">Go to step <b>5 &mdash; R — Resolve</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-337.2">CR 337.2</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">4</span>
+        <div>
+          <span class="exit-when">there are still Pending Chain Items after finalizing that one</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; F — Finalize</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-337.3">CR 337.3</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">5</span>
+        <div>
+          <span class="exit-when">nothing is left on the Chain to finalize</span>
+          <span class="exit-goto">Go to step <b>3 &mdash; E — Execute</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-337.4">CR 337.4</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s3" data-od-id="step-s3">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">3</span>
+      <h3>E — Execute</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>The player with Priority chooses: play something legally timed, or pass. Those are the only two options on offer — the rules give the player with Priority this list and nothing else. &quot;Legally timed&quot; is the constraint that matters: by default cards and activated abilities cannot be played in a Closed State, so what qualifies here is generally something with Reaction.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-338.1">CR 338.1</a><span class="quote">The player with Priority may do any the following:</span></li>
+    <li><a class="rid" href="rulebook.html#CR-338.1.a">CR 338.1.a</a><span class="quote">Play a Card or Activated Ability that is legally timed.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-338.1.a.1">CR 338.1.a.1</a><span class="quote">Cards and Activated Abilities, by default, cannot be played during a Closed State.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-338.1.a.2">CR 338.1.a.2</a><span class="quote">A Legally Timed Card or Activated Ability would be one with Reaction or one that will have Reaction when played under appropriate circumstances.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-338.1.b">CR 338.1.b</a><span class="quote">Pass Priority</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">6</span>
+        <div>
+          <span class="exit-when">the player with Priority plays a card or activates an ability, which puts new Pending Items on the Chain</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; F — Finalize</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-338.1.a.7">CR 338.1.a.7</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">7</span>
+        <div>
+          <span class="exit-when">the player with Priority passes instead</span>
+          <span class="exit-goto">Go to step <b>4 &mdash; P — Pass</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-338.1.b.1">CR 338.1.b.1</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s4" data-od-id="step-s4">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">4</span>
+      <h3>P — Pass</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>Pass asks one question: has every player passed in sequence without adding anything to the Chain? That is the test for whether the window has actually closed, and playing anything at all resets it.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-339.1">CR 339.1</a><span class="quote">If all players have passed Priority in sequence without adding any items to the Chain, proceed to Step 4: Resolve.</span></li>
+    <li><a class="rid" href="rulebook.html#CR-339.2">CR 339.2</a><span class="quote">Otherwise, the player with Priority passes Priority to the next Player in Turn Order. Return to Step 2: Execute.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">8</span>
+        <div>
+          <span class="exit-when">every player has passed in sequence with nothing added to the Chain</span>
+          <span class="exit-goto">Go to step <b>5 &mdash; R — Resolve</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-339.1">CR 339.1</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">9</span>
+        <div>
+          <span class="exit-when">the sequence of passes is not complete, so Priority moves on to the next player</span>
+          <span class="exit-goto">Go to step <b>3 &mdash; E — Execute</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-339.2">CR 339.2</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+  <article class="plate on-well step" id="s5" data-od-id="step-s5">
+   <div class="pad">
+    <div class="step-head">
+      <span class="step-n">5</span>
+      <h3>R — Resolve</h3>
+      <span class="chip on">● Grounded</span>
+    </div>
+    <p>Exactly one item resolves — the newest Finalized one — and its effects are executed in their entirety. One item, not the whole Chain: what happens next depends entirely on what is still sitting on it, and the three transitions below are the whole answer.</p>
+  <ul class="cites">
+    <li><a class="rid" href="rulebook.html#CR-340.1">CR 340.1</a><span class="quote">The newest Finalized Chain Item resolves. Execute its game effects in their entirety.</span></li>
+  </ul>
+    <p class="eyebrow cool" style="margin:1.6rem 0 0">Where you go next</p>
+    <ul class="exits">
+      <li>
+        <span class="exit-n" aria-hidden="true">10</span>
+        <div>
+          <span class="exit-when">the Chain is now empty</span>
+          <span class="exit-goto">The procedure <b>ends here</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-340.2">CR 340.2</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">11</span>
+        <div>
+          <span class="exit-when">the Chain is not empty and one or more items on it are still pending</span>
+          <span class="exit-goto">Go to step <b>2 &mdash; F — Finalize</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-340.3">CR 340.3</a></p>
+        </div>
+      </li>
+      <li>
+        <span class="exit-n" aria-hidden="true">12</span>
+        <div>
+          <span class="exit-when">the Chain is not empty but nothing on it is pending</span>
+          <span class="exit-goto">Go to step <b>3 &mdash; E — Execute</b></span>
+          <p class="exit-cites">Because <a href="rulebook.html#CR-340.4">CR 340.4</a></p>
+        </div>
+      </li>
+    </ul>
+   </div>
+  </article>
+</section>
+<section class="wrap" data-od-id="primer-misconceptions">
+  <p class="eyebrow">Commonly believed, and wrong</p>
+  <ul class="misc">
+    <li>
+      <p class="belief">You can respond to a unit being played, the way you respond to a spell.</p>
+      <p class="why"><b>Why that's wrong</b>A Unit resolves the moment it is finalized. It moves straight to Resolve without passing through Execute, so the window in which anyone could answer it never opens.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-337.2">CR 337.2</a></p>
+    </li>
+    <li>
+      <p class="belief">Once you are in FEPR you run it to the end before anything else happens.</p>
+      <p class="why"><b>Why that's wrong</b>A Task incurred during the process interrupts it. You finish the step you are in, handle the Task, and only then continue — which is the H in HOT FEPR doing work in the middle of the loop, not just at its start.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-334.2.a">CR 334.2.a</a></p>
+    </li>
+    <li>
+      <p class="belief">When everyone passes, the Chain resolves.</p>
+      <p class="why"><b>Why that's wrong</b>One item resolves. If anything is left on the Chain afterwards you go back into the loop — to Finalize if something is pending, to Execute if not — so a Chain of three resolves in three separate passes with a window of opportunity between each.</p>
+      <p class="exit-cites"><a href="rulebook.html#CR-340.1">CR 340.1</a> &middot; <a href="rulebook.html#CR-340.3">CR 340.3</a> &middot; <a href="rulebook.html#CR-340.4">CR 340.4</a></p>
+    </li>
+  </ul>
+</section>
+<section class="wrap" data-od-id="primer-rejected">
+  <p class="eyebrow">Read and left out</p>
+  <p>Rules that came up while this was written and were deliberately not made steps. Saying
+  which near-misses were rejected, and why, is cheaper for a reader to audit than a silent
+  omission.</p>
+  <table>
+    <thead><tr><th scope="col">Rule</th><th scope="col">Why it is not a step here</th></tr></thead>
+    <tbody>
+      <tr><td><a class="rid" href="rulebook.html#CR-305">CR 305</a></td><td>Describes when a phase ends once the Chain is empty — the frame around this loop, not a step inside it.</td></tr>
+      <tr><td><a class="rid" href="rulebook.html#CR-341">CR 341</a></td><td>Showdowns are a window FEPR runs inside; the alternation of Focus is a separate process from the Priority passing in step 3.</td></tr>
+    </tbody>
+  </table>
+</section>
+<section class="wrap tight" data-od-id="primer-provenance">
+  <div class="plate on-well">
+    <div class="pad">
+      <p class="eyebrow cool">Provenance</p>
+      <p class="fine" style="max-width:74ch">Every quote on this page was checked against the
+      rule it names before the page was written: the rule has to exist in the corpus, and the
+      quoted span has to appear verbatim inside it. Each rule ID links into
+      <a href="rulebook.html">the anchored rulebook</a> at the exact clause.
+      All 12 transitions are stated outright by a rule.
+      This page is generated from the same primer document the diagram is
+      &mdash; see <code>site/build.py</code>.</p>
+    </div>
+  </div>
+</section>
+</main>
+<footer data-od-id="site-footer">
+  <div class="wrap">
+    <div class="cols three">
+      <div>
+        <h4>Riftbound Oracle</h4>
+        <p>An unofficial rules companion for Riftbound, the League of Legends Trading Card
+        Game. Rules answers with citations a machine has already checked.</p>
+      </div>
+      <div>
+        <h4>On this site</h4>
+        <ul>
+          <li><a href="hot-fepr.html">HOT FEPR primer</a></li>
+          <li><a href="combat.html">Combat primer</a></li>
+          <li><a href="showdowns.html">Showdowns primer</a></li>
+          <li><a href="rulebook.html">Anchored rulebook</a></li>
+          <li><a href="samples.html">Sample reports</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/gear-null/riftbound-oracle">Source on GitHub</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/docs/report-anatomy.md">How to read a report</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/gear-null/riftbound-oracle/blob/main/LICENSE">Licence (MIT)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="disclaim">
+      <p style="max-width:78ch">Riftbound is a trademark of Riot Games. This project is
+      <b>unofficial and not endorsed by, affiliated with, or sponsored by Riot Games</b>. The
+      code is MIT. The Riftbound rules text and card text are Riot Games' copyright, included
+      so a citation can be checked verbatim against the document it quotes, and used under
+      Riot's policy for community projects &mdash; they travel under Riot's terms, not MIT. No
+      card artwork is redistributed: reports reference Riot's CDN by URL, and a reader with no
+      network sees a labelled placeholder. Riot's Beaufort and TT Norms are proprietary and are
+      not redistributed either; this site loads no fonts and renders in the open fallbacks the
+      reports declare.</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

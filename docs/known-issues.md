@@ -122,3 +122,26 @@ What remains genuinely open is narrower than it was: a stray token that happens 
 real keyword AND is separated by a space is still invisible to both skills — `card_bridge.py`
 maps brackets, deck-lab reads printed text, and the fused-punctuation signature is what
 caught this one. Nothing here detects a well-formed lie.
+
+**A verifier that fails an honest page is worse than one that is merely incomplete.**
+The website's invariant-12 check compares the transition numbers rendered on an explainer
+against the numbers its primer declares. Its first run reported `combat.html` as missing
+transition 4. The page was correct: transition 4 is that primer's one `structural` exit,
+so it renders as `class="exit-n dashed"`, and the check matched the class attribute
+exactly. Fixed by widening the pattern, recorded because the failure mode generalises —
+an incomplete verifier gets extended when someone notices the gap, but a verifier people
+have learned to overrule gets waved through on the day it is finally right. When a check
+fires, the first question is whether the check is wrong, and the second is whether it will
+be believed next time.
+
+**Presence is not completeness, and the two look identical in a check.**
+`export`'s arrival sweep asserted `id="CR-829.1" in minibook` for every cited rule. That
+is satisfied by an opening tag with the rule's text sliced off after it. Underneath it,
+`build_minibook` searched for a sentinel (`<div class="rule`) that occurs zero times in
+the rulebook and fell back to a blind 4000-character cut on every rule — so the fallback
+was not an edge case, it was the only path ever taken. The embedded rulebook carried ~100
+uncited rules, left sections unclosed, and ended mid-attribute, with every check green.
+No cited rule was truncated, but only because the longest rule in the corpus is 2,000
+characters: a margin upstream of this project that nobody chose. Fixed to end each block
+at its own closing tag, and pinned by checks that count what arrived rather than what is
+named.

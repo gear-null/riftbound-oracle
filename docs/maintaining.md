@@ -48,6 +48,11 @@ npm run oracle skill-data                # rebuild data/cards.json  (network)
 cd .claude/skills/rules-report/lib
 python3 rules_cli.py build               # re-parse -> data/rules.json, index, rulebook
 python3 rules_cli.py selftest            # must end "all N checks passed"
+                                         # read the line under it too — it says
+                                         # how many of those N have ever failed
+cd ../../../..
+python3 site/build.py                    # the site is DERIVED from the corpus
+python3 site/build_test.py               # and its verifiers must still fail
 ```
 
 `skill-data` writes card data to **both** skills that vendor it — `rules-report` and
@@ -69,6 +74,11 @@ python3 deck_cli.py mutants              # must end "N/N mutants caught"
 the suite claims to catch and asserts the named check goes red. A surviving mutant is a
 check that is lying about what it covers. It is slow — a full suite run per mutant — so
 it is a pre-merge gate, not an inner loop.
+
+A rules update moves `data/rules.html` and `data/rules.json`, which the website
+embeds and quotes — so the site must be rebuilt and committed in the same commit.
+Skip it and the Pages workflow refuses to publish, correctly, because what is
+committed no longer matches the corpus it claims to describe.
 
 `build` regenerates `data/rules.json`, the FTS index and `data/rules.html` together.
 They must move as a set: report citations link to `rules.html#CR-<id>`, and a rules
@@ -112,6 +122,24 @@ would churn the corpus for nothing.
 
 **Order matters:** crawl the rules before rebuilding cards, or there is no errata to apply and
 `skill-data` warns that card text may be stale. The update run below is already in that order.
+
+## Adding a check, and keeping the gate green
+
+`scripts/check-invariants.py` is a required CI step and it exits non-zero on a
+gap. A check enters the record only when the battery has WATCHED it fail, so a
+commit that adds a check to an invariant's fragment list, without also
+committing a `proven-checks.json` that covers it, turns CI red on main.
+
+The order that works:
+
+1. add the check, and a mutant that reintroduces the defect it names
+2. run `python3 rules_cli.py mutants` and confirm the mutant is caught
+3. commit the code, the mutant, AND the regenerated `proven-checks.json`
+   **together**
+
+Splitting step 3 leaves main red between the two commits, and the failure reads
+"1 invariant not fully pinned" — which is alarming, correct, and easy to
+misread as a regression by anyone who was not there.
 
 ## Packaging a release
 

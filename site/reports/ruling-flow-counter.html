@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ruling — I play Death Mark from my trash for its Flow cost. My oppone</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2 L18 2 L22 6 L22 18 L18 22 L6 22 L2 18 L2 6 Z' fill='none' stroke='%23c8aa6e' stroke-width='1.75'/%3E%3Cpath d='M12 6.5 L13.2 10.8 L17.5 12 L13.2 13.2 L12 17.5 L10.8 13.2 L6.5 12 L10.8 10.8 Z' fill='%233c8fe0'/%3E%3C/svg%3E">
+<style>
+:root{
+ --ink-900:#060b14; --ink-800:#0a1428; --ink-700:#0f1e33; --ink-600:#16293f;
+ --ink-500:#1e3a52; --mist-100:#e4f1f5; --slate-300:#7a96a8; --slate-400:#4a6a80;
+ --gold-700:#785a28; --gold-500:#c8aa6e; --blue:#3c8fe0;
+ --bg:var(--ink-900); --surface:var(--ink-700); --well:var(--ink-800);
+ --fg:var(--mist-100); --muted:var(--slate-300); --line:var(--gold-700);
+ --rule:var(--ink-500); 
+ /* Riot's Beaufort and TT Norms are proprietary and not redistributed; Cinzel
+    and Barlow are the design system's open stand-ins. A report is a local file
+    with no network, so what actually renders is the declared fallback. */
+ --display:"Beaufort for LOL",Cinzel,Georgia,"Times New Roman",serif;
+ --body:"TT Norms Pro Compact",Barlow,system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+ --plate:"Barlow Semi Condensed",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ --ch:10px;
+ --wash:color-mix(in oklch,var(--gold-500) 12%,transparent);
+ --lift:color-mix(in oklch,var(--ink-700) 88%,var(--mist-100));
+ --sink:color-mix(in oklch,var(--ink-900) 70%,transparent);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.65 var(--body);
+ padding-bottom:5rem}
+::selection{background:var(--gold-700);color:var(--mist-100)}
+/* Rules prose is dense and conditional; a one-word last line is where a reader
+   loses the thread of a conditional. Browsers that lack it simply wrap as usual. */
+h1,.hline,.detail,.reframe,.why,.counter h3,.note-head h3,ul.plain li,.foot{text-wrap:pretty}
+
+/* A fixed turbulence grain is what makes crisp chrome and painterly art read as
+   one surface. 3.5%, overlay, never intercepting a click. */
+.grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23g)'/></svg>")}
+
+/* Chamfers, not radii — the cheapest way to signal Runeterra with no artwork.
+   The frame is a real 1px hairline: the element's background IS the frame, and
+   a clipped pseudo-element inset by 1px paints the surface back over it. A
+   plain border cannot do this, because clip-path cuts the border at the
+   chamfer and leaves the corner open. */
+.plate{position:relative;isolation:isolate;padding:1px;background:var(--line);
+ filter:drop-shadow(0 1px 0 var(--sink));
+ clip-path:polygon(var(--ch) 0,100% 0,100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,0 100%,0 var(--ch))}
+.plate::after{content:"";position:absolute;inset:1px;z-index:-1;background:var(--surface);
+ clip-path:polygon(calc(var(--ch) - 1px) 0,100% 0,100% calc(100% - var(--ch) + 1px),calc(100% - var(--ch) + 1px) 100%,0 100%,0 calc(var(--ch) - 1px))}
+
+.wrap{max-width:66rem;margin:0 auto;padding:0 1.5rem}
+.layout{display:grid;grid-template-columns:minmax(0,44rem) 15.5rem;gap:3rem;align-items:start}
+main{min-width:0}
+
+/* ── masthead ───────────────────────────────────────────────────────── */
+.masthead{background:var(--well);border-bottom:1px solid var(--rule)}
+.masthead-in{display:flex;align-items:center;gap:.8rem;padding:.85rem 0;flex-wrap:wrap}
+.mark{width:32px;height:32px;flex:none;display:block}
+.wordmark{display:flex;flex-direction:column;gap:.22rem;line-height:1}
+.wordmark .eyebrow{font:600 .58rem/1 var(--plate);letter-spacing:.24em;text-transform:uppercase;
+ color:var(--slate-300)}
+/* The display face is set in caps only, and only three times on the page: here,
+   on the disposition, and on the rail's restatement of it. Cinzel's lowercase is
+   not what the register is for. */
+.wordmark b{font:600 1.02rem/1 var(--display);letter-spacing:.15em;text-transform:uppercase;
+ color:var(--gold-500)}
+.unofficial{align-self:center;padding:.42em .7em;border:1px solid var(--line);
+ font:600 .58rem/1 var(--plate);letter-spacing:.16em;text-transform:uppercase;color:var(--slate-300)}
+.corpus{margin-left:auto;text-align:right;font:500 .68rem/1.6 var(--plate);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--slate-300)}
+.corpus b{color:var(--fg);font-weight:600}
+
+/* ── the question ───────────────────────────────────────────────────── */
+.label{display:block;font:600 .64rem/1 var(--plate);letter-spacing:.17em;text-transform:uppercase;
+ color:var(--slate-300)}
+.ask{padding-top:2.6rem}
+h1{margin:.75rem 0 0;font:500 1.5rem/1.34 var(--body);max-width:34ch;color:var(--fg)}
+.reframe{margin:1.1rem 0 0;padding-top:.9rem;border-top:1px solid var(--rule);
+ color:var(--muted);font-size:1rem;max-width:68ch}
+.reframe .label{margin-bottom:.35rem}
+
+/* ── the verdict: the one panel that gets the whole design budget ───── */
+.verdict{--ch:14px;margin:1.9rem 0 0;padding:1.5rem 1.6rem 1.35rem;
+ background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 42%,var(--gold-700) 100%)}
+.verdict.d-UNSETTLED{background:linear-gradient(148deg,var(--mist-100) 0%,var(--gold-700) 48%,var(--gold-700) 100%)}
+.verdict-head{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.disp{font:700 clamp(1.55rem,4.4vw,2.3rem)/1 var(--display);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--fg)}
+.disp.UNSETTLED{background:var(--mist-100);color:var(--ink-900);padding:.1em .3em;letter-spacing:.07em}
+.hairline{flex:1 1 2rem;height:1px;background:var(--line)}
+.tally{font:600 .7rem/1.5 var(--plate);letter-spacing:.11em;text-transform:uppercase;
+ color:var(--muted);white-space:nowrap}
+.tally b{color:var(--fg)}
+.hline{margin:1.15rem 0 0;font-size:1.2rem;line-height:1.55;max-width:68ch}
+/* An open question has no one-word verdict, so the sentence IS the headline and
+   is set at the weight the plate word would have carried. */
+.hline.is-lead{margin-top:.35rem;font-size:clamp(1.24rem,2.6vw,1.5rem);line-height:1.42;
+ color:var(--fg);text-wrap:balance}
+.sp-grounded{color:inherit;text-decoration:none;border-bottom:2px solid var(--gold-500)}
+.sp-inferred{color:inherit;text-decoration:none;border-bottom:2px dotted var(--blue)}
+.sp-gap{color:inherit;text-decoration:none;border-bottom:2px dotted var(--muted)}
+.sp-grounded:hover,.sp-inferred:hover,.sp-gap:hover{background:var(--wash);color:var(--fg)}
+.noteref{color:var(--blue);text-decoration:none;font:700 .95em/1 var(--plate);padding-left:.12em}
+.noteref:hover{color:var(--fg)}
+.strength{display:flex;flex-wrap:wrap;gap:.35rem 1.7rem;margin-top:1.3rem;padding-top:.95rem;
+ border-top:1px solid var(--rule);font:500 .78rem/1.6 var(--plate);letter-spacing:.05em;
+ color:var(--muted)}
+.metric{display:flex;gap:.5rem;align-items:baseline}
+.metric .label{display:inline;letter-spacing:.14em}
+.metric b{color:var(--fg);font-weight:600}
+.weakref{color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.weakref:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.forced{flex-basis:100%;margin-top:.35rem;padding:.6rem .75rem;background:var(--mist-100);
+ color:var(--ink-900);font:600 .72rem/1.5 var(--plate);letter-spacing:.07em;text-transform:uppercase}
+
+/* ── how to read a basis, stated once ───────────────────────────────── */
+.key{display:flex;flex-wrap:wrap;gap:.5rem;margin:.85rem 0 0}
+.key-item{flex:1 1 12.5rem;padding:.65rem .75rem;background:var(--well);
+ border:1px solid var(--rule);font-size:.82rem;line-height:1.5;color:var(--muted)}
+.key-item b{display:block;margin-bottom:.28rem;font:600 .65rem/1 var(--plate);
+ letter-spacing:.14em;text-transform:uppercase}
+.k-grounded b{color:var(--gold-500)}
+.k-structural b{color:var(--blue)}
+.k-gap b{color:var(--slate-300)}
+
+/* ── section rules ──────────────────────────────────────────────────── */
+h2{display:flex;align-items:center;gap:.95rem;margin:3rem 0 1.15rem;scroll-margin-top:1.5rem;
+ font:600 .74rem/1 var(--plate);letter-spacing:.17em;text-transform:uppercase;color:var(--gold-500)}
+h2::after{content:"";flex:1;height:1px;background:var(--line);opacity:.5}
+
+/* ── notes ──────────────────────────────────────────────────────────── */
+.note{--ch:9px;display:grid;grid-template-columns:2.9rem minmax(0,1fr);margin:.85rem 0;
+ scroll-margin-top:1.5rem}
+.note.is-crux,.note:target{background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 45%,var(--gold-700) 100%)}
+.note-n{display:flex;justify-content:center;padding:1.05rem .4rem;
+ border-right:1px solid var(--rule);font:600 .95rem/1 var(--plate);
+ font-variant-numeric:tabular-nums;color:var(--slate-300)}
+.b-grounded .note-n{color:var(--gold-500)}
+.b-structural .note-n{color:var(--blue)}
+.b-inferred .note-n{color:var(--blue)}
+/* Restates the base colour rather than changing it: a gap is deliberately the
+   quietest note on the page, and writing it out makes that a decision instead
+   of an omission that looks identical to a forgotten rule. */
+.b-gap .note-n{color:var(--slate-300)}
+.note-body{padding:1rem 1.15rem 1.1rem;min-width:0}
+.note-head{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
+.note-head h3{flex:1 1 15rem;margin:0;font:500 1.02rem/1.45 var(--body);max-width:68ch}
+.note-tags{display:flex;gap:.4rem;flex-wrap:wrap}
+.basis-chip{font:600 .63rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase;
+ border:1px solid var(--rule);padding:.42em .55em;color:var(--muted);white-space:nowrap}
+.b-grounded .basis-chip{color:var(--gold-500);border-color:var(--line)}
+.b-structural .basis-chip{color:var(--blue);border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.b-inferred .basis-chip{color:var(--blue);border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.b-gap .basis-chip{color:var(--muted);border-color:var(--rule)}
+.crux{font:700 .63rem/1 var(--plate);letter-spacing:.14em;text-transform:uppercase;
+ border:1px solid var(--gold-500);color:var(--gold-500);padding:.42em .55em;white-space:nowrap}
+.detail{margin:.8rem 0 0;font-size:.97rem;max-width:68ch;color:var(--fg)}
+.iffalse{margin:.9rem 0 0;padding:.75rem .85rem;background:var(--well);border:1px solid var(--line);
+ font-size:.93rem;max-width:68ch}
+.iffalse b{display:block;margin-bottom:.3rem;font:600 .64rem/1 var(--plate);letter-spacing:.14em;
+ text-transform:uppercase;color:var(--gold-500)}
+.checked{margin:.85rem 0 0;font:500 .74rem/1.6 var(--plate);letter-spacing:.07em;color:var(--muted)}
+.checked b{margin-right:.5rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--slate-300)}
+
+/* ── citations ──────────────────────────────────────────────────────── */
+.cites{display:flex;flex-direction:column;gap:.4rem;margin-top:.95rem}
+.cite{--ch:7px;background:var(--rule);filter:none}
+.cite::after{background:var(--well)}
+.cite summary{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;min-height:36px;
+ cursor:pointer;list-style:none}
+.cite summary::-webkit-details-marker{display:none}
+.cite summary::before{content:"+";width:.7rem;font:600 .9rem/1 var(--plate);color:var(--slate-300)}
+.cite[open] summary::before{content:"\2013"}
+.cite summary:hover{background:var(--lift)}
+.cite summary:hover::before{color:var(--fg)}
+.cite-id{flex:1;font:600 .78rem/1 var(--plate);letter-spacing:.09em;color:var(--fg);
+ font-variant-numeric:tabular-nums}
+.stamp{font:600 .62rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase;
+ padding:.4em .55em;white-space:nowrap}
+.stamp.ok{color:var(--blue);border:1px solid color-mix(in oklch,var(--blue) 42%,transparent)}
+/* A failed citation inverts. It is the one thing on the page that must survive
+   a glance, a greyscale printer and a reader who does not know the palette. */
+.stamp.bad{background:var(--mist-100);color:var(--ink-900);border:1px solid var(--mist-100)}
+.cite-body{padding:.15rem .8rem .8rem;border-top:1px solid var(--rule)}
+.ancestry{list-style:none;margin:.7rem 0;padding:0}
+.ancestry li{padding:.35rem 0 .35rem calc(.75rem + var(--d) * .95rem);font-size:.9rem;
+ line-height:1.5;color:var(--muted);border-left:1px solid var(--slate-400)}
+.ancestry li.anc-target{background:var(--wash);border-left-color:var(--gold-500);color:var(--fg)}
+.ancestry code{margin-right:.5rem;font:600 .82rem/1 var(--plate);letter-spacing:.04em;
+ font-variant-numeric:tabular-nums;color:var(--blue)}
+.anc-link{text-decoration:none;border-bottom:1px dotted transparent}
+.anc-link:hover{border-bottom-color:var(--fg)}
+.anc-link:hover code{color:var(--fg)}
+.narrowed{margin:.6rem 0;font-size:.85rem;line-height:1.5;color:var(--gold-500)}
+.prob{margin:.6rem 0;padding:.45rem .6rem;background:var(--wash);border-left:2px solid var(--mist-100);
+ font-size:.85rem;line-height:1.5;color:var(--fg)}
+.cite-actions{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center}
+.rulebook-link,.copy{display:inline-flex;align-items:center;min-height:34px;padding:.6em .85em;
+ border:1px solid var(--rule);background:transparent;color:var(--fg);cursor:pointer;
+ text-decoration:none;font:600 .66rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+.rulebook-link:hover,.copy:hover{background:var(--lift);border-color:var(--gold-500);color:var(--fg)}
+
+/* ── counterargument ────────────────────────────────────────────────── */
+.counter{--ch:9px;margin:.85rem 0;padding:1.1rem 1.2rem;background:var(--rule)}
+.counter::after{background:var(--well)}
+.counter h3{margin:.45rem 0 1rem;font:500 1.05rem/1.55 var(--body);color:var(--fg);max-width:68ch}
+.counter .why{margin:.45rem 0 0;font-size:.95rem;color:var(--muted);max-width:68ch}
+.counter .cites{margin-top:1rem}
+
+/* ── plain lists ────────────────────────────────────────────────────── */
+ul.plain{list-style:none;margin:.5rem 0 0;padding:0}
+ul.plain li{position:relative;padding:.7rem 0 .7rem 1.2rem;border-bottom:1px solid var(--rule);
+ font-size:.95rem;max-width:68ch}
+ul.plain li:last-child{border-bottom:0}
+ul.plain li::before{content:"";position:absolute;left:0;top:1.25rem;width:5px;height:5px;
+ background:var(--gold-700);transform:rotate(45deg)}
+ul.plain code{font:600 .84rem/1 var(--plate);letter-spacing:.05em;color:var(--blue)}
+
+/* ── cards ──────────────────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(12.5rem,1fr));gap:.9rem}
+.card{--ch:8px;margin:0;display:flex;flex-direction:column;overflow:hidden}
+.card-art{width:100%;height:auto;display:block;background:var(--well)}
+.card-art--none{aspect-ratio:744/1039;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;gap:.4rem;padding:1rem;text-align:center;color:var(--fg);
+ font:600 .68rem/1.4 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+.card-art--none span{font:400 .72rem/1.45 var(--body);letter-spacing:0;text-transform:none;
+ color:var(--muted)}
+.card figcaption{display:flex;flex-direction:column;gap:.35rem;padding:.7rem .75rem .8rem;
+ border-top:1px solid var(--rule)}
+.card-name{font:600 .9rem/1.35 var(--body)}
+.card-stats{display:flex;flex-wrap:wrap;gap:.25rem}
+.chip{font:600 .62rem/1 var(--plate);letter-spacing:.09em;text-transform:uppercase;
+ border:1px solid var(--rule);padding:.35em .48em;color:var(--muted);white-space:nowrap}
+.chip b{color:var(--fg);font-weight:700}
+.chip-d{border-color:var(--line);color:var(--gold-500)}
+.card-text{font-size:.79rem;line-height:1.55;color:var(--muted)}
+.card-errata,.card-gap{display:block;margin-top:.3rem;padding:.45rem .55rem;
+ font-size:.74rem;line-height:1.5}
+.card-errata{border-left:2px solid var(--gold-700);background:var(--well);color:var(--muted)}
+.card-gap{border-left:2px solid var(--mist-100);background:var(--wash);color:var(--fg)}
+.card-rules{display:block;margin-top:.15rem;font:500 .64rem/1.6 var(--plate);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--slate-300)}
+.card-rule{margin-right:.4rem;color:var(--blue);text-decoration:none;
+ border-bottom:1px dotted var(--blue)}
+.card-rule:hover{color:var(--fg);border-bottom-color:var(--fg)}
+
+/* ── symbol legend ──────────────────────────────────────────────────── */
+.legend{display:grid;grid-template-columns:auto 1fr auto;gap:.55rem 1.1rem;align-items:baseline;
+ padding:1.05rem 1.15rem}
+.sym-row{display:contents}
+.sym{justify-self:start;font:700 .95rem/1 var(--plate);color:var(--fg)}
+.sym-mean{font-size:.9rem}
+.sym-rule{white-space:nowrap;font:600 .72rem/1 var(--plate);letter-spacing:.07em;color:var(--blue);
+ text-decoration:none;border-bottom:1px dotted var(--blue)}
+.sym-rule:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.legend-note{margin:.8rem 0 0;font-size:.85rem;color:var(--muted);max-width:68ch}
+
+/* ── the rail ───────────────────────────────────────────────────────── */
+.rail{position:sticky;top:1.6rem;align-self:start;max-height:calc(100vh - 3.2rem);
+ overflow-y:auto;padding-bottom:1rem;scrollbar-width:thin;
+ scrollbar-color:var(--ink-500) transparent}
+.rail h4{margin:0 0 .55rem;font:600 .63rem/1 var(--plate);letter-spacing:.17em;
+ text-transform:uppercase;color:var(--slate-300)}
+.rail-plate{--ch:8px;padding:.95rem 1rem}
+/* An open question restates its ANSWER as the sentence, not the token — the
+   token never appears anywhere a reader can see it. */
+.rail-disp.is-lead{font:600 .82rem/1.4 var(--body);letter-spacing:.01em;text-transform:none}
+.rail-disp{display:block;font:700 1.15rem/1 var(--display);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--fg)}
+.rail-meta{margin:.7rem 0 0;font:500 .73rem/1.6 var(--plate);letter-spacing:.05em;color:var(--muted)}
+.rail-nav{display:flex;flex-direction:column;margin-top:1.4rem}
+.rail-note{display:grid;grid-template-columns:1.3rem minmax(0,1fr);gap:.45rem;
+ padding:.45rem .55rem;border-left:1px solid transparent;text-decoration:none;
+ color:var(--muted);font-size:.79rem;line-height:1.4}
+.rail-note .n{font:600 .72rem/1.4 var(--plate);font-variant-numeric:tabular-nums;
+ color:var(--slate-300)}
+.rail-note.is-crux .n{color:var(--gold-500)}
+.rail-crux{display:inline-block;margin-left:.4rem;font:700 .58rem/1 var(--plate);
+ letter-spacing:.13em;text-transform:uppercase;color:var(--gold-500)}
+.rail-note:hover{background:var(--lift);color:var(--fg);border-left-color:var(--slate-400)}
+.rail-note.here{background:var(--wash);color:var(--fg);border-left-color:var(--gold-500)}
+.rail-jump{padding:.45rem .55rem;border-left:1px solid transparent;text-decoration:none;
+ color:var(--muted);font:600 .68rem/1.4 var(--plate);letter-spacing:.1em;text-transform:uppercase}
+.rail-jump:hover{background:var(--lift);color:var(--fg);border-left-color:var(--slate-400)}
+
+/* ── rulebook overlay ───────────────────────────────────────────────── */
+.rb-overlay{position:fixed;inset:0;z-index:120;padding:3vh 3vw;display:flex;align-items:center;
+ justify-content:center;background:color-mix(in oklch,var(--ink-900) 84%,transparent)}
+.rb-overlay[hidden]{display:none}
+.rb-panel{--ch:12px;width:min(62rem,96vw);height:min(88vh,58rem);display:flex;flex-direction:column;
+ overflow:hidden}
+.rb-panel::after{background:var(--ink-600)}
+.rb-bar{display:flex;align-items:center;gap:.9rem;padding:.6rem .8rem;
+ border-bottom:1px solid var(--rule)}
+.rb-title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font:600 .74rem/1.4 var(--plate);letter-spacing:.12em;text-transform:uppercase;color:var(--fg)}
+.rb-pop{white-space:nowrap;font:600 .67rem/1 var(--plate);letter-spacing:.11em;text-transform:uppercase;
+ color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.rb-pop:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.rb-close{width:34px;height:34px;flex:none;font-size:1.15rem;line-height:1;cursor:pointer;
+ background:transparent;border:1px solid var(--rule);color:var(--muted)}
+.rb-close:hover{background:var(--lift);border-color:var(--gold-500);color:var(--fg)}
+.rb-frame{flex:1;width:100%;border:0;background:var(--ink-900)}
+
+/* ── footer ─────────────────────────────────────────────────────────── */
+.foot{margin-top:3.5rem;padding-top:1.1rem;border-top:1px solid var(--rule);
+ font-size:.8rem;line-height:1.6;color:var(--muted)}
+
+/* ── focus, always visible ──────────────────────────────────────────── */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold-500);
+ outline-offset:2px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{position:fixed;left:1rem;top:1rem;z-index:200;padding:.75em 1em;
+ background:var(--ink-700);border:1px solid var(--gold-500);color:var(--fg);text-decoration:none;
+ font:600 .68rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+
+@media(max-width:1060px){
+ .layout{grid-template-columns:minmax(0,1fr)}
+ .rail{display:none}
+}
+@media(max-width:720px){
+ body{font-size:16px}
+ .hline{font-size:1.08rem}
+ .note{grid-template-columns:minmax(0,1fr)}
+ .note-n{justify-content:flex-start;padding:.65rem .9rem;border-right:0;
+  border-bottom:1px solid var(--rule)}
+ .cards{grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr))}
+ .legend{grid-template-columns:auto 1fr}
+ .sym-rule{grid-column:2;justify-self:start}
+ .corpus{margin-left:0;text-align:left;flex-basis:100%}
+}
+@media(pointer:coarse){
+ .rulebook-link,.copy,.rb-close,.cite summary{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* Judges print these. Paper inverts the whole system: the ground becomes white,
+   ink becomes text, and gold drops to Gold 700 because Gold 500 on white is
+   2.23:1. Every value below is still a palette token — nothing new is invented
+   for print. */
+@media print{
+ /* color-scheme:dark makes the UA paint the canvas near-black wherever the
+    page background is transparent — on paper that produced a black sheet with
+    black text. Paper is a light surface; say so before anything else. */
+ :root{color-scheme:light;
+  --bg:transparent;--surface:transparent;--well:transparent;--fg:var(--ink-900);
+  --muted:var(--slate-400);--line:var(--gold-700);--rule:var(--slate-400);
+  --blue:var(--ink-700);--wash:transparent;--lift:transparent;--sink:transparent;
+  /* Raw palette tokens have to be remapped too, not just the semantic ones.
+     Anything reaching for a palette value DIRECTLY kept its dark-ground colour
+     on paper: gold-500 at 2.23:1, slate-300 at 3.11:1, mist-100 at 1.15:1.
+     The worst of it inverted the argument — .sp-grounded (gold-500) all but
+     vanished while .sp-inferred (--blue, correctly remapped) printed at
+     16.75:1, so the inferred half of the verdict line looked the better
+     supported one. */
+  --gold-500:var(--gold-700);--slate-300:var(--slate-400);--mist-100:var(--slate-400)}
+ html,body{background:transparent}
+ body{color:var(--fg);font-size:11pt;padding-bottom:0}
+ .grain,.rail,.rb-overlay,.copy,.rulebook-link,.skip,.unofficial{display:none!important}
+ .masthead{background:transparent}
+ .plate{background:transparent;border:1px solid var(--line);clip-path:none;filter:none}
+ .plate::after{display:none}
+ /* .verdict.d-UNSETTLED outranks a bare .verdict, so it has to be named. */
+ .verdict,.verdict.d-UNSETTLED,.note.is-crux,.note:target{background:transparent}
+ .disp{color:var(--fg)}
+ .disp.UNSETTLED,.forced,.stamp.bad{background:transparent;color:var(--fg);
+  border:1.5pt solid var(--fg)}
+ .wordmark b,.k-grounded b,.iffalse b,h2,.crux,.chip-d,.card-rules{color:var(--gold-700)}
+ .note,.cite,.card,.counter,.key-item{break-inside:avoid}
+ h2{break-after:avoid}
+ a{color:var(--fg)}
+ .layout{display:block}
+}
+</style></head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#ruling">Skip to the ruling</a>
+
+<header class="masthead" data-od-id="masthead">
+  <div class="wrap masthead-in">
+    <svg class="mark" viewBox="0 0 96 96" role="img" aria-label="Riftbound Oracle"><path d="M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z" fill="none" stroke="#c8aa6e" stroke-width="2.5"/><circle cx="48" cy="48" r="25" fill="none" stroke="#c8aa6e" stroke-width="3"/><path d="M30.61 43.34 A18 18 0 0 1 43.34 30.61" fill="none" stroke="#e4f1f5" stroke-width="3" stroke-linecap="round"/><path d="M48 37 L50.4 45.6 L59 48 L50.4 50.4 L48 59 L45.6 50.4 L37 48 L45.6 45.6 Z" fill="#3c8fe0"/></svg>
+    <span class="wordmark"><span class="eyebrow">Riftbound</span><b>Oracle</b></span>
+    <span class="unofficial">Unofficial rules companion</span>
+    <span class="corpus">CR <b>2026-07-16</b> &middot; TR <b>2026-07-16</b><br>
+      corpus built 2026-08-12 &middot; offline</span>
+  </div>
+</header>
+
+<div class="wrap layout">
+<main data-od-id="report">
+
+<section class="ask" data-od-id="question">
+  <span class="label">The question</span>
+  <h1>I play Death Mark from my trash for its Flow cost. My opponent counters it with Defy. Death Mark&#x27;s Flow cost is [1][A][A], which is more Power than Defy allows — can Defy even target it? And if it resolves, does Death Mark go to my trash (so I could Flow it again) or is it banished?</h1>
+  <p class="reframe"><span class="label">As the rules see it</span>two questions: does Defy&#x27;s cost restriction read Death Mark&#x27;s base cost or the Flow cost actually paid, and does Counter&#x27;s &quot;placed in the trash&quot; or Flow&#x27;s delayed banish win when a Flow spell is cleared from the chain?</p>
+</section>
+
+<section class="verdict plate d-YES" id="ruling" data-od-id="ruling">
+  <div class="verdict-head">
+    <span class="disp YES">YES</span>
+    <span class="hairline" aria-hidden="true"></span>
+    <span class="tally"><b>7/7</b> citations verified verbatim</span>
+  </div>
+  <p class="hline">Yes, <a class="sp-grounded" href="#n1" title="A rule states this in so many words — see note 1">Defy can counter it</a><a class="noteref" href="#n1" aria-label="note 1"><sup>1</sup></a> — <a class="sp-grounded" href="#n2" title="A rule states this in so many words — see note 2">cost restrictions read the base cost, not the Flow cost you paid</a><a class="noteref" href="#n2" aria-label="note 2"><sup>2</sup></a> — and Death Mark is then <a class="sp-inferred" href="#n4" title="No single rule says this; it follows from the rules below — see note 4">banished rather than trashed</a><a class="noteref" href="#n4" aria-label="note 4"><sup>⌁4</sup></a>, so <a class="sp-inferred" href="#n5" title="No single rule says this; it follows from the rules below — see note 5">you cannot Flow it a second time</a><a class="noteref" href="#n5" aria-label="note 5"><sup>⌁5</sup></a>.</p>
+  <div class="strength">
+    <span class="metric"><span class="label">Weakest link</span>
+      <a class="weakref" href="#n4">note 4</a>
+      <b>structural</b></span>
+    <span class="metric"><span class="label">Confidence</span>the lowest link, never an average</span>
+    
+  </div>
+</section>
+
+<div class="key" data-od-id="basis-key"><div class="key-item k-grounded"><b>● Grounded</b>A rule states this in so many words.</div><div class="key-item k-structural"><b>▲ Structural</b>No single rule says this; it follows from the rules cited.</div></div>
+
+<h2 id="cards" data-od-id="sec-cards">Cards referenced</h2><div class="cards"><figure class="card plate" data-od-id="card-death-mark"><img class="card-art" src="https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/87ccfb8d1c19f402bb37ffa392011ee2f0880aa9-744x1039.png?accountingTag=RB" alt="Death Mark card artwork" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'card-art card-art--none',textContent:'artwork offline'}))"><figcaption><b class="card-name">Death Mark</b><span class="card-stats"><span class="chip"><b>2</b> Energy</span><span class="chip"><b>1</b> Power</span><span class="chip chip-q">Spell</span><span class="chip chip-q">Epic</span><span class="chip chip-d">Fury</span><span class="chip chip-d">Chaos</span></span><span class="card-text">[Burn 3]. (Put the top 3 cards of your Main Deck into your trash.)Play a 0 might Shadow Clone unit token. (It has &quot;When I attack, you may banish a unit from your trash. If you do, give me [Assault 4] this turn.&quot;)[Flow] [1] [A] [A] (You may play this from your trash for its Flow cost. Then banish …</span><span class="card-rules">governed by <a class="card-rule" href="../data/rules.html#CR-440">440</a><a class="card-rule" href="../data/rules.html#CR-807">807</a><a class="card-rule" href="../data/rules.html#CR-829">829</a></span></figcaption></figure><figure class="card plate" data-od-id="card-defy"><img class="card-art" src="https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4989bfcc4bd7be77051f0c2c349a981ba9c273e0-744x1039.png?accountingTag=RB" alt="Defy card artwork" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'card-art card-art--none',textContent:'artwork offline'}))"><figcaption><b class="card-name">Defy</b><span class="card-stats"><span class="chip"><b>1</b> Energy</span><span class="chip"><b>1</b> Power</span><span class="chip chip-q">Spell</span><span class="chip chip-q">Common</span><span class="chip chip-d">Calm</span></span><span class="card-text">[Reaction] (Play any time, even before spells and abilities resolve.)Counter a spell that costs no more than [4] and no more than [A].</span><span class="card-rules">governed by <a class="card-rule" href="../data/rules.html#CR-813">813</a></span></figcaption></figure></div>
+
+<h2 id="reasoning" data-od-id="sec-reasoning">Reasoning</h2>
+<section class="note plate b-grounded"
+    id="n1" data-od-id="note-n1">
+  <div class="note-n" aria-hidden="true">1</div>
+  <div class="note-body">
+    <div class="note-head">
+      <h3>Defy&#x27;s restriction is measured against Death Mark&#x27;s printed cost of 2 Energy and 1 Power, which is within both limits.</h3>
+      <span class="note-tags"><span class="basis-chip" title="A rule states this in so many words">● grounded</span></span>
+    </div>
+    <p class="detail">Defy counters &quot;a spell that costs no more than [4] and no more than [A]&quot;. Death Mark is printed at 2 Energy / 1 Power. Its Flow cost of [1][A][A] is louder but irrelevant — see n2.</p>
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 206.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-206"><code>206</code></a> <span>Effects that need to determine a card’s cost for any purpose always use its printed or copied cost, even if that cost is increased, decreased, or ignored as the card is played.</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-206.1"><code>206.1</code></a> <span>Effects that need to determine an ability’s cost for any purpose use its base cost, ignoring any alterations to that base cost unless otherwise specified.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-206.1"
+     title="Open CR 206.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 206.1 (Core Rules, 2026-07-16): &quot;Effects that need to determine an ability’s cost for any purpose use its base cost, ignoring any alterations to that base cost unless otherwise specified.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+  </div>
+</section><section class="note plate b-grounded"
+    id="n2" data-od-id="note-n2">
+  <div class="note-n" aria-hidden="true">2</div>
+  <div class="note-body">
+    <div class="note-head">
+      <h3>A Flow cost is an alternate cost, so it is an alteration rather than the spell&#x27;s cost.</h3>
+      <span class="note-tags"><span class="basis-chip" title="A rule states this in so many words">● grounded</span></span>
+    </div>
+    <p class="detail">This is the crux of the first half: read the Flow cost instead and Death Mark&#x27;s 2 Power exceeds Defy&#x27;s [A] limit, making the counter illegal.</p>
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 829.1.c.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-829"><code>829</code></a> <span>Flow</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-829.1"><code>829.1</code></a> <span>Flow is a passive ability keyword.</span></li><li class="" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-829.1.c"><code>829.1.c</code></a> <span>Flow is formatted as “Flow [Cost]”</span></li><li class="anc-target" style="--d:4"><a class="anc-link" href="../data/rules.html#CR-829.1.c.1"><code>829.1.c.1</code></a> <span>The cost is an alternate cost that replaces the base cost of the spell to be paid during finalization.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-829.1.c.1"
+     title="Open CR 829.1.c.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 829.1.c.1 (Core Rules, 2026-07-16): &quot;The cost is an alternate cost that replaces the base cost of the spell to be paid during finalization.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+  </div>
+</section><section class="note plate b-grounded"
+    id="n3" data-od-id="note-n3">
+  <div class="note-n" aria-hidden="true">3</div>
+  <div class="note-body">
+    <div class="note-head">
+      <h3>Countering clears the spell from the chain and would put it in the trash.</h3>
+      <span class="note-tags"><span class="basis-chip" title="A rule states this in so many words">● grounded</span></span>
+    </div>
+    
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 425.1.a</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-425"><code>425</code></a> <span>Counter</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-425.1"><code>425.1</code></a> <span>Countering is the act of negating the execution, activation, or otherwise playing of a card or ability by a player.</span></li><li class="anc-target" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-425.1.a"><code>425.1.a</code></a> <span>A card or ability that is Countered does nothing and is cleared from the chain.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-425.1.a"
+     title="Open CR 425.1.a in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 425.1.a (Core Rules, 2026-07-16): &quot;A card or ability that is Countered does nothing and is cleared from the chain.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 425.1.a.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-425"><code>425</code></a> <span>Counter</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-425.1"><code>425.1</code></a> <span>Countering is the act of negating the execution, activation, or otherwise playing of a card or ability by a player.</span></li><li class="" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-425.1.a"><code>425.1.a</code></a> <span>A card or ability that is Countered does nothing and is cleared from the chain.</span></li><li class="anc-target" style="--d:4"><a class="anc-link" href="../data/rules.html#CR-425.1.a.1"><code>425.1.a.1</code></a> <span>Cards that are cleared from the chain in this way are placed in the trash.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-425.1.a.1"
+     title="Open CR 425.1.a.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 425.1.a.1 (Core Rules, 2026-07-16): &quot;Cards that are cleared from the chain in this way are placed in the trash.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+  </div>
+</section><section class="note plate b-structural is-crux"
+    id="n4" data-od-id="note-n4">
+  <div class="note-n" aria-hidden="true">4</div>
+  <div class="note-body">
+    <div class="note-head">
+      <h3>Flow&#x27;s banish is a delayed replacement effect, so it replaces that trip to the trash.</h3>
+      <span class="note-tags"><span class="basis-chip" title="No single rule says this; it follows from the rules below">▲ structural</span><span class="crux">Crux</span></span>
+    </div>
+    <p class="detail">Death Mark became a finalized chain item when it was played, and Counter — not Death Mark&#x27;s own execution — is what removes it. Both conditions in 829.1.b.1 are met, so &quot;banish it instead&quot; replaces 425.1.a.1&#x27;s trash placement. No single rule states the outcome for a countered Flow spell; it follows from the replacement applying to this exact departure.</p>
+    <div class="iffalse"><b>If this is wrong</b>If the banish only applied to a spell that resolves, a countered Death Mark would sit in the trash and could be Flowed again on a later turn. The first half of the answer is unaffected either way.</div>
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 829.1.b.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-829"><code>829</code></a> <span>Flow</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-829.1"><code>829.1</code></a> <span>Flow is a passive ability keyword.</span></li><li class="" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-829.1.b"><code>829.1.b</code></a> <span>It is functionally short for “You may play this from your trash for its flow cost. Then banish it.”</span></li><li class="anc-target" style="--d:4"><a class="anc-link" href="../data/rules.html#CR-829.1.b.1"><code>829.1.b.1</code></a> <span>Banishing the spell in this way is a delayed replacement effect. If the spell would leave the chain after becoming a finalized chain item, and leaving the chain wasn’t instructed by its own execution, banish it instead. See rule 367. Replacement Effects for more information. See rule 389. Delayed Abilities for more information.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-829.1.b.1"
+     title="Open CR 829.1.b.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 829.1.b.1 (Core Rules, 2026-07-16): &quot;If the spell would leave the chain after becoming a finalized chain item, and leaving the chain wasn’t instructed by its own execution, banish it instead.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+  </div>
+</section><section class="note plate b-structural"
+    id="n5" data-od-id="note-n5">
+  <div class="note-n" aria-hidden="true">5</div>
+  <div class="note-body">
+    <div class="note-head">
+      <h3>A banished Death Mark is out of reach of Flow, which only ever plays from the trash.</h3>
+      <span class="note-tags"><span class="basis-chip" title="No single rule says this; it follows from the rules below">▲ structural</span></span>
+    </div>
+    
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 829.1.b</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-829"><code>829</code></a> <span>Flow</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-829.1"><code>829.1</code></a> <span>Flow is a passive ability keyword.</span></li><li class="anc-target" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-829.1.b"><code>829.1.b</code></a> <span>It is functionally short for “You may play this from your trash for its flow cost. Then banish it.”</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-829.1.b"
+     title="Open CR 829.1.b in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 829.1.b (Core Rules, 2026-07-16): &quot;It is functionally short for “You may play this from your trash for its flow cost. Then banish it.”&quot;">Copy cite</button>
+</div>
+</div></details></div>
+  </div>
+</section>
+
+<h2 id="against" data-od-id="sec-against">The argument against, and why it loses</h2><section class="counter plate" data-od-id="counter-1">
+  <span class="label">The opposing reading</span>
+  <h3>“The banish is part of &quot;Then banish it&quot; in Flow&#x27;s own wording, so it only happens after the spell successfully resolves. A countered spell never resolves, so it just goes to the trash like any other countered card.”</h3>
+  <span class="label">Why it loses</span>
+  <p class="why">829.1.b.1 exists precisely to say that this is not sequencing but a delayed replacement, and it is written around the spell leaving the chain rather than around it resolving. Being countered is a departure from the chain that Death Mark&#x27;s own execution did not instruct, which is the case the rule describes.</p>
+  <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 829.1.b.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-829"><code>829</code></a> <span>Flow</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-829.1"><code>829.1</code></a> <span>Flow is a passive ability keyword.</span></li><li class="" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-829.1.b"><code>829.1.b</code></a> <span>It is functionally short for “You may play this from your trash for its flow cost. Then banish it.”</span></li><li class="anc-target" style="--d:4"><a class="anc-link" href="../data/rules.html#CR-829.1.b.1"><code>829.1.b.1</code></a> <span>Banishing the spell in this way is a delayed replacement effect. If the spell would leave the chain after becoming a finalized chain item, and leaving the chain wasn’t instructed by its own execution, banish it instead. See rule 367. Replacement Effects for more information. See rule 389. Delayed Abilities for more information.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-829.1.b.1"
+     title="Open CR 829.1.b.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 829.1.b.1 (Core Rules, 2026-07-16): &quot;Banishing the spell in this way is a delayed replacement effect.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+</section>
+<h2 id="rejected" data-od-id="sec-rejected">Considered and rejected</h2><ul class="plain"><li><code>CR:425.1.c</code> — Confirms the Flow cost is not refunded, but says nothing about where the card ends up.</li></ul>
+
+
+<h2 id="symbols" data-od-id="sec-symbols">Symbols used here</h2><div class="legend plate"><div class="sym-row"><code class="sym">[1]</code><span class="sym-mean">1 Energy</span><a class="sym-rule" href="../data/rules.html#CR-429.5">CR 429.5</a></div><div class="sym-row"><code class="sym">[4]</code><span class="sym-mean">4 Energy</span><a class="sym-rule" href="../data/rules.html#CR-429.5">CR 429.5</a></div><div class="sym-row"><code class="sym">[A]</code><span class="sym-mean">Power of any Domain</span><a class="sym-rule" href="../data/rules.html#CR-135.2.e.5">CR 135.2.e.5</a></div></div><p class="legend-note">Shorthand is left as Riot prints it, so this key becomes unnecessary with use. Each entry links to the rule that defines it.</p>
+
+<footer class="foot" data-od-id="footer">
+  Riftbound Oracle is an unofficial fan project, not endorsed by, affiliated with or
+  sponsored by Riot Games. Rule text is quoted from Riot&rsquo;s Comprehensive Rules and
+  Tournament Rules; card artwork is loaded from Riot&rsquo;s CDN and is not redistributed
+  here.
+</footer>
+
+</main>
+<aside class="rail" data-od-id="rail" aria-label="Report contents">
+  <div class="rail-plate plate">
+    <h4>The ruling</h4>
+    <span class="rail-disp">YES</span>
+    <p class="rail-meta">Weakest link <a class="weakref" href="#n4">note
+      4</a> · structural</p>
+  </div>
+  <nav class="rail-nav">
+    <h4>The claims</h4>
+    <a class="rail-note" href="#n1" title="Defy&#x27;s restriction is measured against Death Mark&#x27;s printed cost of 2 Energy and 1 Power, which is within both limits."><span class="n">1</span><span class="t">Defy&#x27;s restriction is measured against Death Mark&#x27;s…</span></a><a class="rail-note" href="#n2" title="A Flow cost is an alternate cost, so it is an alteration rather than the spell&#x27;s cost."><span class="n">2</span><span class="t">A Flow cost is an alternate cost, so it is an alteration…</span></a><a class="rail-note" href="#n3" title="Countering clears the spell from the chain and would put it in the trash."><span class="n">3</span><span class="t">Countering clears the spell from the chain and would put…</span></a><a class="rail-note is-crux" href="#n4" title="Flow&#x27;s banish is a delayed replacement effect, so it replaces that trip to the trash."><span class="n">4</span><span class="t">Flow&#x27;s banish is a delayed replacement effect, so it…<span class="rail-crux">crux</span></span></a><a class="rail-note" href="#n5" title="A banished Death Mark is out of reach of Flow, which only ever plays from the trash."><span class="n">5</span><span class="t">A banished Death Mark is out of reach of Flow, which only…</span></a>
+  </nav>
+  <nav class="rail-nav"><a class="rail-jump" href="#cards">Cards referenced</a><a class="rail-jump" href="#against">The argument against</a><a class="rail-jump" href="#rejected">Considered and rejected</a><a class="rail-jump" href="#symbols">Symbols used here</a></nav>
+</aside>
+</div>
+
+<div id="rb-overlay" class="rb-overlay" hidden>
+  <div class="rb-panel plate" role="dialog" aria-modal="true" aria-label="Rulebook">
+    <div class="rb-bar">
+      <span class="rb-title" id="rb-title">Rulebook</span>
+      <a class="rb-pop" id="rb-pop" href="../data/rules.html" target="_blank" rel="noopener">Open full page &#8599;</a>
+      <button class="rb-close" id="rb-close" aria-label="Close">&times;</button>
+    </div>
+    <iframe class="rb-frame" id="rb-frame" title="Rulebook"></iframe>
+  </div>
+</div>
+
+<script>
+// file:// has no clipboard API in Chrome — the execCommand fallback is mandatory.
+document.addEventListener('click', function(e){
+  var b = e.target.closest('.copy'); if(!b) return;
+  var t = b.dataset.cite, done = function(){ b.textContent='Copied'; setTimeout(function(){b.textContent='Copy cite';},1200); };
+  try { if(navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(t).then(done); return; } } catch(_){}
+  var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity=0;
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch(_){ b.textContent='Copy failed'; }
+  document.body.removeChild(ta);
+});
+// Jumping to a note from the holding line should open its citations.
+window.addEventListener('hashchange', function(){
+  var el=document.querySelector(location.hash); if(!el) return;
+  el.querySelectorAll('details').forEach(function(d){d.open=true;});
+});
+// Judges print things; printed <details> must not hide the evidence.
+window.addEventListener('beforeprint', function(){
+  document.querySelectorAll('details').forEach(function(d){d.dataset.wasOpen=d.open?'1':'';d.open=true;});
+});
+window.addEventListener('afterprint', function(){
+  document.querySelectorAll('details').forEach(function(d){d.open=d.dataset.wasOpen==='1';});
+});
+
+// The rail marks the claim you are currently reading. Purely an orientation
+// aid: if IntersectionObserver is missing the rail still works as a link list.
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.rail-note'));
+  if(!links.length || !window.IntersectionObserver) return;
+  var map={}, seen={};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ seen[en.target.id]=en.isIntersecting; });
+    // Pick the note occupying MOST of the reading band, not the first one that
+    // happens to touch it. Taking the topmost meant a claim whose last 14px
+    // were still in the band beat the claim actually filling it, so the rail
+    // lagged one behind what you were reading — the opposite of the point.
+    // None at all is a valid answer: above the first note and below the last,
+    // a leftover highlight points at a claim you have scrolled away from.
+    var top=innerHeight*0.12, bot=innerHeight*0.32, current=null, best=0;
+    Object.keys(map).forEach(function(id){
+      if(!seen[id]) return;
+      var el=document.getElementById(id); if(!el) return;
+      var r=el.getBoundingClientRect();
+      var overlap=Math.min(r.bottom,bot)-Math.max(r.top,top);
+      if(overlap>best){ best=overlap; current=id; }
+    });
+    links.forEach(function(l){ l.classList.remove('here'); });
+    if(current) map[current].classList.add('here');
+  },{rootMargin:'-12% 0px -68% 0px'});
+  // '.step' is a primer's equivalent of a ruling's '.note'. Both use
+  // '.rail-note' links, so one observer serves both documents.
+  document.querySelectorAll('.note, .step').forEach(function(n){ io.observe(n); });
+})();
+
+// Reading a cited rule should not cost you your place in the argument, so the
+// rulebook opens OVER the report. An iframe, not fetch: file:// forbids XHR
+// between local files, while an iframe loads and honours the #fragment
+// natively. Nothing scripts INTO the frame — cross-origin rules forbid it for
+// file:// and we do not need it.
+(function(){
+  var ov=document.getElementById('rb-overlay'), fr=document.getElementById('rb-frame'),
+      ttl=document.getElementById('rb-title'), pop=document.getElementById('rb-pop'), last=null;
+  function open(href, label){
+    last=document.activeElement; ttl.textContent=label||'Rulebook'; pop.href=href;
+    fr.src=href;                 // reassigning src re-navigates, so a second
+    ov.hidden=false;             // citation scrolls to ITS rule, not the first
+    document.body.style.overflow='hidden';
+    document.getElementById('rb-close').focus();
+  }
+  function close(){
+    ov.hidden=true; fr.src='about:blank';
+    document.body.style.overflow='';
+    if(last && last.focus) last.focus();
+  }
+  document.addEventListener('click', function(e){
+    var a=e.target.closest('a.rulebook-link, a.anc-link, a.card-rule, a.sym-rule');
+    if(a){
+      // Modified and middle clicks keep their normal meaning; the href is real.
+      if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;
+      e.preventDefault();
+      var href=a.getAttribute('href'), m=/#([A-Z]{2})-(.+)$/.exec(href);
+      open(href, m ? m[1]+' '+decodeURIComponent(m[2]) : 'Rulebook');
+      return;
+    }
+    if(e.target.closest('#rb-close') || e.target===ov) close();
+  });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !ov.hidden) close(); });
+})();
+</script></body></html>

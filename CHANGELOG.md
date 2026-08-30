@@ -14,6 +14,34 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ### Added
 
+- **Send an answer to someone: `rules_cli.py export`.** A rendered report looks
+  self-contained and is not — the rulebook overlay loads a sibling file and card artwork
+  comes from Riot's CDN. Both resolve on the machine that wrote it, so the file renders
+  perfectly there and reaches a reader with its evidence links dead, with nothing on the
+  page saying so. `export` rebuilds it as one document: the rules it cites travel inside
+  it (not all 3,316 — the ones that report can reach), every image is inlined, and
+  nothing is fetched when it opens. Drop it in a chat and it works.
+
+  **Whole, or not at all.** One image that cannot be inlined refuses the entire export
+  and writes nothing. A partial export is the dangerous artifact here, because it is
+  indistinguishable from a good one by looking: it opens, the argument renders, the
+  `✓ VERIFIED` stamps are all present, and only the card the reader zoomed in on is
+  missing. Six refusals, each pinned by a mutant.
+
+  The first working version shipped that exact bug. It passed a check asking whether
+  anything still pointed *outside* the file — which a file with its rulebook deleted
+  passes perfectly. The check now also asserts what *arrived*.
+
+- **A history you can browse: `rules_cli.py reports`.** Lists every answer written,
+  newest first, and writes an `index.html` beside them. Read from the directory rather
+  than a sidecar index, so it cannot list a report that is no longer there. Diagrams now
+  land in `reports/diagrams/` instead of among the answers.
+
+- **A website for the project**, generated from the corpus rather than authored beside
+  it — landing page, an explainer per mechanic, the anchored rulebook, and two real
+  reports as samples. `site/build.py` re-derives every page from the skill on each run
+  and the tree is byte-reproducible, so a copy that drifts shows up as a dirty tree.
+
 - **Primers — a second kind of report, for questions that aren't rulings.** Ask *"explain
   the HOT FEPR loop"* and the old format fought you: it wanted one holding sentence for a
   five-step state machine, one crux among five equally load-bearing steps, and an opposing

@@ -49,6 +49,24 @@ jobs:
           cd .claude/skills/rules-report/lib
           python3 mutants.py
 
+      - name: The record of what has been seen to fail is committed
+        if: matrix.python == '3.13'
+        run: |
+          # The battery immediately above writes proven-checks.json, which is
+          # committed. A run that changes which checks have been WATCHED to
+          # fail therefore dirties the tree, and left unguarded the recorded
+          # ratio drifts from reality with nothing saying so — the
+          # SKILL-VERSION.json trap, in the file whose whole job is honesty.
+          #
+          # This lived in the `package` job at first, which never runs the
+          # battery: the file could not change there, so the guard could not
+          # fire. It has to sit beside the thing that writes it.
+          git diff --exit-code -- .claude/skills/*/lib/proven-checks.json || {
+            echo "::error::proven-checks.json changed — the set of checks observed to fail moved."
+            echo "Run the battery locally and commit the record."
+            exit 1
+          }
+
       # The release gate. Not "did the suite pass" but "is every promise in
       # docs/invariants.md still held up by a check that has been SEEN to fail".
       # Ten review rounds produced checks that passed while the defect they were
@@ -168,6 +186,23 @@ jobs:
             diff <(echo "$first") <(echo "$second") || true
             exit 1
           }
+
+      - name: The site builds, and its verifiers can fail
+        run: |
+          # `site/build.py` enforces invariant 12 on the website and refuses a
+          # stale corpus claim. It ran nowhere until a push to main, so a PR
+          # could break the published site and nothing said so until after the
+          # merge. Build it, prove the build is reproducible, and run the tests
+          # that watch its two verifiers go red.
+          python3 site/build.py
+          python3 site/build_test.py
+          DRIFT="$(git status --porcelain -- site/)"
+          if [ -n "$DRIFT" ]; then
+            echo "::error::site/ does not match what site/build.py produces."
+            echo "Run 'python3 site/build.py' and commit the result."
+            echo "$DRIFT"
+            exit 1
+          fi
 
       - name: The committed manifests match the corpus
         run: |

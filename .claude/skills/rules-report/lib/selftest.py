@@ -11,6 +11,7 @@ Exit 0 = safe to answer questions against this corpus.
 """
 import glob, json, os, re, subprocess, sys
 
+import shutil
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
@@ -19,8 +20,18 @@ NOTES = []
 RAN = [0]
 
 
+SEEN = set()
+
+
 def check(name, ok, detail=""):
     RAN[0] += 1
+    # Names are collected AS THEY RUN, not scraped from source. Some are
+    # composed at runtime (`f"{report}: every legend entry names a symbol"`),
+    # and a regex over `check("...")` literals cannot see those — it reported
+    # 41 of them as recorded-but-no-longer-existing, i.e. as stale credit to be
+    # dropped, when every one was a live check with a dynamic name. A suite
+    # that has to be parsed to be counted will be miscounted.
+    SEEN.add(name)
     print(f"  [{'PASS' if ok else 'FAIL'}] {name}{'  — ' + detail if detail else ''}")
     if not ok:
         FAILS.append(name)
@@ -396,13 +407,19 @@ def card_rendering():
         check("stats render as chips, not prose", 'class="chip"' in chips and "**" not in chips)
 
     # Answer JSON may supply a card object, so stats are untrusted input.
+    # ONE name on both paths, with the offending shape in the detail. It used to
+    # name the shape in the failing branch, so the check was proven under
+    # `stats_html survives '4 Energy'` and seen under `…survives hostile
+    # shapes` — two names for one check, and therefore permanently uncreditable:
+    # the run that proves it cannot print the name the passing run records.
+    broke = ""
     for shape in ("4 Energy", ["a"], 7, None, {"domain": "Fury"}, {"energy": True}):
         try:
-            html = stats_html(shape)
+            stats_html(shape)
         except Exception as exc:
-            check(f"stats_html survives {shape!r}", False, repr(exc)); break
-    else:
-        check("stats_html survives hostile shapes", True)
+            broke = f"{shape!r} raised {exc!r}"
+            break
+    check("stats_html survives hostile shapes", not broke, broke)
     check("a string domain is one chip, not one per letter",
           stats_html({"domain": "Fury"}).count("chip-d") == 1)
     check("a boolean is not rendered as a stat value",
@@ -591,6 +608,471 @@ def card_rendering():
          "d": {"name": "Real", "text": "units.)ambush"}}), None, "artifact scan")
     check("a malformed card entry is skipped, not raised on",
           malformed is not None and len(malformed) == 1, repr(malformed))
+
+
+def export_and_history(idx):
+    """A shared report carries its evidence, or it is not written.
+
+    The failure this group exists for is invisible on the machine that makes
+    the export: a report reaches out for `../data/rules.html` and for artwork on
+    Riot's CDN, and BOTH resolve here. So the file looks complete locally and
+    arrives at the reader with its evidence links dead — which is worse than an
+    obviously broken file, because nothing on the page says so.
+
+    That is why the checks below assert what ARRIVED. An earlier version only
+    asserted that nothing still pointed outward, and shipped a file whose
+    rulebook link read "open full page" and went to `#`.
+    """
+    print("\n=== export and history ===")
+    import export_report as E
+    import corpus as _c
+
+    # RENDER THE FIXTURE, do not go looking for one.
+    #
+    # This group used to read `reports/flow-counter.html` and skip with a note
+    # when it was absent. `reports/` is a working directory that git does not
+    # track and that `mutants.py` deliberately excludes from the copy it
+    # mutates — so the entire group skipped inside the battery, and all ten
+    # export mutants survived while every check passed individually here.
+    #
+    # That is the "check that cannot run when it matters" defect, one level up
+    # from the early return fixed two commits ago: not a check that cannot
+    # fail, but a whole group that quietly does not execute in the one
+    # environment built to prove it can. A `note()` is not a failure, so
+    # nothing said so.
+    #
+    # Rendering from a shipped answer removes the dependency entirely. It runs
+    # wherever the skill runs.
+    import render_report
+    from render_report import verify_answer
+    ans = verify_answer(json.load(open(os.path.join(HERE, "flow-counter-answer.json"),
+                                      encoding="utf-8")), idx)
+    if ans["_problems"]:
+        check("the shipped sample answer still verifies, so export can be tested",
+              False, f"{len(ans['_problems'])} problem(s): {ans['_problems'][:2]}")
+        return
+    html = safely(lambda: render_report.render(ans, idx), "", "render the fixture")
+    check("a report can be rendered for the export checks to run against",
+          bool(html) and "rb-frame" in html,
+          f"{len(html)} bytes rendered" if html
+          else "no report to export — every export check below would be vacuous")
+    if not html:
+        return
+    rules = open(_c.rulebook_html_path(), encoding="utf-8").read()
+    stub = lambda u: "data:image/png;base64,AAAA"
+
+    # The embedded rulebook is inspected DIRECTLY, because everything above
+    # asks about the wrapper. The first version of `build_minibook` looked for
+    # a sentinel that occurs zero times in the rulebook and fell back to a
+    # blind 4000-character slice on every rule — carrying ~100 uncited rules,
+    # leaving 17 sections unclosed, and ending mid-attribute. No cited rule was
+    # truncated, but only because the longest rule in the corpus is 2,000
+    # characters: a margin upstream of us that nobody chose. These check the
+    # property rather than that margin.
+    cited = E._cited_anchors(html)
+    minibook = safely(lambda: E.build_minibook(cited, rules), "", "minibook")
+    got = set(re.findall(r'id="((?:CR|TR)-[^"]+)"', minibook))
+    check("the embedded rulebook carries every rule the report cites",
+          set(cited) <= got, f"missing {sorted(set(cited) - got)[:4]}")
+    check("the embedded rulebook carries NOTHING the report does not cite",
+          got <= set(cited), f"{len(got - set(cited))} uncited rule(s) rode along")
+    # Rules are numbered, and a rules document's one ordering guarantee is
+    # numeric. `sorted()` over anchor strings puts 355.10 before 355.2.
+    order = [m for m in re.findall(r'id="((?:CR|TR)-[^"]+)"', minibook)]
+    check("the embedded rulebook comes out in ascending order",
+          order == sorted(order, key=E._rule_sort_key), f"{order[:5]}")
+    # ...and the ordering RULE, on a case that distinguishes the two. This
+    # report's anchors happen to sort the same either way, so the check above
+    # passes with string ordering restored — true of the corpus today and no
+    # evidence about the property. 110 rule ids in the corpus have a component
+    # of 10 or more, where the two orderings disagree.
+    spread = ["CR-355.10", "CR-355.2", "CR-1000", "CR-200", "TR-104"]
+    check("rule ids sort by number, not as strings",
+          sorted(spread, key=E._rule_sort_key)
+          == ["CR-200", "CR-355.2", "CR-355.10", "CR-1000", "TR-104"],
+          str(sorted(spread, key=E._rule_sort_key)))
+
+    # ...and the same property THROUGH `build_minibook`, on real corpus rules
+    # where the two orderings disagree. The live report's anchors happen to
+    # sort identically either way, so the ascending check above passed with the
+    # sort removed entirely — a check that could not fail on the data it had.
+    pair = ["CR-355.10", "CR-355.2"]
+    ordered = safely(lambda: re.findall(
+        r'id="((?:CR|TR)-[^"]+)"', E.build_minibook(pair, rules)), [], "ordered pair")
+    check("build_minibook emits 355.2 before 355.10",
+          ordered == ["CR-355.2", "CR-355.10"], str(ordered))
+
+    # `about:srcdoc` inherits the parent's base URL, so `href="#CR-206"` inside
+    # the minibook resolved against the REPORT and clicking a rule's own
+    # permalink loaded a second copy of the whole report into the overlay.
+    check("the embedded rulebook handles its own internal links",
+          "addEventListener('click'" in minibook and "preventDefault" in minibook,
+          "no click handler — internal links would navigate the overlay away")
+
+    # A `see also` pointing at a rule the export does not carry is a link that
+    # silently does nothing — which teaches a reader the evidence is unreliable.
+    dangling = {h for h in re.findall(r'href="#((?:CR|TR)-[^"]+)"', minibook)
+                if f'id="{h}"' not in minibook}
+    # Asserted on the BRANCH, not on the constant. "not included in this export"
+    # appears in the injected script whatever that script does, so testing for
+    # the string tested that the string is there. What matters is that the code
+    # distinguishes a carried rule from one it does not carry — so require the
+    # `here[id]` discrimination itself, which is what neutering the branch
+    # (`if (1) {`) removes.
+    discriminates = ("if (here[id])" in minibook
+                     and "not included in this export" in minibook)
+    check("a link to a rule the export does not carry is marked, not dead",
+          not dangling or discriminates,
+          f"{len(dangling)} link(s) out of scope"
+          + (" — marked" if discriminates else " — the marking branch is gone"))
+
+    # CR-104 and TR-104 are different rules with the same number.
+    docs = {a.split("-", 1)[0] for a in cited}
+    check("the embedded rulebook keeps the document boundary",
+          all(f'>{E.DOC_TITLES[d]}<' in minibook for d in docs if d in E.DOC_TITLES),
+          f"docs {sorted(docs)}; headings "
+          f"{re.findall(r'class=.rb-doc-sep.>([^<]+)<', minibook)}")
+
+    check("every rule in the embedded rulebook arrives whole",
+          minibook.count("<section") == minibook.count("</section>")
+          and minibook.count("<section") == len(cited),
+          f"{minibook.count('<section')} open, {minibook.count('</section>')} "
+          f"closed, {len(cited)} cited")
+
+    # The whole-block guard, exercised DIRECTLY. It is a backstop behind the
+    # end-tag search, so no single-site mutation of correct code reaches it —
+    # which by this repo's own rule means it would be defended by nothing and
+    # reported as covered. Feeding it a rulebook whose section never closes is
+    # what makes it a real guard rather than a comforting one.
+    # Tear the closing tag off THE CITED RULE, not off the file's first
+    # section — removing an unrelated one leaves this rule's block perfectly
+    # well-formed, and the check passed while proving nothing.
+    # Every lookup here is guarded. Two mutants — renaming the generated
+    # rulebook, and changing the anchor format — leave `cited` empty or the id
+    # absent, and the raw `cited[0]` / `.index()` this used took the whole run
+    # down with IndexError and ValueError. The battery scores that as
+    # "detected, but not by the check it is filed under", which is right and is
+    # a real loss: the defect was found and the check meant to name it never
+    # got to speak.
+    def tear_and_ask():
+        one = cited[0]
+        at = rules.index(f'id="{one}"')
+        shut = rules.index("</section>", at)
+        torn = rules[:shut] + rules[shut + len("</section>"):]
+        try:
+            E.build_minibook([one], torn)
+        except E.ExportRefused as err:
+            return str(err)
+        return ""
+
+    why = safely(tear_and_ask, None, "tear a rule block")
+    # The export's spine guarantee is not the exporter's to keep. `build_minibook`
+    # carries the anchors it is given; the ancestors are there only because the
+    # RENDERER links them. Pin it where it actually lives, or the spine could
+    # quietly disappear from every export while the exporter stayed correct and
+    # its docstring went on promising a spine.
+    # Scoped to CITATION links. `sym-rule` and `card-rule` point at the rule
+    # defining a symbol or a keyword, and those legitimately have no spine
+    # rendered — the first version of this check flagged two of them and would
+    # have failed an honest report, which is the failure mode recorded in
+    # known-issues.md arriving one check later.
+    cite_ids = {m.group(1) for m in re.finditer(
+        r'<a class="(?:anc-link|rulebook-link)"[^>]*href="[^"]*#(?:CR|TR)-([^"]+)"', html)}
+    orphans = [r for r in cite_ids
+               if "." in r and r.rsplit(".", 1)[0] not in cite_ids]
+    check("a report links a citation's ancestor spine, which is what puts it in an export",
+          not orphans and bool(cite_ids),
+          f"{len(orphans)} cited rule(s) with no linked parent: {sorted(orphans)[:4]}"
+          if orphans else f"{len(cite_ids)} citation link(s), spine intact")
+
+    check("a rule block that is not one whole section is refused",
+          why is not None and ("whole" in why or "never closed" in why),
+          f"got {why[:80]!r}" if why is not None
+          else "could not construct the torn case — see the note above")
+
+    doc = safely(lambda: E.export(html, rules, fetch=stub), "", "export")
+    check("an export is produced from a rendered report", bool(doc))
+    if not doc:
+        return
+
+    remote = re.findall(r'(?:src|href)="https?://', doc)
+    check("nothing in an export points outside the file",
+          not remote, f"{len(remote)} remote reference(s) remain")
+
+    # ...and the other direction, which is the one that was missed. A file with
+    # its rulebook deleted passes the check above perfectly.
+    check("an export carries the rulebook it cites", 'id="rb-doc"' in doc)
+
+
+    check("an export carries the loader that shows it", "fr.srcdoc=doc" in doc)
+    check("an export inlines every image the report had",
+          doc.count("data:image/") >= len(E.REMOTE_IMG.findall(html)),
+          f"{len(E.REMOTE_IMG.findall(html))} in, {doc.count('data:image/')} out")
+    check("an export stops promising a full rulebook it does not carry",
+          "open full page" not in doc.lower(),
+          "the overlay still offers a page that is not in the file")
+
+    # Each refusal below is asserted BY ITS REASON, not merely by "something
+    # refused". The exporter guards the same property twice on purpose — an
+    # internal raise, then a final sweep of the finished document — and a
+    # mutation battery changes one site at a time, so a check that accepts any
+    # refusal reports both guards as covered while neither is pinned. Naming
+    # the reason is what tells them apart. `docs/invariants.md` has the general
+    # form of this; the export is where it bit most recently.
+    def refusal(fetch=None, doc_html=None, doc_rules=None):
+        try:
+            E.export(doc_html or html, doc_rules or rules, fetch=fetch or stub)
+            return ""
+        except E.ExportRefused as err:
+            return str(err)
+
+    why = refusal(fetch=lambda u: None)
+    check("one image that cannot be inlined refuses the whole export",
+          "could not be inlined" in why and "nothing was written" in why,
+          f"got {why[:90]!r}")
+
+    why = refusal(doc_html=html.replace(
+        '<iframe class="rb-frame" id="rb-frame" title="Rulebook"></iframe>', "", 1))
+    check("an export refuses when the overlay markup it rewrites is gone",
+          "expected exactly one" in why, f"got {why[:90]!r}")
+
+    why = refusal(doc_rules=rules.replace('id="CR-829.1.c"', 'id="CR-NOPE"', 1))
+    check("an export refuses when the rulebook lacks a rule the report cites",
+          "no anchor for" in why, f"got {why[:90]!r}")
+
+    why = refusal(doc_html="<html><body>no citations here</body></html>")
+    check("an export refuses input that is not a rendered report",
+          "links no rules" in why, f"got {why[:90]!r}")
+
+    # The history page is derived from the directory, so it cannot list a
+    # report that is not there.
+    import rules_cli
+    # Same reason the fixture above is rendered rather than found: `reports/`
+    # is untracked and the battery excludes it, so reading whatever happens to
+    # be in it made these checks pass here and skip there. Write known files,
+    # assert against them, remove them.
+    # Same reason the fixture above is rendered rather than found: `reports/`
+    # is untracked and `mutants.py` excludes it from the copy it mutates, so
+    # reading whatever happens to be in it made these checks pass here and skip
+    # in the battery. Write known files, assert against them, remove them.
+    os.makedirs(rules_cli.REPORTS, exist_ok=True)
+    plain = os.path.join(rules_cli.REPORTS, "_selftest_plain.html")
+    port = os.path.join(rules_cli.REPORTS, "_selftest_port.html")
+    try:
+        open(plain, "w", encoding="utf-8").write(html)
+        # PADDED so the portable marker lands past any plausible head window.
+        # In a real export the embedded rulebook sits ~2.5MB in; this fixture's
+        # was at 46KB, and widening the head to 80,000 to fix the verdict column
+        # silently put the marker inside it — so the head-only mutant could no
+        # longer fail. One fix disabling another check is why the fixture has to
+        # model the shape it is testing, not merely be an instance of it.
+        pad = "<!-- " + ("padding " * 12_000) + " -->"
+        open(port, "w", encoding="utf-8").write(
+            doc.replace("<body", pad + "<body", 1))
+        records = safely(rules_cli._report_records, [], "report records")
+        names = {r["file"] for r in records}
+        check("the history lists the reports that exist",
+              {"_selftest_plain.html", "_selftest_port.html"} <= names,
+              f"{len(records)} record(s), missing "
+              f"{sorted({'_selftest_plain.html', '_selftest_port.html'} - names)}")
+        check("the history does not list itself as a report",
+              not any(r["file"] == rules_cli.INDEX_NAME for r in records))
+
+        # The portable marker is APPENDED after the overlay, ~2.5MB into a
+        # 2.6MB file, so a head-only scan never saw it and the column was
+        # decorative: every report listed as not-portable, including the
+        # portable ones. A flag that cannot be true is the same defect as a
+        # check that cannot fail.
+        # THE DERIVED FIELDS, pinned. `disposition` and `kind` shipped broken
+        # and green: the verdict lived ~25KB into the file and was read from a
+        # 20KB window, so that column could never be populated — the same
+        # defect as the portable flag, in the adjacent column, in the commit
+        # that fixed the portable flag. `kind` was a substring search that
+        # filed any ruling mentioning "primer" as a primer. Neither had a check.
+        by_file = {r["file"]: r for r in records}
+        plain_rec = by_file.get("_selftest_plain.html", {})
+        check("the history reads a ruling's verdict, not an empty column",
+              plain_rec.get("disposition") in ("YES", "NO", "DEPENDS",
+                                               "UNSETTLED", "ANSWER"),
+              f"read {plain_rec.get('disposition')!r}")
+        check("the history tells a ruling from a primer by structure",
+              plain_rec.get("kind") == "ruling", plain_rec.get("kind"))
+        # ...and the primer direction, which nothing covered: a primer filed as
+        # a ruling went unnoticed, so half the classifier was decorative.
+        prim = os.path.join(rules_cli.REPORTS, "_selftest_primer.html")
+        try:
+            import render_primer
+            praw = json.load(open(os.path.join(HERE, "hot-fepr-primer.json"),
+                                  encoding="utf-8"))
+            pans = render_primer.verify_primer(praw, idx)
+            open(prim, "w", encoding="utf-8").write(
+                safely(lambda: render_primer.render(pans, idx), "", "primer render"))
+            precs = {r["file"]: r for r in
+                     safely(rules_cli._report_records, [], "primer records")}
+            check("a primer is filed as a primer, not as a ruling",
+                  precs.get("_selftest_primer.html", {}).get("kind") == "primer",
+                  precs.get("_selftest_primer.html", {}).get("kind"))
+        finally:
+            if os.path.exists(prim):
+                os.remove(prim)
+
+        # A ruling whose QUESTION mentions a primer is still a ruling.
+        trap = os.path.join(rules_cli.REPORTS, "_selftest_trap.html")
+        try:
+            open(trap, "w", encoding="utf-8").write(
+                html.replace("<title>", "<title>primer primer primer ", 1))
+            trapped = {r["file"]: r for r in
+                       safely(rules_cli._report_records, [], "trap records")}
+            check("a ruling that merely mentions a primer is not filed as one",
+                  trapped.get("_selftest_trap.html", {}).get("kind") == "ruling",
+                  trapped.get("_selftest_trap.html", {}).get("kind"))
+        finally:
+            if os.path.exists(trap):
+                os.remove(trap)
+
+        # A filename carrying URL syntax must still link to itself.
+        page = safely(lambda: open(
+            rules_cli.write_report_index(records), encoding="utf-8").read(),
+            "", "write index")
+        # Asserted on the INDEX THE TOOL WRITES, with a file that has URL
+        # syntax in its name. This used to assert on a three-line shim wrapping
+        # `urllib.parse.quote`, which is to say it asserted that the standard
+        # library works — true whatever the index does, so the fix was unpinned.
+        odd = os.path.join(rules_cli.REPORTS, "_selftest_q#weird.html")
+        try:
+            open(odd, "w", encoding="utf-8").write(html)
+            page = safely(lambda: open(rules_cli.write_report_index(),
+                                       encoding="utf-8").read(), "", "index")
+            check("the index escapes a filename as a URL, not only as an attribute",
+                  "_selftest_q%23weird.html" in page,
+                  "quoted" if "_selftest_q%23weird.html" in page
+                  else "a '#' in the filename truncates the link")
+        finally:
+            if os.path.exists(odd):
+                os.remove(odd)
+            rules_cli.write_report_index()
+
+        portable = {r["file"] for r in records if r["portable"]}
+        check("an exported report is listed as portable",
+              "_selftest_port.html" in portable,
+              f"{len(portable)} of {len(records)} marked portable")
+        check("a plain report is not listed as portable",
+              "_selftest_plain.html" not in portable,
+              "the un-exported fixture is claimed portable"
+              if "_selftest_plain.html" in portable else "correctly unmarked")
+    finally:
+        for f in (plain, port):
+            if os.path.exists(f):
+                os.remove(f)
+
+    # THE REFUSAL PATH'S FILE HANDLING, exercised end to end. A first version
+    # of the stale-artifact cleanup deleted whatever sat at the output path —
+    # so `export bad.html my-report.html` destroyed an unrelated file and
+    # `export r.html r.html` destroyed the source, while printing "nothing
+    # written". These run the real CLI in a scratch directory.
+    import subprocess as _sp, tempfile as _tf
+    with _tf.TemporaryDirectory() as scratch:
+        victim = os.path.join(scratch, "someone-elses.html")
+        source = os.path.join(scratch, "not-a-report.html")
+        open(victim, "w").write("A DOCUMENT THIS TOOL DID NOT WRITE")
+        open(source, "w").write("<html><body>no citations</body></html>")
+        run = _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                       "export", source, victim],
+                      capture_output=True, text=True, cwd=scratch)
+        check("a refused export leaves a file it did not write alone",
+              os.path.exists(victim),
+              "the refusal deleted a document the caller named"
+              if not os.path.exists(victim) else "left alone")
+        # SOURCE AND DESTINATION THE SAME PATH — the case this check is named
+        # for, which it did not construct. With `explicit is None` dropped from
+        # the guard, `export mine.html mine.html` deletes the user's only copy
+        # while a check called "leaves the source report alone" prints PASS,
+        # because its fixture used two different paths. A check that cannot
+        # reach its own scenario is decoration on a data-loss guard.
+        # The fixture must be a REAL export, or `_is_our_export` blocks the
+        # deletion for the wrong reason and the mutant survives — the danger is
+        # re-exporting a portable file in place, where source and destination
+        # are one path and the file does carry the marker.
+        same = os.path.join(scratch, "same-path.html")
+        open(same, "w", encoding="utf-8").write(doc)
+        _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                 "export", same, same],
+                capture_output=True, text=True, cwd=scratch)
+        check("a refused export leaves the source report alone",
+              os.path.exists(same),
+              "export <x> <x> destroyed the source" if not os.path.exists(same)
+              else "src == dest survived")
+        check("a refused export exits non-zero", run.returncode == 1,
+              f"exit {run.returncode}")
+
+        # ...and the stale artifact IS removed at the destination this command
+        # chose for itself, which is what the cleanup exists for.
+        stale = os.path.join(rules_cli.REPORTS, "_selftest_stale.portable.html")
+        src2 = os.path.join(rules_cli.REPORTS, "_selftest_stale.html")
+        try:
+            open(stale, "w").write(doc)                  # a real previous export
+            open(src2, "w").write("<html><body>no rules</body></html>")
+            _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                     "export", "_selftest_stale.html"],
+                    capture_output=True, text=True, cwd=rules_cli.REPORTS)
+            check("a refused re-export removes the superseded export it wrote",
+                  not os.path.exists(stale),
+                  "a superseded export survived at the default destination"
+                  if os.path.exists(stale) else "removed")
+        finally:
+            for f in (stale, src2):
+                if os.path.exists(f):
+                    os.remove(f)
+
+    # Emptying the folder must clear the index, not leave it listing ghosts.
+    with _tf.TemporaryDirectory() as empty:
+        real_reports = rules_cli.REPORTS
+        try:
+            rules_cli.REPORTS = empty
+            rules_cli.cmd_reports([])
+            ghost = os.path.join(empty, rules_cli.INDEX_NAME)
+            body = open(ghost, encoding="utf-8").read() if os.path.exists(ghost) else ""
+            check("emptying the folder clears the history rather than leaving ghosts",
+                  os.path.exists(ghost) and "<tbody></tbody>" in body,
+                  "cleared" if "<tbody></tbody>" in body
+                  else ("no index written" if not os.path.exists(ghost)
+                        else "the index still lists rows"))
+        finally:
+            rules_cli.REPORTS = real_reports
+
+    # The index must be refreshed by `report`, not only by `reports`. An index
+    # that updates on a second command nobody is told to run is stale by
+    # default, and stale in the worst way: it lists every answer except the one
+    # just written, which is the one its reader came for.
+    # BEHAVIOURAL, not a grep. This asserted `"write_report_index()" in
+    # cmd_report's source`, which stays true when the call is disabled — a
+    # mutant wrapping it in `if False:` left the check green. Run the command
+    # and look at the file it was supposed to refresh.
+    with _tf.TemporaryDirectory() as scratch:
+        answer = os.path.join(scratch, "idx-probe-answer.json")
+        shutil.copyfile(os.path.join(HERE, "flow-counter-answer.json"), answer)
+        stamp = os.path.join(rules_cli.REPORTS, rules_cli.INDEX_NAME)
+        before = os.path.getmtime(stamp) if os.path.exists(stamp) else 0
+        if os.path.exists(stamp):
+            os.remove(stamp)
+        _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                 "report", answer, "--no-open"],
+                capture_output=True, text=True, cwd=scratch)
+        wrote = os.path.exists(stamp)
+        check("writing a report refreshes the history index",
+              wrote, "the index was not written by `report`" if not wrote
+              else "refreshed")
+        if not wrote and before:
+            rules_cli.write_report_index()
+
+    # Diagrams used to land in `reports/` beside the answers, so the folder a
+    # user browses held `combat.svg` and `ok.fireworks.json` as siblings of the
+    # documents. Separated rather than filtered: a reader should not have to
+    # know which extensions to ignore.
+    check("a diagram is written under reports/diagrams, not among the reports",
+          os.path.basename(rules_cli.DIAGRAMS) == "diagrams"
+          and os.path.dirname(rules_cli.DIAGRAMS) == rules_cli.REPORTS,
+          rules_cli.DIAGRAMS)
 
 
 def primer_invariants(idx):
@@ -3148,6 +3630,7 @@ def main():
     metric_consistency(idx)
     rendered_surfaces(idx)
     primer_invariants(idx)
+    export_and_history(idx)
     shipped_primers(idx)
     fireworks_export(idx)
     committed_diagrams(idx)
@@ -3161,6 +3644,54 @@ def main():
     # The count is printed rather than documented. Hardcoding it in the README
     # meant it silently drifted every time a check was added.
     print(f"all {RAN[0]} checks passed — safe to answer against this corpus")
+
+    # ...and immediately, the number that qualifies it.
+    #
+    # "All N checks passed" sounds like coverage and is not. It is coverage of
+    # the behaviours somebody thought to attack: a check with no mutant behind
+    # it has never been observed to fail, and is therefore indistinguishable
+    # from one that CANNOT. Worse, adding such a check raises N, so the
+    # headline improves while the evidence behind it does not.
+    #
+    # Printed here rather than left to `mutants`, because this is the line
+    # people quote. The honest claim is a pair.
+    print(_proof_summary())
+
+
+def _proof_summary():
+    """How many checks the battery has actually WATCHED fail. Never blocks a run.
+
+    Read from `proven-checks.json`, which `mutants` writes with the names it saw
+    go red. The first version of this derived the number by matching each
+    mutant's `expect` against check names — that counts CLAIMS, and a claim can
+    be false: ten of mine were, for a group that never ran inside the battery.
+    It under-counts too, since one mutant usually reddens several checks and
+    `expect` names one. Wrong in both directions from one technique, which is
+    how you tell it was measuring something else.
+
+    Intersected with the checks that exist NOW, so a renamed check drops its old
+    credit rather than carrying a proof nobody has repeated.
+    """
+    try:
+        import json as _json
+        names = set(SEEN)
+        path = os.path.join(HERE, "proven-checks.json")
+        if not os.path.exists(path):
+            return (f"  {len(names)} distinct checks. How many have been OBSERVED "
+                    f"to fail is unknown here — no record yet; run `mutants` to "
+                    f"write one. Unknown is not zero, and it is not fine either.")
+        with open(path, encoding="utf-8") as fh:
+            recorded = set(_json.load(fh))
+        proven = names & recorded
+        forgotten = len(recorded - names)
+        note_ = (f", {forgotten} recorded name(s) no longer exist and were dropped"
+                 if forgotten else "")
+        return (f"  of {len(names)} distinct checks, {len(proven)} have been "
+                f"watched to fail ({len(proven) * 100 // max(len(names), 1)}%)"
+                f"{note_}. The rest hold today and have never been tested against "
+                f"a defect — run `mutants` to move that number.")
+    except Exception as exc:
+        return f"  (could not read which checks are proven: {exc})"
     sys.exit(0)
 
 

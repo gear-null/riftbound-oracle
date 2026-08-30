@@ -25,7 +25,7 @@ with — each one exact, deterministic, and free of model judgement:
 The division of labour: the agent decides WHAT to look at, code decides whether
 the citations it produced are real.
 """
-import json, os, subprocess, sys
+import json, os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -43,6 +43,55 @@ from corpus import rules_json as _rules_json
 RULES_JSON = _rules_json()
 RULES_DB = os.path.join(HERE, "rules.db")
 REPORTS = os.path.normpath(os.path.join(HERE, "..", "reports"))
+
+# The history page lives WITH the reports, not above them, so a user who copies
+# the folder keeps the index that describes it.
+INDEX_NAME = "index.html"
+
+# Diagrams are not reports, and they were landing in the same folder — so
+# `reports/` held `combat.svg` and `ok.fireworks.json` beside the answers, and
+# the history had to filter them out by extension. Give them their own place
+# instead of teaching every reader of that folder which files to ignore.
+DIAGRAMS = os.path.join(REPORTS, "diagrams")
+
+REPORT_INDEX_HTML = """<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Riftbound Oracle — answered</title><style>
+:root{--ink-900:#060b14;--ink-700:#0f1e33;--ink-500:#1e3a52;--mist:#e4f1f5;
+ --slate:#7a96a8;--gold-700:#785a28;--gold-500:#c8aa6e;
+ --display:"Beaufort for LOL",Cinzel,Georgia,serif;
+ --body:"TT Norms Pro Compact",Barlow,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink-900);color:var(--mist);
+ font:400 16px/1.6 var(--body);padding:2.5rem 1.25rem}
+main{max-width:60rem;margin:0 auto}
+h1{font:500 1.6rem/1.3 var(--display);color:var(--gold-500);margin:0 0 .2rem;
+ letter-spacing:.01em}
+p.sub{color:var(--slate);margin:0 0 1.8rem;font-size:.93rem}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th{text-align:left;font-weight:600;color:var(--slate);font-size:.72rem;
+ text-transform:uppercase;letter-spacing:.09em;padding:.5rem .6rem;
+ border-bottom:1px solid var(--gold-700)}
+td{padding:.62rem .6rem;border-bottom:1px solid var(--ink-500);vertical-align:top}
+td.w{color:var(--slate);white-space:nowrap;font-size:.84rem}
+td.k{color:var(--slate);font-size:.84rem}
+td.d{font-size:.76rem;letter-spacing:.06em;color:var(--gold-500)}
+a{color:var(--mist);text-decoration:none;border-bottom:1px solid var(--gold-700)}
+a:hover{border-bottom-color:var(--gold-500);color:#fff}
+footer{margin-top:2rem;color:var(--slate);font-size:.8rem;line-height:1.5}
+@media (max-width:34rem){td.k,th.k{display:none}}
+</style></head><body><main>
+<h1>Answered</h1>
+<p class="sub">{{COUNT}} report(s) in this folder, newest first. A
+<b>portable</b> one carries its rules and artwork inside the file and can be
+sent to someone as-is.</p>
+<table><thead><tr><th>When</th><th>Question</th><th class="k">Kind</th>
+<th>Verdict</th><th>Export</th></tr></thead><tbody>{{ROWS}}</tbody></table>
+<footer>Written by the Riftbound Oracle rules-report skill. Unofficial, and not
+endorsed by, affiliated with, or sponsored by Riot Games. Rules text is Riot
+Games' copyright.</footer>
+</main></body></html>
+"""
 
 
 def _out_path(path, default_dir=None):
@@ -378,6 +427,17 @@ def cmd_report(args):
     ensure_rulebook()
     subprocess.run([sys.executable, renderer, src, out], check=True)
     print(f"\nreport: {os.path.normpath(os.path.abspath(out))}")
+
+    # Refresh the history here, not only in `reports`. A browsable index that
+    # updates only when someone runs a second command is stale by default —
+    # it would list every answer except the one just written, which is the one
+    # its reader is looking for. Best-effort: an index that cannot be written
+    # must not fail a report that already rendered.
+    if os.path.dirname(os.path.abspath(out)) == REPORTS:
+        try:
+            write_report_index()
+        except OSError as err:
+            print(f"  (could not refresh the report index: {err})")
     if "--no-open" not in args:
         # Sandboxed runners (Claude Desktop / mobile skills) have no browser and
         # no opener binary. Report what actually happened rather than claiming a
@@ -626,7 +686,7 @@ def cmd_graph(args):
 
     import fireworks_ir
     ir = fireworks_ir.build(ans)
-    svg_out = _out_path(explicit) if explicit else os.path.join(REPORTS, f"{slug}.svg")
+    svg_out = _out_path(explicit) if explicit else os.path.join(DIAGRAMS, f"{slug}.svg")
     ir_out = os.path.splitext(svg_out)[0] + ".fireworks.json"
     os.makedirs(os.path.dirname(os.path.abspath(ir_out)), exist_ok=True)
     _write_atomically(ir_out, lambda fh: (json.dump(ir, fh, indent=1, ensure_ascii=False),
@@ -716,11 +776,214 @@ def cmd_build(args):
     cmd_rulebook([])
 
 
+def _report_records():
+    """Every report on disk, newest first, with what it is and when.
+
+    Reads the rendered files rather than a sidecar index. An index that is
+    written alongside reports goes stale the moment someone deletes one by
+    hand, and then the history lies about what you have — the browser would
+    list a report that is not there. The directory IS the history.
+    """
+    import html as _html
+    out = []
+    if not os.path.isdir(REPORTS):
+        return out
+    for name in os.listdir(REPORTS):
+        if not name.endswith(".html") or name == INDEX_NAME:
+            continue
+        path = os.path.join(REPORTS, name)
+        # WINDOWS ARE WHERE THIS KEEPS GOING WRONG. The portable marker sits
+        # ~2.5MB in, and a head-only scan meant that flag could never be true.
+        # The disposition sits at ~25KB, past the 20KB head, so the Verdict
+        # column could never be populated either — the same defect in the
+        # adjacent column, shipped in the same commit as its fix.
+        #
+        # So each field is read from a window chosen for WHERE IT ACTUALLY IS,
+        # and every window is asserted by a check. A report is at most a few MB
+        # and there are few of them; reading generously beats being clever and
+        # wrong twice.
+        try:
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                head = fh.read(80_000)          # <title>, <body>, the verdict plate
+                fh.seek(0, os.SEEK_END)
+                size = fh.tell()
+                fh.seek(max(0, size - 400_000))
+                tail = fh.read()                # the appended portable payload
+        except (OSError, ValueError):
+            continue
+
+        title = re.search(r"<title>(.*?)</title>", head, re.S)
+        disp = re.search(r'class="disp[^"]*">([A-Z]+)<', head)
+        # `kind` from STRUCTURE, not from prose. It was `"primer" in
+        # head[:4000].lower()`, which reaches only the <title> and the
+        # stylesheet — so a RULING whose question mentions a primer was filed
+        # as one, and the label a reader scans by was decided by a word in a
+        # sentence. A primer renders a topic plate and no disposition; a ruling
+        # renders a disposition plate. Read the plates.
+        has_topic = 'class="topic' in head
+        has_disp = 'class="disp' in head
+        kind = "primer" if has_topic and not has_disp else "ruling"
+        out.append({
+            "file": name,
+            "title": _html.unescape(title.group(1).strip()) if title else name,
+            "kind": kind,
+            "disposition": disp.group(1) if disp else "",
+            "mtime": os.path.getmtime(path),
+            "size": os.path.getsize(path),
+            "portable": 'id="rb-doc"' in head or 'id="rb-doc"' in tail,
+        })
+    return sorted(out, key=lambda r: r["mtime"], reverse=True)
+
+
+def _url_quote_probe(name):
+    """The exact quoting the index applies to a filename. Exists to be checked."""
+    import urllib.parse as _u
+    return _u.quote(name)
+
+
+def cmd_reports(args):
+    """List what has been answered, and write a browsable index beside it."""
+    import datetime
+    records = _report_records()
+    if not records:
+        # Refresh FIRST. Returning early left the previous index in place, so
+        # after deleting the last report the folder said "no reports yet" while
+        # index.html still listed them — a stale artifact surviving precisely
+        # the event that should have cleared it.
+        try:
+            write_report_index(records)
+        except OSError:
+            pass
+        print(f"no reports yet in {REPORTS}")
+        return 0
+    for r in records:
+        when = datetime.datetime.fromtimestamp(r["mtime"]).strftime("%Y-%m-%d %H:%M")
+        flag = " [portable]" if r["portable"] else ""
+        print(f"{when}  {r['kind']:6} {r['disposition']:9} {r['file']}{flag}")
+        print(f"                          {r['title'][:76]}")
+    index = write_report_index(records)
+    print(f"\n{len(records)} report(s) — browse them at {index}")
+    return 0
+
+
+def write_report_index(records=None):
+    """The history page. Regenerated from the directory on every call."""
+    import datetime, html as _html, urllib.parse as _url
+    records = _report_records() if records is None else records
+    rows = []
+    for r in records:
+        when = datetime.datetime.fromtimestamp(r["mtime"]).strftime("%Y-%m-%d %H:%M")
+        rows.append(
+            f'<tr><td class="w">{when}</td>'
+            # QUOTED as a URL, then escaped as an attribute. `html.escape`
+            # alone leaves `#` and `?` intact — they are URL syntax, so a
+            # report named `q?.html` linked to `q`, a file that does not exist,
+            # and the row silently pointed at nothing.
+            f'<td><a href="./{_html.escape(_url.quote(r["file"]))}">'
+            f'{_html.escape(r["title"])}</a></td>'
+            f'<td class="k">{r["kind"]}</td>'
+            f'<td class="d">{_html.escape(r["disposition"])}</td>'
+            f'<td class="w">{"portable" if r["portable"] else ""}</td></tr>'
+        )
+    doc = REPORT_INDEX_HTML.replace("{{ROWS}}", "".join(rows)).replace(
+        "{{COUNT}}", str(len(records)))
+    path = os.path.join(REPORTS, INDEX_NAME)
+    os.makedirs(REPORTS, exist_ok=True)
+    _write_atomically(path, lambda fh: fh.write(doc))
+    return path
+
+
+def _is_our_export(path):
+    """Did THIS tool write that file? Proven by the marker, not by the name.
+
+    An export carries its rulebook in a `<script id="rb-doc">` appended near the
+    end. Nothing else this project writes has one, so it is the only honest way
+    to answer "is this mine to delete" — a `.portable.html` suffix is a guess
+    about a filename, and guessing wrong costs somebody a document.
+    """
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            fh.seek(0, os.SEEK_END)
+            size = fh.tell()
+            fh.seek(max(0, size - 400_000))
+            return 'id="rb-doc"' in fh.read()
+    except OSError:
+        return False
+
+
+def cmd_export(args):
+    """Rebuild a report as ONE portable file, or refuse and write nothing."""
+    import corpus
+    import export_report
+    if not args:
+        sys.exit("usage: export <report.html> [out.html]")
+    src = _out_path(args[0]) if not os.path.isabs(args[0]) else args[0]
+    if not os.path.exists(src):
+        alt = os.path.join(REPORTS, os.path.basename(args[0]))
+        if os.path.exists(alt):
+            src = alt
+        else:
+            sys.exit(f"no such report: {args[0]}")
+    explicit = args[1] if len(args) > 1 and not args[1].startswith("-") else None
+    stem = os.path.splitext(os.path.basename(src))[0]
+    out = _out_path(explicit) if explicit else os.path.join(REPORTS, f"{stem}.portable.html")
+
+    html = open(src, encoding="utf-8").read()
+    rules_html = open(corpus.rulebook_html_path(), encoding="utf-8").read()
+    try:
+        doc = export_report.export(html, rules_html)
+    except export_report.ExportRefused as err:
+        print(f"EXPORT REFUSED — nothing written: {err}")
+        # A stale export left at the DEFAULT destination is invariant 10: the
+        # folder keeps a superseded file that `reports` lists as current and
+        # sendable. But the first version of this deleted whatever sat at
+        # `out` — and `out` is caller-controlled, so
+        # `export bad.html my-report.html` destroyed an unrelated file, and
+        # `export r.html r.html` destroyed the SOURCE. It printed "nothing
+        # written" in the same breath.
+        #
+        # Two conditions now, and both are necessary. Only the destination this
+        # command chose for itself, never one the caller named — a path the
+        # user typed is a path the user owns. And only a file this tool
+        # produced, proven by the marker every export carries, so a name
+        # collision cannot cost someone a document.
+        if explicit is None and os.path.exists(out) and _is_our_export(out):
+            try:
+                os.remove(out)
+                print(f"  removed the superseded export at {out} — it no longer "
+                      "matches this report and nothing here can vouch for it")
+            except OSError as rm_err:
+                print(f"  WARNING: a superseded export remains at {out} "
+                      f"({rm_err}) — delete it before sharing")
+        elif os.path.exists(out):
+            print(f"  NOTE: {out} already exists and was left alone. If it is a "
+                  "previous export of this report, it is now superseded.")
+        return 1
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    _write_atomically(out, lambda fh: fh.write(doc))
+    mb = len(doc.encode("utf-8")) / 1_000_000
+    print(f"wrote {out}  ({mb:.1f} MB, self-contained)")
+    print("Every rule it cites and every card image travel inside the file. "
+          "Send it as-is.")
+    # Guarded exactly as `cmd_report` guards it: only when the artifact landed
+    # in the folder the index describes, and never allowed to fail a write that
+    # already succeeded. Unconditional, it fabricated a "0 report(s)" history
+    # for an export written elsewhere, and could turn a successful export into
+    # a traceback.
+    if os.path.dirname(os.path.abspath(out)) == REPORTS:
+        try:
+            write_report_index()
+        except OSError as err:
+            print(f"  (could not refresh the report index: {err})")
+    return 0
+
+
 COMMANDS = {"rule": cmd_rule, "section": cmd_section, "grep": cmd_grep,
             "card": cmd_card, "verify": cmd_verify, "render": cmd_render,
             "build": cmd_build, "selftest": cmd_selftest, "report": cmd_report,
             "mutants": cmd_mutants, "graph": cmd_graph,
-            "rulebook": cmd_rulebook}
+            "rulebook": cmd_rulebook,
+            "export": cmd_export, "reports": cmd_reports}
 
 
 def main():
@@ -745,7 +1008,12 @@ def main():
         args.append(full)
 
     os.chdir(HERE)
-    COMMANDS[sys.argv[1]](args)
+    # The return value is the exit code. It used to be discarded, so
+    # `export` printing "EXPORT REFUSED — nothing written" still exited 0 —
+    # and the whole-or-nothing promise was unenforceable by the only kind of
+    # caller that cannot read prose. Every other failing command in here uses
+    # `sys.exit`; this makes `return 1` mean the same thing.
+    sys.exit(COMMANDS[sys.argv[1]](args) or 0)
 
 
 if __name__ == "__main__":

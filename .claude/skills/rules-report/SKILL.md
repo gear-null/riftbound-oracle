@@ -75,10 +75,19 @@ Run from `lib/`: `python3 rules_cli.py <cmd>`
 | `verify <answer.json>` | The citation gate alone. Exit 1 if anything fails |
 | `render <answer.json> [out]` | Render alone; prefer `report` |
 | `graph <primer.json> [out]` | A primer's step graph as a diagram, derived from its verified transitions. `--format=mermaid` for GitHub |
+| `reports` | Every report you have written, newest first, and a browsable `index.html` beside them |
+| `export <report.html> [out]` | Rebuild a report as ONE file that can be sent to someone. Refuses rather than exporting a partial |
 
 `card`, `rule`, `section` and `grep` are how you research either document. `report`,
 `verify`, `render` and `graph` read the file's `kind` and route themselves — you never
 name the document type on the command line.
+
+**Sharing an answer.** A rendered report looks self-contained and is not: the rulebook
+overlay loads a sibling file, and card artwork comes from Riot's CDN. Both resolve on the
+machine that made it, so the gap is invisible until someone else opens the file and finds
+the evidence links dead. `export` rebuilds it with the cited rules and every image inside
+the file — one document, nothing fetched, safe to send over chat. It is whole or it is
+refused; there is no partial export, because a partial one looks exactly like a good one.
 
 ## Procedure — a ruling
 

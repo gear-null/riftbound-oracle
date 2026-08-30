@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Primer — HOT FEPR</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2 L18 2 L22 6 L22 18 L18 22 L6 22 L2 18 L2 6 Z' fill='none' stroke='%23c8aa6e' stroke-width='1.75'/%3E%3Cpath d='M12 6.5 L13.2 10.8 L17.5 12 L13.2 13.2 L12 17.5 L10.8 13.2 L6.5 12 L10.8 10.8 Z' fill='%233c8fe0'/%3E%3C/svg%3E">
+<style>
+:root{
+ --ink-900:#060b14; --ink-800:#0a1428; --ink-700:#0f1e33; --ink-600:#16293f;
+ --ink-500:#1e3a52; --mist-100:#e4f1f5; --slate-300:#7a96a8; --slate-400:#4a6a80;
+ --gold-700:#785a28; --gold-500:#c8aa6e; --blue:#3c8fe0;
+ --bg:var(--ink-900); --surface:var(--ink-700); --well:var(--ink-800);
+ --fg:var(--mist-100); --muted:var(--slate-300); --line:var(--gold-700);
+ --rule:var(--ink-500); 
+ /* Riot's Beaufort and TT Norms are proprietary and not redistributed; Cinzel
+    and Barlow are the design system's open stand-ins. A report is a local file
+    with no network, so what actually renders is the declared fallback. */
+ --display:"Beaufort for LOL",Cinzel,Georgia,"Times New Roman",serif;
+ --body:"TT Norms Pro Compact",Barlow,system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+ --plate:"Barlow Semi Condensed",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ --ch:10px;
+ --wash:color-mix(in oklch,var(--gold-500) 12%,transparent);
+ --lift:color-mix(in oklch,var(--ink-700) 88%,var(--mist-100));
+ --sink:color-mix(in oklch,var(--ink-900) 70%,transparent);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.65 var(--body);
+ padding-bottom:5rem}
+::selection{background:var(--gold-700);color:var(--mist-100)}
+/* Rules prose is dense and conditional; a one-word last line is where a reader
+   loses the thread of a conditional. Browsers that lack it simply wrap as usual. */
+h1,.hline,.detail,.reframe,.why,.counter h3,.note-head h3,ul.plain li,.foot{text-wrap:pretty}
+
+/* A fixed turbulence grain is what makes crisp chrome and painterly art read as
+   one surface. 3.5%, overlay, never intercepting a click. */
+.grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23g)'/></svg>")}
+
+/* Chamfers, not radii — the cheapest way to signal Runeterra with no artwork.
+   The frame is a real 1px hairline: the element's background IS the frame, and
+   a clipped pseudo-element inset by 1px paints the surface back over it. A
+   plain border cannot do this, because clip-path cuts the border at the
+   chamfer and leaves the corner open. */
+.plate{position:relative;isolation:isolate;padding:1px;background:var(--line);
+ filter:drop-shadow(0 1px 0 var(--sink));
+ clip-path:polygon(var(--ch) 0,100% 0,100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,0 100%,0 var(--ch))}
+.plate::after{content:"";position:absolute;inset:1px;z-index:-1;background:var(--surface);
+ clip-path:polygon(calc(var(--ch) - 1px) 0,100% 0,100% calc(100% - var(--ch) + 1px),calc(100% - var(--ch) + 1px) 100%,0 100%,0 calc(var(--ch) - 1px))}
+
+.wrap{max-width:66rem;margin:0 auto;padding:0 1.5rem}
+.layout{display:grid;grid-template-columns:minmax(0,44rem) 15.5rem;gap:3rem;align-items:start}
+main{min-width:0}
+
+/* ── masthead ───────────────────────────────────────────────────────── */
+.masthead{background:var(--well);border-bottom:1px solid var(--rule)}
+.masthead-in{display:flex;align-items:center;gap:.8rem;padding:.85rem 0;flex-wrap:wrap}
+.mark{width:32px;height:32px;flex:none;display:block}
+.wordmark{display:flex;flex-direction:column;gap:.22rem;line-height:1}
+.wordmark .eyebrow{font:600 .58rem/1 var(--plate);letter-spacing:.24em;text-transform:uppercase;
+ color:var(--slate-300)}
+/* The display face is set in caps only, and only three times on the page: here,
+   on the disposition, and on the rail's restatement of it. Cinzel's lowercase is
+   not what the register is for. */
+.wordmark b{font:600 1.02rem/1 var(--display);letter-spacing:.15em;text-transform:uppercase;
+ color:var(--gold-500)}
+.unofficial{align-self:center;padding:.42em .7em;border:1px solid var(--line);
+ font:600 .58rem/1 var(--plate);letter-spacing:.16em;text-transform:uppercase;color:var(--slate-300)}
+.corpus{margin-left:auto;text-align:right;font:500 .68rem/1.6 var(--plate);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--slate-300)}
+.corpus b{color:var(--fg);font-weight:600}
+
+/* ── the question ───────────────────────────────────────────────────── */
+.label{display:block;font:600 .64rem/1 var(--plate);letter-spacing:.17em;text-transform:uppercase;
+ color:var(--slate-300)}
+.ask{padding-top:2.6rem}
+h1{margin:.75rem 0 0;font:500 1.5rem/1.34 var(--body);max-width:34ch;color:var(--fg)}
+.reframe{margin:1.1rem 0 0;padding-top:.9rem;border-top:1px solid var(--rule);
+ color:var(--muted);font-size:1rem;max-width:68ch}
+.reframe .label{margin-bottom:.35rem}
+
+/* ── the verdict: the one panel that gets the whole design budget ───── */
+.verdict{--ch:14px;margin:1.9rem 0 0;padding:1.5rem 1.6rem 1.35rem;
+ background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 42%,var(--gold-700) 100%)}
+.verdict.d-UNSETTLED{background:linear-gradient(148deg,var(--mist-100) 0%,var(--gold-700) 48%,var(--gold-700) 100%)}
+.verdict-head{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.disp{font:700 clamp(1.55rem,4.4vw,2.3rem)/1 var(--display);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--fg)}
+.disp.UNSETTLED{background:var(--mist-100);color:var(--ink-900);padding:.1em .3em;letter-spacing:.07em}
+.hairline{flex:1 1 2rem;height:1px;background:var(--line)}
+.tally{font:600 .7rem/1.5 var(--plate);letter-spacing:.11em;text-transform:uppercase;
+ color:var(--muted);white-space:nowrap}
+.tally b{color:var(--fg)}
+.hline{margin:1.15rem 0 0;font-size:1.2rem;line-height:1.55;max-width:68ch}
+/* An open question has no one-word verdict, so the sentence IS the headline and
+   is set at the weight the plate word would have carried. */
+.hline.is-lead{margin-top:.35rem;font-size:clamp(1.24rem,2.6vw,1.5rem);line-height:1.42;
+ color:var(--fg);text-wrap:balance}
+.sp-grounded{color:inherit;text-decoration:none;border-bottom:2px solid var(--gold-500)}
+.sp-inferred{color:inherit;text-decoration:none;border-bottom:2px dotted var(--blue)}
+.sp-gap{color:inherit;text-decoration:none;border-bottom:2px dotted var(--muted)}
+.sp-grounded:hover,.sp-inferred:hover,.sp-gap:hover{background:var(--wash);color:var(--fg)}
+.noteref{color:var(--blue);text-decoration:none;font:700 .95em/1 var(--plate);padding-left:.12em}
+.noteref:hover{color:var(--fg)}
+.strength{display:flex;flex-wrap:wrap;gap:.35rem 1.7rem;margin-top:1.3rem;padding-top:.95rem;
+ border-top:1px solid var(--rule);font:500 .78rem/1.6 var(--plate);letter-spacing:.05em;
+ color:var(--muted)}
+.metric{display:flex;gap:.5rem;align-items:baseline}
+.metric .label{display:inline;letter-spacing:.14em}
+.metric b{color:var(--fg);font-weight:600}
+.weakref{color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.weakref:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.forced{flex-basis:100%;margin-top:.35rem;padding:.6rem .75rem;background:var(--mist-100);
+ color:var(--ink-900);font:600 .72rem/1.5 var(--plate);letter-spacing:.07em;text-transform:uppercase}
+
+/* ── how to read a basis, stated once ───────────────────────────────── */
+.key{display:flex;flex-wrap:wrap;gap:.5rem;margin:.85rem 0 0}
+.key-item{flex:1 1 12.5rem;padding:.65rem .75rem;background:var(--well);
+ border:1px solid var(--rule);font-size:.82rem;line-height:1.5;color:var(--muted)}
+.key-item b{display:block;margin-bottom:.28rem;font:600 .65rem/1 var(--plate);
+ letter-spacing:.14em;text-transform:uppercase}
+.k-grounded b{color:var(--gold-500)}
+.k-structural b{color:var(--blue)}
+.k-gap b{color:var(--slate-300)}
+
+/* ── section rules ──────────────────────────────────────────────────── */
+h2{display:flex;align-items:center;gap:.95rem;margin:3rem 0 1.15rem;scroll-margin-top:1.5rem;
+ font:600 .74rem/1 var(--plate);letter-spacing:.17em;text-transform:uppercase;color:var(--gold-500)}
+h2::after{content:"";flex:1;height:1px;background:var(--line);opacity:.5}
+
+/* ── notes ──────────────────────────────────────────────────────────── */
+.note{--ch:9px;display:grid;grid-template-columns:2.9rem minmax(0,1fr);margin:.85rem 0;
+ scroll-margin-top:1.5rem}
+.note.is-crux,.note:target{background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 45%,var(--gold-700) 100%)}
+.note-n{display:flex;justify-content:center;padding:1.05rem .4rem;
+ border-right:1px solid var(--rule);font:600 .95rem/1 var(--plate);
+ font-variant-numeric:tabular-nums;color:var(--slate-300)}
+.b-grounded .note-n{color:var(--gold-500)}
+.b-structural .note-n{color:var(--blue)}
+.b-inferred .note-n{color:var(--blue)}
+/* Restates the base colour rather than changing it: a gap is deliberately the
+   quietest note on the page, and writing it out makes that a decision instead
+   of an omission that looks identical to a forgotten rule. */
+.b-gap .note-n{color:var(--slate-300)}
+.note-body{padding:1rem 1.15rem 1.1rem;min-width:0}
+.note-head{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
+.note-head h3{flex:1 1 15rem;margin:0;font:500 1.02rem/1.45 var(--body);max-width:68ch}
+.note-tags{display:flex;gap:.4rem;flex-wrap:wrap}
+.basis-chip{font:600 .63rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase;
+ border:1px solid var(--rule);padding:.42em .55em;color:var(--muted);white-space:nowrap}
+.b-grounded .basis-chip{color:var(--gold-500);border-color:var(--line)}
+.b-structural .basis-chip{color:var(--blue);border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.b-inferred .basis-chip{color:var(--blue);border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.b-gap .basis-chip{color:var(--muted);border-color:var(--rule)}
+.crux{font:700 .63rem/1 var(--plate);letter-spacing:.14em;text-transform:uppercase;
+ border:1px solid var(--gold-500);color:var(--gold-500);padding:.42em .55em;white-space:nowrap}
+.detail{margin:.8rem 0 0;font-size:.97rem;max-width:68ch;color:var(--fg)}
+.iffalse{margin:.9rem 0 0;padding:.75rem .85rem;background:var(--well);border:1px solid var(--line);
+ font-size:.93rem;max-width:68ch}
+.iffalse b{display:block;margin-bottom:.3rem;font:600 .64rem/1 var(--plate);letter-spacing:.14em;
+ text-transform:uppercase;color:var(--gold-500)}
+.checked{margin:.85rem 0 0;font:500 .74rem/1.6 var(--plate);letter-spacing:.07em;color:var(--muted)}
+.checked b{margin-right:.5rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--slate-300)}
+
+/* ── citations ──────────────────────────────────────────────────────── */
+.cites{display:flex;flex-direction:column;gap:.4rem;margin-top:.95rem}
+.cite{--ch:7px;background:var(--rule);filter:none}
+.cite::after{background:var(--well)}
+.cite summary{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;min-height:36px;
+ cursor:pointer;list-style:none}
+.cite summary::-webkit-details-marker{display:none}
+.cite summary::before{content:"+";width:.7rem;font:600 .9rem/1 var(--plate);color:var(--slate-300)}
+.cite[open] summary::before{content:"\2013"}
+.cite summary:hover{background:var(--lift)}
+.cite summary:hover::before{color:var(--fg)}
+.cite-id{flex:1;font:600 .78rem/1 var(--plate);letter-spacing:.09em;color:var(--fg);
+ font-variant-numeric:tabular-nums}
+.stamp{font:600 .62rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase;
+ padding:.4em .55em;white-space:nowrap}
+.stamp.ok{color:var(--blue);border:1px solid color-mix(in oklch,var(--blue) 42%,transparent)}
+/* A failed citation inverts. It is the one thing on the page that must survive
+   a glance, a greyscale printer and a reader who does not know the palette. */
+.stamp.bad{background:var(--mist-100);color:var(--ink-900);border:1px solid var(--mist-100)}
+.cite-body{padding:.15rem .8rem .8rem;border-top:1px solid var(--rule)}
+.ancestry{list-style:none;margin:.7rem 0;padding:0}
+.ancestry li{padding:.35rem 0 .35rem calc(.75rem + var(--d) * .95rem);font-size:.9rem;
+ line-height:1.5;color:var(--muted);border-left:1px solid var(--slate-400)}
+.ancestry li.anc-target{background:var(--wash);border-left-color:var(--gold-500);color:var(--fg)}
+.ancestry code{margin-right:.5rem;font:600 .82rem/1 var(--plate);letter-spacing:.04em;
+ font-variant-numeric:tabular-nums;color:var(--blue)}
+.anc-link{text-decoration:none;border-bottom:1px dotted transparent}
+.anc-link:hover{border-bottom-color:var(--fg)}
+.anc-link:hover code{color:var(--fg)}
+.narrowed{margin:.6rem 0;font-size:.85rem;line-height:1.5;color:var(--gold-500)}
+.prob{margin:.6rem 0;padding:.45rem .6rem;background:var(--wash);border-left:2px solid var(--mist-100);
+ font-size:.85rem;line-height:1.5;color:var(--fg)}
+.cite-actions{display:flex;gap:.55rem;flex-wrap:wrap;align-items:center}
+.rulebook-link,.copy{display:inline-flex;align-items:center;min-height:34px;padding:.6em .85em;
+ border:1px solid var(--rule);background:transparent;color:var(--fg);cursor:pointer;
+ text-decoration:none;font:600 .66rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+.rulebook-link:hover,.copy:hover{background:var(--lift);border-color:var(--gold-500);color:var(--fg)}
+
+/* ── counterargument ────────────────────────────────────────────────── */
+.counter{--ch:9px;margin:.85rem 0;padding:1.1rem 1.2rem;background:var(--rule)}
+.counter::after{background:var(--well)}
+.counter h3{margin:.45rem 0 1rem;font:500 1.05rem/1.55 var(--body);color:var(--fg);max-width:68ch}
+.counter .why{margin:.45rem 0 0;font-size:.95rem;color:var(--muted);max-width:68ch}
+.counter .cites{margin-top:1rem}
+
+/* ── plain lists ────────────────────────────────────────────────────── */
+ul.plain{list-style:none;margin:.5rem 0 0;padding:0}
+ul.plain li{position:relative;padding:.7rem 0 .7rem 1.2rem;border-bottom:1px solid var(--rule);
+ font-size:.95rem;max-width:68ch}
+ul.plain li:last-child{border-bottom:0}
+ul.plain li::before{content:"";position:absolute;left:0;top:1.25rem;width:5px;height:5px;
+ background:var(--gold-700);transform:rotate(45deg)}
+ul.plain code{font:600 .84rem/1 var(--plate);letter-spacing:.05em;color:var(--blue)}
+
+/* ── cards ──────────────────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(12.5rem,1fr));gap:.9rem}
+.card{--ch:8px;margin:0;display:flex;flex-direction:column;overflow:hidden}
+.card-art{width:100%;height:auto;display:block;background:var(--well)}
+.card-art--none{aspect-ratio:744/1039;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;gap:.4rem;padding:1rem;text-align:center;color:var(--fg);
+ font:600 .68rem/1.4 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+.card-art--none span{font:400 .72rem/1.45 var(--body);letter-spacing:0;text-transform:none;
+ color:var(--muted)}
+.card figcaption{display:flex;flex-direction:column;gap:.35rem;padding:.7rem .75rem .8rem;
+ border-top:1px solid var(--rule)}
+.card-name{font:600 .9rem/1.35 var(--body)}
+.card-stats{display:flex;flex-wrap:wrap;gap:.25rem}
+.chip{font:600 .62rem/1 var(--plate);letter-spacing:.09em;text-transform:uppercase;
+ border:1px solid var(--rule);padding:.35em .48em;color:var(--muted);white-space:nowrap}
+.chip b{color:var(--fg);font-weight:700}
+.chip-d{border-color:var(--line);color:var(--gold-500)}
+.card-text{font-size:.79rem;line-height:1.55;color:var(--muted)}
+.card-errata,.card-gap{display:block;margin-top:.3rem;padding:.45rem .55rem;
+ font-size:.74rem;line-height:1.5}
+.card-errata{border-left:2px solid var(--gold-700);background:var(--well);color:var(--muted)}
+.card-gap{border-left:2px solid var(--mist-100);background:var(--wash);color:var(--fg)}
+.card-rules{display:block;margin-top:.15rem;font:500 .64rem/1.6 var(--plate);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--slate-300)}
+.card-rule{margin-right:.4rem;color:var(--blue);text-decoration:none;
+ border-bottom:1px dotted var(--blue)}
+.card-rule:hover{color:var(--fg);border-bottom-color:var(--fg)}
+
+/* ── symbol legend ──────────────────────────────────────────────────── */
+.legend{display:grid;grid-template-columns:auto 1fr auto;gap:.55rem 1.1rem;align-items:baseline;
+ padding:1.05rem 1.15rem}
+.sym-row{display:contents}
+.sym{justify-self:start;font:700 .95rem/1 var(--plate);color:var(--fg)}
+.sym-mean{font-size:.9rem}
+.sym-rule{white-space:nowrap;font:600 .72rem/1 var(--plate);letter-spacing:.07em;color:var(--blue);
+ text-decoration:none;border-bottom:1px dotted var(--blue)}
+.sym-rule:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.legend-note{margin:.8rem 0 0;font-size:.85rem;color:var(--muted);max-width:68ch}
+
+/* ── the rail ───────────────────────────────────────────────────────── */
+.rail{position:sticky;top:1.6rem;align-self:start;max-height:calc(100vh - 3.2rem);
+ overflow-y:auto;padding-bottom:1rem;scrollbar-width:thin;
+ scrollbar-color:var(--ink-500) transparent}
+.rail h4{margin:0 0 .55rem;font:600 .63rem/1 var(--plate);letter-spacing:.17em;
+ text-transform:uppercase;color:var(--slate-300)}
+.rail-plate{--ch:8px;padding:.95rem 1rem}
+/* An open question restates its ANSWER as the sentence, not the token — the
+   token never appears anywhere a reader can see it. */
+.rail-disp.is-lead{font:600 .82rem/1.4 var(--body);letter-spacing:.01em;text-transform:none}
+.rail-disp{display:block;font:700 1.15rem/1 var(--display);letter-spacing:.1em;
+ text-transform:uppercase;color:var(--fg)}
+.rail-meta{margin:.7rem 0 0;font:500 .73rem/1.6 var(--plate);letter-spacing:.05em;color:var(--muted)}
+.rail-nav{display:flex;flex-direction:column;margin-top:1.4rem}
+.rail-note{display:grid;grid-template-columns:1.3rem minmax(0,1fr);gap:.45rem;
+ padding:.45rem .55rem;border-left:1px solid transparent;text-decoration:none;
+ color:var(--muted);font-size:.79rem;line-height:1.4}
+.rail-note .n{font:600 .72rem/1.4 var(--plate);font-variant-numeric:tabular-nums;
+ color:var(--slate-300)}
+.rail-note.is-crux .n{color:var(--gold-500)}
+.rail-crux{display:inline-block;margin-left:.4rem;font:700 .58rem/1 var(--plate);
+ letter-spacing:.13em;text-transform:uppercase;color:var(--gold-500)}
+.rail-note:hover{background:var(--lift);color:var(--fg);border-left-color:var(--slate-400)}
+.rail-note.here{background:var(--wash);color:var(--fg);border-left-color:var(--gold-500)}
+.rail-jump{padding:.45rem .55rem;border-left:1px solid transparent;text-decoration:none;
+ color:var(--muted);font:600 .68rem/1.4 var(--plate);letter-spacing:.1em;text-transform:uppercase}
+.rail-jump:hover{background:var(--lift);color:var(--fg);border-left-color:var(--slate-400)}
+
+/* ── rulebook overlay ───────────────────────────────────────────────── */
+.rb-overlay{position:fixed;inset:0;z-index:120;padding:3vh 3vw;display:flex;align-items:center;
+ justify-content:center;background:color-mix(in oklch,var(--ink-900) 84%,transparent)}
+.rb-overlay[hidden]{display:none}
+.rb-panel{--ch:12px;width:min(62rem,96vw);height:min(88vh,58rem);display:flex;flex-direction:column;
+ overflow:hidden}
+.rb-panel::after{background:var(--ink-600)}
+.rb-bar{display:flex;align-items:center;gap:.9rem;padding:.6rem .8rem;
+ border-bottom:1px solid var(--rule)}
+.rb-title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ font:600 .74rem/1.4 var(--plate);letter-spacing:.12em;text-transform:uppercase;color:var(--fg)}
+.rb-pop{white-space:nowrap;font:600 .67rem/1 var(--plate);letter-spacing:.11em;text-transform:uppercase;
+ color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.rb-pop:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.rb-close{width:34px;height:34px;flex:none;font-size:1.15rem;line-height:1;cursor:pointer;
+ background:transparent;border:1px solid var(--rule);color:var(--muted)}
+.rb-close:hover{background:var(--lift);border-color:var(--gold-500);color:var(--fg)}
+.rb-frame{flex:1;width:100%;border:0;background:var(--ink-900)}
+
+/* ── footer ─────────────────────────────────────────────────────────── */
+.foot{margin-top:3.5rem;padding-top:1.1rem;border-top:1px solid var(--rule);
+ font-size:.8rem;line-height:1.6;color:var(--muted)}
+
+/* ── focus, always visible ──────────────────────────────────────────── */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold-500);
+ outline-offset:2px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{position:fixed;left:1rem;top:1rem;z-index:200;padding:.75em 1em;
+ background:var(--ink-700);border:1px solid var(--gold-500);color:var(--fg);text-decoration:none;
+ font:600 .68rem/1 var(--plate);letter-spacing:.12em;text-transform:uppercase}
+
+@media(max-width:1060px){
+ .layout{grid-template-columns:minmax(0,1fr)}
+ .rail{display:none}
+}
+@media(max-width:720px){
+ body{font-size:16px}
+ .hline{font-size:1.08rem}
+ .note{grid-template-columns:minmax(0,1fr)}
+ .note-n{justify-content:flex-start;padding:.65rem .9rem;border-right:0;
+  border-bottom:1px solid var(--rule)}
+ .cards{grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr))}
+ .legend{grid-template-columns:auto 1fr}
+ .sym-rule{grid-column:2;justify-self:start}
+ .corpus{margin-left:0;text-align:left;flex-basis:100%}
+}
+@media(pointer:coarse){
+ .rulebook-link,.copy,.rb-close,.cite summary{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* Judges print these. Paper inverts the whole system: the ground becomes white,
+   ink becomes text, and gold drops to Gold 700 because Gold 500 on white is
+   2.23:1. Every value below is still a palette token — nothing new is invented
+   for print. */
+@media print{
+ /* color-scheme:dark makes the UA paint the canvas near-black wherever the
+    page background is transparent — on paper that produced a black sheet with
+    black text. Paper is a light surface; say so before anything else. */
+ :root{color-scheme:light;
+  --bg:transparent;--surface:transparent;--well:transparent;--fg:var(--ink-900);
+  --muted:var(--slate-400);--line:var(--gold-700);--rule:var(--slate-400);
+  --blue:var(--ink-700);--wash:transparent;--lift:transparent;--sink:transparent;
+  /* Raw palette tokens have to be remapped too, not just the semantic ones.
+     Anything reaching for a palette value DIRECTLY kept its dark-ground colour
+     on paper: gold-500 at 2.23:1, slate-300 at 3.11:1, mist-100 at 1.15:1.
+     The worst of it inverted the argument — .sp-grounded (gold-500) all but
+     vanished while .sp-inferred (--blue, correctly remapped) printed at
+     16.75:1, so the inferred half of the verdict line looked the better
+     supported one. */
+  --gold-500:var(--gold-700);--slate-300:var(--slate-400);--mist-100:var(--slate-400)}
+ html,body{background:transparent}
+ body{color:var(--fg);font-size:11pt;padding-bottom:0}
+ .grain,.rail,.rb-overlay,.copy,.rulebook-link,.skip,.unofficial{display:none!important}
+ .masthead{background:transparent}
+ .plate{background:transparent;border:1px solid var(--line);clip-path:none;filter:none}
+ .plate::after{display:none}
+ /* .verdict.d-UNSETTLED outranks a bare .verdict, so it has to be named. */
+ .verdict,.verdict.d-UNSETTLED,.note.is-crux,.note:target{background:transparent}
+ .disp{color:var(--fg)}
+ .disp.UNSETTLED,.forced,.stamp.bad{background:transparent;color:var(--fg);
+  border:1.5pt solid var(--fg)}
+ .wordmark b,.k-grounded b,.iffalse b,h2,.crux,.chip-d,.card-rules{color:var(--gold-700)}
+ .note,.cite,.card,.counter,.key-item{break-inside:avoid}
+ h2{break-after:avoid}
+ a{color:var(--fg)}
+ .layout{display:block}
+}
+
+/* ── the summary plate ──────────────────────────────────────────────── */
+.summary{--ch:14px;margin:1.9rem 0 0;padding:1.5rem 1.6rem 1.35rem;
+ background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 42%,var(--gold-700) 100%)}
+.topic{font:700 clamp(1.3rem,3.6vw,1.85rem)/1.1 var(--display);letter-spacing:.09em;
+ text-transform:uppercase;color:var(--fg)}
+.lede{margin:1rem 0 0;font-size:clamp(1.14rem,2.4vw,1.36rem);line-height:1.5;
+ max-width:66ch;text-wrap:pretty}
+
+/* ── the map ────────────────────────────────────────────────────────── */
+/* The diagram is wider than the column on a narrow screen. It scrolls in its
+   own well rather than widening the page, because a body that scrolls
+   sideways loses the prose too. */
+.map{--ch:10px;padding:1.15rem 1.2rem;overflow-x:auto}
+.flowgraph{display:block;max-width:100%;height:auto;min-width:22rem}
+.fg-step{font:500 .82rem/1 var(--body);fill:var(--fg)}
+.fg-idx{font:600 .8rem/1 var(--plate);font-variant-numeric:tabular-nums}
+.fg-num{font:600 .68rem/1 var(--plate);font-variant-numeric:tabular-nums}
+.fg-out{font:600 .64rem/1 var(--plate);letter-spacing:.11em;text-transform:uppercase}
+.map-note{margin:.85rem 0 0;font-size:.85rem;line-height:1.55;color:var(--muted);max-width:68ch}
+
+/* ── steps ──────────────────────────────────────────────────────────── */
+/* Deliberately the note plate's geometry. A step and a claim are different
+   things, but they are read the same way — number, heading, basis, evidence —
+   and giving them two visual languages would only make the pair harder. */
+.step{--ch:9px;display:grid;grid-template-columns:2.9rem minmax(0,1fr);margin:.85rem 0;
+ scroll-margin-top:1.5rem}
+.step:target{background:linear-gradient(148deg,var(--gold-500) 0%,var(--gold-700) 45%,var(--gold-700) 100%)}
+.step-n{display:flex;justify-content:center;padding:1.05rem .4rem;
+ border-right:1px solid var(--rule);font:600 .95rem/1 var(--plate);
+ font-variant-numeric:tabular-nums;color:var(--slate-300)}
+.b-grounded .step-n{color:var(--gold-500)}
+.b-structural .step-n,.b-inferred .step-n{color:var(--blue)}
+.b-gap .step-n{color:var(--slate-300)}
+.step-body{padding:1rem 1.15rem 1.1rem;min-width:0}
+.step-head{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
+.step-head h3{flex:1 1 15rem;margin:0;font:600 1.02rem/1.45 var(--body);max-width:68ch}
+.step-text{margin:.8rem 0 0;font-size:.97rem;max-width:68ch;color:var(--fg)}
+
+/* ── transitions ────────────────────────────────────────────────────── */
+/* The numbered edge on the map, written out. The number is the join between
+   the two, so it is the one element that never wraps or clips. */
+.exits{margin:1rem 0 0;padding-top:.85rem;border-top:1px solid var(--rule)}
+.exits > .label{margin-bottom:.6rem}
+.exit{display:grid;grid-template-columns:1.7rem minmax(0,1fr);gap:.1rem .6rem;
+ padding:.55rem 0;border-bottom:1px solid var(--rule)}
+.exit:last-child{border-bottom:0;padding-bottom:0}
+.exit-n{grid-row:span 2;align-self:start;justify-self:center;margin-top:.1rem;
+ min-width:1.35rem;padding:.2em 0;text-align:center;border:1px solid var(--rule);
+ font:600 .68rem/1.4 var(--plate);font-variant-numeric:tabular-nums;color:var(--muted)}
+.e-grounded .exit-n{color:var(--gold-500);border-color:var(--line)}
+.e-structural .exit-n,.e-inferred .exit-n{color:var(--blue);
+ border-color:color-mix(in oklch,var(--blue) 42%,transparent)}
+.e-gap .exit-n{color:var(--slate-300);border-color:var(--rule)}
+.exit-goto .basis-chip{margin-left:.5rem;vertical-align:baseline;letter-spacing:.1em}
+.exit-when{font-size:.93rem;line-height:1.55;max-width:64ch}
+.exit-goto{display:block;margin-top:.2rem;font:600 .66rem/1.5 var(--plate);
+ letter-spacing:.1em;text-transform:uppercase;color:var(--slate-300)}
+.exit-goto a{color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.exit-goto a:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.exit .cites{grid-column:2;margin-top:.5rem}
+
+/* ── misconceptions ─────────────────────────────────────────────────── */
+.misc{--ch:9px;margin:.85rem 0;padding:1.1rem 1.2rem;background:var(--rule)}
+.misc::after{background:var(--well)}
+.misc h3{margin:.45rem 0 1rem;font:500 1.05rem/1.55 var(--body);color:var(--fg);max-width:68ch}
+.misc .why{margin:.45rem 0 0;font-size:.95rem;color:var(--muted);max-width:68ch}
+.misc .cites{margin-top:1rem}
+
+@media(max-width:720px){
+ .step{grid-template-columns:minmax(0,1fr)}
+ .step-n{justify-content:flex-start;padding:.65rem .9rem;border-right:0;
+  border-bottom:1px solid var(--rule)}
+}
+@media print{
+ .summary,.step:target{background:transparent}
+ .topic{color:var(--fg)}
+ .map{overflow-x:visible}
+ .flowgraph{min-width:0}
+ .fg-step{fill:var(--fg)}
+ .step,.misc,.map{break-inside:avoid}
+}
+</style></head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<a class="skip" href="#summary">Skip to the summary</a>
+
+<header class="masthead" data-od-id="masthead">
+  <div class="wrap masthead-in">
+    <svg class="mark" viewBox="0 0 96 96" role="img" aria-label="Riftbound Oracle"><path d="M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z" fill="none" stroke="#c8aa6e" stroke-width="2.5"/><circle cx="48" cy="48" r="25" fill="none" stroke="#c8aa6e" stroke-width="3"/><path d="M30.61 43.34 A18 18 0 0 1 43.34 30.61" fill="none" stroke="#e4f1f5" stroke-width="3" stroke-linecap="round"/><path d="M48 37 L50.4 45.6 L59 48 L50.4 50.4 L48 59 L45.6 50.4 L37 48 L45.6 45.6 Z" fill="#3c8fe0"/></svg>
+    <span class="wordmark"><span class="eyebrow">Riftbound</span><b>Oracle</b></span>
+    <span class="unofficial">Unofficial rules companion</span>
+    <span class="corpus">CR <b>2026-07-16</b> &middot; TR <b>2026-07-16</b><br>
+      corpus built 2026-08-26 &middot; offline</span>
+  </div>
+</header>
+
+<div class="wrap layout">
+<main data-od-id="report">
+
+<section class="ask" data-od-id="question">
+  <span class="label">The question</span>
+  <h1>Explain the HOT FEPR loop as best you can</h1>
+  <p class="reframe"><span class="label">As the rules see it</span>the process rule 334 names HOT FEPR — how a player works through outstanding Tasks and then through the Chain, and which condition sends play from each step to the next.</p>
+</section>
+
+<section class="summary plate" id="summary" data-od-id="summary">
+  <div class="verdict-head">
+    <span class="topic">HOT FEPR</span>
+    <span class="hairline" aria-hidden="true"></span>
+    <span class="tally"><b>33/33</b> citations verified verbatim</span>
+  </div>
+  <p class="lede">Anything that incurs a Task runs the same loop: clear every Task first, then work the Chain one item at a time through Finalize, Execute, Pass and Resolve — where most steps can send you backwards, which is why one Chain runs the loop many times before play moves on.</p>
+  <div class="strength">
+    <span class="metric"><span class="label">Steps</span>
+      <span><b>5</b>, all stated outright in the rules</span></span>
+    <span class="metric"><span class="label">Weakest link</span>
+      <a class="weakref" href="#s1">step 1</a>
+      <b>grounded</b></span>
+    <span class="metric"><span class="label">Confidence</span>the lowest link, never an average</span>
+    
+  </div>
+</section>
+
+<div class="key" data-od-id="basis-key"><div class="key-item k-grounded"><b>● Grounded</b>A rule states this in so many words.</div></div>
+
+<h2 id="map" data-od-id="sec-map">The shape of it</h2><div class="map plate" data-od-id="flowgraph"><svg class="flowgraph" viewBox="0 0 584 474" width="584" height="474" role="img" aria-label="HOT FEPR: 5 steps and 12 transitions; each transition is numbered and cited in the text below." preserveAspectRatio="xMinYMin meet"><title>HOT FEPR</title><desc>5 steps and 12 transitions; each transition is numbered and cited in the text below.</desc><defs><marker id="fg-head-grounded" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 Z" fill="var(--gold-500)"/></marker><marker id="fg-head-structural" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 Z" fill="var(--blue)"/></marker><marker id="fg-head-gap" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 Z" fill="var(--slate-300)"/></marker><marker id="fg-head-unverified" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 Z" fill="var(--mist-100)"/></marker><clipPath id="fg-box" clipPathUnits="userSpaceOnUse"><rect x="0" y="0" width="304" height="474"/></clipPath></defs><g class="fg-node"><rect x="0.5" y="22.5" width="311" height="53" fill="var(--well)" stroke="var(--rule)" stroke-width="1"/><rect x="0.5" y="22.5" width="3" height="53" fill="var(--gold-500)"/><text x="16" y="53.0" class="fg-idx" fill="var(--gold-500)">1</text><text x="36" y="53.0" class="fg-step" clip-path="url(#fg-box)">H — Handle Outstanding Tasks</text><title>1. H — Handle Outstanding Tasks</title></g><g class="fg-node"><rect x="0.5" y="116.5" width="311" height="53" fill="var(--well)" stroke="var(--rule)" stroke-width="1"/><rect x="0.5" y="116.5" width="3" height="53" fill="var(--gold-500)"/><text x="16" y="147.0" class="fg-idx" fill="var(--gold-500)">2</text><text x="36" y="147.0" class="fg-step" clip-path="url(#fg-box)">F — Finalize</text><title>2. F — Finalize</title></g><g class="fg-node"><rect x="0.5" y="210.5" width="311" height="53" fill="var(--well)" stroke="var(--rule)" stroke-width="1"/><rect x="0.5" y="210.5" width="3" height="53" fill="var(--gold-500)"/><text x="16" y="241.0" class="fg-idx" fill="var(--gold-500)">3</text><text x="36" y="241.0" class="fg-step" clip-path="url(#fg-box)">E — Execute</text><title>3. E — Execute</title></g><g class="fg-node"><rect x="0.5" y="304.5" width="311" height="53" fill="var(--well)" stroke="var(--rule)" stroke-width="1"/><rect x="0.5" y="304.5" width="3" height="53" fill="var(--gold-500)"/><text x="16" y="335.0" class="fg-idx" fill="var(--gold-500)">4</text><text x="36" y="335.0" class="fg-step" clip-path="url(#fg-box)">P — Pass</text><title>4. P — Pass</title></g><g class="fg-node"><rect x="0.5" y="398.5" width="311" height="53" fill="var(--well)" stroke="var(--rule)" stroke-width="1"/><rect x="0.5" y="398.5" width="3" height="53" fill="var(--gold-500)"/><text x="16" y="429.0" class="fg-idx" fill="var(--gold-500)">5</text><text x="36" y="429.0" class="fg-step" clip-path="url(#fg-box)">R — Resolve</text><title>5. R — Resolve</title></g><g class="fg-edge"><title>1. every outstanding Task is complete and one or more Chain Items are pending</title><line x1="156.0" y1="76" x2="156.0" y2="109.0" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="169.0" y="88.0" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="178.0" y="99.5" text-anchor="middle" class="fg-num" fill="var(--gold-500)">1</text></g></g><g class="fg-edge"><title>2. every outstanding Task is complete and nothing is pending on the Chain — there is no Chain to work, so the loop does not run</title><line x1="312" y1="49.0" x2="534.0" y2="49.0" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><text x="542.0" y="52.5" class="fg-out" fill="var(--gold-500)">exits</text><g class="fg-badge"><rect x="414.0" y="30.0" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="423.0" y="41.5" text-anchor="middle" class="fg-num" fill="var(--gold-500)">2</text></g></g><g class="fg-edge"><title>3. the item just finalized is a Unit, Gear, or an ability that Adds resources — it never waits on the Chain to be answered</title><path d="M312 152.7 C398 152.7 398 152.7 398 166.7 L398 404.5 C398 418.5 398 418.5 319 418.5" fill="none" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="389.0" y="277.6" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="398.0" y="289.1" text-anchor="middle" class="fg-num" fill="var(--gold-500)">3</text></g></g><g class="fg-edge"><title>4. there are still Pending Chain Items after finalizing that one</title><path d="M312 123.6 C348 113.6 348 143.3 319 133.3" fill="none" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="351.0" y="135.0" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="360.0" y="146.5" text-anchor="middle" class="fg-num" fill="var(--gold-500)">4</text></g></g><g class="fg-edge"><title>5. nothing is left on the Chain to finalize</title><line x1="156.0" y1="170" x2="156.0" y2="203.0" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="169.0" y="182.0" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="178.0" y="193.5" text-anchor="middle" class="fg-num" fill="var(--gold-500)">5</text></g></g><g class="fg-edge"><title>6. the player with Priority plays a card or activates an ability, which puts new Pending Items on the Chain</title><path d="M312 237.0 C368 237.0 368 237.0 368 223.0 L368 157.0 C368 143.0 368 143.0 319 143.0" fill="none" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="359.0" y="182.0" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="368.0" y="193.5" text-anchor="middle" class="fg-num" fill="var(--gold-500)">6</text></g></g><g class="fg-edge"><title>7. the player with Priority passes instead</title><line x1="156.0" y1="264" x2="156.0" y2="297.0" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="169.0" y="276.0" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="178.0" y="287.5" text-anchor="middle" class="fg-num" fill="var(--gold-500)">7</text></g></g><g class="fg-edge"><title>8. every player has passed in sequence with nothing added to the Chain</title><line x1="156.0" y1="358" x2="156.0" y2="391.0" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="169.0" y="370.0" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="178.0" y="381.5" text-anchor="middle" class="fg-num" fill="var(--gold-500)">8</text></g></g><g class="fg-edge"><title>9. the sequence of passes is not complete, so Priority moves on to the next player</title><path d="M312 331.0 C338 331.0 338 331.0 338 317.0 L338 231.6 C338 217.6 338 217.6 319 217.6" fill="none" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="329.0" y="266.3" width="18" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="338.0" y="277.8" text-anchor="middle" class="fg-num" fill="var(--gold-500)">9</text></g></g><g class="fg-edge"><title>10. the Chain is now empty</title><line x1="312" y1="405.56" x2="534.0" y2="405.56" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><text x="542.0" y="409.1" class="fg-out" fill="var(--gold-500)">exits</text><g class="fg-badge"><rect x="410.5" y="386.6" width="25" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="423.0" y="398.1" text-anchor="middle" class="fg-num" fill="var(--gold-500)">10</text></g></g><g class="fg-edge"><title>11. the Chain is not empty and one or more items on it are still pending</title><path d="M312 431.5 C428 431.5 428 431.5 428 417.5 L428 176.4 C428 162.4 428 162.4 319 162.4" fill="none" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="415.5" y="289.0" width="25" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="428.0" y="300.5" text-anchor="middle" class="fg-num" fill="var(--gold-500)">11</text></g></g><g class="fg-edge"><title>12. the Chain is not empty but nothing on it is pending</title><path d="M312 444.4 C458 444.4 458 444.4 458 430.4 L458 270.4 C458 256.4 458 256.4 319 256.4" fill="none" stroke="var(--gold-500)" stroke-width="1.6" marker-end="url(#fg-head-grounded)"/><g class="fg-badge"><rect x="445.5" y="342.4" width="25" height="16" fill="var(--well)" stroke="var(--gold-500)" stroke-width="1"/><text x="458.0" y="353.9" text-anchor="middle" class="fg-num" fill="var(--gold-500)">12</text></g></g></svg></div><p class="map-note">Drawn from the transitions below — every arrow is one of them, numbered to match. A <b>solid gold</b> arrow is a move a rule states outright; a <b>dashed blue</b> one follows from the rules cited rather than being written in one place; a <b>dashed grey</b> one is a move the rules do not settle. A <b>heavy white</b> arrow failed verification and must not be relied on.</p>
+
+
+
+<h2 id="walkthrough" data-od-id="sec-walkthrough">Step by step</h2>
+<section class="step plate b-grounded"
+    id="s1" data-od-id="step-s1">
+  <div class="step-n" aria-hidden="true">1</div>
+  <div class="step-body">
+    <div class="step-head">
+      <h3>H — Handle Outstanding Tasks</h3>
+      <span class="note-tags"><span class="basis-chip" title="A rule states this in so many words">● grounded</span></span>
+    </div>
+    <p class="step-text">A Task is anything one or more players must finish before anything else may happen, so nothing else proceeds while one is outstanding. Chain Items created while you work through Tasks are not lost — they sit on the Chain until the Tasks are done. H is also not only the first step: a Task incurred partway through FEPR pauses the process, and you complete the step you are in, handle the Task, then carry on from where you were. That is a pause and resume rather than a restart, which is why no arrow on the map returns here.</p>
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 333</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="anc-target" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-333"><code>333</code></a> <span>A Task is one or more steps or processes that one or more Players must perform before continuing with any other actions.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-333"
+     title="Open CR 333 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 333 (Core Rules, 2026-07-16): &quot;A Task is one or more steps or processes that one or more Players must perform before continuing with any other actions.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 334</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="anc-target" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-334"><code>334</code></a> <span>Whenever a Player takes one or more actions that incur Tasks they should refer to the process of HOT FEPR: Handle Outstanding Tasks; then Finalize, Execute, Pass, Resolve.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-334"
+     title="Open CR 334 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 334 (Core Rules, 2026-07-16): &quot;Whenever a Player takes one or more actions that incur Tasks they should refer to the process of HOT FEPR: Handle Outstanding Tasks; then Finalize, Execute, Pass, Resolve.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 334.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-334"><code>334</code></a> <span>Whenever a Player takes one or more actions that incur Tasks they should refer to the process of HOT FEPR: Handle Outstanding Tasks; then Finalize, Execute, Pass, Resolve.</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-334.1"><code>334.1</code></a> <span>In the course of Handling Outstanding Tasks, Chain Items may be added to the Chain. They will remain there until the Tasks are complete.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-334.1"
+     title="Open CR 334.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 334.1 (Core Rules, 2026-07-16): &quot;In the course of Handling Outstanding Tasks, Chain Items may be added to the Chain. They will remain there until the Tasks are complete.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 334.2.a</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-334"><code>334</code></a> <span>Whenever a Player takes one or more actions that incur Tasks they should refer to the process of HOT FEPR: Handle Outstanding Tasks; then Finalize, Execute, Pass, Resolve.</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-334.2"><code>334.2</code></a> <span>When all Outstanding Tasks are completed, all pending Chain Items will subsequently be processed by the FEPR process.</span></li><li class="anc-target" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-334.2.a"><code>334.2.a</code></a> <span>During the FEPR process, new Tasks may be incurred. Complete the current step of the process and then pause and complete the necessary Tasks before continuing.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-334.2.a"
+     title="Open CR 334.2.a in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 334.2.a (Core Rules, 2026-07-16): &quot;During the FEPR process, new Tasks may be incurred. Complete the current step of the process and then pause and complete the necessary Tasks before continuing.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+    <div class="exits"><span class="label">Where you go next</span><div class="exit e-grounded"><span class="exit-n">1</span><div><span class="exit-when">every outstanding Task is complete and one or more Chain Items are pending</span><span class="exit-goto">&rarr; <a href="#s2">step 2 · F — Finalize</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 336</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="anc-target" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-336"><code>336</code></a> <span>When there are no outstanding Tasks and there are pending Chain Items on the Chain, players should refer to the FEPR process to proceed.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-336"
+     title="Open CR 336 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 336 (Core Rules, 2026-07-16): &quot;When there are no outstanding Tasks and there are pending Chain Items on the Chain, players should refer to the FEPR process to proceed.&quot;">Copy cite</button>
+</div>
+</div></details></div></div><div class="exit e-grounded"><span class="exit-n">2</span><div><span class="exit-when">every outstanding Task is complete and nothing is pending on the Chain — there is no Chain to work, so the loop does not run</span><span class="exit-goto">&rarr; the procedure ends</span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 335</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="anc-target" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-335"><code>335</code></a> <span>If there are no Outstanding Tasks, no pending Chain Items, no ongoing Showdown or Combat, and it is the Main Phase, the Turn Player receives priority. If there are no Outstanding Tasks, no pending Chain Items, no ongoing Showdown, and it is any other phase of the turn, proceed to the next substep, step, phase, or turn.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-335"
+     title="Open CR 335 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 335 (Core Rules, 2026-07-16): &quot;If there are no Outstanding Tasks, no pending Chain Items, no ongoing Showdown or Combat, and it is the Main Phase, the Turn Player receives priority.&quot;">Copy cite</button>
+</div>
+</div></details></div></div></div>
+  </div>
+</section><section class="step plate b-grounded"
+    id="s2" data-od-id="step-s2">
+  <div class="step-n" aria-hidden="true">2</div>
+  <div class="step-body">
+    <div class="step-head">
+      <h3>F — Finalize</h3>
+      <span class="note-tags"><span class="basis-chip" title="A rule states this in so many words">● grounded</span></span>
+    </div>
+    <p class="step-text">The oldest pending item goes first: its controller completes the steps of playing it until it is Finalized or leaves the Chain, and items finalize in the order they were appended. Finalizing is bookkeeping, not a window to act in — it does not pass Priority. Note the numbering: the rules call Finalize &quot;Step 1&quot;, so &quot;return to step 1&quot; inside these rules means Finalize, not Handle Outstanding Tasks.</p>
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 337</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="anc-target" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-337"><code>337</code></a> <span>Step 1: Finalize</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-337"
+     title="Open CR 337 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 337 (Core Rules, 2026-07-16): &quot;Step 1: Finalize&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 337.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-337"><code>337</code></a> <span>Step 1: Finalize</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-337.1"><code>337.1</code></a> <span>If there is at least one Chain Item Pending, the controller of the oldest Pending Chain Item must complete the steps of Playing that Pending Item until it is a Finalized Item or leaves the Chain. See rule 349. Playing Cards for more information on finalizing chain items.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-337.1"
+     title="Open CR 337.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 337.1 (Core Rules, 2026-07-16): &quot;If there is at least one Chain Item Pending, the controller of the oldest Pending Chain Item must complete the steps of Playing that Pending Item until it is a Finalized Item or leaves the Chain.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 337.1.a</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-337"><code>337</code></a> <span>Step 1: Finalize</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-337.1"><code>337.1</code></a> <span>If there is at least one Chain Item Pending, the controller of the oldest Pending Chain Item must complete the steps of Playing that Pending Item until it is a Finalized Item or leaves the Chain. See rule 349. Playing Cards for more information on finalizing chain items.</span></li><li class="anc-target" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-337.1.a"><code>337.1.a</code></a> <span>Finalizing an item to the chain does not pass Priority.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-337.1.a"
+     title="Open CR 337.1.a in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 337.1.a (Core Rules, 2026-07-16): &quot;Finalizing an item to the chain does not pass Priority.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 337.1.b</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-337"><code>337</code></a> <span>Step 1: Finalize</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-337.1"><code>337.1</code></a> <span>If there is at least one Chain Item Pending, the controller of the oldest Pending Chain Item must complete the steps of Playing that Pending Item until it is a Finalized Item or leaves the Chain. See rule 349. Playing Cards for more information on finalizing chain items.</span></li><li class="anc-target" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-337.1.b"><code>337.1.b</code></a> <span>Chain Items are Finalized in the order they were appended to the Chain.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-337.1.b"
+     title="Open CR 337.1.b in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 337.1.b (Core Rules, 2026-07-16): &quot;Chain Items are Finalized in the order they were appended to the Chain.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+    <div class="exits"><span class="label">Where you go next</span><div class="exit e-grounded"><span class="exit-n">3</span><div><span class="exit-when">the item just finalized is a Unit, Gear, or an ability that Adds resources — it never waits on the Chain to be answered</span><span class="exit-goto">&rarr; <a href="#s5">step 5 · R — Resolve</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 337.2</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-337"><code>337</code></a> <span>Step 1: Finalize</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-337.2"><code>337.2</code></a> <span>If, after finalizing the Chain Item, that item is a Unit, Gear, or an ability that Adds resources, it resolves immediately—Move to Step 4: Resolve. See rule 349. Playing Cards for more information.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-337.2"
+     title="Open CR 337.2 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 337.2 (Core Rules, 2026-07-16): &quot;If, after finalizing the Chain Item, that item is a Unit, Gear, or an ability that Adds resources, it resolves immediately—Move to Step 4: Resolve.&quot;">Copy cite</button>
+</div>
+</div></details></div></div><div class="exit e-grounded"><span class="exit-n">4</span><div><span class="exit-when">there are still Pending Chain Items after finalizing that one</span><span class="exit-goto">&rarr; <a href="#s2">step 2 · F — Finalize</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 337.3</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-337"><code>337</code></a> <span>Step 1: Finalize</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-337.3"><code>337.3</code></a> <span>If, after finalizing the Chain Item, there are still Pending Chain Items, return to step 1. Finalize.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-337.3"
+     title="Open CR 337.3 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 337.3 (Core Rules, 2026-07-16): &quot;If, after finalizing the Chain Item, there are still Pending Chain Items, return to step 1. Finalize.&quot;">Copy cite</button>
+</div>
+</div></details></div></div><div class="exit e-grounded"><span class="exit-n">5</span><div><span class="exit-when">nothing is left on the Chain to finalize</span><span class="exit-goto">&rarr; <a href="#s3">step 3 · E — Execute</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 337.4</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-337"><code>337</code></a> <span>Step 1: Finalize</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-337.4"><code>337.4</code></a> <span>If, after finalizing the Chain Item, there are no more items on the chain to be Finalized, the controller of the next item on the chain gains Priority. Move to step 2: Execute.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-337.4"
+     title="Open CR 337.4 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 337.4 (Core Rules, 2026-07-16): &quot;If, after finalizing the Chain Item, there are no more items on the chain to be Finalized, the controller of the next item on the chain gains Priority. Move to step 2: Execute.&quot;">Copy cite</button>
+</div>
+</div></details></div></div></div>
+  </div>
+</section><section class="step plate b-grounded"
+    id="s3" data-od-id="step-s3">
+  <div class="step-n" aria-hidden="true">3</div>
+  <div class="step-body">
+    <div class="step-head">
+      <h3>E — Execute</h3>
+      <span class="note-tags"><span class="basis-chip" title="A rule states this in so many words">● grounded</span></span>
+    </div>
+    <p class="step-text">The player with Priority chooses: play something legally timed, or pass. Those are the only two options on offer — the rules give the player with Priority this list and nothing else. &quot;Legally timed&quot; is the constraint that matters: by default cards and activated abilities cannot be played in a Closed State, so what qualifies here is generally something with Reaction.</p>
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 338.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-338"><code>338</code></a> <span>Step 2: Execute</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-338.1"><code>338.1</code></a> <span>The player with Priority may do any the following:</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-338.1"
+     title="Open CR 338.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 338.1 (Core Rules, 2026-07-16): &quot;The player with Priority may do any the following:&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 338.1.a</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-338"><code>338</code></a> <span>Step 2: Execute</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-338.1"><code>338.1</code></a> <span>The player with Priority may do any the following:</span></li><li class="anc-target" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-338.1.a"><code>338.1.a</code></a> <span>Play a Card or Activated Ability that is legally timed.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-338.1.a"
+     title="Open CR 338.1.a in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 338.1.a (Core Rules, 2026-07-16): &quot;Play a Card or Activated Ability that is legally timed.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 338.1.a.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-338"><code>338</code></a> <span>Step 2: Execute</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-338.1"><code>338.1</code></a> <span>The player with Priority may do any the following:</span></li><li class="" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-338.1.a"><code>338.1.a</code></a> <span>Play a Card or Activated Ability that is legally timed.</span></li><li class="anc-target" style="--d:4"><a class="anc-link" href="../data/rules.html#CR-338.1.a.1"><code>338.1.a.1</code></a> <span>Cards and Activated Abilities, by default, cannot be played during a Closed State.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-338.1.a.1"
+     title="Open CR 338.1.a.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 338.1.a.1 (Core Rules, 2026-07-16): &quot;Cards and Activated Abilities, by default, cannot be played during a Closed State.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 338.1.a.2</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-338"><code>338</code></a> <span>Step 2: Execute</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-338.1"><code>338.1</code></a> <span>The player with Priority may do any the following:</span></li><li class="" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-338.1.a"><code>338.1.a</code></a> <span>Play a Card or Activated Ability that is legally timed.</span></li><li class="anc-target" style="--d:4"><a class="anc-link" href="../data/rules.html#CR-338.1.a.2"><code>338.1.a.2</code></a> <span>A Legally Timed Card or Activated Ability would be one with Reaction or one that will have Reaction when played under appropriate circumstances.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-338.1.a.2"
+     title="Open CR 338.1.a.2 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 338.1.a.2 (Core Rules, 2026-07-16): &quot;A Legally Timed Card or Activated Ability would be one with Reaction or one that will have Reaction when played under appropriate circumstances.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 338.1.b</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-338"><code>338</code></a> <span>Step 2: Execute</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-338.1"><code>338.1</code></a> <span>The player with Priority may do any the following:</span></li><li class="anc-target" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-338.1.b"><code>338.1.b</code></a> <span>Pass Priority</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-338.1.b"
+     title="Open CR 338.1.b in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 338.1.b (Core Rules, 2026-07-16): &quot;Pass Priority&quot;">Copy cite</button>
+</div>
+</div></details></div>
+    <div class="exits"><span class="label">Where you go next</span><div class="exit e-grounded"><span class="exit-n">6</span><div><span class="exit-when">the player with Priority plays a card or activates an ability, which puts new Pending Items on the Chain</span><span class="exit-goto">&rarr; <a href="#s2">step 2 · F — Finalize</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 338.1.a.7</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-338"><code>338</code></a> <span>Step 2: Execute</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-338.1"><code>338.1</code></a> <span>The player with Priority may do any the following:</span></li><li class="" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-338.1.a"><code>338.1.a</code></a> <span>Play a Card or Activated Ability that is legally timed.</span></li><li class="anc-target" style="--d:4"><a class="anc-link" href="../data/rules.html#CR-338.1.a.7"><code>338.1.a.7</code></a> <span>Playing a Card or Activated Ability will create one or more Pending Items. Return to Step 1: Finalize.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-338.1.a.7"
+     title="Open CR 338.1.a.7 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 338.1.a.7 (Core Rules, 2026-07-16): &quot;Playing a Card or Activated Ability will create one or more Pending Items. Return to Step 1: Finalize.&quot;">Copy cite</button>
+</div>
+</div></details></div></div><div class="exit e-grounded"><span class="exit-n">7</span><div><span class="exit-when">the player with Priority passes instead</span><span class="exit-goto">&rarr; <a href="#s4">step 4 · P — Pass</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 338.1.b.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-338"><code>338</code></a> <span>Step 2: Execute</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-338.1"><code>338.1</code></a> <span>The player with Priority may do any the following:</span></li><li class="" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-338.1.b"><code>338.1.b</code></a> <span>Pass Priority</span></li><li class="anc-target" style="--d:4"><a class="anc-link" href="../data/rules.html#CR-338.1.b.1"><code>338.1.b.1</code></a> <span>The player with Priority passes Priority to the next Player in Turn Order. Proceed to Step 3: Pass.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-338.1.b.1"
+     title="Open CR 338.1.b.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 338.1.b.1 (Core Rules, 2026-07-16): &quot;The player with Priority passes Priority to the next Player in Turn Order. Proceed to Step 3: Pass.&quot;">Copy cite</button>
+</div>
+</div></details></div></div></div>
+  </div>
+</section><section class="step plate b-grounded"
+    id="s4" data-od-id="step-s4">
+  <div class="step-n" aria-hidden="true">4</div>
+  <div class="step-body">
+    <div class="step-head">
+      <h3>P — Pass</h3>
+      <span class="note-tags"><span class="basis-chip" title="A rule states this in so many words">● grounded</span></span>
+    </div>
+    <p class="step-text">Pass asks one question: has every player passed in sequence without adding anything to the Chain? That is the test for whether the window has actually closed, and playing anything at all resets it.</p>
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 339.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-339"><code>339</code></a> <span>Step 3: Pass</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-339.1"><code>339.1</code></a> <span>If all players have passed Priority in sequence without adding any items to the Chain, proceed to Step 4: Resolve.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-339.1"
+     title="Open CR 339.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 339.1 (Core Rules, 2026-07-16): &quot;If all players have passed Priority in sequence without adding any items to the Chain, proceed to Step 4: Resolve.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 339.2</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-339"><code>339</code></a> <span>Step 3: Pass</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-339.2"><code>339.2</code></a> <span>Otherwise, the player with Priority passes Priority to the next Player in Turn Order. Return to Step 2: Execute.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-339.2"
+     title="Open CR 339.2 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 339.2 (Core Rules, 2026-07-16): &quot;Otherwise, the player with Priority passes Priority to the next Player in Turn Order. Return to Step 2: Execute.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+    <div class="exits"><span class="label">Where you go next</span><div class="exit e-grounded"><span class="exit-n">8</span><div><span class="exit-when">every player has passed in sequence with nothing added to the Chain</span><span class="exit-goto">&rarr; <a href="#s5">step 5 · R — Resolve</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 339.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-339"><code>339</code></a> <span>Step 3: Pass</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-339.1"><code>339.1</code></a> <span>If all players have passed Priority in sequence without adding any items to the Chain, proceed to Step 4: Resolve.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-339.1"
+     title="Open CR 339.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 339.1 (Core Rules, 2026-07-16): &quot;If all players have passed Priority in sequence without adding any items to the Chain, proceed to Step 4: Resolve.&quot;">Copy cite</button>
+</div>
+</div></details></div></div><div class="exit e-grounded"><span class="exit-n">9</span><div><span class="exit-when">the sequence of passes is not complete, so Priority moves on to the next player</span><span class="exit-goto">&rarr; <a href="#s3">step 3 · E — Execute</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 339.2</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-339"><code>339</code></a> <span>Step 3: Pass</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-339.2"><code>339.2</code></a> <span>Otherwise, the player with Priority passes Priority to the next Player in Turn Order. Return to Step 2: Execute.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-339.2"
+     title="Open CR 339.2 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 339.2 (Core Rules, 2026-07-16): &quot;Otherwise, the player with Priority passes Priority to the next Player in Turn Order. Return to Step 2: Execute.&quot;">Copy cite</button>
+</div>
+</div></details></div></div></div>
+  </div>
+</section><section class="step plate b-grounded"
+    id="s5" data-od-id="step-s5">
+  <div class="step-n" aria-hidden="true">5</div>
+  <div class="step-body">
+    <div class="step-head">
+      <h3>R — Resolve</h3>
+      <span class="note-tags"><span class="basis-chip" title="A rule states this in so many words">● grounded</span></span>
+    </div>
+    <p class="step-text">Exactly one item resolves — the newest Finalized one — and its effects are executed in their entirety. One item, not the whole Chain: what happens next depends entirely on what is still sitting on it, and the three transitions below are the whole answer.</p>
+    
+    <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 340.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-340"><code>340</code></a> <span>Step 4: Resolve</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-340.1"><code>340.1</code></a> <span>The newest Finalized Chain Item resolves. Execute its game effects in their entirety. See rule 349. Playing Cards for more information on resolving spells. See rule 398. Playing or Activating Abilities for more information on resolving abilities.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-340.1"
+     title="Open CR 340.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 340.1 (Core Rules, 2026-07-16): &quot;The newest Finalized Chain Item resolves. Execute its game effects in their entirety.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+    <div class="exits"><span class="label">Where you go next</span><div class="exit e-grounded"><span class="exit-n">10</span><div><span class="exit-when">the Chain is now empty</span><span class="exit-goto">&rarr; the procedure ends</span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 340.2</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-340"><code>340</code></a> <span>Step 4: Resolve</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-340.2"><code>340.2</code></a> <span>If the Chain is empty, play proceeds in an Open State.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-340.2"
+     title="Open CR 340.2 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 340.2 (Core Rules, 2026-07-16): &quot;If the Chain is empty, play proceeds in an Open State.&quot;">Copy cite</button>
+</div>
+</div></details></div></div><div class="exit e-grounded"><span class="exit-n">11</span><div><span class="exit-when">the Chain is not empty and one or more items on it are still pending</span><span class="exit-goto">&rarr; <a href="#s2">step 2 · F — Finalize</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 340.3</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-340"><code>340</code></a> <span>Step 4: Resolve</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-340.3"><code>340.3</code></a> <span>If the Chain is not empty and there are one or more Pending Items, return to Step 1: Finalize.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-340.3"
+     title="Open CR 340.3 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 340.3 (Core Rules, 2026-07-16): &quot;If the Chain is not empty and there are one or more Pending Items, return to Step 1: Finalize.&quot;">Copy cite</button>
+</div>
+</div></details></div></div><div class="exit e-grounded"><span class="exit-n">12</span><div><span class="exit-when">the Chain is not empty but nothing on it is pending</span><span class="exit-goto">&rarr; <a href="#s3">step 3 · E — Execute</a></span></div><div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 340.4</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-340"><code>340</code></a> <span>Step 4: Resolve</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-340.4"><code>340.4</code></a> <span>If the Chain is not empty and there are no Pending Items, the controller of the newest item on the chain gains Priority. Return to Step 2: Execute.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-340.4"
+     title="Open CR 340.4 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 340.4 (Core Rules, 2026-07-16): &quot;If the Chain is not empty and there are no Pending Items, the controller of the newest item on the chain gains Priority. Return to Step 2: Execute.&quot;">Copy cite</button>
+</div>
+</div></details></div></div></div>
+  </div>
+</section>
+
+<h2 id="misconceptions" data-od-id="sec-misconceptions">Commonly got wrong</h2><section class="misc plate" data-od-id="misconception-1">
+  <span class="label">Commonly believed</span>
+  <h3>“You can respond to a unit being played, the way you respond to a spell.”</h3>
+  <span class="label">What the rules actually say</span>
+  <p class="why">A Unit resolves the moment it is finalized. It moves straight to Resolve without passing through Execute, so the window in which anyone could answer it never opens.</p>
+  <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 337.2</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-337"><code>337</code></a> <span>Step 1: Finalize</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-337.2"><code>337.2</code></a> <span>If, after finalizing the Chain Item, that item is a Unit, Gear, or an ability that Adds resources, it resolves immediately—Move to Step 4: Resolve. See rule 349. Playing Cards for more information.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-337.2"
+     title="Open CR 337.2 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 337.2 (Core Rules, 2026-07-16): &quot;If, after finalizing the Chain Item, that item is a Unit, Gear, or an ability that Adds resources, it resolves immediately—Move to Step 4: Resolve.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+</section><section class="misc plate" data-od-id="misconception-2">
+  <span class="label">Commonly believed</span>
+  <h3>“Once you are in FEPR you run it to the end before anything else happens.”</h3>
+  <span class="label">What the rules actually say</span>
+  <p class="why">A Task incurred during the process interrupts it. You finish the step you are in, handle the Task, and only then continue — which is the H in HOT FEPR doing work in the middle of the loop, not just at its start.</p>
+  <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 334.2.a</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-334"><code>334</code></a> <span>Whenever a Player takes one or more actions that incur Tasks they should refer to the process of HOT FEPR: Handle Outstanding Tasks; then Finalize, Execute, Pass, Resolve.</span></li><li class="" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-334.2"><code>334.2</code></a> <span>When all Outstanding Tasks are completed, all pending Chain Items will subsequently be processed by the FEPR process.</span></li><li class="anc-target" style="--d:3"><a class="anc-link" href="../data/rules.html#CR-334.2.a"><code>334.2.a</code></a> <span>During the FEPR process, new Tasks may be incurred. Complete the current step of the process and then pause and complete the necessary Tasks before continuing.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-334.2.a"
+     title="Open CR 334.2.a in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 334.2.a (Core Rules, 2026-07-16): &quot;During the FEPR process, new Tasks may be incurred. Complete the current step of the process and then pause and complete the necessary Tasks before continuing.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+</section><section class="misc plate" data-od-id="misconception-3">
+  <span class="label">Commonly believed</span>
+  <h3>“When everyone passes, the Chain resolves.”</h3>
+  <span class="label">What the rules actually say</span>
+  <p class="why">One item resolves. If anything is left on the Chain afterwards you go back into the loop — to Finalize if something is pending, to Execute if not — so a Chain of three resolves in three separate passes with a window of opportunity between each.</p>
+  <div class="cites"><details class="cite plate">
+<summary><code class="cite-id">CR 340.1</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-340"><code>340</code></a> <span>Step 4: Resolve</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-340.1"><code>340.1</code></a> <span>The newest Finalized Chain Item resolves. Execute its game effects in their entirety. See rule 349. Playing Cards for more information on resolving spells. See rule 398. Playing or Activating Abilities for more information on resolving abilities.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-340.1"
+     title="Open CR 340.1 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 340.1 (Core Rules, 2026-07-16): &quot;The newest Finalized Chain Item resolves. Execute its game effects in their entirety. See rule 349. Playing Cards for more information on resolving spells. See rule 398. Playing or Activating Abilities for more information on resolving abilities.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 340.3</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-340"><code>340</code></a> <span>Step 4: Resolve</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-340.3"><code>340.3</code></a> <span>If the Chain is not empty and there are one or more Pending Items, return to Step 1: Finalize.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-340.3"
+     title="Open CR 340.3 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 340.3 (Core Rules, 2026-07-16): &quot;If the Chain is not empty and there are one or more Pending Items, return to Step 1: Finalize.&quot;">Copy cite</button>
+</div>
+</div></details><details class="cite plate">
+<summary><code class="cite-id">CR 340.4</code>
+  <span class="stamp ok">&#10003; verified</span></summary>
+<div class="cite-body">
+
+<ol class="ancestry"><li class="" style="--d:1"><a class="anc-link" href="../data/rules.html#CR-340"><code>340</code></a> <span>Step 4: Resolve</span></li><li class="anc-target" style="--d:2"><a class="anc-link" href="../data/rules.html#CR-340.4"><code>340.4</code></a> <span>If the Chain is not empty and there are no Pending Items, the controller of the newest item on the chain gains Priority. Return to Step 2: Execute.</span></li></ol>
+<div class="cite-actions">
+  <a class="rulebook-link" href="../data/rules.html#CR-340.4"
+     title="Open CR 340.4 in the full rulebook">Open in rulebook &rarr;</a>
+  <button class="copy" data-cite="CR 340.4 (Core Rules, 2026-07-16): &quot;If the Chain is not empty and there are no Pending Items, the controller of the newest item on the chain gains Priority. Return to Step 2: Execute.&quot;">Copy cite</button>
+</div>
+</div></details></div>
+</section>
+<h2 id="rejected" data-od-id="sec-rejected">Considered and rejected</h2><ul class="plain"><li><code>CR:305</code> — Describes when a phase ends once the Chain is empty — the frame around this loop, not a step inside it.</li><li><code>CR:341</code> — Showdowns are a window FEPR runs inside; the alternation of Focus is a separate process from the Priority passing in step 3.</li></ul>
+
+
+
+
+<footer class="foot" data-od-id="footer">
+  Riftbound Oracle is an unofficial fan project, not endorsed by, affiliated with or
+  sponsored by Riot Games. Rule text is quoted from Riot&rsquo;s Comprehensive Rules and
+  Tournament Rules; card artwork is loaded from Riot&rsquo;s CDN and is not redistributed
+  here.
+</footer>
+
+</main>
+<aside class="rail" data-od-id="rail" aria-label="Primer contents">
+  <div class="rail-plate plate">
+    <h4>The primer</h4>
+    <span class="rail-disp is-lead">HOT FEPR</span>
+    <p class="rail-meta">Weakest link <a class="weakref" href="#s1">step 1</a> · grounded</p>
+  </div>
+  <nav class="rail-nav">
+    <h4>The steps</h4>
+    <a class="rail-note" href="#s1" title="H — Handle Outstanding Tasks"><span class="n">1</span><span class="t">H — Handle Outstanding Tasks</span></a><a class="rail-note" href="#s2" title="F — Finalize"><span class="n">2</span><span class="t">F — Finalize</span></a><a class="rail-note" href="#s3" title="E — Execute"><span class="n">3</span><span class="t">E — Execute</span></a><a class="rail-note" href="#s4" title="P — Pass"><span class="n">4</span><span class="t">P — Pass</span></a><a class="rail-note" href="#s5" title="R — Resolve"><span class="n">5</span><span class="t">R — Resolve</span></a>
+  </nav>
+  <nav class="rail-nav"><a class="rail-jump" href="#map">The shape of it</a><a class="rail-jump" href="#misconceptions">Commonly got wrong</a><a class="rail-jump" href="#rejected">Considered and rejected</a></nav>
+</aside>
+</div>
+
+<div id="rb-overlay" class="rb-overlay" hidden>
+  <div class="rb-panel plate" role="dialog" aria-modal="true" aria-label="Rulebook">
+    <div class="rb-bar">
+      <span class="rb-title" id="rb-title">Rulebook</span>
+      <a class="rb-pop" id="rb-pop" href="../data/rules.html" target="_blank" rel="noopener">Open full page &#8599;</a>
+      <button class="rb-close" id="rb-close" aria-label="Close">&times;</button>
+    </div>
+    <iframe class="rb-frame" id="rb-frame" title="Rulebook"></iframe>
+  </div>
+</div>
+
+<script>
+// file:// has no clipboard API in Chrome — the execCommand fallback is mandatory.
+document.addEventListener('click', function(e){
+  var b = e.target.closest('.copy'); if(!b) return;
+  var t = b.dataset.cite, done = function(){ b.textContent='Copied'; setTimeout(function(){b.textContent='Copy cite';},1200); };
+  try { if(navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(t).then(done); return; } } catch(_){}
+  var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity=0;
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch(_){ b.textContent='Copy failed'; }
+  document.body.removeChild(ta);
+});
+// Jumping to a note from the holding line should open its citations.
+window.addEventListener('hashchange', function(){
+  var el=document.querySelector(location.hash); if(!el) return;
+  el.querySelectorAll('details').forEach(function(d){d.open=true;});
+});
+// Judges print things; printed <details> must not hide the evidence.
+window.addEventListener('beforeprint', function(){
+  document.querySelectorAll('details').forEach(function(d){d.dataset.wasOpen=d.open?'1':'';d.open=true;});
+});
+window.addEventListener('afterprint', function(){
+  document.querySelectorAll('details').forEach(function(d){d.open=d.dataset.wasOpen==='1';});
+});
+
+// The rail marks the claim you are currently reading. Purely an orientation
+// aid: if IntersectionObserver is missing the rail still works as a link list.
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.rail-note'));
+  if(!links.length || !window.IntersectionObserver) return;
+  var map={}, seen={};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ seen[en.target.id]=en.isIntersecting; });
+    // Pick the note occupying MOST of the reading band, not the first one that
+    // happens to touch it. Taking the topmost meant a claim whose last 14px
+    // were still in the band beat the claim actually filling it, so the rail
+    // lagged one behind what you were reading — the opposite of the point.
+    // None at all is a valid answer: above the first note and below the last,
+    // a leftover highlight points at a claim you have scrolled away from.
+    var top=innerHeight*0.12, bot=innerHeight*0.32, current=null, best=0;
+    Object.keys(map).forEach(function(id){
+      if(!seen[id]) return;
+      var el=document.getElementById(id); if(!el) return;
+      var r=el.getBoundingClientRect();
+      var overlap=Math.min(r.bottom,bot)-Math.max(r.top,top);
+      if(overlap>best){ best=overlap; current=id; }
+    });
+    links.forEach(function(l){ l.classList.remove('here'); });
+    if(current) map[current].classList.add('here');
+  },{rootMargin:'-12% 0px -68% 0px'});
+  // '.step' is a primer's equivalent of a ruling's '.note'. Both use
+  // '.rail-note' links, so one observer serves both documents.
+  document.querySelectorAll('.note, .step').forEach(function(n){ io.observe(n); });
+})();
+
+// Reading a cited rule should not cost you your place in the argument, so the
+// rulebook opens OVER the report. An iframe, not fetch: file:// forbids XHR
+// between local files, while an iframe loads and honours the #fragment
+// natively. Nothing scripts INTO the frame — cross-origin rules forbid it for
+// file:// and we do not need it.
+(function(){
+  var ov=document.getElementById('rb-overlay'), fr=document.getElementById('rb-frame'),
+      ttl=document.getElementById('rb-title'), pop=document.getElementById('rb-pop'), last=null;
+  function open(href, label){
+    last=document.activeElement; ttl.textContent=label||'Rulebook'; pop.href=href;
+    fr.src=href;                 // reassigning src re-navigates, so a second
+    ov.hidden=false;             // citation scrolls to ITS rule, not the first
+    document.body.style.overflow='hidden';
+    document.getElementById('rb-close').focus();
+  }
+  function close(){
+    ov.hidden=true; fr.src='about:blank';
+    document.body.style.overflow='';
+    if(last && last.focus) last.focus();
+  }
+  document.addEventListener('click', function(e){
+    var a=e.target.closest('a.rulebook-link, a.anc-link, a.card-rule, a.sym-rule');
+    if(a){
+      // Modified and middle clicks keep their normal meaning; the href is real.
+      if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;
+      e.preventDefault();
+      var href=a.getAttribute('href'), m=/#([A-Z]{2})-(.+)$/.exec(href);
+      open(href, m ? m[1]+' '+decodeURIComponent(m[2]) : 'Rulebook');
+      return;
+    }
+    if(e.target.closest('#rb-close') || e.target===ov) close();
+  });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !ov.hidden) close(); });
+})();
+</script></body></html>

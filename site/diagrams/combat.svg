@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1206 948" width="1206" height="948" data-generator="fireworks-tech-graph" data-schema-version="1" data-text-metrics="heuristic-v1" data-style-id="3" data-visual-theme="Blueprint" data-diagram-type="architecture" data-motion-scene="" data-semantic-profile="generic" data-semantic-valid="true" data-quality-profile="standard" data-max-bends-per-edge="12" data-max-total-bends="100" data-max-route-stretch="60.0" data-max-bridged-crossings="40" data-min-node-gap="0.0" data-min-container-gutter="0.0" data-min-label-clearance="2.0" data-min-segment-length="0.0">
+  <defs>
+    <marker id="arrowA" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#67e8f9"/>
+    </marker>
+    <marker id="arrowB" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrowC" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowE" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fde047"/>
+    </marker>
+    <marker id="arrowF" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c084fc"/>
+    </marker>
+    <marker id="arrowG" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185"/>
+    </marker>
+    <marker id="arrowH" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#bae6fd"/>
+    </marker>
+    <pattern id="blueprintGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#0ea5e9" stroke-opacity="0.12" stroke-width="1"/>
+    </pattern>
+    <style>
+    text { font-family: 'SF Mono', 'Fira Code', Menlo, 'Microsoft YaHei', 'SimHei', monospace; }
+    .title { font-size: 30px; font-weight: 700; fill: #e0f2fe; }
+    .subtitle { font-size: 14px; font-weight: 500; fill: #7dd3fc; }
+    .section { font-size: 13px; font-weight: 700; fill: #67e8f9; letter-spacing: 1.4px; }
+    .section-sub { font-size: 12px; font-weight: 500; fill: #7dd3fc; }
+    .node-title { font-weight: 700; fill: #e0f2fe; }
+    .node-sub { font-size: 12px; font-weight: 500; fill: #bae6fd; }
+    .node-type { font-size: 11px; font-weight: 700; fill: #7dd3fc; letter-spacing: 0.08em; }
+    .arrow-label { font-size: 12px; font-weight: 600; fill: #e0f2fe; }
+    .legend { font-size: 12px; font-weight: 500; fill: #bae6fd; }
+    .footnote { font-size: 12px; font-weight: 500; fill: #7dd3fc; }
+    .metric-label { font-size: 8.5px; font-weight: 700; fill: #7dd3fc; text-transform: uppercase; }
+    .metric-value { font-size: 9.5px; font-weight: 700; fill: #e0f2fe; }
+    </style>
+  </defs>
+  <rect data-graph-role="background" width="1206.0" height="948.0" fill="#082f49"/>
+  <text x="603.0" y="56" text-anchor="middle" class="title">Combat</text>
+  <text x="603.0" y="82" text-anchor="middle" class="subtitle">derived from the transitions this primer declares · Comprehensive Rules 2026-07-16 · unofficial</text>
+  <path id="t1" data-graph-role="edge" data-edge-id="t1" data-source="s1" data-target="s2" data-edge-kind="flow" data-topic-id="" data-flow="control" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="2" data-route-stretch="1.0" data-bridges="" d="M 238,204 L 238,224.4 L 256,224.4 L 256,336" fill="none" stroke="#67e8f9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowA)"/>
+  <path id="t2" data-graph-role="edge" data-edge-id="t2" data-source="s1" data-target="__procedure_ends" data-edge-kind="flow" data-topic-id="" data-flow="control" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="1" data-route-stretch="1.0" data-bridges="" d="M 256,204 L 1041,204 L 1041,438" fill="none" stroke="#67e8f9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowA)"/>
+  <path id="t3" data-graph-role="edge" data-edge-id="t3" data-source="s2" data-target="s3" data-edge-kind="flow" data-topic-id="" data-flow="control" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="2" data-route-stretch="1.0" data-bridges="" d="M 247,408 L 247,414 L 256,414 L 256,540" fill="none" stroke="#67e8f9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowA)"/>
+  <path id="t4" data-graph-role="edge" data-edge-id="t4" data-source="s2" data-target="s4" data-edge-kind="flow" data-topic-id="" data-flow="read" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="4" data-route-stretch="1.941" data-bridges="" d="M 265,408 L 265,428.4 L 440,428.4 L 440,723.6 L 229,723.6 L 229,744" fill="none" stroke="#38bdf8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowC)"/>
+  <path id="t5-bridge-mask" data-graph-role="bridge-mask" data-owner="t5" d="M 256,612 L 256,632.4 L 247,632.4 L 247,718.6 A 5 5 0 0 1 247,728.6 L 247,744" fill="none" stroke="#082f49" stroke-width="6.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path id="t5" data-graph-role="edge" data-edge-id="t5" data-source="s3" data-target="s4" data-edge-kind="flow" data-topic-id="" data-flow="control" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="2" data-route-stretch="1.0" data-bridges="247,723.6" d="M 256,612 L 256,632.4 L 247,632.4 L 247,718.6 A 5 5 0 0 1 247,728.6 L 247,744" fill="none" stroke="#67e8f9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowA)"/>
+  <path id="t6-bridge-mask" data-graph-role="bridge-mask" data-owner="t6" d="M 265,744 L 265,733.6 L 492,733.6 L 492,224.4 L 274,224.4 L 274,204" fill="none" stroke="#082f49" stroke-width="6.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path id="t6" data-graph-role="edge" data-edge-id="t6" data-source="s4" data-target="s1" data-edge-kind="flow" data-topic-id="" data-flow="control" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="4" data-route-stretch="1.794" data-bridges="274,204" d="M 265,744 L 265,733.6 L 492,733.6 L 492,224.4 L 274,224.4 L 274,204" fill="none" stroke="#67e8f9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowA)"/>
+  <path id="t7" data-graph-role="edge" data-edge-id="t7" data-source="s4" data-target="__procedure_ends" data-edge-kind="flow" data-topic-id="" data-flow="control" data-motion-role="" data-motion-stage="" data-motion-order="" data-protocol="" data-via="" data-critical-path-id="" data-critical-hop="" data-critical-hops="" data-critical="false" data-bends="2" data-route-stretch="1.0" data-bridges="" d="M 283,744 L 283,734 L 1041,734 L 1041,510" fill="none" stroke="#67e8f9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowA)"/>
+  <g id="node-s1" data-graph-role="node" data-node-id="s1" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="96,132,416,204">
+  <rect x="96.0" y="132.0" width="320.0" height="72.0" rx="8.0" fill="#0b3b5e" stroke="#67e8f9" stroke-width="1.8"/>
+  <text x="256.0" y="150.0" text-anchor="middle" class="node-type">STEP 1</text>
+  <text x="256.0" y="174.0" text-anchor="middle" class="node-title" font-size="16.43">Staged — two players' units meet</text>
+  </g>
+  <g id="node-s2" data-graph-role="node" data-node-id="s2" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="96,336,416,408">
+  <rect x="96.0" y="336.0" width="320.0" height="72.0" rx="8.0" fill="#0b3b5e" stroke="#67e8f9" stroke-width="1.8"/>
+  <text x="256.0" y="354.0" text-anchor="middle" class="node-type">STEP 2</text>
+  <text x="256.0" y="378.0" text-anchor="middle" class="node-title" font-size="18.0">Step 1 — the Combat Showdown</text>
+  </g>
+  <g id="node-s3" data-graph-role="node" data-node-id="s3" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="96,540,416,612">
+  <rect x="96.0" y="540.0" width="320.0" height="72.0" rx="8.0" fill="#0b3b5e" stroke="#67e8f9" stroke-width="1.8"/>
+  <text x="256.0" y="558.0" text-anchor="middle" class="node-type">STEP 3</text>
+  <text x="256.0" y="582.0" text-anchor="middle" class="node-title" font-size="18.0">Step 2 — Combat Damage</text>
+  </g>
+  <g id="node-s4" data-graph-role="node" data-node-id="s4" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="96,744,416,816">
+  <rect x="96.0" y="744.0" width="320.0" height="72.0" rx="8.0" fill="#0b3b5e" stroke="#67e8f9" stroke-width="1.8"/>
+  <text x="256.0" y="762.0" text-anchor="middle" class="node-type">STEP 4</text>
+  <text x="256.0" y="786.0" text-anchor="middle" class="node-title" font-size="18.0">Step 3 — Resolution</text>
+  </g>
+  <g id="node-__procedure_ends" data-graph-role="node" data-node-id="__procedure_ends" data-semantic-role="rect" data-motion-role="" data-motion-stage="" data-motion-order="" data-parent="" data-deployment-id="" data-topic-id="" data-span-id="" data-station-order="" data-status="" data-start-ms="" data-duration-ms="" data-parent-span="" data-graph-bounds="936,438,1146,510">
+  <rect x="936.0" y="438.0" width="210.0" height="72.0" rx="8.0" fill="#0b3b5e" stroke="#67e8f9" stroke-width="1.8"/>
+  <text x="1041.0" y="456.0" text-anchor="middle" class="node-type">EXIT</text>
+  <text x="1041.0" y="480.0" text-anchor="middle" class="node-title" font-size="18.0">procedure ends</text>
+  </g>
+  <g id="t1-label" data-graph-role="label" data-owner="t1" data-graph-bounds="216,266.2,252,286.2">
+  <rect x="216.0" y="266.2" width="36.0" height="20" rx="6" fill="#082f49" opacity="0.9"/>
+  <text x="234.0" y="280.2" text-anchor="middle" class="arrow-label">1</text>
+  </g>
+  <g id="t2-label" data-graph-role="label" data-owner="t2" data-graph-bounds="630.5,173,666.5,193">
+  <rect x="630.5" y="173.0" width="36.0" height="20" rx="6" fill="#082f49" opacity="0.9"/>
+  <text x="648.5" y="187.0" text-anchor="middle" class="arrow-label">2</text>
+  </g>
+  <g id="t3-label" data-graph-role="label" data-owner="t3" data-graph-bounds="216,463,252,483">
+  <rect x="216.0" y="463.0" width="36.0" height="20" rx="6" fill="#082f49" opacity="0.9"/>
+  <text x="234.0" y="477.0" text-anchor="middle" class="arrow-label">3</text>
+  </g>
+  <g id="t4-label" data-graph-role="label" data-owner="t4" data-graph-bounds="432,566,468,586">
+  <rect x="432.0" y="566.0" width="36.0" height="20" rx="6" fill="#082f49" opacity="0.9"/>
+  <text x="450.0" y="580.0" text-anchor="middle" class="arrow-label">4</text>
+  </g>
+  <g id="t5-label" data-graph-role="label" data-owner="t5" data-graph-bounds="207,674.2,243,694.2">
+  <rect x="207.0" y="674.2" width="36.0" height="20" rx="6" fill="#082f49" opacity="0.9"/>
+  <text x="225.0" y="688.2" text-anchor="middle" class="arrow-label">5</text>
+  </g>
+  <g id="t6-label" data-graph-role="label" data-owner="t6" data-graph-bounds="452,465,488,485">
+  <rect x="452.0" y="465.0" width="36.0" height="20" rx="6" fill="#082f49" opacity="0.9"/>
+  <text x="470.0" y="479.0" text-anchor="middle" class="arrow-label">6</text>
+  </g>
+  <g id="t7-label" data-graph-role="label" data-owner="t7" data-graph-bounds="644,703,680,723">
+  <rect x="644.0" y="703.0" width="36.0" height="20" rx="6" fill="#082f49" opacity="0.9"/>
+  <text x="662.0" y="717.0" text-anchor="middle" class="arrow-label">7</text>
+  </g>
+  <g id="legend" data-graph-role="legend">
+    <rect id="legend-zone" data-graph-role="reserved" data-reserved-kind="legend" x="32" y="856" width="243.84" height="68" rx="10" fill="none" stroke="none"/>
+    <line data-graph-role="decoration" x1="42.0" y1="870.0" x2="72.0" y2="870.0" stroke="#67e8f9" stroke-width="2.1" marker-end="url(#arrowA)"/>
+    <text data-graph-role="decoration" x="82.0" y="874.0" class="legend">a rule states this outright</text>
+    <line data-graph-role="decoration" x1="42.0" y1="892.0" x2="72.0" y2="892.0" stroke="#38bdf8" stroke-width="2.1" marker-end="url(#arrowC)"/>
+    <text data-graph-role="decoration" x="82.0" y="896.0" class="legend">follows from the rules cited</text>
+  </g>
+</svg>
