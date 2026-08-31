@@ -1533,6 +1533,15 @@ MUTANTS = [
          find='        kind = "primer" if has_topic and not has_disp else "ruling"',
          repl='        kind = "ruling" if has_topic and not has_disp else "primer"',
          expect="tells a ruling from a primer by structure"),
+    # `export` and `reports` shipped in COMMANDS and in no help output for a
+    # week; a session working in this repo had to ask another agent whether the
+    # feature existed. The check that catches that immediately found a third
+    # (`build`), undocumented far longer.
+    dict(name="ship a command that dispatches but appears in no help output",
+         file="rules_cli.py",
+         find="    rules reports           what you have answered, newest first, + a browsable index\n",
+         repl="",
+         expect="appears in the help it prints"),
 ]
 
 FAILED_RE = re.compile(r"^FAILED \d+ of \d+: (.*)$", re.M)

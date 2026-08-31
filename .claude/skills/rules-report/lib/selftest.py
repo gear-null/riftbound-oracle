@@ -1069,6 +1069,29 @@ def export_and_history(idx):
     # user browses held `combat.svg` and `ok.fireworks.json` as siblings of the
     # documents. Separated rather than filtered: a reader should not have to
     # know which extensions to ignore.
+    # EVERY COMMAND MUST BE DISCOVERABLE. `export` and `reports` dispatched
+    # correctly for a week and appeared in no help output, so a session working
+    # in this repo had to ASK ANOTHER AGENT whether the feature existed. That
+    # is what an undocumented command costs — not an error, just nobody knowing.
+    # It is the same family as everything else here: a thing that works
+    # perfectly and reports nothing about itself.
+    # Measured on WHAT THE CLI PRINTS, not on `__doc__`. The property is "is
+    # every command discoverable"; the docstring is merely where this CLI
+    # happens to keep its help today. riftbound-oracle-c6 ported this check to
+    # deck-lab, whose help lives in a `help` subcommand instead, and it
+    # reported 16 of 17 missing — a check pointed at one codebase's structure
+    # returns garbage against another's. Asking the binary what it shows a user
+    # survives the help block moving, and is the same lesson as testing
+    # `cmd_report`'s behaviour instead of grepping its source.
+    shown = safely(lambda: _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py")],
+                                   capture_output=True, text=True).stdout,
+                   "", "cli help")
+    undocumented = sorted(c for c in rules_cli.COMMANDS
+                          if not re.search(rf"^\s+rules {re.escape(c)}\b", shown, re.M))
+    check("every command the CLI accepts appears in the help it prints",
+          bool(shown) and not undocumented,
+          f"undocumented: {undocumented}" if shown else "the CLI printed no help at all")
+
     check("a diagram is written under reports/diagrams, not among the reports",
           os.path.basename(rules_cli.DIAGRAMS) == "diagrams"
           and os.path.dirname(rules_cli.DIAGRAMS) == rules_cli.REPORTS,
