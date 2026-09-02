@@ -89,6 +89,11 @@ the evidence links dead. `export` rebuilds it with the cited rules and every ima
 the file — one document, nothing fetched, safe to send over chat. It is whole or it is
 refused; there is no partial export, because a partial one looks exactly like a good one.
 
+`report` does this for you: it writes `<name>.portable.html` beside the report and puts a
+**Portable copy ↓** button in the report's masthead, which saves that file. If the artwork
+could not be fetched (offline), the button is a note naming the `export` command instead —
+the button is never a link to a file that was not written. Run `export` by hand to retry.
+
 ## Procedure — a ruling
 
 1. **Reframe.** Restate the question in *rules* vocabulary. Card and slang terms

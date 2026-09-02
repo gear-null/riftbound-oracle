@@ -14,6 +14,18 @@ This project follows [Semantic Versioning](https://semver.org/) and
 
 ### Added
 
+- **A "Portable copy ↓" button on every report.** `report` now writes
+  `<name>.portable.html` beside the report and puts a button in the masthead that saves
+  it — one click for the file you can drop into a chat. Client-side export was not an
+  option: a `file://` page cannot fetch its sibling rulebook in Chrome and Riot's CDN
+  does not pass CORS, so the copy is built at render time and the button is a link to
+  it. The button is a link **only if the file was written**; offline, where artwork
+  cannot be fetched, it reads as a note naming the `export` command instead. Inside the
+  portable copy itself the control is a badge, never a link to a sibling it may have
+  travelled without. Primers get the same button. Every state has a mutant, and the
+  route is checked by running `report` and asserting the link appears if and only if
+  the sibling exists.
+
 - **Send an answer to someone: `rules_cli.py export`.** A rendered report looks
   self-contained and is not — the rulebook overlay loads a sibling file and card artwork
   comes from Riot's CDN. Both resolve on the machine that wrote it, so the file renders

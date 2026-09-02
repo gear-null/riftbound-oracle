@@ -1098,6 +1098,133 @@ def export_and_history(idx):
           rules_cli.DIAGRAMS)
 
 
+def portable_button(idx):
+    """The masthead's portable-copy control, in all three of its states.
+
+    The control is one element that means one of three things: "run export to
+    get one" (a rendered report nothing has exported), "click to save it" (a
+    sibling exists), or "this IS the copy" (inside the portable file). The
+    dangerous failure is the second form appearing without the first
+    condition — a button that saves a file nothing wrote. So the link form may
+    only ever be written by `attach_portable` on a successful export, and every
+    check below is about which form appears under which condition.
+    """
+    import export_report as E
+    import corpus as _c
+    import render_report
+    from render_report import verify_answer, PORTABLE_SLOT, PORTABLE_BADGE
+    ans = verify_answer(json.load(open(os.path.join(HERE, "flow-counter-answer.json"),
+                                      encoding="utf-8")), idx)
+    if ans["_problems"]:
+        check("the shipped sample verifies, so the portable button can be tested",
+              False, f"{ans['_problems'][:2]}")
+        return
+    html = safely(lambda: render_report.render(ans, idx, stem="fixture"), "", "render")
+    if not html:
+        check("a report renders for the button checks to run against", False, "no html")
+        return
+    rules = open(_c.rulebook_html_path(), encoding="utf-8").read()
+    ok_fetch = lambda u: "data:image/png;base64,AAAA"
+    no_fetch = lambda u: None
+
+    # State 1: a plain render carries the slot in its "not built" form, and it
+    # names the command — a reader of a report nothing exported is told how.
+    slots = PORTABLE_SLOT.findall(html)
+    check("a rendered report carries exactly one portable-copy control",
+          len(PORTABLE_SLOT.findall(html)) == 1, f"{len(slots)} found")
+    check("a plain render's control is the NOT-BUILT note, never a link",
+          'class="portable is-unbuilt"' in html and 'class="portable is-built"' not in html)
+    check("the not-built note names the export command for THIS file",
+          "export fixture.html" in html, "the note must say which file to export")
+
+    # State 2: a successful export upgrades it to a link — to the sibling by
+    # the same stem, with `download` so a click saves rather than navigates.
+    rep, port, why = E.attach_portable(html, "fixture", rules, fetch=ok_fetch)
+    check("attach_portable returns a portable document on success",
+          port is not None and why is None, f"reason: {why}")
+    check("the control becomes a link to the sibling file by the same stem",
+          'href="fixture.portable.html"' in rep and 'class="portable is-built"' in rep)
+    check("the link carries `download`, so a click saves the file",
+          re.search(r'<a class="portable is-built"[^>]*\bdownload=', rep) is not None)
+    # The ELEMENT, not the token: `is-unbuilt` also names a rule in the embedded
+    # stylesheet, so a bare substring test failed on a correct page.
+    check("the not-built note is GONE once the link is written (one control, not two)",
+          'class="portable is-unbuilt"' not in rep and len(PORTABLE_SLOT.findall(rep)) == 1)
+
+    # State 3: inside the portable copy the control is a badge — never a link
+    # to a sibling the file may have travelled without.
+    check("inside the portable copy the control is the badge, not a link",
+          port is not None and PORTABLE_BADGE in port
+          and 'href="fixture.portable.html"' not in port)
+
+    # Refusal: the control stays a note and NO link is written. A link to a
+    # file that was never written is the one failure this design exists to
+    # make impossible.
+    rep2, port2, why2 = E.attach_portable(html, "fixture", rules, fetch=no_fetch)
+    has_img = bool(E.REMOTE_IMG.findall(html))
+    check("this fixture has remote artwork, so a fetch failure is a real refusal",
+          has_img, "without a remote image the refusal path below is untested")
+    check("when export refuses, no portable document is returned and a reason is",
+          port2 is None and bool(why2), f"port={port2 is not None} why={why2!r}")
+    check("when export refuses, the control is the note and there is NO link",
+          'class="portable is-unbuilt"' in rep2 and 'href="fixture.portable.html"' not in rep2)
+
+    # Idempotence: standalone `export` must accept a report whose control has
+    # ALREADY been upgraded, or a second export of a finished report refuses.
+    again = safely(lambda: E.export(rep, rules, fetch=ok_fetch), None, "re-export")
+    check("export accepts a report whose control is already the link form",
+          again is not None and PORTABLE_BADGE in again)
+
+    # Arrival: the badge is asserted to be IN the finished portable file, so an
+    # export that dropped the control would refuse rather than ship without it.
+    torn = (port or "").replace(PORTABLE_BADGE, "")
+    try:
+        E.assert_pieces_arrived(torn)
+        dropped_ok = False
+    except E.ExportRefused as err:
+        dropped_ok = "badge" in str(err)
+    check("a portable file with its badge removed is detectable, not silently fine",
+          dropped_ok, "the badge is the arrival evidence; losing it must be loud")
+
+    # THE ROUTE, not the helper: run `report` and look at what it left on disk.
+    # The invariant that must hold offline and online alike is consistency —
+    # the link form appears if and only if the sibling file exists. Either
+    # outcome is fine; a link with no file, or a file with no link, is not.
+    import subprocess as _sp, tempfile as _tf, shutil
+    with _tf.TemporaryDirectory() as scratch:
+        answer = os.path.join(scratch, "route-answer.json")
+        shutil.copyfile(os.path.join(HERE, "flow-counter-answer.json"), answer)
+        out = os.path.join(scratch, "route.html")
+        r = _sp.run([sys.executable, os.path.join(HERE, "rules_cli.py"),
+                     "report", answer, out, "--no-open"],
+                    capture_output=True, text=True, cwd=scratch)
+        page = open(out, encoding="utf-8").read() if os.path.exists(out) else ""
+        sibling = os.path.exists(os.path.join(scratch, "route.portable.html"))
+        linked = 'href="route.portable.html"' in page
+        check("`report` wrote the page the button lives in",
+              bool(page), r.stderr[-200:] if not page else "")
+        check("`report` writes the link IF AND ONLY IF the portable sibling exists",
+              sibling == linked,
+              f"sibling={sibling} linked={linked} — " +
+              ("a button that saves a file nothing wrote" if linked and not sibling
+               else "a file was written but the button was not wired" if sibling and not linked
+               else "consistent"))
+        check("`report` said which it did, so the reader is not left guessing",
+              ("portable copy:" in r.stdout) == sibling
+              and ("portable copy not built" in r.stdout) == (not sibling),
+              r.stdout[-160:])
+
+    # Primers go through the same `report` path and must carry the same control.
+    import render_primer
+    from render_primer import verify_primer
+    pr = verify_primer(json.load(open(os.path.join(HERE, "hot-fepr-primer.json"),
+                                       encoding="utf-8")), idx)
+    if not pr["_problems"]:
+        phtml = safely(lambda: render_primer.render(pr, idx, stem="pfix"), "", "primer")
+        check("a rendered PRIMER carries the same portable-copy control",
+              len(PORTABLE_SLOT.findall(phtml)) == 1 and "export pfix.html" in phtml)
+
+
 def primer_invariants(idx):
     """The primer document kind: routing, the transition rule, and the diagram.
 
@@ -3654,6 +3781,7 @@ def main():
     rendered_surfaces(idx)
     primer_invariants(idx)
     export_and_history(idx)
+    portable_button(idx)
     shipped_primers(idx)
     fireworks_export(idx)
     committed_diagrams(idx)

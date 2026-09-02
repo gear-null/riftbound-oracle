@@ -14,11 +14,14 @@ with — each one exact, deterministic, and free of model judgement:
     rules rule <id>...      exact rule + ancestor spine + children + cross-refs
     rules grep <pattern>    lexical search over rule text (agent-driven, not RAG)
     rules section <id>      a whole numbered section, in document order
-    rules report <json>     verify + render + open — the ONLY way to finish an answer
+    rules report <json>     verify + render + open — the ONLY way to finish an answer.
+                            Also writes <name>.portable.html and wires the masthead's
+                            "Portable copy" button to it
     rules graph <primer>    a primer's step graph as a diagram, derived from its
                             exits — Fireworks SVG, or --format=mermaid
     rules export <report>   rebuild a report as ONE sendable file: cited rules and
-                            card art inside it. Whole or refused, never partial
+                            card art inside it. Whole or refused, never partial.
+                            `report` runs this itself; use it to retry after a refusal
     rules reports           what you have answered, newest first, + a browsable index
     rules verify <json>     mechanical citation gate (report runs this for you)
     rules build             re-parse the source markdown -> rules.json, the FTS
@@ -433,6 +436,7 @@ def cmd_report(args):
     ensure_rulebook()
     subprocess.run([sys.executable, renderer, src, out], check=True)
     print(f"\nreport: {os.path.normpath(os.path.abspath(out))}")
+    _attach_portable_copy(out)
 
     # Refresh the history here, not only in `reports`. A browsable index that
     # updates only when someone runs a second command is stale by default —
@@ -458,6 +462,47 @@ def cmd_report(args):
             opened = False
         print("opened in your browser" if opened
               else "no browser here — open the file above, or download it from this session")
+
+
+def _attach_portable_copy(out):
+    """Build `<stem>.portable.html` beside a rendered report and wire its button.
+
+    The report's masthead carries a "Portable copy" control. It is a link only
+    if the sibling file exists; otherwise it reads as a note naming the command
+    to build one. This is the ONLY place the link form is written, so the
+    control can never point at a file nothing wrote.
+
+    Best-effort by design: the export needs Riot's CDN for artwork, and a
+    ruling finished offline is still finished. A refusal is printed, not
+    raised — the report already rendered, and failing it now would hand the
+    reader nothing in place of a report with one greyed-out control.
+    """
+    import corpus
+    import export_report
+    stem = os.path.splitext(os.path.basename(out))[0]
+    portable_path = os.path.join(os.path.dirname(os.path.abspath(out)), f"{stem}.portable.html")
+    try:
+        html = open(out, encoding="utf-8").read()
+        rules_html = open(corpus.rulebook_html_path(), encoding="utf-8").read()
+        report_html, portable_html, reason = export_report.attach_portable(html, stem, rules_html)
+    except (OSError, export_report.ExportRefused) as err:
+        print(f"  portable copy not built: {err}")
+        return False
+    if portable_html is None:
+        print(f"  portable copy not built: {reason}")
+        print(f"  (the report still works; its masthead says how to build one)")
+        # The slot already reads as the note — the renderer wrote it that way —
+        # but rewrite anyway so a re-run after a network fix leaves no stale link.
+        _write_atomically(out, lambda fh: fh.write(report_html))
+        return False
+    # Portable first, then the report that links to it: if the second write
+    # fails the link is missing, not dangling.
+    _write_atomically(portable_path, lambda fh: fh.write(portable_html))
+    _write_atomically(out, lambda fh: fh.write(report_html))
+    mb = len(portable_html.encode("utf-8")) / 1_000_000
+    print(f"  portable copy: {os.path.basename(portable_path)}  ({mb:.1f} MB) — "
+          "the button in the masthead saves it")
+    return True
 
 
 def cmd_verify(args):

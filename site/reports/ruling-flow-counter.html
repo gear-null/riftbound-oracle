@@ -298,6 +298,13 @@ ul.plain code{font:600 .84rem/1 var(--plate);letter-spacing:.05em;color:var(--bl
 .rb-pop{white-space:nowrap;font:600 .67rem/1 var(--plate);letter-spacing:.11em;text-transform:uppercase;
  color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
 .rb-pop:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.portable{margin-left:auto;align-self:center;white-space:nowrap;font:600 .67rem/1 var(--plate);letter-spacing:.11em;text-transform:uppercase}
+.portable.is-built{color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.portable.is-built:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.portable.is-unbuilt{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:500}
+.portable.is-unbuilt code{font:inherit;color:var(--fg)}
+.portable.is-portable{color:var(--muted)}
+@media(max-width:720px){.portable{margin-left:0;flex-basis:100%}}
 .rb-close{width:34px;height:34px;flex:none;font-size:1.15rem;line-height:1;cursor:pointer;
  background:transparent;border:1px solid var(--rule);color:var(--muted)}
 .rb-close:hover{background:var(--lift);border-color:var(--gold-500);color:var(--fg)}
@@ -384,6 +391,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
     <span class="unofficial">Unofficial rules companion</span>
     <span class="corpus">CR <b>2026-07-16</b> &middot; TR <b>2026-07-16</b><br>
       corpus built 2026-08-12 &middot; offline</span>
+    
   </div>
 </header>
 
