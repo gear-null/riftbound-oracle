@@ -34,7 +34,7 @@ import re
 import sys
 
 import flowgraph
-from render_report import (BASIS, FAVICON, LEGEND_MARKER, MARK, RAILSYM_MARKER,
+from render_report import (BASIS, FAVICON, LEGEND_MARKER, MARK, RAILSYM_MARKER, portable_note,
                            RULEBOOK,
                            RANK, _CSS, _JS, _check, basis_key_html, cards_html,
                            check_card_sections, check_cites,
@@ -493,7 +493,7 @@ def _exit_html(ex, steps_by_id, idx, corpus, n):
         + "</div>")
 
 
-def render(ans, idx):
+def render(ans, idx, stem="primer"):
     # `.get`, not `[]`, throughout: every field below is model-authored, and
     # --force renders exactly the documents where they are missing.
     corpus = ans.get("corpus") or {}
@@ -624,6 +624,7 @@ def render(ans, idx):
     <span class="unofficial">Unofficial rules companion</span>
     <span class="corpus">CR <b>{esc(corpus.get("CR", "—"))}</b> &middot; TR <b>{esc(corpus.get("TR", "—"))}</b><br>
       corpus built {esc(corpus.get("generated", "—"))} &middot; offline</span>
+    {portable_note(stem)}
   </div>
 </header>
 
@@ -743,7 +744,7 @@ def main():
         sys.exit(1)
     # Render first, then write: `open(out,"w")` truncates on open, so a crash
     # inside render() would otherwise destroy the previous good page at that path.
-    html_out = render(ans, RuleIndex())
+    html_out = render(ans, RuleIndex(), stem=os.path.splitext(os.path.basename(out))[0])
     tmp = out + ".tmp"
     try:
         with open(tmp, "w", encoding="utf-8") as fh:

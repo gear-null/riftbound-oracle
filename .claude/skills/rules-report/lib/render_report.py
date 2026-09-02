@@ -993,6 +993,38 @@ def cards_html(ans):
 # a chamfered bezel, a gold shell with a Mist specular arc, a Mind Blue core —
 # deliberately derivative of the Runeterra register without reproducing any of
 # Riot's marks. See the design system's logo usage rules.
+# The masthead carries ONE element for the portable copy, in one of three
+# states. The renderers emit the "not built" form; `attach_portable` upgrades
+# it to a link once the sibling file exists; `export` rewrites it to a badge so
+# the portable copy does not link to a sibling it may have travelled without.
+# Matched by id rather than by state, because standalone `export` can be run on
+# a report that has already been upgraded.
+PORTABLE_SLOT = re.compile(r'<(a|span) class="portable[^"]*" id="portable"[^>]*>.*?</\1>', re.S)
+
+
+def portable_link(portable_name):
+    """The masthead control, once the portable sibling exists.
+
+    `download` so a click SAVES the file rather than navigating into it — the
+    reader wants something to send, not a second tab that looks identical to the
+    one they are on. The href is relative and bare because both files live in
+    the same reports/ directory, and that is the only layout `report` writes.
+    """
+    return (f'<a class="portable is-built" id="portable" href="{portable_name}" '
+            f'download="{portable_name}" title="One self-contained file: every cited '
+            f'rule and card image travels inside it">Portable copy &#8595;</a>')
+
+
+def portable_note(stem):
+    """The masthead control when no portable sibling could be built."""
+    return (f'<span class="portable is-unbuilt" id="portable" title="Artwork could not be '
+            f'fetched, so no self-contained copy was written">portable copy not built '
+            f'&mdash; <code>rules_cli.py export {stem}.html</code></span>')
+
+
+PORTABLE_BADGE = '<span class="portable is-portable" id="portable">portable copy</span>'
+
+
 MARK = (
     '<svg class="mark" viewBox="0 0 96 96" role="img" aria-label="Riftbound Oracle">'
     '<path d="M22 10 L74 10 L86 22 L86 74 L74 86 L22 86 L10 74 L10 22 Z" fill="none"'
@@ -1399,6 +1431,13 @@ ul.plain code{font:600 .84rem/1 var(--plate);letter-spacing:.05em;color:var(--bl
 .rb-pop{white-space:nowrap;font:600 .67rem/1 var(--plate);letter-spacing:.11em;text-transform:uppercase;
  color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
 .rb-pop:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.portable{margin-left:auto;align-self:center;white-space:nowrap;font:600 .67rem/1 var(--plate);letter-spacing:.11em;text-transform:uppercase}
+.portable.is-built{color:var(--blue);text-decoration:none;border-bottom:1px dotted var(--blue)}
+.portable.is-built:hover{color:var(--fg);border-bottom-color:var(--fg)}
+.portable.is-unbuilt{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:500}
+.portable.is-unbuilt code{font:inherit;color:var(--fg)}
+.portable.is-portable{color:var(--muted)}
+@media(max-width:720px){.portable{margin-left:0;flex-basis:100%}}
 .rb-close{width:34px;height:34px;flex:none;font-size:1.15rem;line-height:1;cursor:pointer;
  background:transparent;border:1px solid var(--rule);color:var(--muted)}
 .rb-close:hover{background:var(--lift);border-color:var(--gold-500);color:var(--fg)}
@@ -1567,7 +1606,7 @@ window.addEventListener('afterprint', function(){
 """
 
 
-def render(ans, idx):
+def render(ans, idx, stem="report"):
     h = ans["holding"]
     corpus = ans["corpus"]
     disp = h["disposition"]
@@ -1659,6 +1698,7 @@ def render(ans, idx):
     <span class="unofficial">Unofficial rules companion</span>
     <span class="corpus">CR <b>{esc(corpus["CR"])}</b> &middot; TR <b>{esc(corpus["TR"])}</b><br>
       corpus built {esc(corpus["generated"])} &middot; offline</span>
+    {portable_note(stem)}
   </div>
 </header>
 
@@ -1756,7 +1796,7 @@ def main():
     # inside render() used to destroy the previous good report at that path —
     # which matters most in the re-verify-a-saved-ruling flow, where the file
     # being overwritten is the artifact you were checking.
-    html_out = render(ans, idx)
+    html_out = render(ans, idx, stem=os.path.splitext(os.path.basename(out))[0])
     tmp = out + ".tmp"
     try:
         with open(tmp, "w", encoding="utf-8") as fh:

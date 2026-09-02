@@ -613,6 +613,30 @@ def check_handwritten_corpus_claims() -> None:
           f"({actual:,} rules)")
 
 
+def strip_portable_control(page: str, name: str) -> str:
+    """Remove the masthead's "Portable copy" control from a sample report.
+
+    It is a LOCAL-report affordance: a link to a sibling `report` wrote, or a
+    note naming the CLI command to write one. A site visitor has neither. Left
+    in, it tells them to run `rules_cli.py export` — advice about a tool they
+    are not holding, on a page that is a demonstration.
+
+    Counted, not just removed: a renderer that stops emitting the control, or
+    emits two, refuses the build rather than publishing quietly.
+    """
+    lib = str(SKILL / "lib")
+    if lib not in sys.path:
+        sys.path.insert(0, lib)
+    from render_report import PORTABLE_SLOT   # one definition of the control
+    out, n = PORTABLE_SLOT.subn("", page)
+    if n != 1:
+        raise SystemExit(
+            f"sample {name}: expected exactly one portable-copy control to strip, "
+            f"found {n} — the renderer's masthead has changed"
+        )
+    return out
+
+
 def render_samples() -> None:
     """Render each sample with the skill's own renderer, here and now.
 
@@ -643,7 +667,8 @@ def render_samples() -> None:
                     f"({len(ans['_problems'])} problem(s)) — the site cannot "
                     f"publish it as an example: {ans['_problems'][:2]}"
                 )
-            (SITE / "reports" / dst).write_text(render(ans, idx), encoding="utf-8")
+            page = strip_portable_control(render(ans, idx), dst)
+            (SITE / "reports" / dst).write_text(page, encoding="utf-8")
             print(f"rendered reports/{dst}  (from {src}, with this renderer)")
     finally:
         os.chdir(cwd)

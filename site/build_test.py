@@ -144,6 +144,22 @@ def main():
     finally:
         index.write_text(original, encoding="utf-8")
 
+    # The sample reports are demonstrations on a website, not local reports.
+    # The masthead's "Portable copy" control — a link to a sibling `report`
+    # wrote, or a note naming the CLI to write one — means nothing to a visitor
+    # and, left in, tells them to run a tool they do not have.
+    for name in ("ruling-flow-counter.html", "primer-hot-fepr.html"):
+        page = (HERE / "reports" / name).read_text(encoding="utf-8")
+        check(f"{name} carries no portable-copy control",
+              'id="portable"' not in page and "rules_cli.py export" not in page,
+              "a site visitor was told to run the CLI")
+    # ...and the strip is COUNTED, so a renderer that stops emitting the control
+    # (or emits two) refuses the build rather than publishing quietly.
+    check("the site build refuses a sample with no control to strip",
+          "expected exactly one portable-copy control" in refuses(
+              lambda: b.strip_portable_control("<html><body>no control</body></html>", "probe")),
+          "a changed masthead must be noticed, not absorbed")
+
     print()
     if FAILED:
         print(f"FAILED {len(FAILED)} of {RAN[0]}: {', '.join(FAILED)}")
