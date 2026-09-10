@@ -1,6 +1,6 @@
 # The Riftbound engine — from a table to a Stockfish-style simulator
 
-**Status:** proposal · **Date:** 2026-09-11 · **Tracked in:** the `engine` label on GitHub
+**Status:** proposal · **Date:** 2026-09-11 · **Tracked in:** epic #19 and the `engine` label on GitHub (issues #21–#50)
 
 This plan turns deck-lab's *table* (code holds the state, an LLM plays every move and
 applies every card by hand) into an *engine* (code plays the game, searches lines,
