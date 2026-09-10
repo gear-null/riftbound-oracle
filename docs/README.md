@@ -31,6 +31,15 @@ single fetch so they cannot disagree about what a card says.
 | [The deck lab](../.claude/skills/deck-lab/SKILL.md) | Building a deck, playing it out, and reporting results honestly |
 | [Content and licensing](content-and-licensing.md) | What is committed, artwork policy, crawling etiquette |
 
+## Plans
+
+Multi-session efforts, written as decisions, gates and tracer-bullet issues so several
+agents can pick them up. Tracked on GitHub under the label named in each plan.
+
+| | |
+|---|---|
+| [The Riftbound engine](plans/riftbound-engine.md) | From deck-lab's table to a Stockfish-style simulator: kernel, card scripts, search, evaluation, and where LLMs still earn their tokens (label `engine`) |
+
 ## Decision records
 
 Why the system is built the way it is. Each records what was measured, not just what was
