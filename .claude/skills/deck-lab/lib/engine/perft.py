@@ -20,9 +20,7 @@ Chance is not a branch. The shuffle is already fixed by the seed, so the tree
 counted here is the DECISION tree, not the game tree — which is the number a
 policy's branching factor actually faces.
 """
-import deckfile
-
-from . import policies
+from . import fixtures, policies
 from .game import Game
 
 #: Three canonical boards. `advance` decisions are taken by a seeded random
@@ -30,19 +28,21 @@ from .game import Game
 #: anyone having to write one down.
 BOARDS = {
     "opening": {
-        "a": "irelia-blade-dancer-irelia-2025-12-17",
-        "b": "master-yi-wuju-bladesman-shanghai-national-open-2nd-place",
+        "a": fixtures.IRELIA, "b": fixtures.VIKTOR,
         "seed": 7, "first": 0, "advance": 0, "policy": 101,
     },
     "midgame": {
-        "a": "irelia-blade-dancer-irelia-2025-12-17",
-        "b": "master-yi-wuju-bladesman-shanghai-national-open-2nd-place",
+        "a": fixtures.IRELIA, "b": fixtures.VIKTOR,
         "seed": 11, "first": 1, "advance": 24, "policy": 202,
     },
+    # Chosen to earn its name: both battlefields are controlled and units are
+    # deployed at them, so the option generator is exercised on moves home,
+    # moves in, and plays to a held battlefield — none of which the other two
+    # boards reach. A board called "contested" that is not contested is a
+    # fixture lying about what it covers.
     "contested": {
-        "a": "annie-dark-child-dhawally-annie-houston-winning-list",
-        "b": "viktor-herald-of-the-arcane-1st-place-viktor-hook-skirmish",
-        "seed": 3, "first": 0, "advance": 40, "policy": 303,
+        "a": fixtures.VIKTOR, "b": fixtures.KENNEN,
+        "seed": 5, "first": 0, "advance": 36, "policy": 303,
     },
 }
 
@@ -50,7 +50,7 @@ BOARDS = {
 def board(name):
     """The named canonical board, as a Game stopped on its next decision."""
     spec = BOARDS[name]
-    game = Game.new(deckfile.resolve(spec["a"]), deckfile.resolve(spec["b"]),
+    game = Game.new(fixtures.deck(spec["a"]), fixtures.deck(spec["b"]),
                     seed=spec["seed"], first=spec["first"], hash_log=False)
     pol = policies.random_pair(spec["policy"])
     for _ in range(spec["advance"]):

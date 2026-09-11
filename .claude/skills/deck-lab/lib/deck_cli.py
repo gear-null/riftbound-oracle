@@ -609,9 +609,8 @@ def _engine_soak(games, check_invariants=False):
 def _engine_bench(games):
     """Clones, decisions and games per second — the numbers gate G4 reads."""
     import time
-    from engine import perft, policies
+    from engine import fixtures, perft, policies
     from engine.game import Game
-
 
     board = perft.board("midgame")
     n = 4000
@@ -620,7 +619,10 @@ def _engine_bench(games):
         board.clone()
     clones = n / (time.time() - start)
 
-    a, b = (deckfile.load(p) for p in deckfile.available()[:2])
+    # The fixture pair, not "the first two decks in the gauntlet": a throughput
+    # number that moves when someone adds a decklist is not comparable to the
+    # one in docs/engine/testing.md.
+    a, b = fixtures.pair()
     decisions = played = 0
     start = time.time()
     for i in range(games):

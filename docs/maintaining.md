@@ -350,6 +350,11 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
 - **An engine golden changes only because a rule did.** `engine perft` and
   `engine golden` compare; `--write` refreezes. Read the diff, and ship the regenerated
   file in the commit that moved it — CI fails if a run leaves one dirty.
+- **An engine fixture never names a tournament list.** The gauntlet is refreshed on its
+  own cadence and lists get deleted; a fixture that names one is a test that breaks for
+  a reason unrelated to the engine. They are named once, in `engine/fixtures.py`, and
+  they are the `*-core-meta` lists, which exist to be stable. Changing one means
+  regenerating both goldens.
 - **A second guard makes the system safer and the suite blinder.** Redundant guards are
   good; only their safety is visible. Delete either half of a masking pair and nothing goes
   red, so a one-at-a-time mutant battery reports both as covered while neither is pinned.

@@ -618,6 +618,11 @@ MUTANTS = [
     # failure mode is worse than the table's: a mis-implemented rule produces a
     # plausible finished game and a plausible win rate, with nothing to read
     # afterwards. Every kernel check below has been watched to go red.
+    dict(name="point an engine fixture at a deck the gauntlet no longer has",
+         file="engine/fixtures.py",
+         find='IRELIA = "irelia-core-meta"',
+         repl='IRELIA = "a-tournament-list-that-was-deleted"',
+         expect="is still in the gauntlet"),
     dict(name="drop the going-second extra rune (485.7)",
          file="engine/turn.py",
          find="        if seat != s.first_player and not s.second_channel_used:",

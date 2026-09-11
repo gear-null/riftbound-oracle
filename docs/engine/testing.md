@@ -27,15 +27,24 @@ not the game tree — which is the branching factor a policy actually faces.
 
 Three canonical boards, in `engine/perft.py`:
 
-| board | decks | seed | first | advanced by |
-|---|---|---|---|---|
-| `opening` | Irelia vs Master Yi | 7 | seat 0 | nothing — the first Main Phase decision |
-| `midgame` | Irelia vs Master Yi | 11 | seat 1 | 24 decisions of a seeded random policy |
-| `contested` | Annie vs Viktor | 3 | seat 0 | 40 decisions of a seeded random policy |
+| board | decks | seed | first | advanced by | what it covers |
+|---|---|---|---|---|---|
+| `opening` | Irelia vs Viktor | 7 | seat 0 | nothing — the game's first decision | the opening mulligan |
+| `midgame` | Irelia vs Viktor | 11 | seat 1 | 24 decisions of a seeded random policy | plays and moves out of an empty board |
+| `contested` | Viktor vs Kennen | 5 | seat 0 | 36 decisions of a seeded random policy | both battlefields controlled, units deployed at them |
 
 A midgame position is reproducible because it is *derived*: a deck pair, a seed
 and a number of decisions taken by a named policy, rather than a board someone
-wrote down by hand.
+wrote down by hand. `contested` is tuned to earn its name — a board called
+contested that is not contested is a fixture lying about what it covers.
+
+**The decks are named once**, in `engine/fixtures.py`, and they are the
+`*-core-meta` gauntlet lists rather than tournament results. Tournament lists
+come and go with the meta: while this kernel was being written another PR
+deleted one of them as a duplicate, and three separate fixtures here named it.
+`engine_setup` now asserts every fixture deck still resolves to a legal deck, so
+the next removal fails with a sentence naming the deck rather than with a
+`KeyError` six frames down.
 
 ```
 python3 deck_cli.py engine perft
@@ -65,7 +74,8 @@ The second is usually deliberate, and the message says so instead of sending
 someone hunting for a rules bug in a reworded sentence.
 
 Three goldens (`engine/goldens/playthroughs.json`, ~90KB): one ordinary game,
-the same pair seated the other way round, and a different archetype pair.
+the same pair seated the other way round, and a different archetype pair. Their
+decks come from `engine/fixtures.py` too.
 
 ## 3. Conservation invariants
 
@@ -151,11 +161,14 @@ laptop, at the kernel's first slice:
 
 | | |
 |---|---|
-| clones/second | ~280,000 |
-| decisions/second | ~14,000 |
-| games/second (random self-play) | ~185 |
-| games/second (with a state hash per log entry) | ~54 |
-| decisions per game | ~76 |
+| clones/second | ~290,000 |
+| decisions/second | ~12,000 |
+| games/second (random self-play) | ~182 |
+| games/second (with a state hash per log entry) | ~53 |
+| decisions per game | ~66 |
+
+Measured on the fixture pair, not on whatever sorts first in the gauntlet, so
+the number does not move when someone adds a decklist.
 
 For comparison, the table measures ~9,000 snapshot+restore/s, ~890 deepcopies/s
 and ~70 turn cycles/s. The clone rate is the one that matters for search, and it

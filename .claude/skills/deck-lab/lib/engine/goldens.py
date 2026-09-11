@@ -20,9 +20,7 @@ commit the result in the same commit as the change that moved it.
 import json
 import os
 
-import deckfile
-
-from . import perft, policies
+from . import fixtures, perft, policies
 from .game import Game
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -34,17 +32,14 @@ PERFT = os.path.join(DIR, "perft.json")
 #: ends on the Victory Score, one that runs long enough to fight over both
 #: battlefields, and one seated the other way round.
 GAMES = [
-    {"name": "irelia-vs-yi-s7",
-     "a": "irelia-blade-dancer-irelia-2025-12-17",
-     "b": "master-yi-wuju-bladesman-shanghai-national-open-2nd-place",
+    {"name": "irelia-vs-viktor-s7",
+     "a": fixtures.IRELIA, "b": fixtures.VIKTOR,
      "seed": 7, "first": 0, "policy": "g7"},
-    {"name": "yi-vs-irelia-s7-swapped",
-     "a": "master-yi-wuju-bladesman-shanghai-national-open-2nd-place",
-     "b": "irelia-blade-dancer-irelia-2025-12-17",
+    {"name": "viktor-vs-irelia-s7-swapped",
+     "a": fixtures.VIKTOR, "b": fixtures.IRELIA,
      "seed": 7, "first": 1, "policy": "g7"},
-    {"name": "annie-vs-viktor-s23",
-     "a": "annie-dark-child-dhawally-annie-houston-winning-list",
-     "b": "viktor-herald-of-the-arcane-1st-place-viktor-hook-skirmish",
+    {"name": "viktor-vs-kennen-s23",
+     "a": fixtures.VIKTOR, "b": fixtures.KENNEN,
      "seed": 23, "first": 0, "policy": "g23"},
 ]
 
@@ -56,7 +51,7 @@ SELFTEST_PERFT_DEPTH = 4
 
 def play_golden(spec, invariants=True):
     """Play one golden game and return the record of it."""
-    game = Game.new(deckfile.resolve(spec["a"]), deckfile.resolve(spec["b"]),
+    game = Game.new(fixtures.deck(spec["a"]), fixtures.deck(spec["b"]),
                     seed=spec["seed"], first=spec["first"],
                     hash_log=True, invariants=invariants)
     pol = policies.random_pair(spec["policy"])

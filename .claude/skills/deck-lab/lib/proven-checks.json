@@ -1,5 +1,5 @@
 {
- "mutants": 128,
+ "mutants": 129,
  "observed_to_fail": [
   "--verbose brings the text back",
   "Awaken readies everything the turn player controls (315.1.b)",
@@ -101,6 +101,7 @@
   "every affected card differs between the raw and the readable form",
   "every bad name is reported, not just the first",
   "every deck that ships is legal and playable",
+  "every deck the engine's fixtures name is still in the gauntlet, and legal",
   "every golden playthrough replays exactly",
   "exactly one Chosen Champion copy leaves the deck, however it is listed (112)",
   "gear arriving at a battlefield does not contest it (190.3.a)",

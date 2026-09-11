@@ -16,8 +16,8 @@ import re
 import cards
 import deckfile
 
-from . import (actions, chain, combat, goldens, invariants, perft, policies,
-               rng, scoring, turn)
+from . import (actions, chain, combat, fixtures, goldens, invariants, perft,
+               policies, rng, scoring, turn)
 from .decisions import EMITTED, KINDS
 from .game import Game
 from .state import RulesError, loc_base, loc_bf, new_unit
@@ -29,8 +29,8 @@ TRANSITIONS = os.path.join(HERE, "goldens", "chain-transitions.json")
 # -- fixtures ------------------------------------------------------------
 
 def two_decks():
-    return (deckfile.resolve("irelia-blade-dancer-irelia-2025-12-17"),
-            deckfile.resolve("master-yi-wuju-bladesman-shanghai-national-open-2nd-place"))
+    """The default fixture pair. Named in `engine/fixtures.py`, not here."""
+    return fixtures.pair()
 
 
 def game(seed=7, first=0, **kw):
@@ -155,6 +155,15 @@ TRANSITION_COVER = {
 # -- groups --------------------------------------------------------------
 
 def engine_setup(check):
+    # The gauntlet is refreshed on its own cadence and lists get removed — a PR
+    # deleted one of these as a duplicate while this kernel was being written,
+    # and three separate fixtures named it. Checked first, and by name, so the
+    # next time it happens the suite says which deck is gone instead of dying
+    # inside `deckfile.resolve` three times over.
+    gone = fixtures.missing()
+    check("every deck the engine's fixtures name is still in the gauntlet, and legal",
+          not gone, "; ".join(gone) if gone else ", ".join(fixtures.ALL))
+
     # Read at the first mulligan: by the Main Phase the Turn Player has drawn,
     # so a hand of 5 there would say nothing about what 116 dealt.
     dealt = game(hash_log=False)
@@ -200,7 +209,7 @@ def engine_setup(check):
 
     # A seat's shuffle must not depend on what it is facing, or two decks cannot
     # be compared over identical opposition. The table learned this the hard way.
-    third = deckfile.resolve("annie-dark-child-dhawally-annie-houston-winning-list")
+    third = fixtures.deck(fixtures.KENNEN)
     v_other = Game.new(a, third, seed=7, first=0, hash_log=False)
     to_main(v_other)
     check("a seat's shuffle does not depend on the opposing deck",
@@ -376,11 +385,9 @@ def engine_turn(check):
     check("the turn passes to the other seat (317.3)", g8.s.turn_player == 1 - was)
 
     g9 = at_main(seed=29)
-    seat9 = g9.s.turn_player
-    played = _play_a_unit(g9)
-    entered = [u for u in g9.s.units if u["ctrl"] == g9.s.turn_player]
+    entered = _play_a_unit(g9)
     check("a unit enters the board exhausted (359.2.c)",
-          played is not None and bool(entered) and all(u["exh"] for u in entered),
+          entered is not None and entered["exh"],
           "a unit that entered ready could move the turn it was played")
 
 
@@ -419,10 +426,15 @@ def _unit_option(d):
 
 
 def _play_a_unit(g, turns=12):
-    """Play a unit, ending turns until the turn player can afford one.
+    """Play a unit and return the object it became on the board, or None.
 
     Turn one rarely offers a unit — two Energy buys very little — so a check
     that needs one on the board has to wait for one rather than assume it.
+
+    Returns the UNIT, not the option: by the time the play has resolved the turn
+    may have passed, so "the units the current turn player controls" is a
+    different set from "the unit this just played", and only the second is what
+    359.2.c is about.
     """
     for _ in range(turns):
         d = g.step()
@@ -432,11 +444,13 @@ def _play_a_unit(g, turns=12):
         if choice is None:
             _end_turn(g)
             continue
+        before = set(u["id"] for u in g.s.units)
         g.answer(choice)
         while True:
             d = g.step()
             if d.terminal or d.kind == "main":
-                return choice
+                arrived = [u for u in g.s.units if u["id"] not in before]
+                return arrived[0] if arrived else None
             g.answer(d.options[0])
     return None
 
@@ -490,9 +504,15 @@ def engine_chain(check):
     # here: 340.1 resolves ONE item, the newest, and the two below it wait.
     g3 = at_main(seed=13)
     seat = g3.s.turn_player
-    names = [n for n in g3.s.main_deck[seat] if turn.category(n) == "spell"][:3]
+    # DISTINCT names, and that is the whole test. Three copies of one spell make
+    # a LIFO trash and a FIFO trash identical, so the check passes either way —
+    # which is what happened the first time the fixture decks changed, and what
+    # the mutation battery caught by watching the FIFO mutant survive.
+    names = list(dict.fromkeys(
+        n for n in g3.s.main_deck[seat] if turn.category(n) == "spell"))[:3]
     if len(names) < 3:
-        check("three spells exist to build a Chain of three with", False)
+        check("three DIFFERENT spells exist to build a Chain of three with", False,
+              "found %s" % names)
     else:
         for name in names:
             g3.s.chain.append({"id": g3.s.mint("c"), "ctrl": seat, "name": name,
@@ -504,7 +524,8 @@ def engine_chain(check):
             chain.resolve_newest(g3)
             order.append(len(g3.s.chain))
         check("the Chain resolves LIFO: the newest finalized item first (340.1)",
-              g3.s.trash[seat][-3:] == list(reversed(names)),
+              g3.s.trash[seat][-3:] == list(reversed(names))
+              and len(set(names)) == 3,
               "trash order %s from chain order %s" % (g3.s.trash[seat][-3:], names))
         check("a Chain of three resolves one item at a time (340.3, 340.4)",
               order == [2, 1, 0])
