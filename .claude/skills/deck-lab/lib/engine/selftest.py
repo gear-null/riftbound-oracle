@@ -1215,8 +1215,12 @@ def engine_instruments(check):
         wins[a.s.winner] += 1
         wins[b.s.winner] += 1
     check("a mirrored game is an exact mirror, event for event", not mismatch, mismatch)
-    check("so the paired self-play result is exactly 50.00%",
-          wins[0] == wins[1], "%d-%d" % (wins[0], wins[1]))
+    # NOT "the win rate is 50%", which at this n would also be true of a coin.
+    # Each pair is one game and its relabelled self, so the split is arithmetic
+    # off the mirror above: this asserts the bookkeeping agrees with it.
+    check("so each mirrored pair is split one win each, over both seeds "
+          "(2 seeds, 4 games)",
+          wins == [2, 2], "%d-%d over %d game(s)" % (wins[0], wins[1], sum(wins)))
 
     # Random self-play. 1,000 games live in `deck_cli.py engine soak`; this is
     # the sample that runs on every commit.

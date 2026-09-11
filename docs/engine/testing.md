@@ -136,10 +136,15 @@ policy stream per seat**. The property is that the two games are **exact
 mirrors** — the same events in the same order with the seats relabelled — and
 the suite compares the logs entry by entry.
 
-The paired score is a consequence, not the measurement, and it is worth saying
-plainly: it reads **2-2 over 4 mirrored pairs**. "Exactly 50.00%" over n=4 would
-be true of a coin, which is why the log comparison is the check and the
-percentage is the headline.
+The paired score is a consequence of that, not a measurement of it, and the
+difference is worth saying plainly. The suite runs **two seeds, mirrored, so
+four games**, and the score reads **2-2**. "Exactly 50.00%" sounds like a
+balance result and is not one: a fair coin gives 2-2 over four games about
+three times in eight, so at this n the percentage would be just as green on an
+engine that was merely unbiased rather than symmetric. What rules that out is
+the log comparison — 2-2 here is arithmetic, because each pair is one game and
+its relabelled self, so a win for seat 0 in one is a win for seat 1 in the
+other and the score cannot come out any other way while the mirror holds.
 
 Anything that is not symmetric breaks it, and most asymmetries are real bugs
 rather than noise — a loop over `range(2)` instead of turn order, a rule keyed to
@@ -365,20 +370,24 @@ unreachable with a reason.
 `engine bench` reports the numbers gate G4 reads. On one core of an M-series
 laptop, at the kernel's first slice:
 
-| | |
-|---|---|
 Measured **interleaved** — base and branch alternating on the same machine,
-seven rounds, medians — because a number from one process and a number from
-another an hour later measure the laptop as much as the engine:
+nine rounds — because a number from one process and a number from another an
+hour later measure the laptop as much as the engine. The figure quoted is the
+**best of the nine**, not the median: contention only ever subtracts
+throughput, so under load the fastest round is the closest estimate of what
+the code can do, while the median mostly measures whatever else was running.
+These nine ran under heavy external load and the spread was wide (base
+self-play ranged 47-183 games/s); the top three rounds per side sat within 2%
+of each other, which is what makes the best-of readable at all.
 
-| | base (#23) | with the ability framework | |
+| | base (#59) | with the ability framework | |
 |---|---|---|---|
-| clones/second | 202,700 | 241,700 | noisy; the state grew, so treat any gain as measurement spread |
-| decisions/second | 11,999 | 10,505 | **-12.5%** |
-| games/second (random self-play) | 178.1 | 155.9 | **-12.5%** |
-| games/second (auditable: a hash per log entry) | 49.2 | 43.7 | -11.2% |
-| decisions per game | 67.4 | 67.4 | unchanged |
-| games/second, abilities attached | — | ~30 | the cost of asking the layers a real question |
+| clones/second | 285,300 | 242,500 | -15.0%; the state grew by the registry and the stamps |
+| decisions/second | 12,347 | 10,697 | **-13.4%** |
+| games/second (random self-play) | 183.3 | 158.8 | **-13.4%** |
+| games/second (auditable: a hash per log entry) | 50.9 | 43.7 | -14.1% |
+| decisions per game | 67.4 | 67.4 | unchanged — the framework adds no decisions to a vanilla game |
+| games/second, abilities attached | — | 30.8 | the cost of asking the layers a real question |
 
 Measured on the fixture pair, not on whatever sorts first in the gauntlet, so
 the number does not move when someone adds a decklist. Rigorous combat (issue
@@ -387,14 +396,14 @@ the number does not move when someone adds a decklist. Rigorous combat (issue
 the state hash grew by the designation and the six keyword fields per unit,
 which is where the auditable rate moved.
 
-**The ability framework costs 12.5% of the vanilla throughput**, and it is all in
-one place: 476's recomputation now runs at every 319 board change, because a
-keyword gate has to close in the step it stops holding rather than at the next
+**The ability framework costs about 13% of the vanilla throughput**, and it is
+all in one place: 476's recomputation now runs at every 319 board change, because
+a keyword gate has to close in the step it stops holding rather than at the next
 Cleanup. A vanilla game takes the fast path — no stored effects and no registered
 abilities means the printed traits are the answer and one sequence reaches it —
 which is why the number moved by an eighth and not by a half.
 
-**A game WITH abilities attached runs at ~30 games/s**, five times slower, and
+**A game WITH abilities attached runs at 30.8 games/s**, five times slower, and
 that is the honest cost of asking the layers a real question: every board change
 walks every ability, re-derives what each active passive contributes, refreshes
 the Timestamps (480.1), and recurs the sequence until nothing more applies. It is

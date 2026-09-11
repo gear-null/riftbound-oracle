@@ -1736,6 +1736,17 @@ MUTANTS = [
          find="    might = s.might_of(unit)",
          repl='    might = unit["might"]',
          expect="needs its full CURRENT Might"),
+    dict(name="score a mirrored pair from one of its two games",
+         file="engine/selftest.py",
+         find="""        wins[a.s.winner] += 1
+        wins[b.s.winner] += 1""",
+         repl="        wins[a.s.winner] += 1",
+         expect="split one win each"),
+    dict(name="let a discount move a component it does not name",
+         file="engine/actions.py",
+         find="""    cost["power"] = max(cost["power"] + d_power, 0)""",
+         repl="""    cost["power"] = max(cost["power"] + d_power + d_energy, 0)""",
+         expect="leaves the other one alone"),
 
 ]
 

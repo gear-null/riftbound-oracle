@@ -245,16 +245,19 @@ def _presence(check):
     abilities.clear()
     spell = a_spell(g.decks[0])
     g.s.hand[0].append(SHARP)
-    full = actions.cost_of(spell)["energy"]
+    printed = actions.cost_of(spell)
+    full, power = printed["energy"], printed["power"]
     abilities.register(SHARP, Ability(
         "cost_replacement", text="your spells cost 1 less", presence=("hand",),
         applies=lambda gg, ev, src: ev.get("seat") == src["seat"]
         and turn.category(ev.get("name", "")) == "spell",
         replace=lambda gg, ev, src: ("energy", -1)))
+    got = actions.total_cost(g, 0, spell)
     check("a cost-altering passive applies from the zone the card is played "
           "from (366.2.a)",
-          actions.total_cost(g, 0, spell)["energy"] == max(full - 1, 0),
-          "%d -> %d" % (full, actions.total_cost(g, 0, spell)["energy"]))
+          got["energy"] == full - 1 and got["power"] == power,
+          "%dE/%dP -> %dE/%dP"
+          % (full, power, got["energy"], got["power"]))
     abilities.clear()
 
 
@@ -1007,18 +1010,21 @@ def _replacement_shapes(check):
     abilities.clear()
     g, _ = board([])
     spell = a_spell(g.decks[0])
-    printed = actions.cost_of(spell)["energy"]
+    was = actions.cost_of(spell)
+    printed, power = was["energy"], was["power"]
     abilities.register(SHARP, Ability(
         "cost_replacement", text="your spells cost 1 less",
         applies=lambda gg, ev, src: turn.category(ev.get("name", "")) == "spell",
         replace=lambda gg, ev, src: ("energy", -1)))
     st.put(g, 0, SHARP, loc_base(0))
-    check("`cost_replacement`: a discount moves the component it names "
-          "(356.4.b, 356.4.c)",
-          actions.total_cost(g, 0, spell)["energy"] == max(printed - 1, 0),
-          "%d -> %d" % (printed, actions.total_cost(g, 0, spell)["energy"]))
+    got = actions.total_cost(g, 0, spell)
+    check("`cost_replacement`: a discount moves the component it names and "
+          "leaves the other one alone (356.4.b, 356.4.c)",
+          got["energy"] == printed - 1 and got["power"] == power,
+          "%dE/%dP -> %dE/%dP" % (printed, power, got["energy"], got["power"]))
     check("and 206 keeps the PRINTED cost available to anything that asks",
-          actions.cost_of(spell)["energy"] == printed)
+          actions.cost_of(spell)["energy"] == printed
+          and actions.cost_of(spell)["power"] == power)
 
     # 6. ignoring_cost (8 cards) — 356.1.b.
     abilities.clear()
