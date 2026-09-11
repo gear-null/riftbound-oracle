@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { GAUNTLET_DIR } from "../decks.js";
-import { distinctCards } from "../skill-data.js";
+import { compositionKeyOf, distinctCards, gauntletDigest } from "../skill-data.js";
 
 const SKILL = resolve(".claude/skills/deck-lab");
 const LIB = join(SKILL, "lib");
@@ -92,19 +92,63 @@ describe("the committed deck-lab manifest", () => {
     expect(manifest.gauntlet_cards).toBe(distinctCards(decks, cards).size);
   });
 
+  it("fingerprints the folder, so a stale version name cannot hide a re-pull", () => {
+    // The version NAME is a promise someone remembered to keep. Nothing can make
+    // a person bump it — but the digest is the same claim made by the contents,
+    // so a folder that moved under an unchanged name fails HERE rather than
+    // silently making two results look comparable.
+    const cards = JSON.parse(readFileSync(join(SKILL, "data/cards.json"), "utf-8"));
+    const slugged = files.map((f, i) => ({ slug: f.slice(0, -".json".length), deck: decks[i] }));
+    expect(manifest.gauntlet_digest).toBe(gauntletDigest(slugged, cards));
+  });
+
   it("agrees with what `deck_cli.py gauntlet` prints to a reader", () => {
-    // Two numbers computed in two languages from one folder. They have gone out
-    // of step before in this repo — the packaged manifest is the place stale
-    // corpus claims collect — so the TypeScript count and the Python one are
-    // compared rather than each trusted alone.
+    // Three numbers and a digest, computed in two languages from one folder.
+    // They have gone out of step before in this repo — the packaged manifest is
+    // the place stale corpus claims collect — so the TypeScript values and the
+    // Python ones are compared rather than each trusted alone. This is also the
+    // only thing standing behind `gauntletDigest`'s assumption that its sort
+    // order matches Python's.
     const out = execFileSync("python3", ["deck_cli.py", "gauntlet"], {
       cwd: LIB,
       encoding: "utf-8",
     });
     expect(out).toContain(
-      `${manifest.gauntlet_version} — ${manifest.gauntlet_decks} list(s), ` +
-        `${manifest.gauntlet_cards} distinct cards`
+      `${manifest.gauntlet_version} (${manifest.gauntlet_digest}) — ` +
+        `${manifest.gauntlet_decks} list(s), ${manifest.gauntlet_cards} distinct cards`
     );
+  });
+
+  it("never holds one page twice, however the page was renamed", () => {
+    // A deck's filename carries its NAME, so a renamed page mints a second file
+    // for the same list — an opponent counted twice in every distribution, one
+    // copy carrying a `fetched` date that is a lie. The puller now matches on
+    // `source.url`, which survives a rename; this says the committed folder is
+    // actually in that state, which is the part a unit test cannot reach.
+    const byUrl = new Map<string, string>();
+    for (const [i, file] of files.entries()) {
+      const url = decks[i].source?.url;
+      if (!url) continue;
+      expect(byUrl.get(url), `${file} came from the same page as`).toBeUndefined();
+      byUrl.set(url, file);
+    }
+  });
+
+  it("holds no two PULLED lists with the same cards", () => {
+    // Scoped to pulled lists because that is the promise the puller makes, and
+    // the exception is deliberate rather than accidental: the four hand-imported
+    // `*-core-meta` lists are transcriptions of representative tournament decks,
+    // so one of them coinciding with a list later pulled from a tournament is
+    // the transcription being ACCURATE. Asserting over those too would make this
+    // check demand that the archetype references be wrong.
+    const cards = JSON.parse(readFileSync(join(SKILL, "data/cards.json"), "utf-8"));
+    const byComposition = new Map<string, string>();
+    for (const [i, file] of files.entries()) {
+      if (decks[i].source?.site === "imported") continue;
+      const key = compositionKeyOf(decks[i], cards);
+      expect(byComposition.get(key), `${file} has the same cards as`).toBeUndefined();
+      byComposition.set(key, file);
+    }
   });
 });
 

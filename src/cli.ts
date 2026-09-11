@@ -18,7 +18,7 @@ import {
 } from "./manifest.js";
 import { fetchSets, fetchCardsBySet, cardsToMarkdown, fetchSetLabel } from "./riftcodex.js";
 import { buildSkillData, SKILL_DATA_DIR } from "./skill-data.js";
-import { DECK_SITES, pullMetaDecks, type DeckSite } from "./decks.js";
+import { DECK_SITES, parseDeckPullFlags, pullMetaDecks } from "./decks.js";
 import { normalize } from "./normalize.js";
 import { downloadPrintCards } from "./print.js";
 import { syncToVault, resolveVaultDir } from "./vault.js";
@@ -479,7 +479,9 @@ async function handlePackage() {
         m.rules_version ? `rules ${m.rules_version}` : null,
         m.rules ? `${m.rules} rules` : null,
         `${m.cards} cards`,
-        m.gauntlet_version ? m.gauntlet_version : null,
+        m.gauntlet_version
+          ? m.gauntlet_version + (m.gauntlet_digest ? ` (${m.gauntlet_digest})` : "")
+          : null,
         m.gauntlet_decks !== undefined ? `${m.gauntlet_decks} gauntlet decks` : null,
         m.gauntlet_cards !== undefined ? `${m.gauntlet_cards} distinct cards` : null,
         m.gauntlet_pulled ? `pulled ${m.gauntlet_pulled}` : null,
@@ -577,26 +579,17 @@ async function handleDecks() {
     p.log.error(`Unknown decks subcommand: ${process.argv[3]}`);
     return;
   }
-  const flag = (name: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split("=")[1];
-  const int = (name: string) => {
-    const raw = flag(name);
-    return raw ? Number.parseInt(raw, 10) : undefined;
-  };
-  const sitesArg = flag("site");
-  const sites = sitesArg ? (sitesArg.split(",").map((s) => s.trim()) as DeckSite[]) : undefined;
-  const unknownSite = sites?.find((s) => !DECK_SITES.includes(s));
-  if (unknownSite) {
-    p.log.error(`Unknown --site=${unknownSite}. Known sites: ${DECK_SITES.join(", ")}`);
+  const flags = parseDeckPullFlags(process.argv);
+  if ("error" in flags) {
+    p.log.error(flags.error);
+    process.exitCode = 1;
     return;
   }
   const s = p.spinner();
   s.start("Pulling competitive decklists");
   try {
     const result = await pullMetaDecks({
-      sites,
-      limit: int("limit"),
-      events: int("events"),
-      perEvent: int("per-event"),
+      ...flags.options,
       onProgress: (m) => s.message(m),
     });
     s.stop(`${result.decks.length} deck(s) → ${result.written.length} file(s)`);
@@ -615,8 +608,21 @@ async function handleDecks() {
       }
     }
     // Not a failure: two events publishing the same 40 cards is one opponent.
+    // Named, though — "3 skipped" gives the reader nothing to check, and which
+    // list won the slot decides which event and placement the gauntlet records.
     if (result.duplicates.length) {
-      p.log.info(`${result.duplicates.length} list(s) skipped as duplicates of another list in this pull`);
+      p.log.info(`${result.duplicates.length} list(s) skipped as duplicates of another list in this pull:`);
+      for (const d of result.duplicates) {
+        p.log.message(`${d.name}\n  same cards as ${d.sameAs}`);
+      }
+    }
+    // The one deletion a pull makes: the page was renamed upstream, so its old
+    // filename is a second copy of a deck that has just been rewritten.
+    if (result.replaced.length) {
+      p.log.info(`${result.replaced.length} renamed page(s) replaced rather than duplicated:`);
+      for (const r of result.replaced) {
+        p.log.message(`${r.from}.json → ${r.to}.json\n  ${r.url}`);
+      }
     }
     const meta = result.decks.filter((d) => d.source?.meta).length;
     p.log.info(`${meta} flagged as tournament/meta lists by the source`);

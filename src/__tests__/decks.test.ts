@@ -6,12 +6,13 @@ import {
   lookupCard,
   parseDeckIndex,
   parseDeckPage,
+  parseDeckPullFlags,
   pullMetaDecks,
   resolveChosenChampion,
   type Deck,
 } from "../decks.js";
 import type { CardIndex } from "../skill-data.js";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 /** A page whose two champions both carry the legend's tag, so it stays unresolved. */
@@ -551,5 +552,127 @@ describe("fillChosenChampionByConsensus", () => {
     ];
     fillChosenChampionByConsensus(decks);
     expect(decks[1].chosen_champion).toBeUndefined();
+  });
+});
+
+describe("a re-pull overwrites rather than accumulates", () => {
+  /** The same rift-atlas page, under a new title. */
+  const renamedPage = () => page().replace("Irelia Tempo", "New Irelia Testing");
+
+  function serveAtlas(body: () => string) {
+    return async (url: string) =>
+      url.endsWith("rift-atlas.com/decks") ? `<a href="/meta/aaa"></a>` : body();
+  }
+
+  it("replaces the file a renamed page left behind, and says which", async () => {
+    // The filename is `<deck name>-<digest of the source URL>`, so a site that
+    // renames a list mints a NEW filename for the SAME page. rift-atlas renamed
+    // "Darius 29 - 5 tournament stats" to "New darius testing" between two
+    // pulls, and the gauntlet ended up holding that deck twice: an opponent
+    // counted twice in every distribution, one copy carrying a `fetched` date
+    // that was a lie.
+    const tmp = `/tmp/decks-test-${process.pid}-rename`;
+    const opts = {
+      delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+    };
+    const first = await pullMetaDecks({ ...opts, fetchText: serveAtlas(page) });
+    const oldSlug = deckSlug(first.decks[0]);
+    expect(existsSync(join(`${tmp}/gauntlet`, `${oldSlug}.json`))).toBe(true);
+
+    const second = await pullMetaDecks({ ...opts, fetchText: serveAtlas(renamedPage) });
+    const newSlug = deckSlug(second.decks[0]);
+    expect(newSlug).not.toBe(oldSlug);
+    expect(second.replaced).toEqual([
+      { from: oldSlug, to: newSlug, url: "https://rift-atlas.com/meta/aaa" },
+    ]);
+    // Both folders, not just the gauntlet: the corpus copy would otherwise keep
+    // the orphan and `vault-sync` would keep publishing it.
+    for (const dir of [`${tmp}/gauntlet`, `${tmp}/output`]) {
+      expect(existsSync(join(dir, `${oldSlug}.json`)), `${dir} still holds the orphan`).toBe(false);
+      expect(existsSync(join(dir, `${newSlug}.json`))).toBe(true);
+    }
+    expect(second.warnings.join(" ")).toMatch(/the page was renamed — replaced/);
+  });
+
+  it("carries a hand-set Chosen Champion across a rename", async () => {
+    // The champion was looked up by filename, which a rename changes — so the
+    // rename silently returned the deck to unplayable. The source URL is the
+    // identity that survives.
+    const tmp = `/tmp/decks-test-${process.pid}-rename-cc`;
+    const opts = {
+      delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+    };
+    const ambiguous = () => ambiguousPage();
+    const first = await pullMetaDecks({ ...opts, fetchText: serveAtlas(ambiguous) });
+    const file = join(`${tmp}/gauntlet`, `${deckSlug(first.decks[0])}.json`);
+    const saved = JSON.parse(readFileSync(file, "utf-8"));
+    saved.chosen_champion = "Irelia, Fervent";
+    saved.chosen_champion_note = "picked by hand";
+    writeFileSync(file, JSON.stringify(saved, null, 1));
+
+    const renamedAmbiguous = () => ambiguousPage().replace("Irelia Tempo", "Irelia Rebuilt");
+    const second = await pullMetaDecks({ ...opts, fetchText: serveAtlas(renamedAmbiguous) });
+    const after = JSON.parse(
+      readFileSync(join(`${tmp}/gauntlet`, `${deckSlug(second.decks[0])}.json`), "utf-8")
+    );
+    expect(after.chosen_champion).toBe("Irelia, Fervent");
+    expect(after.chosen_champion_note).toBe("picked by hand");
+  });
+
+  it("deletes nothing when the page is unchanged", async () => {
+    const tmp = `/tmp/decks-test-${process.pid}-norename`;
+    const opts = {
+      delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+      fetchText: serveAtlas(page),
+    };
+    await pullMetaDecks(opts);
+    const second = await pullMetaDecks(opts);
+    expect(second.replaced).toEqual([]);
+    expect(readdirSync(`${tmp}/gauntlet`)).toHaveLength(1);
+  });
+});
+
+describe("parseDeckPullFlags", () => {
+  it("reads the flags a pull understands", () => {
+    const parsed = parseDeckPullFlags([
+      "node", "cli.js", "decks", "pull",
+      "--site=riftools.app", "--limit=5", "--events=3", "--per-event=2",
+    ]);
+    expect(parsed).toEqual({
+      options: { sites: ["riftools.app"], limit: 5, events: 3, perEvent: 2 },
+    });
+  });
+
+  it("refuses a count that is not a whole number, rather than pulling nothing", () => {
+    // `--events=all` went through parseInt to NaN, NaN reached `.slice(0, NaN)`,
+    // and the pull reported "0 deck(s) listed" and exited 0. Asking for the
+    // whole archive and being told successfully that it is empty is the worst
+    // answer available: it reads as a fact about the site.
+    for (const bad of ["--events=all", "--events=0", "--limit=-3", "--per-event=2.5", "--limit="]) {
+      const parsed = parseDeckPullFlags(["node", "cli.js", "decks", "pull", bad]);
+      expect(parsed, bad).toHaveProperty("error");
+      expect((parsed as { error: string }).error).toMatch(/whole number of at least 1/);
+    }
+  });
+
+  it("refuses a site it cannot pull from", () => {
+    const parsed = parseDeckPullFlags(["node", "cli.js", "decks", "pull", "--site=riftdecks.com"]);
+    expect((parsed as { error: string }).error).toMatch(/Unknown --site=riftdecks\.com/);
+  });
+
+  it("defaults to every site and no caps when nothing is passed", () => {
+    expect(parseDeckPullFlags(["node", "cli.js", "decks", "pull"])).toEqual({ options: {} });
   });
 });

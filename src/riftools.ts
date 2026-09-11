@@ -216,14 +216,22 @@ export function parseRiftoolsDeckPage(html: string, url: string, fetched: string
   const legendSection = one(LEGEND_SECTION);
   const legend = legendSection?.rows[0]?.name ?? "";
   if (!legend) {
-    // Two different failures, and conflating them sends the reader to the wrong
-    // place. Riftools publishes genuinely partial records — the Showdown Series
-    // lists carry runes, main deck and sideboard and no legend, battlefields or
-    // champion at all — and that is the source's data, not this parser's bug.
+    // Three different failures, and conflating them sends the reader to the
+    // wrong place. Riftools publishes genuinely partial records — the Showdown
+    // Series lists carry runes, main deck and sideboard and no legend,
+    // battlefields or champion at all — and that is the source's data, not this
+    // parser's bug. But a Legend section that IS there and whose one row was
+    // dropped for an unreadable count badge is a third thing again, and the
+    // specific reason has already been worked out: reporting it as "the source's
+    // list is incomplete" throws away the only sentence that says what to look
+    // at.
+    const why = legendSection?.warnings ?? [];
     throw new Error(
-      sections.length
-        ? `the page records no legend (103.1) — the source's list is incomplete: ${url}`
-        : `no legend found — page layout may have changed: ${url}`
+      why.length
+        ? `the legend row did not parse — ${why.join("; ")}: ${url}`
+        : sections.length
+          ? `the page records no legend (103.1) — the source's list is incomplete: ${url}`
+          : `no legend found — page layout may have changed: ${url}`
     );
   }
   if ((legendSection?.rows.length ?? 0) > 1) {

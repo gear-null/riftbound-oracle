@@ -101,6 +101,14 @@ A deck whose page does not parse cleanly is **not written**. Overwriting a good 
 list with a half-rendered one loses data that was correct, so those are reported by name
 and left out; a named hole in the gauntlet is recoverable and silent corruption is not.
 
+The pull creates and updates, and deletes in exactly one case: **a page that was renamed
+upstream**. A deck's filename is `<name>-<digest of its source URL>`, so a renamed list
+mints a new filename and would otherwise sit beside its own older copy — one deck in the
+field twice, counted twice in every distribution taken from it, one of them carrying a
+`fetched` date that is a lie. The pull matches committed decks by `source.url`, which
+survives a rename, and replaces rather than accumulates. It reports the replacement by
+name, and it deletes only a file it has just rewritten under a different name.
+
 **Run updates on demand, never on a schedule.** On `ECONNRESET`, wait or change network
 — do not retry into it. This matches Riot's own release cadence, so human-triggered
 updates stay well below bot-detection thresholds.

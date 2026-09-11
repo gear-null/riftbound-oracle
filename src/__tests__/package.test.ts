@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, cpSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describeSkill, packageSkill, packageAll, SKILLS } from "../package.js";
@@ -71,10 +71,37 @@ describe("packageSkill", () => {
     for (const [key, spec] of Object.entries(SKILLS)) {
       const m = spec.describe(spec.dir, "1.2.3") as unknown as Record<string, unknown>;
       expect(m, `${key} records a commit`).not.toHaveProperty("commit");
-      expect(JSON.stringify(m), `${key} records something hash-shaped`)
+      // Hash-shaped values that are NOT self-referential are fine and one is
+      // now deliberate: `gauntlet_digest` fingerprints `gauntlet/`, a folder
+      // the manifest is not in. Scanning for hex caught it anyway, which is a
+      // check reading its own proxy rather than its property — so the proxy is
+      // dropped for the fields that declare what they digest, and the property
+      // itself is tested below instead.
+      const scanned = { ...m };
+      delete scanned.gauntlet_digest;
+      expect(JSON.stringify(scanned), `${key} records something hash-shaped`)
         .not.toMatch(/\b[0-9a-f]{7,40}\b/);
       expect(spec.describe(spec.dir, "1.2.3"), `${key} is not a pure function of its corpus`)
         .toEqual(m);
+    }
+  });
+
+  it("no manifest field is a hash of the manifest itself", () => {
+    // The property the hex scan was standing in for, stated directly: rewriting
+    // SKILL-VERSION.json must not change what `describe` produces. A commit
+    // hash fails this — building at A writes A, committing yields B, rebuilding
+    // writes B, and the archive can never be reproduced from its own tag. A
+    // digest over the corpus passes it, which is the difference that matters.
+    for (const [key, spec] of Object.entries(SKILLS)) {
+      const dir = mkdtempSync(join(tmpdir(), "sk-selfref-"));
+      try {
+        cpSync(spec.dir, dir, { recursive: true });
+        const before = spec.describe(dir, "1.2.3");
+        writeFileSync(join(dir, "SKILL-VERSION.json"), '{"tampered":true}\n', "utf-8");
+        expect(spec.describe(dir, "1.2.3"), `${key} digests its own manifest`).toEqual(before);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
     }
   });
 

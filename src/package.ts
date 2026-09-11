@@ -33,7 +33,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { distinctCards, type CardIndex, type DeckComposition } from "./skill-data.js";
+import { distinctCards, gauntletDigest, type CardIndex, type DeckComposition } from "./skill-data.js";
 
 export const SKILL_SRC = ".claude/skills/rules-report";
 export const DECK_LAB_SRC = ".claude/skills/deck-lab";
@@ -113,6 +113,12 @@ export interface SkillManifest {
    * numbers be compared, or known not to be comparable.
    */
   gauntlet_version?: string;
+  /**
+   * Fingerprint of the gauntlet's actual contents. The version NAME is a
+   * promise someone remembered to keep; this is the same claim made by the
+   * folder, so a stale name is detectable rather than merely regrettable.
+   */
+  gauntlet_digest?: string;
   /** Distinct cards the gauntlet uses — the scripting frontier. */
   gauntlet_cards?: number;
 }
@@ -173,9 +179,11 @@ function describeDeckLab(skillDir: string, version: string): SkillManifest {
     : [];
   let pulled = "unknown";
   const compositions: DeckComposition[] = [];
+  const slugged: { slug: string; deck: DeckComposition }[] = [];
   for (const file of decks) {
     const deck = JSON.parse(readFileSync(join(gauntletDir, file), "utf-8"));
     compositions.push(deck as DeckComposition);
+    slugged.push({ slug: file.slice(0, -".json".length), deck: deck as DeckComposition });
     const fetched = deck?.source?.fetched;
     if (typeof fetched === "string" && (pulled === "unknown" || fetched > pulled)) pulled = fetched;
   }
@@ -197,6 +205,7 @@ function describeDeckLab(skillDir: string, version: string): SkillManifest {
     gauntlet_decks: decks.length,
     gauntlet_pulled: pulled,
     gauntlet_version: gauntletVersion,
+    gauntlet_digest: gauntletDigest(slugged, cards as CardIndex),
     gauntlet_cards: distinctCards(compositions, cards as CardIndex).size,
   };
 }

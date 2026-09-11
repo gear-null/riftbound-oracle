@@ -187,6 +187,33 @@ Riot's Rules Hub sits behind Cloudflare and will reset connections if hit repeat
 Run updates **on demand, never on a schedule**. On `ECONNRESET`, wait or change network
 rather than retrying into it.
 
+## Updating the gauntlet
+
+The gauntlet is a measuring instrument: a deck's score is a number against a particular
+field, so the field has to be identifiable after the fact. Two things identify it.
+
+- **`.claude/skills/deck-lab/GAUNTLET-VERSION`** is the name a human gives the field,
+  e.g. `gauntlet-2026-09`. It is a promise, and promises are what go quietly wrong.
+- **`gauntlet_digest`** in `SKILL-VERSION.json` is the same claim made by the folder's
+  contents — a sha256 over every list's slug and composition.
+
+**When the gauntlet folder changes, bump the name and regenerate the digest:**
+
+```sh
+npm run oracle decks pull            # or edit gauntlet/ by hand
+echo gauntlet-2026-10 > .claude/skills/deck-lab/GAUNTLET-VERSION
+npm run build && npm run oracle package   # rewrites SKILL-VERSION.json
+```
+
+`npm test` recomputes the digest from the folder and fails if `SKILL-VERSION.json`
+disagrees, and compares it against what `deck_cli.py gauntlet` prints — two counts, two
+languages, one folder. So a forgotten repackage fails loudly. A forgotten *name* bump does
+not fail anything, which is exactly why the digest is published beside it: two results
+quoting the same version and different digests were not measured against the same field.
+
+Bump the name for a real change of field — a re-pull, decks added or removed. A
+same-contents repackage leaves both alone.
+
 ## The Rules Hub moved host
 
 Riot finished migrating the hub off `riftbound.leagueoflegends.com`: every path there now

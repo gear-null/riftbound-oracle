@@ -106,6 +106,20 @@ describe("parseRiftoolsDeckPage", () => {
     );
   });
 
+  it("keeps the specific reason when the legend row itself did not parse", () => {
+    // A Legend section that IS there, whose one row was dropped for an
+    // unreadable badge, leaves zero legend rows — which looks exactly like the
+    // partial-record case above. Reporting it as "the source's list is
+    // incomplete" throws away the only sentence saying what to look at.
+    const html = fixture("riftools-deck.html").replace(
+      '<span class="deck-card-count">1</span><strong>Ornn, Fire Below the Mountain</strong>',
+      '<span class="deck-card-count">?</span><strong>Ornn, Fire Below the Mountain</strong>'
+    );
+    expect(() => parseRiftoolsDeckPage(html, "u", "2026-09-11")).toThrow(
+      /legend row did not parse.*unreadable count/
+    );
+  });
+
   it("catches a dropped card against the page's own declared total", () => {
     // The page states "66 cards / 30 unique" across every section. That is the
     // one guard that notices a section which rendered short, which is the

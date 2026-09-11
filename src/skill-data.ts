@@ -13,6 +13,7 @@
  * artwork placeholder.
  */
 import { writeFileSync, mkdirSync, readFileSync, renameSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { normaliseCardName, loadErrata, sameWording, type Erratum } from "./errata.js";
@@ -233,14 +234,60 @@ export function canonicalCardName(cards: CardIndex, name: string): string {
   return base;
 }
 
-/** Structurally what `distinctCards` needs from a deck, however it was loaded. */
+/** Structurally what the two counters below need, however a deck was loaded. */
 export interface DeckComposition {
   legend: string;
   chosenChampion?: string | null;
   chosen_champion?: string | null;
-  main: { name: string }[];
-  runes: { name: string }[];
-  battlefields: { name: string }[];
+  main: { name: string; qty: number }[];
+  runes: { name: string; qty: number }[];
+  battlefields: { name: string; qty: number }[];
+}
+
+/**
+ * What a deck IS, as a string: its legend, champion and every card in it.
+ *
+ * Canonical names and sorted sections, so the key describes the deck rather
+ * than the order a site happened to render it in or the spelling it used. This
+ * is `deckfile.composition_key` in TypeScript and must stay byte-identical to
+ * it — `gauntletDigest` hashes these on both sides of the language boundary.
+ */
+export function compositionKeyOf(deck: DeckComposition, cards: CardIndex): string {
+  const section = (rows: { name: string; qty: number }[]) =>
+    rows.map((c) => `${c.qty}x${canonicalCardName(cards, c.name)}`).sort().join("|");
+  const champion = deck.chosenChampion ?? deck.chosen_champion;
+  return [
+    canonicalCardName(cards, deck.legend),
+    champion ? canonicalCardName(cards, champion) : "",
+    section(deck.main),
+    section(deck.runes),
+    section(deck.battlefields),
+  ].join("::");
+}
+
+/**
+ * A fingerprint of the field: which lists are in it and what they hold.
+ *
+ * The version NAME is a promise a human makes, and a promise is exactly the
+ * thing that goes quietly wrong — someone re-pulls, the folder changes, the
+ * name does not, and two results carrying `gauntlet-2026-09` now describe
+ * different fields with nothing able to say so. The digest is the same claim
+ * made by the contents instead.
+ *
+ * Slugs are ASCII by construction (`deckSlug` strips everything else) and card
+ * names are ASCII in the pool, so this sort agrees with Python's. It is not
+ * left to agree by luck: `deck-lab.test.ts` compares this digest against the
+ * one `deck_cli.py gauntlet` prints, and any divergence fails there.
+ */
+export function gauntletDigest(
+  decks: { slug: string; deck: DeckComposition }[],
+  cards: CardIndex
+): string {
+  const payload = decks
+    .map(({ slug, deck }) => `${slug}::${compositionKeyOf(deck, cards)}`)
+    .sort()
+    .join("\n");
+  return createHash("sha256").update(payload, "utf-8").digest("hex").slice(0, 12);
 }
 
 /**

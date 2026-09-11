@@ -24,10 +24,10 @@
  */
 import { JSDOM } from "jsdom";
 import { createHash } from "node:crypto";
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { CardIndex } from "./skill-data.js";
-import { DECK_LAB_CARD_DATA, canonicalCardName } from "./skill-data.js";
+import { DECK_LAB_CARD_DATA, compositionKeyOf } from "./skill-data.js";
 import {
   RIFTOOLS_SITE,
   RIFTOOLS_SITEMAP,
@@ -364,6 +364,44 @@ function readExistingDeck(path: string): (Deck & { chosen_champion?: string }) |
   }
 }
 
+/** A committed deck file, with the slug its filename encodes. */
+interface CommittedDeck {
+  slug: string;
+  deck: Deck & { chosen_champion?: string };
+}
+
+/**
+ * Every committed deck in a folder, indexed by the page it was pulled from.
+ *
+ * The filename is `<readable half>-<digest of the source URL>`, and the
+ * readable half carries the deck's NAME. So when a site renames a list — and
+ * rift-atlas renamed "Darius 29 - 5 tournament stats" to "New darius testing"
+ * between two pulls — the next pull mints a different filename for the same
+ * page and writes a second copy beside the first. Nothing overwrote anything,
+ * nothing failed, and the gauntlet quietly held one deck twice: an opponent
+ * counted twice in every distribution taken from it, and a `fetched` date that
+ * is a lie for whichever copy is read.
+ *
+ * The source URL is the identity that survives a rename, so that is the key.
+ * Reading it out of the file rather than trusting the digest suffix means a
+ * future change to `deckSlug` cannot quietly turn this into a no-op.
+ */
+function indexBySourceUrl(dir: string): Map<string, CommittedDeck[]> {
+  const byUrl = new Map<string, CommittedDeck[]>();
+  if (!existsSync(dir)) return byUrl;
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith(".json")) continue;
+    const deck = readExistingDeck(resolve(dir, file));
+    const url = deck?.source?.url;
+    if (!deck || !url) continue;
+    const entry = { slug: file.slice(0, -".json".length), deck };
+    const bucket = byUrl.get(url);
+    if (bucket) bucket.push(entry);
+    else byUrl.set(url, [entry]);
+  }
+  return byUrl;
+}
+
 export function loadCardIndex(path?: string): CardIndex {
   const target = resolve(path ?? DECK_LAB_CARD_DATA);
   if (!existsSync(target)) {
@@ -418,6 +456,53 @@ export interface PullOptions {
 }
 
 /**
+ * Read `decks pull`'s flags, refusing the ones that cannot mean anything.
+ *
+ * `--site` was validated and the numeric flags were not, so `--events=all` went
+ * through `parseInt` to NaN, NaN reached `.slice(0, NaN)`, and the pull reported
+ * "0 deck(s) listed" and exited 0. Asking for the whole archive and being told,
+ * successfully, that there is nothing there is the worst answer available: it
+ * looks like a fact about the site.
+ *
+ * Returns the parsed options or the message to print. It lives here rather than
+ * in the CLI so it can be tested without running the CLI.
+ */
+export function parseDeckPullFlags(
+  argv: string[]
+): { options: PullOptions } | { error: string } {
+  const value = (name: string) =>
+    argv.find((a) => a.startsWith(`--${name}=`))?.slice(`--${name}=`.length);
+
+  const options: PullOptions = {};
+  const sitesArg = value("site");
+  if (sitesArg !== undefined) {
+    const sites = sitesArg.split(",").map((s) => s.trim()).filter(Boolean) as DeckSite[];
+    const unknown = sites.find((s) => !DECK_SITES.includes(s));
+    if (!sites.length || unknown) {
+      return { error: `Unknown --site=${unknown ?? sitesArg}. Known sites: ${DECK_SITES.join(", ")}` };
+    }
+    options.sites = sites;
+  }
+
+  for (const [flag, key] of [
+    ["limit", "limit"],
+    ["events", "events"],
+    ["per-event", "perEvent"],
+  ] as const) {
+    const raw = value(flag);
+    if (raw === undefined) continue;
+    // `Number(...)` rather than `parseInt`, which reads "12abc" as 12 and would
+    // let a typo silently become a smaller pull than the one asked for.
+    const n = Number(raw);
+    if (!Number.isInteger(n) || n < 1) {
+      return { error: `--${flag}=${raw} must be a whole number of at least 1` };
+    }
+    options[key] = n;
+  }
+  return { options };
+}
+
+/**
  * A decklist site, reduced to the two things a pull needs from it.
  *
  * Keeping the adapters this thin is the point: one site is an index page and
@@ -427,7 +512,10 @@ export interface PullOptions {
  */
 interface SiteAdapter {
   site: DeckSite;
-  /** Deck page URLs, most important first. May make its own requests. */
+  /**
+   * Deck page URLs, most important first. May make its own requests — `get` is
+   * the pull's paced fetcher, so an adapter cannot skip the gap by accident.
+   */
   index(get: (url: string) => Promise<string>, opts: PullOptions): Promise<string[]>;
   parse(html: string, url: string, fetched: string): ParsedDeck;
 }
@@ -450,8 +538,6 @@ const ADAPTERS: Record<DeckSite, SiteAdapter> = {
       }
       const entries: RiftoolsEntry[] = [];
       for (const url of sitemaps) {
-        // Paced like every other request; see docs/content-and-licensing.md.
-        await sleep(opts.delayMs ?? DEFAULT_DELAY_MS);
         entries.push(...parseDecklistSitemap(await get(url)));
       }
       return selectRecentTopLists(entries, {
@@ -473,21 +559,13 @@ const ADAPTERS: Record<DeckSite, SiteAdapter> = {
  * different players' names, inflating the deck count while testing nothing new.
  * The key is the composition, not the page, so the duplicate is detectable
  * before it is written.
+ *
+ * It is the SAME key the gauntlet digest is built from, deliberately: "two
+ * lists this pull treats as one deck" and "two lists the published fingerprint
+ * treats as one deck" have to be the same question, or the field can contain a
+ * duplicate the digest cannot see.
  */
-function compositionKey(deck: Deck, cards: CardIndex): string {
-  const section = (rows: DeckCard[]) =>
-    rows
-      .map((c) => `${c.qty}x${canonicalCardName(cards, c.name)}`)
-      .sort()
-      .join("|");
-  return [
-    canonicalCardName(cards, deck.legend),
-    deck.chosenChampion ? canonicalCardName(cards, deck.chosenChampion) : "",
-    section(deck.main),
-    section(deck.runes),
-    section(deck.battlefields),
-  ].join("::");
-}
+const compositionKey = compositionKeyOf;
 
 /** Card names in the list that this repo's card pool cannot resolve. */
 function unresolvableCards(deck: Deck, cards: CardIndex): string[] {
@@ -563,6 +641,11 @@ export interface PullResult {
   bySite: Record<string, number>;
   /** Parsed, fine, and skipped because another list has the same cards. */
   duplicates: { name: string; sameAs: string }[];
+  /**
+   * Files deleted because the page that produced them was renamed upstream and
+   * has just been rewritten under a new name. The only deletion the pull makes.
+   */
+  replaced: { from: string; to: string; url: string }[];
 }
 
 export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult> {
@@ -582,14 +665,25 @@ export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult>
   const duplicates: { name: string; sameAs: string }[] = [];
   const bySite: Record<string, number> = {};
   const seenComposition = new Map<string, string>();
-  let fetchedPages = 0;
+  const replaced: { from: string; to: string; url: string }[] = [];
+
+  // Every request the pull makes goes through here, so the gap is uniform:
+  // index pages, sitemaps and deck pages alike, and across sites as well as
+  // within one. Counting it per-site left the sitemap fetch that follows the
+  // last rift-atlas page with no gap in front of it at all.
+  let requests = 0;
+  const paced = async (url: string) => {
+    if (requests > 0) await sleep(delayMs);
+    requests += 1;
+    return get(url);
+  };
 
   for (const site of sites) {
     bySite[site] = 0;
     const adapter = ADAPTERS[site];
     let urls: string[];
     try {
-      urls = await adapter.index(get, { ...opts, delayMs });
+      urls = await adapter.index(paced, { ...opts, delayMs });
     } catch (err) {
       // One site being down or restructured must not cost the other one's
       // decks: the pull reports the gap and carries on.
@@ -599,13 +693,9 @@ export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult>
     onProgress(`${site}: ${urls.length} deck(s) listed`);
 
     for (const url of urls) {
-      // Paced, and never scheduled — see docs/content-and-licensing.md. The gap
-      // is counted across sites, not within one: finishing rift-atlas is not a
-      // reason to hit riftools without pausing first.
-      if (fetchedPages > 0) await sleep(delayMs);
-      fetchedPages += 1;
+      // Paced, and never scheduled — see docs/content-and-licensing.md.
       try {
-        const parsed = adapter.parse(await get(url), url, fetched);
+        const parsed = adapter.parse(await paced(url), url, fetched);
         const deck = parsed.deck;
         if (!deck.domains.length) deck.domains = domainsOfLegend(cards, deck.legend);
         if (!deck.chosenChampion) {
@@ -656,14 +746,20 @@ export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult>
   warnings.push(...fillChosenChampionByConsensus(decks));
 
   const claimed = new Set<string>();
+  const committed = indexBySourceUrl(gauntletDir);
   for (const deck of decks) {
+    const slug = deckSlug(deck);
+    // What this page produced last time, whatever it was called then.
+    const prior = deck.source?.url ? committed.get(deck.source.url) ?? [] : [];
+
     // A deck whose Chosen Champion the source cannot name gets one filled in by
     // hand (the list legally runs two champions of the legend's tag, and only
     // the pilot knows which sat in the Champion Zone). Re-pulling must not throw
-    // that away — it would silently return the deck to unplayable.
-    const slug = deckSlug(deck);
+    // that away — it would silently return the deck to unplayable. Looking the
+    // prior copy up by URL rather than by filename is what keeps that true when
+    // the page has since been renamed.
     if (!deck.chosenChampion) {
-      const existing = readExistingDeck(resolve(gauntletDir, `${slug}.json`));
+      const existing = prior[0]?.deck ?? readExistingDeck(resolve(gauntletDir, `${slug}.json`));
       const kept = existing?.chosen_champion ?? existing?.chosenChampion;
       // A decision someone made by hand outranks the one derived above from
       // what the rest of the field played — and its note has to travel with
@@ -689,7 +785,24 @@ export async function pullMetaDecks(opts: PullOptions = {}): Promise<PullResult>
       writeFileSync(path, body, "utf-8");
       written.push(path);
     }
+
+    // The same page under its old name. A rename must not leave two copies of
+    // one deck in the field — the second is an opponent counted twice in every
+    // distribution taken from it, carrying a `fetched` date that is a lie.
+    // This is the one thing the puller deletes, and it deletes only a file it
+    // has just rewritten under a different name.
+    for (const stale of prior) {
+      if (stale.slug === slug) continue;
+      for (const dir of [outputDir, gauntletDir]) {
+        rmSync(resolve(dir, `${stale.slug}.json`), { force: true });
+      }
+      replaced.push({ from: stale.slug, to: slug, url: deck.source?.url ?? "" });
+      warnings.push(
+        `${deck.name}: the page was renamed — replaced ${stale.slug}.json ` +
+          `(${stale.deck.name}) rather than leaving both`
+      );
+    }
   }
 
-  return { decks, warnings, written, quarantined, bySite, duplicates };
+  return { decks, warnings, written, quarantined, bySite, duplicates, replaced };
 }
