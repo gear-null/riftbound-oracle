@@ -1,0 +1,152 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Back Off",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Hidden",
+   "cites": [
+    "CR:811"
+   ]
+  },
+  {
+   "keyword": "Action",
+   "cites": [
+    "CR:806"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "stun",
+     "cites": [
+      "CR:423"
+     ],
+     "what": {
+      "type": "unit",
+      "side": "any",
+      "targets": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Hidden]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Action]",
+   "status": "implemented",
+   "node": "keywords[1]"
+  },
+  {
+   "text": "[Stun] a unit.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "If you played this from your hand, draw 1.",
+   "status": "unsupported",
+   "reason": "the condition is `played_from` (CR 419), 1 gauntlet clause and outside the active cut: this vocabulary cannot ask which zone a card was played from, so the conditional draw is not implemented."
+  }
+ ],
+ "tests": [
+  {
+   "name": "a stunned unit is marked stunned",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Back Off"
+      ],
+      "energy": 3
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Back Off",
+    "seat": 0
+   },
+   "choices": [
+    "Ferrous Forerunner"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Ferrous Forerunner",
+     "seat": 1,
+     "is": "stunned"
+    }
+   ]
+  },
+  {
+   "name": "a stunned unit deals no combat damage",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield",
+        "state": "stunned"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "damage",
+     "card": "Lecturing Yordle",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:3e430c6621fa166e"
+}

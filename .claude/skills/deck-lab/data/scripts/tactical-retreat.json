@@ -1,0 +1,236 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Tactical Retreat",
+ "source": "manual",
+ "notes": "A Recall is NOT a Move (CR 456), so this is `recall` and not `move(to=base)`: nothing that stops Movement stops it, and a script that spelled it as a Move would produce a plausible game and the wrong one.",
+ "keywords": [
+  {
+   "keyword": "Reaction",
+   "cites": [
+    "CR:813"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "choice": "choose_object",
+     "targets": true,
+     "bind": "saved",
+     "what": {
+      "type": "unit",
+      "side": "friendly"
+     },
+     "do": [
+      {
+       "kind": "delayed",
+       "cites": [
+        "CR:389"
+       ],
+       "trigger": {
+        "events": [
+         "delayed_next"
+        ],
+        "who": "you",
+        "what": {
+         "ref": "saved"
+        }
+       },
+       "effect": [
+        {
+         "kind": "would",
+         "cites": [
+          "CR:369"
+         ],
+         "event": "die",
+         "applies_to": {
+          "ref": "saved"
+         },
+         "until": "this_turn",
+         "frequency": {
+          "nth": 1,
+          "per": "turn"
+         },
+         "do": [
+          {
+           "op": "heal",
+           "what": {
+            "ref": "saved"
+           },
+           "cites": [
+            "CR:418"
+           ]
+          },
+          {
+           "op": "exhaust",
+           "what": {
+            "ref": "saved"
+           },
+           "cites": [
+            "CR:414"
+           ]
+          },
+          {
+           "op": "recall",
+           "what": {
+            "ref": "saved"
+           },
+           "cites": [
+            "CR:455"
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Reaction]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "Choose a friendly unit.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
+  },
+  {
+   "text": "The next time it would die this turn, heal it, exhaust it, and recall it instead.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "lethal combat damage sends it home instead of to the trash",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Tactical Retreat"
+      ],
+      "energy": 2,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Tactical Retreat",
+    "seat": 0
+   },
+   "choices": [
+    "Cithria of Cloudfield"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Cithria of Cloudfield",
+     "at": "base",
+     "n": 1
+    },
+    {
+     "expect": "state",
+     "card": "Cithria of Cloudfield",
+     "seat": 0,
+     "is": "exhausted"
+    },
+    {
+     "expect": "damage",
+     "card": "Cithria of Cloudfield",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "it saves the unit once, not twice",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Tactical Retreat"
+      ],
+      "energy": 2,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ],
+      "hand": [
+       "Hextech Ray"
+      ],
+      "energy": 1,
+      "power": {
+       "Fury": 1
+      }
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Tactical Retreat",
+    "seat": 0
+   },
+   "choices": [
+    "Cithria of Cloudfield"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Cithria of Cloudfield",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:3322be675cb3f2c0"
+}

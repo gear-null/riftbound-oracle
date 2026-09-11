@@ -1951,7 +1951,8 @@ def main():
     # checks have been watched to fail. A second entry point would be a second
     # place to forget to run.
     import engine.selftest as engine_selftest
-    for section in engine_selftest.SECTIONS:
+    import engine.dsl.selftest as dsl_selftest
+    for section in engine_selftest.SECTIONS + dsl_selftest.SECTIONS:
         print(f"{section.__name__}:")
         section(check)
         print()

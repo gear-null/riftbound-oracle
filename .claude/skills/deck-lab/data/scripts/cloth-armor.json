@@ -1,0 +1,137 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Cloth Armor",
+ "source": "manual",
+ "notes": "Both clauses ARE keywords: CR 818 defines what Equip does and CR 819 what Quick-Draw does, and the card adds only the price. Writing the attachment out as an effect would need `attach` (CR 434, 4 gauntlet clauses), which is declared and outside the active cut — and would put a rule that belongs to every Equipment on one card.",
+ "keywords": [
+  {
+   "keyword": "Quick-Draw",
+   "cites": [
+    "CR:819"
+   ]
+  },
+  {
+   "keyword": "Equip",
+   "cites": [
+    "CR:818"
+   ],
+   "cost": [
+    {
+     "cost": "power_domain",
+     "domain": "Mind",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    }
+   ]
+  }
+ ],
+ "abilities": [],
+ "clauses": [
+  {
+   "text": "[Quick-Draw]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Equip] :rb_rune_mind:",
+   "status": "implemented",
+   "node": "keywords[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "Quick-Draw lets it be played as a Reaction and attaches it",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Cloth Armor"
+      ],
+      "energy": 1,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Cloth Armor",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Cloth Armor",
+     "seat": 0,
+     "is": "attached"
+    }
+   ]
+  },
+  {
+   "name": "the Equip ability costs one Mind Power",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "power": {
+       "Mind": 1
+      },
+      "board": [
+       {
+        "card": "Cloth Armor",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Cloth Armor",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "power",
+     "seat": 0,
+     "domain": "Mind",
+     "n": 0
+    },
+    {
+     "expect": "state",
+     "card": "Cloth Armor",
+     "seat": 0,
+     "is": "attached"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:c03c0b3feac4218a"
+}

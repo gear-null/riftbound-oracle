@@ -1,0 +1,194 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "LeBlanc - Deceiver",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "conquer",
+     "hold"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "cost": [
+      {
+       "cost": "discard_cost",
+       "n": 1,
+       "cites": [
+        "CR:422"
+       ]
+      },
+      {
+       "cost": "exhaust_self",
+       "cites": [
+        "CR:414"
+       ]
+      }
+     ],
+     "do": [
+      {
+       "op": "play",
+       "to": "here",
+       "enters": "ready",
+       "cites": [
+        "CR:419",
+        "CR:179"
+       ],
+       "what": {
+        "token": {
+         "name": "Reflection",
+         "type": "unit",
+         "might": 0
+        }
+       }
+      },
+      {
+       "kind": "reflexive",
+       "cites": [
+        "CR:386"
+       ],
+       "effect": [
+        {
+         "op": "grant_keyword",
+         "keyword": "Temporary",
+         "until": "permanent",
+         "cites": [
+          "CR:800",
+          "CR:816"
+         ],
+         "what": {
+          "type": "token",
+          "side": "friendly",
+          "at": "here"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you conquer or hold, you may discard 1 and exhaust me to play a ready Reflection unit token there.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "Then do this: It becomes a copy of another unit there.",
+   "status": "unsupported",
+   "reason": "`become_copy` (CR 438, 2 gauntlet clauses) is declared and outside the active cut, and CR 477.1.b makes copying a layer-1 trait replacement rather than a value assignment — so the Reflection is made, and stays a 0 {M} Reflection."
+  },
+  {
+   "text": "Give it [Temporary].",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a conquest buys a Temporary Reflection for a card and a tap",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "choices": [
+    "yes",
+    "Mobilize"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Reflection",
+     "n": 1
+    },
+    {
+     "expect": "keyword",
+     "card": "Reflection",
+     "seat": 0,
+     "keyword": "Temporary"
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "with an empty hand the cost cannot be paid",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Reflection",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:4bf9e6ad5139847e"
+}

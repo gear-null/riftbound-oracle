@@ -1,0 +1,230 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Smoke and Mirrors",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Hidden",
+   "cites": [
+    "CR:811"
+   ]
+  },
+  {
+   "keyword": "Action",
+   "cites": [
+    "CR:806"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "choice": "choose_object",
+     "targets": true,
+     "bind": "first",
+     "what": {
+      "type": "unit",
+      "side": "friendly"
+     },
+     "do": [
+      {
+       "choice": "choose_object",
+       "targets": true,
+       "bind": "second",
+       "what": {
+        "type": "unit",
+        "side": "friendly",
+        "another": true
+       },
+       "do": [
+        {
+         "op": "move",
+         "what": {
+          "ref": "first"
+         },
+         "swap_with": {
+          "ref": "second"
+         },
+         "cites": [
+          "CR:420"
+         ],
+         "when": {
+          "cond": "has_keyword",
+          "what": {
+           "ref": "first"
+          },
+          "keyword": "Temporary"
+         }
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "op": "draw",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Hidden]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Action]",
+   "status": "implemented",
+   "node": "keywords[1]"
+  },
+  {
+   "text": "Choose a unit you control and another unit you control at a different location.",
+   "status": "approx",
+   "node": "abilities[0].effect[0]",
+   "reason": "`at a different location` needs the `at:location` selector atom (10 gauntlet clauses), declared and outside the active cut — so this script would also let both choices stand in the same place, which the printed card forbids."
+  },
+  {
+   "text": "If at least one of them has [Temporary], move each to the other's location.",
+   "status": "approx",
+   "node": "abilities[0].effect[0].do[0]",
+   "reason": "the condition here reads only the FIRST chosen unit; `at least one of them` needs a disjunction over two bindings, and the condition vocabulary has no combinator (the census found none in the corpus)."
+  },
+  {
+   "text": "Draw 1.",
+   "status": "implemented",
+   "node": "abilities[0].effect[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a Temporary unit swaps places with an ally",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Smoke and Mirrors"
+      ],
+      "energy": 2,
+      "deck": [
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Reflection",
+        "at": "battlefield",
+        "token": true
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Smoke and Mirrors",
+    "seat": 0
+   },
+   "choices": [
+    "Reflection",
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Lecturing Yordle",
+     "at": "battlefield",
+     "n": 1
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "with no Temporary unit only the draw happens",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Smoke and Mirrors"
+      ],
+      "energy": 2,
+      "deck": [
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Kinkou Initiate",
+        "at": "battlefield"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Smoke and Mirrors",
+    "seat": 0
+   },
+   "choices": [
+    "Kinkou Initiate",
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Lecturing Yordle",
+     "at": "base",
+     "n": 1
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:f771b7ce1a91bf7e"
+}

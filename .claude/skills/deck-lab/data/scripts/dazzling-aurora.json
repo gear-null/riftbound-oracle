@@ -1,0 +1,165 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Dazzling Aurora",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "end_of_turn"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "reveal",
+     "from": "deck",
+     "position": "top",
+     "bind": "seen",
+     "until_find": {
+      "type": "unit"
+     },
+     "cites": [
+      "CR:424"
+     ]
+    },
+    {
+     "op": "banish",
+     "what": {
+      "ref": "found"
+     },
+     "cites": [
+      "CR:427"
+     ]
+    },
+    {
+     "op": "play",
+     "what": {
+      "ref": "found"
+     },
+     "ignoring": "total",
+     "cites": [
+      "CR:419"
+     ]
+    },
+    {
+     "op": "recycle",
+     "what": {
+      "ref": "seen",
+      "rest": true
+     },
+     "cites": [
+      "CR:416"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "At the end of your turn, reveal cards from the top of your Main Deck until you reveal a unit and banish it.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
+  },
+  {
+   "text": "Play it, ignoring its cost, and recycle the rest.",
+   "status": "implemented",
+   "node": "abilities[0].effect[2]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "the first unit down the deck arrives for free",
+   "given": {
+    "turn_player": 0,
+    "phase": "ending",
+    "seats": [
+     {
+      "seat": 0,
+      "deck": [
+       "Mobilize",
+       "Back Off",
+       "Ferrous Forerunner",
+       "Challenge"
+      ],
+      "board": [
+       {
+        "card": "Dazzling Aurora",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "end_turn",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Ferrous Forerunner",
+     "n": 1
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 3
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "a deck with no unit left reveals everything and plays nothing",
+   "given": {
+    "turn_player": 0,
+    "phase": "ending",
+    "seats": [
+     {
+      "seat": 0,
+      "deck": [
+       "Mobilize",
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Dazzling Aurora",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "end_turn",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 2
+    }
+   ]
+  }
+ ],
+ "version": "sha256:88bca88ba840b470"
+}

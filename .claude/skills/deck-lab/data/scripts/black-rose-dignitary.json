@@ -1,0 +1,142 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Black Rose Dignitary",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Assault",
+   "value": 1,
+   "cites": [
+    "CR:807"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "keyword": "Deathknell",
+   "cites": [
+    "CR:382",
+    "CR:808"
+   ],
+   "trigger": {
+    "events": [
+     "die"
+    ],
+    "who": "me",
+    "keyword": "Deathknell"
+   },
+   "effect": [
+    {
+     "op": "channel",
+     "n": 1,
+     "exhausted": true,
+     "seat": "you",
+     "cites": [
+      "CR:430"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Assault]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Deathknell][>] Channel 1 rune exhausted.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "dying channels a rune, exhausted",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Black Rose Dignitary",
+        "at": "base"
+       }
+      ],
+      "runes": [
+       "Order Rune"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Black Rose Dignitary",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Order Rune",
+     "n": 1
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "[Assault] with no number is +1 while attacking (CR 807)",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Black Rose Dignitary",
+        "at": "battlefield",
+        "state": "attacking"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Sunlit Guardian",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Black Rose Dignitary",
+     "seat": 0,
+     "n": 3
+    }
+   ]
+  }
+ ],
+ "version": "sha256:a29d51479fae81af"
+}

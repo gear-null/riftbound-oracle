@@ -1,0 +1,196 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Nocturne - Horrifying",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Ganking",
+   "cites": [
+    "CR:810"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:424"
+   ],
+   "trigger": {
+    "events": [
+     "reveal_trigger"
+    ],
+    "who": "you",
+    "what": {
+     "self": true
+    },
+    "where": "base"
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "do": [
+      {
+       "op": "banish",
+       "what": {
+        "self": true
+       },
+       "cites": [
+        "CR:427"
+       ]
+      },
+      {
+       "choice": "may",
+       "cost": [
+        {
+         "cost": "power_any",
+         "n": 1,
+         "cites": [
+          "CR:444"
+         ]
+        }
+       ],
+       "when": {
+        "cond": "if_you_do"
+       },
+       "do": [
+        {
+         "op": "play",
+         "what": {
+          "self": true
+         },
+         "cites": [
+          "CR:419"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Ganking]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "As you look at or reveal me from the top of your deck, you may banish me.",
+   "status": "approx",
+   "node": "abilities[0]",
+   "reason": "the trigger's location is the top of the deck, and `zone:top_of_deck` is a reserved selector atom — this vocabulary spells that as a zone plus a position, which a TRIGGER has no field for. `where: base` is a stand-in the interpreter must not read literally."
+  },
+  {
+   "text": "If you do, you may play me for [A].",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "seen off the top, it can banish itself and come down for one Power",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "power": {
+       "Chaos": 1
+      },
+      "deck": [
+       "Nocturne - Horrifying",
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Mystic Poro",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "trigger",
+    "card": "Mystic Poro",
+    "seat": 0
+   },
+   "choices": [
+    "yes",
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Nocturne - Horrifying",
+     "n": 1
+    },
+    {
+     "expect": "power",
+     "seat": 0,
+     "domain": "Chaos",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "declining the banish leaves the deck as it was",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "power": {
+       "Chaos": 1
+      },
+      "deck": [
+       "Nocturne - Horrifying",
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Mystic Poro",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "trigger",
+    "card": "Mystic Poro",
+    "seat": 0
+   },
+   "choices": [
+    "no"
+   ],
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 2
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Nocturne - Horrifying",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:831f6418b1befac7"
+}

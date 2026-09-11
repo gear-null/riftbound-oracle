@@ -1,0 +1,137 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Ferrous Forerunner",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "keyword": "Deathknell",
+   "cites": [
+    "CR:382",
+    "CR:808"
+   ],
+   "trigger": {
+    "events": [
+     "die"
+    ],
+    "who": "me",
+    "keyword": "Deathknell"
+   },
+   "effect": [
+    {
+     "op": "play",
+     "n": 2,
+     "to": "base",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Mech",
+       "type": "unit",
+       "might": 3
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Deathknell] — Play two 3 :rb_might: Mech unit tokens to your base.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "dying leaves six Might behind",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield",
+        "damage": 5
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Mech",
+     "n": 2
+    },
+    {
+     "expect": "might",
+     "card": "Mech",
+     "seat": 0,
+     "n": 3
+    }
+   ]
+  },
+  {
+   "name": "the tokens arrive at the base, not where it died",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Ferrous Forerunner",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Mech",
+     "at": "base",
+     "n": 2
+    }
+   ]
+  }
+ ],
+ "version": "sha256:79619177e7572d67"
+}

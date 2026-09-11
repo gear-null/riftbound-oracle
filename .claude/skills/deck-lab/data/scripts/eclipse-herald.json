@@ -1,0 +1,159 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Eclipse Herald",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "stunned"
+    ],
+    "who": "you",
+    "what": {
+     "type": "unit",
+     "side": "enemy"
+    }
+   },
+   "effect": [
+    {
+     "op": "ready",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:415"
+     ]
+    },
+    {
+     "op": "give_might",
+     "what": {
+      "self": true
+     },
+     "n": 1,
+     "until": "this_turn",
+     "cites": [
+      "CR:477"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you stun an enemy unit, ready me and give me +1 :rb_might: this turn.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "stunning an enemy readies and grows it",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Back Off"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Eclipse Herald",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Back Off",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Eclipse Herald",
+     "seat": 0,
+     "is": "ready"
+    },
+    {
+     "expect": "might",
+     "card": "Eclipse Herald",
+     "seat": 0,
+     "n": 8
+    }
+   ]
+  },
+  {
+   "name": "stunning a friendly unit does nothing",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Back Off"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Eclipse Herald",
+        "at": "base",
+        "exhausted": true
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Back Off",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Eclipse Herald",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:79f95816c2702026"
+}

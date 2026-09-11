@@ -1,0 +1,123 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Treasure Hunter",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "move"
+    ],
+    "who": "me"
+   },
+   "effect": [
+    {
+     "op": "play",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "enters": "exhausted",
+     "what": {
+      "token": {
+       "name": "Gold",
+       "type": "gear"
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When I move, play a Gold gear token exhausted.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a Standard Move makes a Gold token, exhausted",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Treasure Hunter",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "standard_move",
+    "card": "Treasure Hunter",
+    "seat": 0,
+    "to": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 1
+    },
+    {
+     "expect": "state",
+     "card": "Gold",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  },
+  {
+   "name": "standing still is not a Move (CR 447)",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Treasure Hunter",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "begin_turn",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:86a29761b7339cda"
+}

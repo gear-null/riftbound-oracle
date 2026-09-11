@@ -1,0 +1,131 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Viktor - Leader",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "die"
+    ],
+    "who": "you",
+    "what": {
+     "type": "unit",
+     "side": "friendly",
+     "another": true
+    }
+   },
+   "effect": [
+    {
+     "op": "play",
+     "to": "base",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Recruit",
+       "type": "unit",
+       "might": 1
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When another non-Recruit unit you control dies, play a 1 :rb_might: Recruit unit token into your base.",
+   "status": "approx",
+   "node": "abilities[0]",
+   "reason": "`non-Recruit` needs the `negated` selector atom (6 gauntlet clauses), declared and outside the active cut. As scripted, a dying Recruit token replaces itself — an engine loop the printed card forbids, so this script is not safe to run unsupervised until `negated` is in."
+  }
+ ],
+ "tests": [
+  {
+   "name": "a dying ally leaves a Recruit behind",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Viktor - Leader",
+        "at": "base"
+       },
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Cithria of Cloudfield",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Recruit",
+     "n": 1
+    },
+    {
+     "expect": "might",
+     "card": "Recruit",
+     "seat": 0,
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "Viktor dying is not ANOTHER unit dying",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Viktor - Leader",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Viktor - Leader",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Recruit",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:2cd313ce064e457b"
+}

@@ -1,0 +1,123 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Annie - Dark Child",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "end_of_turn"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "choice": "up_to",
+     "n": 2,
+     "bind": "chosen",
+     "targets": false,
+     "what": {
+      "type": "rune",
+      "side": "friendly",
+      "state": "exhausted"
+     },
+     "do": [
+      {
+       "op": "ready",
+       "what": {
+        "ref": "chosen"
+       },
+       "cites": [
+        "CR:415"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "At the end of your turn, ready up to 2 runes.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "two exhausted runes come back at end of turn",
+   "given": {
+    "turn_player": 0,
+    "phase": "ending",
+    "seats": [
+     {
+      "seat": 0,
+      "runes": [
+       "Fury Rune",
+       "Chaos Rune",
+       "Fury Rune"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "end_turn",
+    "seat": 0
+   },
+   "choices": [
+    "Fury Rune",
+    "Chaos Rune"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Fury Rune",
+     "n": 2
+    }
+   ]
+  },
+  {
+   "name": "up to two means fewer is legal",
+   "given": {
+    "turn_player": 0,
+    "phase": "ending",
+    "seats": [
+     {
+      "seat": 0,
+      "runes": [
+       "Fury Rune"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "end_turn",
+    "seat": 0
+   },
+   "choices": [
+    "Fury Rune"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Fury Rune",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:cbcbeff2d484138f"
+}

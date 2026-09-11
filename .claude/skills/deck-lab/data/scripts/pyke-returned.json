@@ -1,0 +1,166 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Pyke - Returned",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Hidden",
+   "cites": [
+    "CR:811"
+   ]
+  },
+  {
+   "keyword": "Backline",
+   "cites": [
+    "CR:826"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "die"
+    ],
+    "who": "enemy",
+    "where": "battlefield",
+    "what": {
+     "type": "unit",
+     "side": "enemy"
+    }
+   },
+   "effect": [
+    {
+     "op": "play",
+     "enters": "exhausted",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Gold",
+       "type": "gear"
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Hidden]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Backline]",
+   "status": "implemented",
+   "node": "keywords[1]"
+  },
+  {
+   "text": "Once each turn, when an enemy unit dies while I'm at a battlefield, play a Gold gear token exhausted.",
+   "status": "approx",
+   "node": "abilities[0]",
+   "reason": "two parts are approximated. `Once each turn` is the `frequency_only` atom (CR 383.3.e, 1 gauntlet clause), declared and outside the active cut, so this script makes a Gold for EVERY enemy unit that dies; and `while I'm at a battlefield` is a condition on this unit's own location, which `where` expresses as the event's location instead."
+  }
+ ],
+ "tests": [
+  {
+   "name": "an enemy unit dying at a battlefield mints a Gold",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Pyke - Returned",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Cithria of Cloudfield",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 1
+    },
+    {
+     "expect": "state",
+     "card": "Gold",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  },
+  {
+   "name": "a friendly unit dying mints nothing",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Pyke - Returned",
+        "at": "battlefield"
+       },
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Cithria of Cloudfield",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:a51fb5a86d6f7e42"
+}

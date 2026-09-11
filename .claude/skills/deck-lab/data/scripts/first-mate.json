@@ -1,0 +1,130 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "First Mate",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_self"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "ready",
+     "cites": [
+      "CR:415"
+     ],
+     "what": {
+      "type": "unit",
+      "another": true,
+      "side": "any",
+      "targets": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you play me, ready another unit.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "readies an exhausted ally when played",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "First Mate"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Sunlit Guardian",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "First Mate",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "Sunlit Guardian"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Sunlit Guardian",
+     "seat": 0,
+     "is": "ready"
+    }
+   ]
+  },
+  {
+   "name": "another unit is any unit, not only a friendly one",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "First Mate"
+      ],
+      "energy": 3
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Sunlit Guardian",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "First Mate",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "Sunlit Guardian"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Sunlit Guardian",
+     "seat": 1,
+     "is": "ready"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:5991e492ec2c6c3a"
+}

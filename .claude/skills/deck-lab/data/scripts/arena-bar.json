@@ -1,0 +1,131 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Arena Bar",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "activated",
+   "cites": [
+    "CR:376"
+   ],
+   "cost": [
+    {
+     "cost": "exhaust_self",
+     "cites": [
+      "CR:414"
+     ]
+    }
+   ],
+   "effect": [
+    {
+     "op": "buff",
+     "n": 1,
+     "cites": [
+      "CR:426",
+      "CR:701"
+     ],
+     "what": {
+      "type": "unit",
+      "side": "friendly",
+      "state": "exhausted",
+      "targets": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": ":rb_exhaust:: Buff an exhausted friendly unit.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "an exhausted ally gains a buff counter",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Arena Bar",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "buffs",
+     "card": "Lecturing Yordle",
+     "seat": 0,
+     "n": 1
+    },
+    {
+     "expect": "state",
+     "card": "Arena Bar",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  },
+  {
+   "name": "a ready ally is not a legal choice",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Arena Bar",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no exhausted friendly unit"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:9dd6c0e4cefbed87"
+}

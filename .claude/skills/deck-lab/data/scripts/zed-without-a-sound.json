@@ -1,0 +1,193 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Zed, Without a Sound",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "conquer"
+    ],
+    "who": "me"
+   },
+   "effect": [
+    {
+     "op": "play",
+     "to": "base",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Shadow Clone",
+       "type": "unit",
+       "might": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "kind": "activated",
+   "timing": {
+    "keyword": "Action",
+    "cites": [
+     "CR:806"
+    ]
+   },
+   "cites": [
+    "CR:376"
+   ],
+   "cost": [
+    {
+     "cost": "energy",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    },
+    {
+     "cost": "power_domain",
+     "domain": "Chaos",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    }
+   ],
+   "effect": [
+    {
+     "op": "move",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:420"
+     ],
+     "swap_with": {
+      "type": "token",
+      "side": "friendly",
+      "targets": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When I conquer, play a 0 :rb_might: Shadow Clone unit token to your base.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "[Action][>] :rb_energy_1::rb_rune_chaos:: Move me and a Shadow Clone you control to each other's locations.",
+   "status": "approx",
+   "node": "abilities[1]",
+   "reason": "the destination is the other object's Location, and `at:location` (10 gauntlet clauses) is declared and outside the active cut. `swap_with` names the object instead, which is right here and would not be right for a card that moved one unit to another's location one-way."
+  }
+ ],
+ "tests": [
+  {
+   "name": "conquering leaves a Shadow Clone at the base",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Zed, Without a Sound",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Shadow Clone",
+     "at": "base",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "the swap puts Zed where the clone stood",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 1,
+      "power": {
+       "Chaos": 1
+      },
+      "board": [
+       {
+        "card": "Zed, Without a Sound",
+        "at": "base"
+       },
+       {
+        "card": "Shadow Clone",
+        "at": "battlefield",
+        "token": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Zed, Without a Sound",
+    "seat": 0
+   },
+   "choices": [
+    "Shadow Clone"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Zed, Without a Sound",
+     "at": "battlefield",
+     "n": 1
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Shadow Clone",
+     "at": "base",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:5974e975ff7822eb"
+}

@@ -1,0 +1,222 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Lightning Rush",
+ "source": "manual",
+ "notes": "The cards looked at are in a non-public zone, so choosing one is NOT targeting (CR 355.10) — hence `targets: false` on a choice the player still makes.",
+ "keywords": [
+  {
+   "keyword": "Flow",
+   "cites": [
+    "CR:829"
+   ],
+   "cost": [
+    {
+     "cost": "energy",
+     "n": 2,
+     "cites": [
+      "CR:444"
+     ]
+    },
+    {
+     "cost": "power_any",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    },
+    {
+     "cost": "banish_cost",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:427"
+     ]
+    }
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "look_at",
+     "n": 3,
+     "from": "deck",
+     "position": "top",
+     "bind": "seen",
+     "cites": [
+      "CR:128"
+     ]
+    },
+    {
+     "choice": "may",
+     "do": [
+      {
+       "choice": "choose_object",
+       "targets": false,
+       "bind": "picked",
+       "what": {
+        "ref": "seen",
+        "type": "card"
+       },
+       "do": [
+        {
+         "op": "draw",
+         "n": 1,
+         "seat": "you",
+         "cites": [
+          "CR:413"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "op": "put",
+     "to": "trash",
+     "cites": [
+      "CR:108"
+     ],
+     "what": {
+      "ref": "seen",
+      "rest": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "Look at the top 3 cards of your Main Deck.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
+  },
+  {
+   "text": "You may choose a card from among them and draw it.",
+   "status": "implemented",
+   "node": "abilities[0].effect[1]"
+  },
+  {
+   "text": "Put the rest into your trash.",
+   "status": "implemented",
+   "node": "abilities[0].effect[2]"
+  },
+  {
+   "text": "[Flow] :rb_energy_2::rb_rune_rainbow:",
+   "status": "implemented",
+   "node": "keywords[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "one of three is drawn and the other two are buried",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lightning Rush"
+      ],
+      "energy": 1,
+      "deck": [
+       "Mobilize",
+       "Back Off",
+       "Challenge",
+       "Wind Wall"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Lightning Rush",
+    "seat": 0
+   },
+   "choices": [
+    "yes",
+    "Back Off"
+   ],
+   "then": [
+    {
+     "expect": "zone_has",
+     "seat": 0,
+     "zone": "hand",
+     "card": "Back Off"
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "trash",
+     "n": 3
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "played from the trash for its Flow cost, it banishes itself",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 2,
+      "power": {
+       "Order": 1
+      },
+      "trash": [
+       "Lightning Rush"
+      ],
+      "deck": [
+       "Mobilize",
+       "Back Off",
+       "Challenge"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Lightning Rush",
+    "seat": 0
+   },
+   "choices": [
+    "no"
+   ],
+   "then": [
+    {
+     "expect": "zone_lacks",
+     "seat": 0,
+     "zone": "trash",
+     "card": "Lightning Rush"
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:0ac78f5a6c2b4f11"
+}

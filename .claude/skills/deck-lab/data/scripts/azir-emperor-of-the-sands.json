@@ -1,0 +1,164 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Azir - Emperor of the Sands",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "grant_keyword",
+     "keyword": "Weaponmaster",
+     "until": "permanent",
+     "cites": [
+      "CR:800",
+      "CR:821"
+     ],
+     "what": {
+      "type": "unit",
+      "side": "friendly",
+      "tag": "Sand Soldier"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "activated",
+   "cites": [
+    "CR:376"
+   ],
+   "cost": [
+    {
+     "cost": "energy",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    },
+    {
+     "cost": "exhaust_self",
+     "cites": [
+      "CR:414"
+     ]
+    }
+   ],
+   "when": {
+    "cond": "has_played",
+    "this_turn": true,
+    "what": {
+     "type": "gear",
+     "side": "friendly",
+     "tag": "Equipment"
+    }
+   },
+   "effect": [
+    {
+     "op": "play",
+     "to": "base",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Sand Soldier",
+       "type": "unit",
+       "might": 2
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "Your Sand Soldiers have [Weaponmaster].",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": ":rb_energy_1:, :rb_exhaust:: Play a 2 :rb_might: Sand Soldier unit token to your base.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  },
+  {
+   "text": "Use only if you've played an Equipment this turn.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "an Equipment played this turn unlocks the soldier",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 1,
+      "board": [
+       {
+        "card": "Cloth Armor",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Azir - Emperor of the Sands",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Sand Soldier",
+     "n": 1
+    },
+    {
+     "expect": "keyword",
+     "card": "Sand Soldier",
+     "seat": 0,
+     "keyword": "Weaponmaster"
+    }
+   ]
+  },
+  {
+   "name": "with no Equipment played, the ability is not available",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 1
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Azir - Emperor of the Sands",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no Equipment played this turn"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:af404c527f0d99d0"
+}

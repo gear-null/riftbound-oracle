@@ -1,0 +1,251 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Baron Nashor",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:355"
+   ],
+   "trigger": {
+    "events": [
+     "as_played"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "add",
+     "cites": [
+      "CR:429",
+      "CR:179"
+     ],
+     "token": {
+      "name": "Baron Pit",
+      "type": "battlefield"
+     },
+     "when": {
+      "cond": "already",
+      "negated": true,
+      "what": {
+       "token": {
+        "name": "Baron Pit",
+        "type": "battlefield"
+       }
+      }
+     }
+    },
+    {
+     "op": "enter",
+     "where": "battlefield",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:355"
+     ],
+     "when": {
+      "cond": "if_you_do"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "restriction",
+     "who": {
+      "self": true
+     },
+     "cant": "be_chosen_by_enemy",
+     "cites": [
+      "CR:364"
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "give_might",
+     "n": 2,
+     "until": "permanent",
+     "cites": [
+      "CR:477"
+     ],
+     "what": {
+      "type": "unit",
+      "side": "friendly",
+      "another": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "As you play me, add the Baron Pit battlefield token to the board if it's not there already.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
+  },
+  {
+   "text": "If you do, I enter there.",
+   "status": "implemented",
+   "node": "abilities[0].effect[1]"
+  },
+  {
+   "text": "I can't be chosen by enemy spells and abilities.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  },
+  {
+   "text": "Other friendly units have +2 :rb_might:.",
+   "status": "implemented",
+   "node": "abilities[2]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "it brings its own battlefield and lands on it",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Baron Nashor"
+      ],
+      "energy": 10,
+      "power": {
+       "Chaos": 3
+      }
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Baron Nashor",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Baron Pit",
+     "n": 1
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Baron Nashor",
+     "at": "battlefield",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "the aura lifts every other friendly unit, not itself",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Baron Nashor",
+        "at": "base"
+       },
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "resolve",
+    "card": "Baron Nashor",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Cithria of Cloudfield",
+     "seat": 0,
+     "n": 3
+    },
+    {
+     "expect": "might",
+     "card": "Baron Nashor",
+     "seat": 0,
+     "n": 12
+    }
+   ]
+  },
+  {
+   "name": "an enemy spell cannot choose it",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Baron Nashor",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "hand": [
+       "Hextech Ray"
+      ],
+      "energy": 1,
+      "power": {
+       "Fury": 1
+      }
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Hextech Ray",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no unit it may choose"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:f65e93a8b0410371"
+}

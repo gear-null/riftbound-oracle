@@ -1,0 +1,138 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Chemtech Enforcer",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Assault",
+   "value": 2,
+   "cites": [
+    "CR:807"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_self"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "discard",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:422"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Assault 2]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "When you play me, discard 1.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "playing it costs a card",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Chemtech Enforcer",
+       "Hextech Ray",
+       "Back Off"
+      ],
+      "energy": 3
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Chemtech Enforcer",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "trash",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "Assault 2 is +2 Might while attacking",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Chemtech Enforcer",
+        "at": "battlefield",
+        "state": "attacking"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Sunlit Guardian",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Chemtech Enforcer",
+     "seat": 0,
+     "n": 4
+    }
+   ]
+  }
+ ],
+ "version": "sha256:d064a76d3e81c0ed"
+}

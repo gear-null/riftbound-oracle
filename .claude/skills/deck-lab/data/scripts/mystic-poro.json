@@ -1,0 +1,145 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Mystic Poro",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "keyword": "Vision",
+   "cites": [
+    "CR:382",
+    "CR:817"
+   ],
+   "trigger": {
+    "events": [
+     "play_self"
+    ],
+    "who": "you",
+    "keyword": "Vision"
+   },
+   "effect": [
+    {
+     "op": "look_at",
+     "n": 1,
+     "from": "deck",
+     "position": "top",
+     "bind": "seen",
+     "cites": [
+      "CR:128",
+      "CR:817"
+     ]
+    },
+    {
+     "choice": "may",
+     "do": [
+      {
+       "op": "recycle",
+       "what": {
+        "ref": "seen"
+       },
+       "cites": [
+        "CR:416"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Vision]",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "Vision looks at the top card and may bury it",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mystic Poro"
+      ],
+      "energy": 2,
+      "deck": [
+       "Back Off",
+       "Hextech Ray"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Mystic Poro",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 2
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "declining leaves the deck alone",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mystic Poro"
+      ],
+      "energy": 2,
+      "deck": [
+       "Back Off",
+       "Hextech Ray"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Mystic Poro",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "no"
+   ],
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 2
+    }
+   ]
+  }
+ ],
+ "version": "sha256:ed0410794d5aff2c"
+}

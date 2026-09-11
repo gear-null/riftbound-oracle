@@ -1,0 +1,202 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Tail-Cloaked Matriarch",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Empower",
+   "cites": [
+    "CR:827"
+   ],
+   "cost": [
+    {
+     "cost": "energy",
+     "n": 2,
+     "cites": [
+      "CR:444"
+     ]
+    },
+    {
+     "cost": "power_domain",
+     "domain": "Chaos",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    }
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "become_state"
+    ],
+    "who": "me",
+    "state": "empowered"
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "do": [
+      {
+       "choice": "choose_object",
+       "targets": false,
+       "bind": "raised",
+       "what": {
+        "type": "unit",
+        "side": "friendly",
+        "zone": "trash",
+        "cost": {
+         "op": "<=",
+         "n": 3
+        }
+       },
+       "do": [
+        {
+         "op": "play",
+         "what": {
+          "ref": "raised"
+         },
+         "to": "base",
+         "from": "trash",
+         "ignoring": "total",
+         "cites": [
+          "CR:419"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Empower] :rb_energy_2::rb_rune_chaos:",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "When I become [Empowered], you may choose a unit in your trash with Energy cost no more than :rb_energy_3: and Power cost no more than :rb_rune_rainbow:.",
+   "status": "approx",
+   "node": "abilities[0]",
+   "reason": "two things are approximated. The trigger is scripted as the generic `become_state` with state `empowered` because `become_empowered` (CR 441, 1 gauntlet clause) is outside the active cut; and a selector carries ONE `by_cost` bound, so the Energy limit is enforced and the Power limit is not — a 1-Power unit in the trash is wrongly eligible."
+  },
+  {
+   "text": "Play it to your base, ignoring its cost.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[0].do[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "Empowering it reanimates a cheap unit for free",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 2,
+      "power": {
+       "Chaos": 1
+      },
+      "trash": [
+       "Lecturing Yordle"
+      ],
+      "board": [
+       {
+        "card": "Tail-Cloaked Matriarch",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Tail-Cloaked Matriarch",
+    "seat": 0
+   },
+   "choices": [
+    "yes",
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Lecturing Yordle",
+     "n": 1
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "a four-Energy unit in the trash is out of range",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 2,
+      "power": {
+       "Chaos": 1
+      },
+      "trash": [
+       "Ferrous Forerunner"
+      ],
+      "board": [
+       {
+        "card": "Tail-Cloaked Matriarch",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Tail-Cloaked Matriarch",
+    "seat": 0
+   },
+   "choices": [
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Ferrous Forerunner",
+     "n": 0
+    },
+    {
+     "expect": "state",
+     "card": "Tail-Cloaked Matriarch",
+     "seat": 0,
+     "is": "empowered"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:4bcc304c371195e4"
+}

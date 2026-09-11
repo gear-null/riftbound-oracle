@@ -1,0 +1,136 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Kinkou Initiate",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_self"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "draw",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ],
+     "when": {
+      "cond": "comparison",
+      "op": ">=",
+      "right": 5,
+      "left": {
+       "might_of": {
+        "side": "friendly",
+        "type": "unit",
+        "another": true
+       }
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you play me, draw 1 if your other units have total Might 5 or more.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "five Might of other units draws",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Kinkou Initiate"
+      ],
+      "energy": 3,
+      "deck": [
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Kinkou Initiate",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "its own Might does not count towards the five",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Kinkou Initiate"
+      ],
+      "energy": 3,
+      "deck": [
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Kinkou Initiate",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:293e893465a5e60a"
+}

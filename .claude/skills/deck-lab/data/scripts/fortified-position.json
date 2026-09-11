@@ -1,0 +1,156 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Fortified Position",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "defend"
+    ],
+    "who": "you",
+    "where": "here"
+   },
+   "effect": [
+    {
+     "choice": "choose_object",
+     "targets": true,
+     "bind": "it",
+     "what": {
+      "type": "unit",
+      "side": "any"
+     },
+     "do": [
+      {
+       "op": "grant_keyword",
+       "what": {
+        "ref": "it"
+       },
+       "until": "this_combat",
+       "keyword": {
+        "keyword": "Shield",
+        "value": 2,
+        "cites": [
+         "CR:814"
+        ]
+       },
+       "cites": [
+        "CR:800",
+        "CR:814"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you defend here, choose a unit.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "It gains [Shield 2] this combat.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "the defender gains two Might for this combat only",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Fortified Position"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "defend",
+    "card": "Lecturing Yordle",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Lecturing Yordle",
+     "seat": 0,
+     "n": 4
+    }
+   ]
+  },
+  {
+   "name": "Shield is worth nothing to an attacker",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Fortified Position"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield",
+        "state": "attacking"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Lecturing Yordle",
+     "seat": 0,
+     "n": 2
+    }
+   ]
+  }
+ ],
+ "version": "sha256:aa649508fb471d65"
+}

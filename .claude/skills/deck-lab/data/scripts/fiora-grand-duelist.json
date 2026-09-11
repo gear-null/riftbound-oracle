@@ -1,0 +1,151 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Fiora - Grand Duelist",
+ "source": "manual",
+ "notes": "Mighty is NOT a keyword. CR 805-829 does not define it; CR 706-711 do, as a derived state (a unit is Mighty while its Might is 5 or more). The corpus sets it in the keyword font on ten cards, which is exactly how a keyword table built by scanning brackets invents a 26th keyword.",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "become_state"
+    ],
+    "who": "you",
+    "state": "mighty",
+    "what": {
+     "type": "unit",
+     "side": "friendly"
+    }
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "cost": [
+      {
+       "cost": "exhaust_self",
+       "cites": [
+        "CR:414"
+       ]
+      }
+     ],
+     "do": [
+      {
+       "op": "channel",
+       "n": 1,
+       "exhausted": true,
+       "seat": "you",
+       "cites": [
+        "CR:430"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When one of your units becomes [Mighty], you may exhaust me to channel 1 rune exhausted.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a unit crossing five Might offers the channel",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Arena Bar"
+      ],
+      "energy": 3,
+      "runes": [
+       "Body Rune"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "trigger",
+    "card": "Fiora - Grand Duelist",
+    "seat": 0
+   },
+   "choices": [
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Body Rune",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "a unit already at five Might does not BECOME Mighty (CR 709)",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "First Mate"
+      ],
+      "energy": 3,
+      "runes": [
+       "Body Rune"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "First Mate",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "Ferrous Forerunner"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Body Rune",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:d2c3bbc4bd0e995d"
+}

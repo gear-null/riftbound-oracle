@@ -1,0 +1,198 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Challenge",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Action",
+   "cites": [
+    "CR:806"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "choice": "choose_object",
+     "targets": true,
+     "bind": "mine",
+     "what": {
+      "type": "unit",
+      "side": "friendly"
+     },
+     "do": [
+      {
+       "choice": "choose_object",
+       "targets": true,
+       "bind": "theirs",
+       "what": {
+        "type": "unit",
+        "side": "enemy"
+       },
+       "do": [
+        {
+         "op": "deal",
+         "source": {
+          "ref": "mine"
+         },
+         "to": {
+          "ref": "theirs"
+         },
+         "n": {
+          "might_of": {
+           "ref": "mine"
+          }
+         },
+         "cites": [
+          "CR:417"
+         ]
+        },
+        {
+         "op": "deal",
+         "source": {
+          "ref": "theirs"
+         },
+         "to": {
+          "ref": "mine"
+         },
+         "n": {
+          "might_of": {
+           "ref": "theirs"
+          }
+         },
+         "cites": [
+          "CR:417"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Action]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "Choose a friendly unit and an enemy unit.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "They deal damage equal to their Mights to each other.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "both units deal their Might to the other, simultaneously",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Challenge"
+      ],
+      "energy": 2,
+      "power": {
+       "Body": 1
+      },
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Challenge",
+    "seat": 0
+   },
+   "choices": [
+    "Ferrous Forerunner",
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 1,
+     "card": "Lecturing Yordle",
+     "n": 0
+    },
+    {
+     "expect": "damage",
+     "card": "Ferrous Forerunner",
+     "seat": 0,
+     "n": 2
+    }
+   ]
+  },
+  {
+   "name": "each side must have a unit to choose",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Challenge"
+      ],
+      "energy": 2,
+      "power": {
+       "Body": 1
+      },
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Challenge",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no enemy unit to choose"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:dd09350623315cde"
+}

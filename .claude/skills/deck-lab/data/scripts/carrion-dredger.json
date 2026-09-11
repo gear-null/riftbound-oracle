@@ -1,0 +1,129 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Carrion Dredger",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "keyword": "Deathknell",
+   "cites": [
+    "CR:382",
+    "CR:808"
+   ],
+   "trigger": {
+    "events": [
+     "die"
+    ],
+    "who": "me",
+    "keyword": "Deathknell"
+   },
+   "effect": [
+    {
+     "op": "play",
+     "to": "base",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Bird",
+       "type": "unit",
+       "might": 1,
+       "keywords": [
+        {
+         "keyword": "Deflect",
+         "value": 1
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Deathknell][>] Play a 1 :rb_might: Bird unit token with [Deflect] to your base.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a Deflect bird replaces it",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Carrion Dredger",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Carrion Dredger",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Bird",
+     "n": 1
+    },
+    {
+     "expect": "keyword",
+     "card": "Bird",
+     "seat": 0,
+     "keyword": "Deflect"
+    }
+   ]
+  },
+  {
+   "name": "banishing it is not dying (CR 427)",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Carrion Dredger",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "resolve",
+    "card": "Carrion Dredger",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Bird",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:e535df0e12f5dacf"
+}

@@ -1,0 +1,189 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Master Yi - Tempered",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:823"
+   ],
+   "keyword": {
+    "keyword": "Hunt",
+    "value": 2,
+    "cites": [
+     "CR:823"
+    ]
+   },
+   "trigger": {
+    "events": [
+     "conquer",
+     "hold"
+    ],
+    "who": "me",
+    "keyword": {
+     "keyword": "Hunt",
+     "value": 2
+    }
+   },
+   "effect": [
+    {
+     "op": "gain_xp",
+     "n": 2,
+     "seat": "you",
+     "cites": [
+      "CR:728"
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "gate": {
+    "keyword": "Level",
+    "value": 6,
+    "cites": [
+     "CR:824"
+    ]
+   },
+   "effect": [
+    {
+     "op": "grant_keyword",
+     "what": {
+      "self": true
+     },
+     "until": "while_state",
+     "keyword": {
+      "keyword": "Deflect",
+      "value": 1,
+      "cites": [
+       "CR:809"
+      ]
+     },
+     "cites": [
+      "CR:800",
+      "CR:809"
+     ]
+    },
+    {
+     "op": "grant_keyword",
+     "what": {
+      "self": true
+     },
+     "until": "while_state",
+     "keyword": {
+      "keyword": "Ganking",
+      "cites": [
+       "CR:810"
+      ]
+     },
+     "cites": [
+      "CR:800",
+      "CR:810"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Hunt 2]",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "[Level 6][>] I have [Deflect] and [Ganking].",
+   "status": "implemented",
+   "node": "abilities[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "below six XP the gated keywords are inactive",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "xp": 4,
+      "board": [
+       {
+        "card": "Master Yi - Tempered",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "resolve",
+    "card": "Master Yi - Tempered",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "keyword",
+     "card": "Master Yi - Tempered",
+     "seat": 0,
+     "keyword": "Deflect",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "two Hunts take him over the line and turn both on",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "xp": 4,
+      "board": [
+       {
+        "card": "Master Yi - Tempered",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "xp",
+     "seat": 0,
+     "n": 6
+    },
+    {
+     "expect": "keyword",
+     "card": "Master Yi - Tempered",
+     "seat": 0,
+     "keyword": "Ganking"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:66f7427358331728"
+}

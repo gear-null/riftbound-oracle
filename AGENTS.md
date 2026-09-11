@@ -47,6 +47,10 @@ scripts/
       └── engine/         The rules kernel: code PLAYS the game, through a
                           decision-request API (ADR 0009). Vanilla so far — no
                           card text is executed. See docs/engine/
+          └── dsl/        The card-script schema and validator. Scripts live in
+                          data/scripts/ as JSON over a closed vocabulary sized by
+                          docs/engine/vocabulary-census.md; nothing executes them
+                          yet. See docs/engine/scripts.md
 ```
 
 ## Tech Stack

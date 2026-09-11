@@ -1,0 +1,196 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Akali, Silent",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "restriction",
+     "who": {
+      "self": true
+     },
+     "cant": "be_chosen_by_enemy",
+     "cites": [
+      "CR:364"
+     ],
+     "unless": {
+      "cond": "state_of_self",
+      "state": "in_combat"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "move"
+    ],
+    "who": "me",
+    "where": "battlefield"
+   },
+   "effect": [
+    {
+     "op": "give_might",
+     "what": {
+      "self": true
+     },
+     "n": 2,
+     "until": "this_turn",
+     "cites": [
+      "CR:477"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "I can't be chosen by enemy spells and abilities unless I'm in combat.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "When I move to a battlefield, give me +2 :rb_might: this turn.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "moving out to a battlefield grows her",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Akali, Silent",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "standard_move",
+    "card": "Akali, Silent",
+    "seat": 0,
+    "to": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Akali, Silent",
+     "seat": 0,
+     "n": 6
+    }
+   ]
+  },
+  {
+   "name": "out of combat an enemy spell cannot choose her",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Akali, Silent",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "hand": [
+       "Back Off"
+      ],
+      "energy": 3
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Back Off",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no unit it may choose"
+    }
+   ]
+  },
+  {
+   "name": "in combat she is a legal choice again",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Akali, Silent",
+        "at": "battlefield",
+        "state": "in_combat"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "hand": [
+       "Back Off"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Back Off",
+    "seat": 1
+   },
+   "choices": [
+    "Akali, Silent"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Akali, Silent",
+     "seat": 0,
+     "is": "stunned"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:dba2e90807511467"
+}

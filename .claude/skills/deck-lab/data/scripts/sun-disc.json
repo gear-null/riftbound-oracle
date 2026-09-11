@@ -1,0 +1,156 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Sun Disc",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "activated",
+   "cites": [
+    "CR:376"
+   ],
+   "gate": {
+    "keyword": "Legion",
+    "cites": [
+     "CR:812"
+    ]
+   },
+   "cost": [
+    {
+     "cost": "exhaust_self",
+     "cites": [
+      "CR:414"
+     ]
+    }
+   ],
+   "effect": [
+    {
+     "kind": "delayed",
+     "cites": [
+      "CR:389"
+     ],
+     "trigger": {
+      "events": [
+       "delayed_next"
+      ],
+      "who": "you",
+      "what": {
+       "type": "unit",
+       "side": "friendly"
+      },
+      "frequency": {
+       "nth": 1,
+       "per": "turn"
+      }
+     },
+     "effect": [
+      {
+       "kind": "enters_modified",
+       "cites": [
+        "CR:367"
+       ],
+       "until": "this_turn",
+       "applies_to": {
+        "type": "unit",
+        "side": "friendly"
+       },
+       "enters": "ready"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": ":rb_exhaust:: [Legion] — The next unit you play this turn enters ready.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "with Legion live, the next unit lands ready",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Sun Disc",
+        "at": "base"
+       }
+      ],
+      "trash": [
+       "Mobilize"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Sun Disc",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "state",
+     "card": "Sun Disc",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  },
+  {
+   "name": "only the FIRST unit after it gets the effect",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle",
+       "Kinkou Initiate"
+      ],
+      "energy": 6,
+      "board": [
+       {
+        "card": "Sun Disc",
+        "at": "base"
+       }
+      ],
+      "trash": [
+       "Mobilize"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Sun Disc",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Sun Disc",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:57424eaafb0508ff"
+}

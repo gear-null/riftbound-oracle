@@ -1,0 +1,165 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Acceptable Losses",
+ "source": "manual",
+ "notes": "`opponent_picks` is the construct that matters here and the one the census flagged as an architecture question rather than a syntax one: it is a decision request routed to the OTHER seat.",
+ "keywords": [
+  {
+   "keyword": "Action",
+   "cites": [
+    "CR:806"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "choice": "opponent_picks",
+     "seat": "each",
+     "what": {
+      "type": "gear",
+      "side": "any",
+      "owner": "controller"
+     },
+     "do": [
+      {
+       "op": "kill",
+       "what": {
+        "ref": "picked"
+       },
+       "cites": [
+        "CR:428"
+       ]
+      }
+     ],
+     "bind": "picked"
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Action]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "Each player kills one of their gear.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "each player chooses their own gear to lose",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Acceptable Losses"
+      ],
+      "energy": 1,
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Poro Snax",
+        "at": "base"
+       },
+       {
+        "card": "Arena Bar",
+        "at": "base"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Acceptable Losses",
+    "seat": 0
+   },
+   "choices": [
+    "Arena Bar",
+    "Poro Snax"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Arena Bar",
+     "n": 0
+    },
+    {
+     "expect": "board_count",
+     "seat": 1,
+     "card": "Poro Snax",
+     "n": 0
+    },
+    {
+     "expect": "board_count",
+     "seat": 1,
+     "card": "Arena Bar",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "a player with no gear loses nothing",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Acceptable Losses"
+      ],
+      "energy": 1
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Acceptable Losses",
+    "seat": 0
+   },
+   "choices": [
+    "Arena Bar"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 1,
+     "card": "Arena Bar",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:bd3360df8ebbc68f"
+}

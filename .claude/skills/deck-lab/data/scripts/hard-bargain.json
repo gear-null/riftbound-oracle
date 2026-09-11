@@ -1,0 +1,171 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Hard Bargain",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Reaction",
+   "cites": [
+    "CR:813"
+   ]
+  },
+  {
+   "keyword": "Repeat",
+   "cites": [
+    "CR:820"
+   ],
+   "cost": [
+    {
+     "cost": "energy",
+     "n": 2,
+     "cites": [
+      "CR:444"
+     ]
+    }
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "counter",
+     "cites": [
+      "CR:425"
+     ],
+     "what": {
+      "type": "spell",
+      "side": "any",
+      "targets": true
+     },
+     "unless": {
+      "cond": "unless_pays",
+      "seat": "controller",
+      "cost": [
+       {
+        "cost": "energy",
+        "n": 2,
+        "cites": [
+         "CR:444"
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Reaction]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Repeat] :rb_energy_2:",
+   "status": "implemented",
+   "node": "keywords[1]"
+  },
+  {
+   "text": "Counter a spell unless its controller pays :rb_energy_2:.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a controller with no Energy cannot buy it back",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Hard Bargain"
+      ],
+      "energy": 2
+     },
+     {
+      "seat": 1,
+      "hand": [
+       "Hextech Ray"
+      ],
+      "energy": 1,
+      "power": {
+       "Fury": 1
+      }
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Hard Bargain",
+    "seat": 0
+   },
+   "choices": [
+    "Hextech Ray",
+    "no"
+   ],
+   "then": [
+    {
+     "expect": "zone_has",
+     "seat": 1,
+     "zone": "trash",
+     "card": "Hextech Ray"
+    }
+   ]
+  },
+  {
+   "name": "paying the two keeps the spell on the chain",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Hard Bargain"
+      ],
+      "energy": 2
+     },
+     {
+      "seat": 1,
+      "hand": [
+       "Hextech Ray"
+      ],
+      "energy": 3,
+      "power": {
+       "Fury": 1
+      }
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Hard Bargain",
+    "seat": 0
+   },
+   "choices": [
+    "Hextech Ray",
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "energy",
+     "seat": 1,
+     "n": 0
+    },
+    {
+     "expect": "chain",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:59e94049599954d2"
+}

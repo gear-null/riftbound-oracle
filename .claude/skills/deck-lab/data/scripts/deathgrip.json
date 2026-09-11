@@ -1,0 +1,195 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Deathgrip",
+ "source": "manual",
+ "notes": "The Might is read AFTER the unit died (CR 370.1): the kill and the measurement are one event, and a script that measured first would quietly disagree with the rules on every buffed sacrifice.",
+ "keywords": [
+  {
+   "keyword": "Reaction",
+   "cites": [
+    "CR:813"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "kill",
+     "cites": [
+      "CR:428"
+     ],
+     "what": {
+      "type": "unit",
+      "side": "friendly",
+      "targets": true,
+      "bind": "fallen"
+     }
+    },
+    {
+     "op": "give_might",
+     "until": "this_turn",
+     "cites": [
+      "CR:477"
+     ],
+     "when": {
+      "cond": "if_you_do"
+     },
+     "n": {
+      "might_of": {
+       "ref": "fallen"
+      }
+     },
+     "what": {
+      "type": "unit",
+      "side": "friendly",
+      "another": true,
+      "targets": true
+     }
+    },
+    {
+     "op": "draw",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Reaction]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "Kill a friendly unit.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
+  },
+  {
+   "text": "If you do, give +[M] equal to its Might to another friendly unit this turn.",
+   "status": "implemented",
+   "node": "abilities[0].effect[1]"
+  },
+  {
+   "text": "Draw 1.",
+   "status": "implemented",
+   "node": "abilities[0].effect[2]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "the dead unit's Might moves to another",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Deathgrip"
+      ],
+      "energy": 2,
+      "deck": [
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Deathgrip",
+    "seat": 0
+   },
+   "choices": [
+    "Ferrous Forerunner",
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Lecturing Yordle",
+     "seat": 0,
+     "n": 8
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "with no second unit the draw still happens",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Deathgrip"
+      ],
+      "energy": 2,
+      "deck": [
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Deathgrip",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Lecturing Yordle",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:aaadd5292e34d0c6"
+}

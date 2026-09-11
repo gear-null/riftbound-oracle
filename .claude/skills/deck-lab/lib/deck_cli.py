@@ -194,7 +194,91 @@ def cmd_check(args):
         print(f"    warn    {w}")
     for u in r.unchecked:
         print(f"    unchecked  {u}")
+
+    # Legality says the deck may be registered. This says whether anything can
+    # PLAY it: a deck of legal cards the engine has no script for is a deck the
+    # engine can only shuffle. Counted over distinct cards, legend and Chosen
+    # Champion included, because both are executed every game.
+    from engine.dsl import library
+    ready = library.readiness(d)
+    print(f"\n  engine readiness: {len(ready['scripted'])} of {ready['distinct']} "
+          f"distinct cards scripted ({ready['share']:.0%})")
+    if ready["unscripted"]:
+        print(f"    unscripted ({len(ready['unscripted'])}): "
+              f"{', '.join(ready['unscripted'])}")
     return 0 if r.legal else 1
+
+
+def cmd_scripts(args):
+    """The card-script library, and the two numbers that say how far it goes.
+
+    Neither of them is "cards with a script". That is the metric under which the
+    prior C++ Riftbound engine reported near-complete coverage while its own
+    audit found 41% of its cards with a real gap, and ADR 0009 rules it out by
+    name. What is printed instead is CLAUSES implemented of clauses total, and
+    how many of the census's measured atoms any script exercises at all.
+
+    An atom nothing exercises is a construct nobody has ever written down, so
+    the unexercised list is the part of this report worth reading.
+    """
+    from engine.dsl import library, schema
+
+    scripts = library.load_all()
+    if args.stamp:
+        changed = library.stamp_all()
+        print(f"  re-stamped {len(changed)} script(s)"
+              + ("".join(f"\n    {os.path.basename(p)}" for p in changed) if changed
+                 else " — every version already matched its body"))
+        return 0
+
+    if args.card:
+        wanted = library.slug(" ".join(args.card))
+        rows = [s for s in scripts if library.slug(s.card) == wanted]
+        if not rows:
+            print(f"no script for {' '.join(args.card)!r} — "
+                  f"expected {os.path.join('data', 'scripts', wanted + '.json')}")
+            return 1
+        for script in rows:
+            print(json.dumps({"card": script.card, "path": script.path,
+                              "valid": script.ok, "errors": script.errors,
+                              "atoms": sorted(script.atoms())}, indent=1))
+        return 0 if all(s.ok for s in rows) else 1
+
+    cov = library.coverage(scripts)
+    if args.json:
+        print(json.dumps(cov, indent=1))
+        return 0 if not cov["invalid"] else 1
+
+    print(f"data/scripts — {cov['scripts']} script(s) against {schema.SCHEMA}\n")
+    for script in scripts:
+        marks = script.marks()
+        total = sum(marks.values())
+        detail = (f"{len(script.errors)} error(s)" if script.errors
+                  else f"{len(script.doc.get('tests') or [])} tests")
+        print(f"  {'ok' if script.ok else '!!'}  {script.card:<38} "
+              f"{marks['implemented']}/{total} clauses   {detail}")
+        for err in script.errors:
+            print(f"        [{err['code']}] {err['path']}: {err['message'][:90]}")
+
+    print(f"\n  {cov['scripts']} script(s), {cov['valid']} valid, "
+          f"{cov['invalid']} with errors")
+    print(f"  clause coverage: {cov['marks']['implemented']} of {cov['clauses']} "
+          f"implemented ({cov['clause_coverage']:.0%})  ·  "
+          f"{cov['marks']['approx']} approx  ·  {cov['marks']['unsupported']} unsupported")
+    print(f"  census atoms:    {cov['atoms_exercised']} of {cov['atoms_active']} "
+          f"exercised ({cov['atoms_exercised'] / max(cov['atoms_active'], 1):.0%})")
+    if cov["unexercised"]:
+        print(f"    unexercised by every script: {', '.join(cov['unexercised'])}")
+    if cov["outside"]:
+        print(f"    OUTSIDE the active vocabulary: {', '.join(cov['outside'])}")
+    size = schema.vocabulary_size()
+    print(f"  vocabulary:      {size['primitives']} primitives · {size['triggers']} "
+          f"triggers · {size['selectors']} selectors · {size['conditions']} conditions\n"
+          f"                   {size['choices']} choices · {size['costs']} costs · "
+          f"{size['replacements']} replacements · {size['durations']} durations\n"
+          f"                   {size['keywords']} keywords · {size['tokens']} token specs"
+          f"  ({size['declared']} atoms declared in all)")
+    return 1 if cov["invalid"] else 0
 
 
 def cmd_card(args):
@@ -667,7 +751,14 @@ def cmd_help(args):
   import <file|-> [--name X]   paste a decklist from anywhere and make it an
                                opponent. Most decklist sites block scraping, so
                                this is how the gauntlet actually gets built
-  check <deck>                 deck construction report (103)
+  check <deck>                 deck construction report (103), plus engine
+                               readiness: how many of its distinct cards the
+                               script library can execute
+  scripts [--card X]           the card-script library: validation, clause
+                               coverage, and which measured vocabulary atoms any
+                               script exercises. --card prints one script's error
+                               records as the compiler's repair loop sees them;
+                               --stamp rewrites stale version hashes
   card <name>                  a card's printed text and stats
   analyze <deck>               shuffle math: curve, domain access, stranded cards
   report <deck>                the same, as a self-contained HTML page
@@ -727,6 +818,9 @@ def main(argv=None):
 
     sub.add_parser("decks")
     p = sub.add_parser("check"); p.add_argument("deck")
+    p = sub.add_parser("scripts")
+    p.add_argument("--card", nargs="+"); p.add_argument("--json", action="store_true")
+    p.add_argument("--stamp", action="store_true")
     p = sub.add_parser("card"); p.add_argument("name", nargs="+")
     p = sub.add_parser("analyze"); p.add_argument("deck")
     p.add_argument("--trials", type=int, default=20000); p.add_argument("--json", action="store_true")
@@ -769,6 +863,7 @@ def main(argv=None):
         "report": cmd_report, "new": cmd_new, "state": cmd_state, "log": cmd_log,
         "do": cmd_do, "games": cmd_games, "record": cmd_record, "journal": cmd_journal,
         "import": cmd_import, "gauntlet": cmd_gauntlet, "engine": cmd_engine,
+        "scripts": cmd_scripts,
         "selftest": cmd_selftest, "mutants": cmd_mutants, "help": cmd_help,
     }.get(args.command, cmd_help)
     try:

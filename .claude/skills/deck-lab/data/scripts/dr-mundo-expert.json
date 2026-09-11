@@ -1,0 +1,160 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Dr. Mundo - Expert",
+ "source": "manual",
+ "notes": "In a passive, `until: permanent` means the continuous effect lasts as long as the ability does — CR 477 recomputes it every time the layers are applied, so the Might follows the trash size rather than snapshotting.",
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "give_might",
+     "what": {
+      "self": true
+     },
+     "until": "permanent",
+     "cites": [
+      "CR:477"
+     ],
+     "n": {
+      "for_each": {
+       "type": "card",
+       "side": "friendly",
+       "zone": "trash"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "beginning_phase"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "recycle",
+     "n": 3,
+     "cites": [
+      "CR:416"
+     ],
+     "what": {
+      "type": "card",
+      "side": "friendly",
+      "zone": "trash"
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "My Might is increased by the number of cards in your trash.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "At the start of your Beginning Phase, recycle 3 from your trash.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "four cards in the trash is four more Might",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "trash": [
+       "Back Off",
+       "Mobilize",
+       "Challenge",
+       "Hextech Ray"
+      ],
+      "board": [
+       {
+        "card": "Dr. Mundo - Expert",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "resolve",
+    "card": "Dr. Mundo - Expert",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Dr. Mundo - Expert",
+     "seat": 0,
+     "n": 10
+    }
+   ]
+  },
+  {
+   "name": "his own Beginning Phase shrinks him by three",
+   "given": {
+    "turn_player": 0,
+    "phase": "beginning",
+    "seats": [
+     {
+      "seat": 0,
+      "trash": [
+       "Back Off",
+       "Mobilize",
+       "Challenge",
+       "Hextech Ray"
+      ],
+      "board": [
+       {
+        "card": "Dr. Mundo - Expert",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "begin_turn",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "trash",
+     "n": 1
+    },
+    {
+     "expect": "might",
+     "card": "Dr. Mundo - Expert",
+     "seat": 0,
+     "n": 7
+    }
+   ]
+  }
+ ],
+ "version": "sha256:30b5b63c1d3a82d6"
+}
