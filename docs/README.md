@@ -23,6 +23,15 @@ single fetch so they cannot disagree about what a card says.
 | [invariants.md](invariants.md) | The twelve things that must never be false, and the checks that pin them |
 | [known-issues.md](known-issues.md) | Found, reproduced, and deliberately not fixed |
 
+## Measurements
+
+Numbers taken before a design is committed to, so the design argues with data instead of
+with an analogy.
+
+| | |
+|---|---|
+| [Vocabulary census](engine/vocabulary-census.md) | What card text actually says, clause by clause — the empirical sizing of the card-script DSL ([#26](https://github.com/gear-null/riftbound-oracle/issues/26)) |
+
 ## Reference
 
 | | |
