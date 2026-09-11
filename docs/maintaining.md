@@ -141,6 +141,71 @@ Splitting step 3 leaves main red between the two commits, and the failure reads
 "1 invariant not fully pinned" — which is alarming, correct, and easy to
 misread as a regression by anyone who was not there.
 
+## Which battery CI runs
+
+The two mutation batteries are the whole cost of CI. On the run that merged the kernel
+tracer, rules-report's took **31.7 minutes** and deck-lab's **7.2**, while every other
+step in the workflow — both selftests, the invariant gate, typecheck, vitest, the site
+build, package reproducibility — finished inside a minute. Running both on every push
+meant ~40 minutes before any PR could go green, most of it re-proving a skill the push
+had never touched.
+
+So each battery runs only when something that could change what it proves has moved:
+
+| changed | rules-report battery | deck-lab battery |
+|---|---|---|
+| `.claude/skills/rules-report/**` | yes | — |
+| `.claude/skills/deck-lab/**` (the engine included) | — | yes |
+| `output/core-rules.md`, `output/tournament-rules.md` | yes | — |
+| `output/rules.md` (the errata), `output/cards-*.md` | yes | — |
+| `src/skill-data.ts`, `errata.ts`, `riftcodex.ts`, `normalize.ts` | yes | yes |
+| `manifests/card-overlays.yaml` | yes | yes |
+| a skill folder with no rule yet | yes | yes |
+| anything else — docs, site, CI, the rest of `src/` | — | — |
+
+A push touching both skills runs both. The generators are listed under both because
+`skill-data` writes `data/cards.json` into both skills from one fetch, so a change there
+can move either skill's data.
+
+The rule itself is `scripts/battery-triggers.py`, which reads changed paths on stdin and
+writes the decision on stdout. The `changes` job in `.github/workflows/ci.yml` feeds it a
+diff against the **PR's base commit**, or against the **previous commit** for a push to
+main, and the two battery steps are gated on its outputs.
+
+Check a decision before you push:
+
+```bash
+git diff --name-only main...HEAD | python3 scripts/battery-triggers.py
+```
+
+Three properties are load-bearing, and each one is there because the obvious alternative
+breaks something:
+
+- **The decision is made inside the jobs, not with a workflow-level `paths:` filter.**
+  A filtered-out job reports nothing at all, and branch protection then waits forever on
+  a required check that will never arrive. Every job keeps its name and runs on every
+  push; only the battery *steps* skip.
+- **No usable base means run everything.** A force-push that dropped the old tip, or any
+  event shape the workflow did not anticipate, leaves nothing to diff — and no diff is no
+  evidence. Being wrong in that direction costs 40 minutes; being wrong the other way
+  ships a defect past a green tick.
+- **The rule has tests** (`scripts/battery-triggers-test.py`, run by the same job). A rule
+  that decides work can be skipped fails invisibly when it is wrong: CI stays green
+  because the step that would have gone red never ran. This project does not count a
+  check nobody has watched fail, and that applies to the checks on the checks.
+
+Extending it: adding a skill with a battery means adding a rule, a job step, and a case
+to the test. Until then the fallback covers it — an unrecognised `.claude/skills/<name>/`
+path runs every battery. Adding a *generated input* — a new corpus file a skill parses —
+means adding a rule, and nothing will tell you if you forget, which is why the reason
+column in that file is written as "would changing this file change what the battery
+proves?".
+
+The proven-checks drift guard stays unconditional, after both batteries. With neither
+battery run nothing can have written `proven-checks.json` and it passes instantly; with
+either one run it is downstream of the writer regardless. See
+[docs/engine/testing.md](engine/testing.md) for why its position is the whole guard.
+
 ## Packaging a release
 
 Both skills ship together. `oracle package` builds an archive per skill —
@@ -446,6 +511,8 @@ src/                     TypeScript pipeline (fetch, parse, normalise)
 manifests/sources.yaml   prescriptive: what gets fetched and where it lands
 output/                  intermediate corpus the skill data is built from
 scripts/pdf-extract.py   pdfplumber PDF -> text
+scripts/battery-triggers.py
+                         which mutation battery a change re-proves (+ its test)
 docs/                    these documents
 ```
 
