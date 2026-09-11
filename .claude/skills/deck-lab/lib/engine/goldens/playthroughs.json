@@ -1,0 +1,3238 @@
+{
+ "note": "regenerate with `python3 deck_cli.py engine golden --write`",
+ "games": [
+  {
+   "name": "irelia-vs-yi-s7",
+   "spec": {
+    "a": "irelia-blade-dancer-irelia-2025-12-17",
+    "b": "master-yi-wuju-bladesman-shanghai-national-open-2nd-place",
+    "seed": 7,
+    "first": 0,
+    "policy": "g7"
+   },
+   "answers": [
+    [
+     0,
+     "mulligan",
+     [
+      "aside",
+      "Zhonya's Hourglass"
+     ]
+    ],
+    [
+     0,
+     "mulligan",
+     [
+      "aside",
+      "Fight or Flight"
+     ]
+    ],
+    [
+     1,
+     "mulligan",
+     [
+      "aside",
+      "Stalwart Poro"
+     ]
+    ],
+    [
+     1,
+     "mulligan",
+     [
+      "keep"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Find Your Center"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Defy"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "First Mate"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Stacked Deck"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "champion",
+      "Irelia, Fervent"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "En Garde"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Heart of Dark Ice"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Fight or Flight"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u18"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Defy"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "champion",
+      "Master Yi, Honed"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u13"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Zhonya's Hourglass"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Ride the Wind"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Fight or Flight"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u18"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Qiyana, Victorious"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "base:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u18"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Tasty Faefolk"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Irelia, Fervent"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "at",
+      "base:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u18"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Stellacorn Herder"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u31"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Discipline"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u41"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Pit Rookie"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "base:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u47"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Whiteflame Protector"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u51"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Zhonya's Hourglass"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Clockwork Keeper"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Confront"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u58"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u47"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u41"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u31"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Sabotage"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u60"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u53"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u18"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ]
+   ],
+   "step_hashes": [
+    "7fdd172cfdd711fe",
+    "48d874e4ca844c1e",
+    "61934c2a37eaf930",
+    "6e4ccff67e0ddbf9",
+    "49bc98738bb83c95",
+    "6dc8034d49f230f6",
+    "bb176409c0546b17",
+    "b4e8d8b9e8479c9b",
+    "bd0140a2bc6b0b71",
+    "3bb4a06ef10f3503",
+    "ddf26546e63c793a",
+    "06624e03f30068ca",
+    "c18b1145cecae00e",
+    "e1ae0fa29fd54d18",
+    "d61a9fdd8b4f1ac4",
+    "c35ed466791efaaa",
+    "af6cf4b472e37ca7",
+    "e3279e3805a1d456",
+    "acb4d27572efd412",
+    "1d51e5bd71aee8b9",
+    "efa75e2c7517eea9",
+    "8ea0a57eec956399",
+    "0779bee420f8cb2b",
+    "a2a18fb46e1d3ef9",
+    "b0024f48fa6457b9",
+    "974f7a4946d78169",
+    "3e086e27dc227764",
+    "dd6b8ed84b82dd0a",
+    "542463a4d837f5ec",
+    "9e0cf5e3fdbe3dff",
+    "da389f7f83ed6489",
+    "89ea8f0d6d748b77",
+    "426cdf2becfa3a33",
+    "af876c70e8b315fd",
+    "ee433f5413ab0a32",
+    "284e56a8816eed22",
+    "4f6b23efb866c8e2",
+    "e5095ebb66dc8f54",
+    "f3c04e55b8bc1850",
+    "1c815bcd8dc20fbb",
+    "503e65fff9d95e0c",
+    "4f38a4b0477e0859",
+    "6b852d15789a7943",
+    "b262e57066bd9068",
+    "49b0d93e9c078c5e",
+    "6d7a7a3ca9e31a80",
+    "172073bf57eafcde",
+    "e378cc1fb95a2298",
+    "9e83c32bdca5a443",
+    "358e85cbadd9a6a2",
+    "0786a4b46531d9b9",
+    "5ce899e192783dd8",
+    "2c56fa724120d133",
+    "7019caf8a6b6c160",
+    "036caaa279d7cecc",
+    "78008a6c0119e0fc",
+    "2deaf0dd3e071f10",
+    "f8acd3da6c440b46",
+    "e177165e52ae6b20",
+    "d6f6eb7ada71d66e",
+    "61d2eb0d9485cfa1",
+    "cc1862477ae808f5",
+    "d7256a27a57c8223",
+    "e38ed2b148f011a2",
+    "a4efb523737d7413",
+    "a696d78ae05910cb",
+    "ca948db3d2f2aedd",
+    "20991504543f6a4e",
+    "a23bef68520e7538",
+    "42d33f00cb20994c"
+   ],
+   "summary": {
+    "seed": 7,
+    "first_player": 0,
+    "turns": 18,
+    "winner": 1,
+    "end_reason": "seat 1 reached the Victory Score (472)",
+    "points": [
+     4,
+     8
+    ],
+    "decisions": 70,
+    "log_entries": 451,
+    "state_hash": "bd81bfafa5d83a9d"
+   },
+   "log": [
+    "seat 0 draws 4 (opening hand)",
+    "seat 1 draws 4 (opening hand)",
+    "setup: seat 0 goes first; battlefields Aspirant's Climb and Vilemaw's Lair",
+    "victory score is 8 (485.3)",
+    "seat 0 draws 2 (mulligan)",
+    "seat 0 mulligans 2, keeping 2",
+    "seat 1 draws 1 (mulligan)",
+    "seat 1 mulligans 1, keeping 3",
+    "— turn 1, seat 0 — awaken phase",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
+    "— turn 1, seat 0 — beginning phase",
+    "— turn 1, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Calm Rune",
+    "— turn 1, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 1, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 2, seat 1 — awaken phase",
+    "awaken: seat 1 readies 0 object(s) (315.1.b)",
+    "— turn 2, seat 1 — beginning phase",
+    "— turn 2, seat 1 — channel phase",
+    "the player going second channels an extra rune this turn (485.7)",
+    "seat 1 channels 3: Body Rune, Calm Rune, Calm Rune",
+    "— turn 2, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Find Your Center [c6] onto the Chain — pending (354)",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E for Find Your Center",
+    "  Find Your Center [c6] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Find Your Center [c6] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 2, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 3, seat 0 — awaken phase",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
+    "— turn 3, seat 0 — beginning phase",
+    "— turn 3, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Calm Rune",
+    "— turn 3, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 3, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 4, seat 1 — awaken phase",
+    "awaken: seat 1 readies 3 object(s) (315.1.b)",
+    "— turn 4, seat 1 — beginning phase",
+    "— turn 4, seat 1 — channel phase",
+    "seat 1 channels 2: Body Rune, Calm Rune",
+    "— turn 4, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Defy [c11] onto the Chain — pending (354)",
+    "seat 1 recycles Calm Rune [r4] for 1 Calm Power",
+    "seat 1 exhausts 1 rune(s) for 1 Energy",
+    "seat 1 pays 1E + 1P for Defy",
+    "  Defy [c11] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Defy [c11] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 plays First Mate [c12] onto the Chain — pending (354)",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E for First Mate",
+    "  First Mate [c12] is finalized (359)",
+    "seat 1 puts First Mate [u13] into play exhausted at seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 4, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 5, seat 0 — awaken phase",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
+    "— turn 5, seat 0 — beginning phase",
+    "— turn 5, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Calm Rune",
+    "— turn 5, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Stacked Deck [c16] onto the Chain — pending (354)",
+    "seat 0 exhausts 1 rune(s) for 1 Energy",
+    "seat 0 pays 1E for Stacked Deck",
+    "  Stacked Deck [c16] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Stacked Deck [c16] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 plays Irelia, Fervent [c17] onto the Chain — pending (354)",
+    "seat 0 exhausts 5 rune(s) for 5 Energy",
+    "seat 0 pays 5E for Irelia, Fervent",
+    "  Irelia, Fervent [c17] is finalized (359)",
+    "seat 0 puts Irelia, Fervent [u18] into play exhausted at seat 0's base",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 5, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 6, seat 1 — awaken phase",
+    "awaken: seat 1 readies 5 object(s) (315.1.b)",
+    "— turn 6, seat 1 — beginning phase",
+    "— turn 6, seat 1 — channel phase",
+    "seat 1 channels 2: Calm Rune, Body Rune",
+    "— turn 6, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 6, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 7, seat 0 — awaken phase",
+    "awaken: seat 0 readies 7 object(s) (315.1.b)",
+    "— turn 7, seat 0 — beginning phase",
+    "— turn 7, seat 0 — channel phase",
+    "seat 0 channels 2: Calm Rune, Calm Rune",
+    "— turn 7, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays En Garde [c23] onto the Chain — pending (354)",
+    "seat 0 exhausts 1 rune(s) for 1 Energy",
+    "seat 0 pays 1E for En Garde",
+    "  En Garde [c23] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  En Garde [c23] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 plays Heart of Dark Ice [c24] onto the Chain — pending (354)",
+    "seat 0 recycles Calm Rune [r2] for 1 Calm Power",
+    "seat 0 exhausts 3 rune(s) for 3 Energy",
+    "seat 0 pays 3E + 1P for Heart of Dark Ice",
+    "  Heart of Dark Ice [c24] is finalized (359)",
+    "seat 0 puts Heart of Dark Ice [u25] into play ready at seat 0's base",
+    "seat 0 plays Fight or Flight [c26] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Fight or Flight",
+    "  Fight or Flight [c26] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Fight or Flight [c26] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Irelia, Fervent [u18] exhausts",
+    "Irelia, Fervent [u18] moves seat 0's base -> Vilemaw's Lair (bf:1)",
+    "Vilemaw's Lair becomes CONTESTED by seat 0 (190.3.a.1)",
+    "a SHOWDOWN opens at Vilemaw's Lair; seat 0 applied Contested and takes Focus (344, 345)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Vilemaw's Lair closes (348)",
+    "seat 0 establishes control of Vilemaw's Lair",
+    "seat 0 SCORES Vilemaw's Lair by Conquer -> 1 point(s)",
+    "seat 0 plays Defy [c27] onto the Chain — pending (354)",
+    "seat 0 recycles Calm Rune [r8] for 1 Calm Power",
+    "seat 0 exhausts 1 rune(s) for 1 Energy",
+    "seat 0 pays 1E + 1P for Defy",
+    "  Defy [c27] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Defy [c27] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 7, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 8, seat 1 — awaken phase",
+    "awaken: seat 1 readies 0 object(s) (315.1.b)",
+    "— turn 8, seat 1 — beginning phase",
+    "— turn 8, seat 1 — channel phase",
+    "seat 1 channels 2: Body Rune, Body Rune",
+    "— turn 8, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Master Yi, Honed [c30] onto the Chain — pending (354)",
+    "seat 1 recycles Body Rune [r3] for 1 Body Power",
+    "seat 1 exhausts 7 rune(s) for 7 Energy",
+    "seat 1 pays 7E + 1P for Master Yi, Honed",
+    "  Master Yi, Honed [c30] is finalized (359)",
+    "seat 1 puts Master Yi, Honed [u31] into play exhausted at seat 1's base",
+    "First Mate [u13] exhausts",
+    "First Mate [u13] moves seat 1's base -> Aspirant's Climb (bf:0)",
+    "Aspirant's Climb becomes CONTESTED by seat 1 (190.3.a.1)",
+    "a SHOWDOWN opens at Aspirant's Climb; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Aspirant's Climb closes (348)",
+    "seat 1 establishes control of Aspirant's Climb",
+    "seat 1 SCORES Aspirant's Climb by Conquer -> 1 point(s)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 8, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 9, seat 0 — awaken phase",
+    "awaken: seat 0 readies 7 object(s) (315.1.b)",
+    "— turn 9, seat 0 — beginning phase",
+    "seat 0 SCORES Vilemaw's Lair by Hold -> 2 point(s)",
+    "— turn 9, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Chaos Rune",
+    "— turn 9, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Zhonya's Hourglass [c34] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Zhonya's Hourglass",
+    "  Zhonya's Hourglass [c34] is finalized (359)",
+    "seat 0 puts Zhonya's Hourglass [u35] into play ready at seat 0's base",
+    "seat 0 plays Ride the Wind [c36] onto the Chain — pending (354)",
+    "seat 0 recycles Chaos Rune [r1] for 1 Chaos Power",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E + 1P for Ride the Wind",
+    "  Ride the Wind [c36] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Ride the Wind [c36] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 plays Fight or Flight [c37] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Fight or Flight",
+    "  Fight or Flight [c37] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Fight or Flight [c37] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Irelia, Fervent [u18] exhausts",
+    "Irelia, Fervent [u18] moves Vilemaw's Lair (bf:1) -> seat 0's base",
+    "seat 0 loses control of Vilemaw's Lair (323.6)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 9, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 10, seat 1 — awaken phase",
+    "awaken: seat 1 readies 9 object(s) (315.1.b)",
+    "— turn 10, seat 1 — beginning phase",
+    "seat 1 SCORES Aspirant's Climb by Hold -> 2 point(s)",
+    "— turn 10, seat 1 — channel phase",
+    "seat 1 channels 2: Calm Rune, Calm Rune",
+    "— turn 10, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Qiyana, Victorious [c40] onto the Chain — pending (354)",
+    "seat 1 recycles Body Rune [r9] for 1 Body Power",
+    "seat 1 exhausts 4 rune(s) for 4 Energy",
+    "seat 1 pays 4E + 1P for Qiyana, Victorious",
+    "  Qiyana, Victorious [c40] is finalized (359)",
+    "seat 1 puts Qiyana, Victorious [u41] into play exhausted at seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 10, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 11, seat 0 — awaken phase",
+    "awaken: seat 0 readies 6 object(s) (315.1.b)",
+    "— turn 11, seat 0 — beginning phase",
+    "— turn 11, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Calm Rune",
+    "— turn 11, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Irelia, Fervent [u18] exhausts",
+    "Irelia, Fervent [u18] moves seat 0's base -> Vilemaw's Lair (bf:1)",
+    "Vilemaw's Lair becomes CONTESTED by seat 0 (190.3.a.1)",
+    "a SHOWDOWN opens at Vilemaw's Lair; seat 0 applied Contested and takes Focus (344, 345)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Vilemaw's Lair closes (348)",
+    "seat 0 establishes control of Vilemaw's Lair",
+    "seat 0 SCORES Vilemaw's Lair by Conquer -> 3 point(s)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 11, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 12, seat 1 — awaken phase",
+    "awaken: seat 1 readies 5 object(s) (315.1.b)",
+    "— turn 12, seat 1 — beginning phase",
+    "seat 1 SCORES Aspirant's Climb by Hold -> 3 point(s)",
+    "— turn 12, seat 1 — channel phase",
+    "seat 1 channels 2: Body Rune, Calm Rune",
+    "— turn 12, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Tasty Faefolk [c46] onto the Chain — pending (354)",
+    "seat 1 exhausts 7 rune(s) for 7 Energy",
+    "seat 1 pays 7E for Tasty Faefolk",
+    "  Tasty Faefolk [c46] is finalized (359)",
+    "seat 1 puts Tasty Faefolk [u47] into play exhausted at Aspirant's Climb (bf:0)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 12, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 13, seat 0 — awaken phase",
+    "awaken: seat 0 readies 1 object(s) (315.1.b)",
+    "— turn 13, seat 0 — beginning phase",
+    "seat 0 SCORES Vilemaw's Lair by Hold -> 4 point(s)",
+    "— turn 13, seat 0 — channel phase",
+    "seat 0 channels 2: Calm Rune, Calm Rune",
+    "— turn 13, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Irelia, Fervent [c50] onto the Chain — pending (354)",
+    "seat 0 exhausts 5 rune(s) for 5 Energy",
+    "seat 0 pays 5E for Irelia, Fervent",
+    "  Irelia, Fervent [c50] is finalized (359)",
+    "seat 0 puts Irelia, Fervent [u51] into play exhausted at seat 0's base",
+    "Irelia, Fervent [u18] exhausts",
+    "Irelia, Fervent [u18] moves Vilemaw's Lair (bf:1) -> seat 0's base",
+    "seat 0 loses control of Vilemaw's Lair (323.6)",
+    "seat 0 plays Stellacorn Herder [c52] onto the Chain — pending (354)",
+    "seat 0 exhausts 4 rune(s) for 4 Energy",
+    "seat 0 pays 4E for Stellacorn Herder",
+    "  Stellacorn Herder [c52] is finalized (359)",
+    "seat 0 puts Stellacorn Herder [u53] into play exhausted at seat 0's base",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 13, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 14, seat 1 — awaken phase",
+    "awaken: seat 1 readies 8 object(s) (315.1.b)",
+    "— turn 14, seat 1 — beginning phase",
+    "seat 1 SCORES Aspirant's Climb by Hold -> 4 point(s)",
+    "— turn 14, seat 1 — channel phase",
+    "seat 1 channels 2: Body Rune, Body Rune",
+    "— turn 14, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "Master Yi, Honed [u31] exhausts",
+    "Master Yi, Honed [u31] moves seat 1's base -> Vilemaw's Lair (bf:1)",
+    "Vilemaw's Lair becomes CONTESTED by seat 1 (190.3.a.1)",
+    "a SHOWDOWN opens at Vilemaw's Lair; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Vilemaw's Lair closes (348)",
+    "seat 1 establishes control of Vilemaw's Lair",
+    "seat 1 SCORES Vilemaw's Lair by Conquer -> 5 point(s)",
+    "seat 1 plays Discipline [c56] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Discipline",
+    "  Discipline [c56] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Discipline [c56] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Qiyana, Victorious [u41] exhausts",
+    "Qiyana, Victorious [u41] moves seat 1's base -> Vilemaw's Lair (bf:1)",
+    "seat 1 plays Pit Rookie [c57] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Pit Rookie",
+    "  Pit Rookie [c57] is finalized (359)",
+    "seat 1 puts Pit Rookie [u58] into play exhausted at seat 1's base",
+    "Tasty Faefolk [u47] exhausts",
+    "Tasty Faefolk [u47] moves Aspirant's Climb (bf:0) -> seat 1's base",
+    "seat 1 plays Whiteflame Protector [c59] onto the Chain — pending (354)",
+    "seat 1 recycles Calm Rune [r5] for 1 Calm Power",
+    "seat 1 recycles Calm Rune [r10] for 1 Calm Power",
+    "seat 1 exhausts 8 rune(s) for 8 Energy",
+    "seat 1 pays 8E + 2P for Whiteflame Protector",
+    "  Whiteflame Protector [c59] is finalized (359)",
+    "seat 1 puts Whiteflame Protector [u60] into play exhausted at Aspirant's Climb (bf:0)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 14, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 15, seat 0 — awaken phase",
+    "awaken: seat 0 readies 12 object(s) (315.1.b)",
+    "— turn 15, seat 0 — beginning phase",
+    "— turn 15, seat 0 — channel phase",
+    "seat 0 channels 1: Chaos Rune",
+    "— turn 15, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Irelia, Fervent [u51] exhausts",
+    "Irelia, Fervent [u51] moves seat 0's base -> Aspirant's Climb (bf:0)",
+    "Aspirant's Climb becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at Aspirant's Climb as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Aspirant's Climb closes (348)",
+    "combat at Aspirant's Climb: seat 0 4 Might vs seat 1 11 Might (465.2.a-b)",
+    "  First Mate [u13] takes 3 damage (3/3)",
+    "  Whiteflame Protector [u60] takes 1 damage (1/8)",
+    "  Irelia, Fervent [u51] takes 11 damage (11/4)",
+    "First Mate [u13] -> trash (lethal damage marked (323.5))",
+    "Irelia, Fervent [u51] -> trash (lethal damage marked (323.5))",
+    "combat result at Aspirant's Climb: seat 1 wins the combat (466.3.a)",
+    "combat at Aspirant's Climb ends (466.7)",
+    "seat 0 plays Zhonya's Hourglass [c62] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Zhonya's Hourglass",
+    "  Zhonya's Hourglass [c62] is finalized (359)",
+    "seat 0 puts Zhonya's Hourglass [u63] into play ready at seat 0's base",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 15, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 16, seat 1 — awaken phase",
+    "awaken: seat 1 readies 15 object(s) (315.1.b)",
+    "— turn 16, seat 1 — beginning phase",
+    "seat 1 SCORES Aspirant's Climb by Hold -> 6 point(s)",
+    "seat 1 SCORES Vilemaw's Lair by Hold -> 7 point(s)",
+    "— turn 16, seat 1 — channel phase",
+    "seat 1 channels 2: Calm Rune, Calm Rune",
+    "— turn 16, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Clockwork Keeper [c66] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Clockwork Keeper",
+    "  Clockwork Keeper [c66] is finalized (359)",
+    "seat 1 puts Clockwork Keeper [u67] into play exhausted at Aspirant's Climb (bf:0)",
+    "seat 1 plays Confront [c68] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Confront",
+    "  Confront [c68] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Confront [c68] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Pit Rookie [u58] exhausts",
+    "Pit Rookie [u58] moves seat 1's base -> Aspirant's Climb (bf:0)",
+    "Tasty Faefolk [u47] exhausts",
+    "Tasty Faefolk [u47] moves seat 1's base -> Vilemaw's Lair (bf:1)",
+    "Qiyana, Victorious [u41] exhausts",
+    "Qiyana, Victorious [u41] moves Vilemaw's Lair (bf:1) -> seat 1's base",
+    "Master Yi, Honed [u31] exhausts",
+    "Master Yi, Honed [u31] moves Vilemaw's Lair (bf:1) -> seat 1's base",
+    "seat 1 plays Sabotage [c69] onto the Chain — pending (354)",
+    "seat 1 recycles Body Rune [r20] for 1 Body Power",
+    "seat 1 exhausts 1 rune(s) for 1 Energy",
+    "seat 1 pays 1E + 1P for Sabotage",
+    "  Sabotage [c69] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Sabotage [c69] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Whiteflame Protector [u60] exhausts",
+    "Whiteflame Protector [u60] moves Aspirant's Climb (bf:0) -> seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 16, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 17, seat 0 — awaken phase",
+    "awaken: seat 0 readies 2 object(s) (315.1.b)",
+    "— turn 17, seat 0 — beginning phase",
+    "— turn 17, seat 0 — channel phase",
+    "seat 0 cannot channel — Rune Deck is empty",
+    "— turn 17, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Stellacorn Herder [u53] exhausts",
+    "Stellacorn Herder [u53] moves seat 0's base -> Vilemaw's Lair (bf:1)",
+    "Vilemaw's Lair becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at Vilemaw's Lair as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Vilemaw's Lair closes (348)",
+    "combat at Vilemaw's Lair: seat 0 3 Might vs seat 1 6 Might (465.2.a-b)",
+    "  Tasty Faefolk [u47] takes 3 damage (3/6)",
+    "  Stellacorn Herder [u53] takes 6 damage (6/3)",
+    "Stellacorn Herder [u53] -> trash (lethal damage marked (323.5))",
+    "combat result at Vilemaw's Lair: seat 1 wins the combat (466.3.a)",
+    "combat at Vilemaw's Lair ends (466.7)",
+    "Irelia, Fervent [u18] exhausts",
+    "Irelia, Fervent [u18] moves seat 0's base -> Aspirant's Climb (bf:0)",
+    "Aspirant's Climb becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at Aspirant's Climb as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Aspirant's Climb closes (348)",
+    "combat at Aspirant's Climb: seat 0 4 Might vs seat 1 4 Might (465.2.a-b)",
+    "  Pit Rookie [u58] takes 2 damage (2/2)",
+    "  Clockwork Keeper [u67] takes 2 damage (2/2)",
+    "  Irelia, Fervent [u18] takes 4 damage (4/4)",
+    "Irelia, Fervent [u18] -> trash (lethal damage marked (323.5))",
+    "Pit Rookie [u58] -> trash (lethal damage marked (323.5))",
+    "Clockwork Keeper [u67] -> trash (lethal damage marked (323.5))",
+    "combat result at Aspirant's Climb: no result (466.3.d)",
+    "Aspirant's Climb becomes uncontrolled (466.5.b)",
+    "combat at Aspirant's Climb ends (466.7)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 17, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 18, seat 1 — awaken phase",
+    "awaken: seat 1 readies 8 object(s) (315.1.b)",
+    "— turn 18, seat 1 — beginning phase",
+    "seat 1 SCORES Vilemaw's Lair by Hold -> 8 point(s)",
+    "seat 1 WINS with 8 points (472)",
+    "game over: seat 1 reached the Victory Score (472)"
+   ]
+  },
+  {
+   "name": "yi-vs-irelia-s7-swapped",
+   "spec": {
+    "a": "master-yi-wuju-bladesman-shanghai-national-open-2nd-place",
+    "b": "irelia-blade-dancer-irelia-2025-12-17",
+    "seed": 7,
+    "first": 1,
+    "policy": "g7"
+   },
+   "answers": [
+    [
+     1,
+     "mulligan",
+     [
+      "aside",
+      "Zhonya's Hourglass"
+     ]
+    ],
+    [
+     1,
+     "mulligan",
+     [
+      "keep"
+     ]
+    ],
+    [
+     0,
+     "mulligan",
+     [
+      "aside",
+      "Whiteflame Protector"
+     ]
+    ],
+    [
+     0,
+     "mulligan",
+     [
+      "aside",
+      "Pit Rookie"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Discipline"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Stalwart Poro"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Defy"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Defy"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u8"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Sabotage"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Rune Prison"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Stellacorn Herder"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Defiant Dance"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u8"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "En Garde"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Guardian Angel"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Ride the Wind"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u20"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Qiyana, Victorious"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Defy"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u8"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Wind Wall"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u33"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Pit Rookie"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "at",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u8"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "champion",
+      "Irelia, Fervent"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "base:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Stacked Deck"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Qiyana, Victorious"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "at",
+      "base:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u33"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u8"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u20"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Fight or Flight"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u45"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Draven, Audacious"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u50"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Zhonya's Hourglass"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Clockwork Keeper"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Ride the Wind"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Heart of Dark Ice"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u55"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u20"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ]
+   ],
+   "step_hashes": [
+    "cc54b843e41f58c9",
+    "be792a8da97594d5",
+    "16b6f454c74d093b",
+    "11a15e072eb64402",
+    "ecb9ddbb5165eb5c",
+    "1b3a1fdcf730b5cd",
+    "f5597d5c0137e61a",
+    "f2fab054f90efb3b",
+    "d56d6d4781b5beb4",
+    "a75d42f876384f33",
+    "34165cd146ab23c0",
+    "4080bc2b0bf00f08",
+    "daa07b206725728c",
+    "e054a6de4f728d91",
+    "6b65864fddec9bdd",
+    "4c77c0db210a5004",
+    "ebf41491d15dd9e9",
+    "6a243e21edb14a38",
+    "4bd28ba886b9dcab",
+    "5c43837994ca32af",
+    "6c87a840db618ab2",
+    "daaf2523d6612cb3",
+    "3840002413bcf8d1",
+    "f76d1893ecd3385c",
+    "c6a98e9f72a4398b",
+    "952a57a5ef9cf06d",
+    "fa4a52ce4fdc5fc2",
+    "b5dc557f618b2a79",
+    "f568d594d29ca1a2",
+    "a4802cc08306b5a0",
+    "f439b8b2b4a57ad1",
+    "f8a4df3d8ab387d4",
+    "e72c0cef90c44d49",
+    "8f93128cca9b4d68",
+    "3adefdc3eeb01889",
+    "72c1998cdd93494f",
+    "c60437b5ad43cfd3",
+    "f5bdad78e3b50c9a",
+    "fbecece524c24957",
+    "ec0417f7e1c34790",
+    "78303b028764a627",
+    "389ff8961a35aded",
+    "941e19db10dd3ce3",
+    "2d29e99e3ecc7fe1",
+    "c6a6d5a4835d7aeb",
+    "969262eb9c4b9a91",
+    "bafbb53579aa3a24",
+    "e0a732ab52fc86eb",
+    "4ac0eaf8ceeaefd3",
+    "8d0a2efaca12e26b",
+    "38a30c7f6a2be8be",
+    "9ce158d55fd2e333",
+    "11c441afc11e694c",
+    "26d5c987704286d8",
+    "e4e702cdf0af04a0",
+    "6cd2e1f72498c1b5",
+    "9223054c17215ce6",
+    "ba6b4318369242f5",
+    "193a8bdd07064f5c",
+    "e58815671b31f146",
+    "aedf79eb52b3ebfa",
+    "00c737236e4e3ae6",
+    "d528f6fffb6be0fd"
+   ],
+   "summary": {
+    "seed": 7,
+    "first_player": 1,
+    "turns": 19,
+    "winner": 1,
+    "end_reason": "seat 1 reached the Victory Score (472)",
+    "points": [
+     5,
+     8
+    ],
+    "decisions": 63,
+    "log_entries": 468,
+    "state_hash": "1455cb8f60154724"
+   },
+   "log": [
+    "seat 1 draws 4 (opening hand)",
+    "seat 0 draws 4 (opening hand)",
+    "setup: seat 1 goes first; battlefields The Dreaming Tree and Grove of the God-Willow",
+    "victory score is 8 (485.3)",
+    "seat 1 draws 1 (mulligan)",
+    "seat 1 mulligans 1, keeping 3",
+    "seat 0 draws 2 (mulligan)",
+    "seat 0 mulligans 2, keeping 2",
+    "— turn 1, seat 1 — awaken phase",
+    "awaken: seat 1 readies 0 object(s) (315.1.b)",
+    "— turn 1, seat 1 — beginning phase",
+    "— turn 1, seat 1 — channel phase",
+    "seat 1 channels 2: Calm Rune, Chaos Rune",
+    "— turn 1, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Discipline [c3] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Discipline",
+    "  Discipline [c3] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Discipline [c3] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 1, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 2, seat 0 — awaken phase",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
+    "— turn 2, seat 0 — beginning phase",
+    "— turn 2, seat 0 — channel phase",
+    "the player going second channels an extra rune this turn (485.7)",
+    "seat 0 channels 3: Calm Rune, Body Rune, Calm Rune",
+    "— turn 2, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Stalwart Poro [c7] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Stalwart Poro",
+    "  Stalwart Poro [c7] is finalized (359)",
+    "seat 0 puts Stalwart Poro [u8] into play exhausted at seat 0's base",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 2, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 3, seat 1 — awaken phase",
+    "awaken: seat 1 readies 2 object(s) (315.1.b)",
+    "— turn 3, seat 1 — beginning phase",
+    "— turn 3, seat 1 — channel phase",
+    "seat 1 channels 2: Chaos Rune, Calm Rune",
+    "— turn 3, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Defy [c11] onto the Chain — pending (354)",
+    "seat 1 recycles Calm Rune [r1] for 1 Calm Power",
+    "seat 1 exhausts 1 rune(s) for 1 Energy",
+    "seat 1 pays 1E + 1P for Defy",
+    "  Defy [c11] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Defy [c11] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 3, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 4, seat 0 — awaken phase",
+    "awaken: seat 0 readies 3 object(s) (315.1.b)",
+    "— turn 4, seat 0 — beginning phase",
+    "— turn 4, seat 0 — channel phase",
+    "seat 0 channels 2: Body Rune, Calm Rune",
+    "— turn 4, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Defy [c14] onto the Chain — pending (354)",
+    "seat 0 recycles Calm Rune [r4] for 1 Calm Power",
+    "seat 0 exhausts 1 rune(s) for 1 Energy",
+    "seat 0 pays 1E + 1P for Defy",
+    "  Defy [c14] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Defy [c14] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Stalwart Poro [u8] exhausts",
+    "Stalwart Poro [u8] moves seat 0's base -> Grove of the God-Willow (bf:1)",
+    "Grove of the God-Willow becomes CONTESTED by seat 0 (190.3.a.1)",
+    "a SHOWDOWN opens at Grove of the God-Willow; seat 0 applied Contested and takes Focus (344, 345)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Grove of the God-Willow closes (348)",
+    "seat 0 establishes control of Grove of the God-Willow",
+    "seat 0 SCORES Grove of the God-Willow by Conquer -> 1 point(s)",
+    "seat 0 plays Sabotage [c15] onto the Chain — pending (354)",
+    "seat 0 recycles Body Rune [r5] for 1 Body Power",
+    "seat 0 exhausts 1 rune(s) for 1 Energy",
+    "seat 0 pays 1E + 1P for Sabotage",
+    "  Sabotage [c15] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Sabotage [c15] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 plays Rune Prison [c16] onto the Chain — pending (354)",
+    "seat 0 recycles Calm Rune [r6] for 1 Calm Power",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E + 1P for Rune Prison",
+    "  Rune Prison [c16] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Rune Prison [c16] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 4, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 5, seat 1 — awaken phase",
+    "awaken: seat 1 readies 1 object(s) (315.1.b)",
+    "— turn 5, seat 1 — beginning phase",
+    "— turn 5, seat 1 — channel phase",
+    "seat 1 channels 2: Chaos Rune, Chaos Rune",
+    "— turn 5, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Stellacorn Herder [c19] onto the Chain — pending (354)",
+    "seat 1 exhausts 4 rune(s) for 4 Energy",
+    "seat 1 pays 4E for Stellacorn Herder",
+    "  Stellacorn Herder [c19] is finalized (359)",
+    "seat 1 puts Stellacorn Herder [u20] into play exhausted at seat 1's base",
+    "seat 1 plays Defiant Dance [c21] onto the Chain — pending (354)",
+    "seat 1 recycles Chaos Rune [r2] for 1 Chaos Power",
+    "seat 1 exhausts 1 rune(s) for 1 Energy",
+    "seat 1 pays 1E + 1P for Defiant Dance  [power domain split not in the card data]",
+    "  Defiant Dance [c21] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Defiant Dance [c21] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 5, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 6, seat 0 — awaken phase",
+    "awaken: seat 0 readies 3 object(s) (315.1.b)",
+    "— turn 6, seat 0 — beginning phase",
+    "seat 0 SCORES Grove of the God-Willow by Hold -> 2 point(s)",
+    "— turn 6, seat 0 — channel phase",
+    "seat 0 channels 2: Body Rune, Body Rune",
+    "— turn 6, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Stalwart Poro [u8] exhausts",
+    "Stalwart Poro [u8] moves Grove of the God-Willow (bf:1) -> seat 0's base",
+    "seat 0 loses control of Grove of the God-Willow (323.6)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 6, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 7, seat 1 — awaken phase",
+    "awaken: seat 1 readies 5 object(s) (315.1.b)",
+    "— turn 7, seat 1 — beginning phase",
+    "— turn 7, seat 1 — channel phase",
+    "seat 1 channels 2: Calm Rune, Calm Rune",
+    "— turn 7, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays En Garde [c26] onto the Chain — pending (354)",
+    "seat 1 exhausts 1 rune(s) for 1 Energy",
+    "seat 1 pays 1E for En Garde",
+    "  En Garde [c26] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  En Garde [c26] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 plays Guardian Angel [c27] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Guardian Angel",
+    "  Guardian Angel [c27] is finalized (359)",
+    "seat 1 puts Guardian Angel [u28] into play ready at seat 1's base",
+    "seat 1 plays Ride the Wind [c29] onto the Chain — pending (354)",
+    "seat 1 recycles Chaos Rune [r9] for 1 Chaos Power",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E + 1P for Ride the Wind",
+    "  Ride the Wind [c29] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Ride the Wind [c29] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Stellacorn Herder [u20] exhausts",
+    "Stellacorn Herder [u20] moves seat 1's base -> The Dreaming Tree (bf:0)",
+    "The Dreaming Tree becomes CONTESTED by seat 1 (190.3.a.1)",
+    "a SHOWDOWN opens at The Dreaming Tree; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at The Dreaming Tree closes (348)",
+    "seat 1 establishes control of The Dreaming Tree",
+    "seat 1 SCORES The Dreaming Tree by Conquer -> 1 point(s)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 7, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 8, seat 0 — awaken phase",
+    "awaken: seat 0 readies 1 object(s) (315.1.b)",
+    "— turn 8, seat 0 — beginning phase",
+    "— turn 8, seat 0 — channel phase",
+    "seat 0 channels 2: Body Rune, Calm Rune",
+    "— turn 8, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Qiyana, Victorious [c32] onto the Chain — pending (354)",
+    "seat 0 recycles Body Rune [r12] for 1 Body Power",
+    "seat 0 exhausts 4 rune(s) for 4 Energy",
+    "seat 0 pays 4E + 1P for Qiyana, Victorious",
+    "  Qiyana, Victorious [c32] is finalized (359)",
+    "seat 0 puts Qiyana, Victorious [u33] into play exhausted at seat 0's base",
+    "seat 0 plays Defy [c34] onto the Chain — pending (354)",
+    "seat 0 recycles Calm Rune [r13] for 1 Calm Power",
+    "seat 0 exhausts 1 rune(s) for 1 Energy",
+    "seat 0 pays 1E + 1P for Defy",
+    "  Defy [c34] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Defy [c34] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Stalwart Poro [u8] exhausts",
+    "Stalwart Poro [u8] moves seat 0's base -> Grove of the God-Willow (bf:1)",
+    "Grove of the God-Willow becomes CONTESTED by seat 0 (190.3.a.1)",
+    "a SHOWDOWN opens at Grove of the God-Willow; seat 0 applied Contested and takes Focus (344, 345)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Grove of the God-Willow closes (348)",
+    "seat 0 establishes control of Grove of the God-Willow",
+    "seat 0 SCORES Grove of the God-Willow by Conquer -> 3 point(s)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 8, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 9, seat 1 — awaken phase",
+    "awaken: seat 1 readies 5 object(s) (315.1.b)",
+    "— turn 9, seat 1 — beginning phase",
+    "seat 1 SCORES The Dreaming Tree by Hold -> 2 point(s)",
+    "— turn 9, seat 1 — channel phase",
+    "seat 1 channels 2: Calm Rune, Chaos Rune",
+    "— turn 9, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Wind Wall [c37] onto the Chain — pending (354)",
+    "seat 1 recycles Calm Rune [r10] for 1 Calm Power",
+    "seat 1 recycles Calm Rune [r24] for 1 Calm Power",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E + 2P for Wind Wall",
+    "  Wind Wall [c37] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Wind Wall [c37] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 9, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 10, seat 0 — awaken phase",
+    "awaken: seat 0 readies 6 object(s) (315.1.b)",
+    "— turn 10, seat 0 — beginning phase",
+    "seat 0 SCORES Grove of the God-Willow by Hold -> 4 point(s)",
+    "— turn 10, seat 0 — channel phase",
+    "seat 0 channels 2: Calm Rune, Calm Rune",
+    "— turn 10, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Qiyana, Victorious [u33] exhausts",
+    "Qiyana, Victorious [u33] moves seat 0's base -> Grove of the God-Willow (bf:1)",
+    "seat 0 plays Pit Rookie [c40] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Pit Rookie",
+    "  Pit Rookie [c40] is finalized (359)",
+    "seat 0 puts Pit Rookie [u41] into play exhausted at Grove of the God-Willow (bf:1)",
+    "Stalwart Poro [u8] exhausts",
+    "Stalwart Poro [u8] moves Grove of the God-Willow (bf:1) -> seat 0's base",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 10, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 11, seat 1 — awaken phase",
+    "awaken: seat 1 readies 3 object(s) (315.1.b)",
+    "— turn 11, seat 1 — beginning phase",
+    "seat 1 SCORES The Dreaming Tree by Hold -> 3 point(s)",
+    "— turn 11, seat 1 — channel phase",
+    "seat 1 channels 2: Chaos Rune, Calm Rune",
+    "— turn 11, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Irelia, Fervent [c44] onto the Chain — pending (354)",
+    "seat 1 exhausts 5 rune(s) for 5 Energy",
+    "seat 1 pays 5E for Irelia, Fervent",
+    "  Irelia, Fervent [c44] is finalized (359)",
+    "seat 1 puts Irelia, Fervent [u45] into play exhausted at seat 1's base",
+    "seat 1 plays Stacked Deck [c46] onto the Chain — pending (354)",
+    "seat 1 exhausts 1 rune(s) for 1 Energy",
+    "seat 1 pays 1E for Stacked Deck",
+    "  Stacked Deck [c46] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Stacked Deck [c46] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 11, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 12, seat 0 — awaken phase",
+    "awaken: seat 0 readies 5 object(s) (315.1.b)",
+    "— turn 12, seat 0 — beginning phase",
+    "seat 0 SCORES Grove of the God-Willow by Hold -> 5 point(s)",
+    "— turn 12, seat 0 — channel phase",
+    "seat 0 channels 2: Body Rune, Calm Rune",
+    "— turn 12, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Qiyana, Victorious [c49] onto the Chain — pending (354)",
+    "seat 0 recycles Body Rune [r22] for 1 Body Power",
+    "seat 0 exhausts 4 rune(s) for 4 Energy",
+    "seat 0 pays 4E + 1P for Qiyana, Victorious",
+    "  Qiyana, Victorious [c49] is finalized (359)",
+    "seat 0 puts Qiyana, Victorious [u50] into play exhausted at seat 0's base",
+    "Qiyana, Victorious [u33] exhausts",
+    "Qiyana, Victorious [u33] moves Grove of the God-Willow (bf:1) -> seat 0's base",
+    "Stalwart Poro [u8] exhausts",
+    "Stalwart Poro [u8] moves seat 0's base -> The Dreaming Tree (bf:0)",
+    "The Dreaming Tree becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at The Dreaming Tree as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at The Dreaming Tree closes (348)",
+    "combat at The Dreaming Tree: seat 0 2 Might vs seat 1 3 Might (465.2.a-b)",
+    "  Stellacorn Herder [u20] takes 2 damage (2/3)",
+    "  Stalwart Poro [u8] takes 3 damage (3/2)",
+    "Stalwart Poro [u8] -> trash (lethal damage marked (323.5))",
+    "combat result at The Dreaming Tree: seat 1 wins the combat (466.3.a)",
+    "combat at The Dreaming Tree ends (466.7)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 12, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 13, seat 1 — awaken phase",
+    "awaken: seat 1 readies 7 object(s) (315.1.b)",
+    "— turn 13, seat 1 — beginning phase",
+    "seat 1 SCORES The Dreaming Tree by Hold -> 4 point(s)",
+    "— turn 13, seat 1 — channel phase",
+    "seat 1 channels 2: Calm Rune, Chaos Rune",
+    "— turn 13, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "Stellacorn Herder [u20] exhausts",
+    "Stellacorn Herder [u20] moves The Dreaming Tree (bf:0) -> seat 1's base",
+    "seat 1 loses control of The Dreaming Tree (323.6)",
+    "seat 1 plays Fight or Flight [c53] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Fight or Flight",
+    "  Fight or Flight [c53] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Fight or Flight [c53] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Irelia, Fervent [u45] exhausts",
+    "Irelia, Fervent [u45] moves seat 1's base -> Grove of the God-Willow (bf:1)",
+    "Grove of the God-Willow becomes CONTESTED by seat 1 (190.3.a.1)",
+    "COMBAT opens at Grove of the God-Willow as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Grove of the God-Willow closes (348)",
+    "combat at Grove of the God-Willow: seat 1 4 Might vs seat 0 2 Might (465.2.a-b)",
+    "  Pit Rookie [u41] takes 4 damage (4/2)",
+    "  Irelia, Fervent [u45] takes 2 damage (2/4)",
+    "Pit Rookie [u41] -> trash (lethal damage marked (323.5))",
+    "combat result at Grove of the God-Willow: seat 1 wins the combat (466.3.a)",
+    "combat at Grove of the God-Willow ends (466.7)",
+    "seat 0 loses control of Grove of the God-Willow (323.6)",
+    "a SHOWDOWN opens at Grove of the God-Willow; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Grove of the God-Willow closes (348)",
+    "seat 1 establishes control of Grove of the God-Willow",
+    "seat 1 SCORES Grove of the God-Willow by Conquer -> 5 point(s)",
+    "seat 1 plays Draven, Audacious [c54] onto the Chain — pending (354)",
+    "seat 1 recycles Chaos Rune [r17] for 1 Chaos Power",
+    "seat 1 exhausts 6 rune(s) for 6 Energy",
+    "seat 1 pays 6E + 1P for Draven, Audacious",
+    "  Draven, Audacious [c54] is finalized (359)",
+    "seat 1 puts Draven, Audacious [u55] into play exhausted at Grove of the God-Willow (bf:1)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 13, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 14, seat 0 — awaken phase",
+    "awaken: seat 0 readies 6 object(s) (315.1.b)",
+    "— turn 14, seat 0 — beginning phase",
+    "— turn 14, seat 0 — channel phase",
+    "seat 0 channels 2: Body Rune, Calm Rune",
+    "— turn 14, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Qiyana, Victorious [u50] exhausts",
+    "Qiyana, Victorious [u50] moves seat 0's base -> Grove of the God-Willow (bf:1)",
+    "Grove of the God-Willow becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at Grove of the God-Willow as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Grove of the God-Willow closes (348)",
+    "combat at Grove of the God-Willow: seat 0 4 Might vs seat 1 10 Might (465.2.a-b)",
+    "  Irelia, Fervent [u45] takes 4 damage (4/4)",
+    "  Qiyana, Victorious [u50] takes 10 damage (10/4)",
+    "Irelia, Fervent [u45] -> trash (lethal damage marked (323.5))",
+    "Qiyana, Victorious [u50] -> trash (lethal damage marked (323.5))",
+    "combat result at Grove of the God-Willow: seat 1 wins the combat (466.3.a)",
+    "combat at Grove of the God-Willow ends (466.7)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 14, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 15, seat 1 — awaken phase",
+    "awaken: seat 1 readies 9 object(s) (315.1.b)",
+    "— turn 15, seat 1 — beginning phase",
+    "seat 1 SCORES Grove of the God-Willow by Hold -> 6 point(s)",
+    "— turn 15, seat 1 — channel phase",
+    "seat 1 channels 2: Chaos Rune, Calm Rune",
+    "— turn 15, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 15, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 16, seat 0 — awaken phase",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
+    "— turn 16, seat 0 — beginning phase",
+    "— turn 16, seat 0 — channel phase",
+    "seat 0 channels 2: Body Rune, Calm Rune",
+    "— turn 16, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Zhonya's Hourglass [c62] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Zhonya's Hourglass",
+    "  Zhonya's Hourglass [c62] is finalized (359)",
+    "seat 0 puts Zhonya's Hourglass [u63] into play ready at seat 0's base",
+    "seat 0 plays Clockwork Keeper [c64] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Clockwork Keeper",
+    "  Clockwork Keeper [c64] is finalized (359)",
+    "seat 0 puts Clockwork Keeper [u65] into play exhausted at seat 0's base",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 16, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 17, seat 1 — awaken phase",
+    "awaken: seat 1 readies 0 object(s) (315.1.b)",
+    "— turn 17, seat 1 — beginning phase",
+    "seat 1 SCORES Grove of the God-Willow by Hold -> 7 point(s)",
+    "— turn 17, seat 1 — channel phase",
+    "seat 1 channels 2: Calm Rune, Chaos Rune",
+    "— turn 17, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Ride the Wind [c68] onto the Chain — pending (354)",
+    "seat 1 recycles Chaos Rune [r18] for 1 Chaos Power",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E + 1P for Ride the Wind",
+    "  Ride the Wind [c68] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Ride the Wind [c68] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 plays Heart of Dark Ice [c69] onto the Chain — pending (354)",
+    "seat 1 recycles Calm Rune [r25] for 1 Calm Power",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E + 1P for Heart of Dark Ice",
+    "  Heart of Dark Ice [c69] is finalized (359)",
+    "seat 1 puts Heart of Dark Ice [u70] into play ready at seat 1's base",
+    "Draven, Audacious [u55] exhausts",
+    "Draven, Audacious [u55] moves Grove of the God-Willow (bf:1) -> seat 1's base",
+    "seat 1 loses control of Grove of the God-Willow (323.6)",
+    "Stellacorn Herder [u20] exhausts",
+    "Stellacorn Herder [u20] moves seat 1's base -> Grove of the God-Willow (bf:1)",
+    "Grove of the God-Willow becomes CONTESTED by seat 1 (190.3.a.1)",
+    "a SHOWDOWN opens at Grove of the God-Willow; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Grove of the God-Willow closes (348)",
+    "seat 1 establishes control of Grove of the God-Willow",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 17, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 18, seat 0 — awaken phase",
+    "awaken: seat 0 readies 5 object(s) (315.1.b)",
+    "— turn 18, seat 0 — beginning phase",
+    "— turn 18, seat 0 — channel phase",
+    "seat 0 channels 1: Body Rune",
+    "— turn 18, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 18, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 19, seat 1 — awaken phase",
+    "awaken: seat 1 readies 6 object(s) (315.1.b)",
+    "— turn 19, seat 1 — beginning phase",
+    "seat 1 SCORES Grove of the God-Willow by Hold -> 8 point(s)",
+    "seat 1 WINS with 8 points (472)",
+    "game over: seat 1 reached the Victory Score (472)"
+   ]
+  },
+  {
+   "name": "annie-vs-viktor-s23",
+   "spec": {
+    "a": "annie-dark-child-dhawally-annie-houston-winning-list",
+    "b": "viktor-herald-of-the-arcane-1st-place-viktor-hook-skirmish",
+    "seed": 23,
+    "first": 0,
+    "policy": "g23"
+   },
+   "answers": [
+    [
+     0,
+     "mulligan",
+     [
+      "keep"
+     ]
+    ],
+    [
+     1,
+     "mulligan",
+     [
+      "aside",
+      "Vanguard Captain"
+     ]
+    ],
+    [
+     1,
+     "mulligan",
+     [
+      "aside",
+      "Cull the Weak"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Pouty Poro"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Lecturing Yordle"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Sneaky Deckhand"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u4"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u9"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "champion",
+      "Viktor, Leader"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "champion",
+      "Annie, Stubborn"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Sprite Mother"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u17"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u13"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Scrapheap"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Ride the Wind"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Pouty Poro"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "at",
+      "base:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Gust"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u21"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u17"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u25"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Sneaky Deckhand"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Void Seeker"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Hidden Blade"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u17"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Vanguard Captain"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u32"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Traveling Merchant"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u39"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Daring Poro"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u17"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Faithful Manufactor"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "base:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u39"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u25"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Fight or Flight"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "play",
+      "hand",
+      "Stacked Deck"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "move",
+      "u39"
+     ]
+    ],
+    [
+     0,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ]
+   ],
+   "step_hashes": [
+    "6e3aba1a598fcf14",
+    "5a870390675663df",
+    "e069593af0db6172",
+    "d68a0177e6d8885c",
+    "d4d0aee9e1112a13",
+    "10a60d9bc7fd1cfa",
+    "bee24e783d5f1743",
+    "ace9a877d084949b",
+    "32e4787ed8aa2376",
+    "17aef3725fca0984",
+    "d5141f0e078f2736",
+    "9f0a4a33c4aa8b05",
+    "09134c1b52c2b3bb",
+    "a3fe7842194c9969",
+    "48d5fe3cfdbcfe84",
+    "7c61149381267587",
+    "822df5ce84729fe4",
+    "826440b9f528ecb0",
+    "c26db3cf52ebdc30",
+    "8965b52c5bb094e5",
+    "193436ba06d4529c",
+    "efbc04f3aabe4e10",
+    "dd406d11c198d48f",
+    "b1492a0ebb14ee74",
+    "d20e19288f53336c",
+    "3de788dbd4ad5467",
+    "485e4b740682d4b4",
+    "536f35800391d6e9",
+    "86bb489ac976c128",
+    "c7879b0ab07d069e",
+    "2b86d74434eccaf5",
+    "c9f79436524b65b1",
+    "7b526457b28af16d",
+    "5d0035173fc1e809",
+    "e4854168ef964ce0",
+    "d8e7ea23f94567b6",
+    "c6b8079a903ac2e6",
+    "3c08c6d0d9e2f6a4",
+    "4ec527b4c05594ad",
+    "47cd00e28f86f161",
+    "323e516f81c9614d",
+    "40abe4f957d4768b",
+    "a4716858aeec75fc",
+    "5eb7866ca7a1f6e4",
+    "8b60cc1a6c1f4f81",
+    "9573ca4c6aa0bdc7",
+    "bce1de885a0536a1",
+    "bf5b78a4158ea3de",
+    "324a33ca9db0d1c5",
+    "5ce4cffeac8b0bee",
+    "f5b38efbb28d22c4",
+    "7eb62acd4ed59afc",
+    "392f823fb083c4e2",
+    "44e0fdfb0dd18267",
+    "51541d1ef736abb7",
+    "22d2f0934a152132",
+    "80a70cf6aa6a9bff",
+    "394ad15282e41d4d",
+    "44aa7b729036b783",
+    "4b4f8c0c9ec48b03",
+    "d9d3534f3ee3b46b",
+    "daed4f9f0b65f676"
+   ],
+   "summary": {
+    "seed": 23,
+    "first_player": 0,
+    "turns": 18,
+    "winner": 1,
+    "end_reason": "seat 1 reached the Victory Score (472)",
+    "points": [
+     5,
+     8
+    ],
+    "decisions": 62,
+    "log_entries": 437,
+    "state_hash": "0682ae7610bf11e7"
+   },
+   "log": [
+    "seat 0 draws 4 (opening hand)",
+    "seat 1 draws 4 (opening hand)",
+    "setup: seat 0 goes first; battlefields Zaun Warrens and The Candlelit Sanctum",
+    "victory score is 8 (485.3)",
+    "seat 0 keeps their hand",
+    "seat 1 draws 2 (mulligan)",
+    "seat 1 mulligans 2, keeping 2",
+    "— turn 1, seat 0 — awaken phase",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
+    "— turn 1, seat 0 — beginning phase",
+    "— turn 1, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Fury Rune",
+    "— turn 1, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Pouty Poro [c3] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Pouty Poro",
+    "  Pouty Poro [c3] is finalized (359)",
+    "seat 0 puts Pouty Poro [u4] into play exhausted at seat 0's base",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 1, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 2, seat 1 — awaken phase",
+    "awaken: seat 1 readies 0 object(s) (315.1.b)",
+    "— turn 2, seat 1 — beginning phase",
+    "— turn 2, seat 1 — channel phase",
+    "the player going second channels an extra rune this turn (485.7)",
+    "seat 1 channels 3: Order Rune, Mind Rune, Order Rune",
+    "— turn 2, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Lecturing Yordle [c8] onto the Chain — pending (354)",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E for Lecturing Yordle",
+    "  Lecturing Yordle [c8] is finalized (359)",
+    "seat 1 puts Lecturing Yordle [u9] into play exhausted at seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 2, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 3, seat 0 — awaken phase",
+    "awaken: seat 0 readies 3 object(s) (315.1.b)",
+    "— turn 3, seat 0 — beginning phase",
+    "— turn 3, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Fury Rune",
+    "— turn 3, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Sneaky Deckhand [c12] onto the Chain — pending (354)",
+    "seat 0 exhausts 3 rune(s) for 3 Energy",
+    "seat 0 pays 3E for Sneaky Deckhand",
+    "  Sneaky Deckhand [c12] is finalized (359)",
+    "seat 0 puts Sneaky Deckhand [u13] into play exhausted at seat 0's base",
+    "Pouty Poro [u4] exhausts",
+    "Pouty Poro [u4] moves seat 0's base -> The Candlelit Sanctum (bf:1)",
+    "The Candlelit Sanctum becomes CONTESTED by seat 0 (190.3.a.1)",
+    "a SHOWDOWN opens at The Candlelit Sanctum; seat 0 applied Contested and takes Focus (344, 345)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at The Candlelit Sanctum closes (348)",
+    "seat 0 establishes control of The Candlelit Sanctum",
+    "seat 0 SCORES The Candlelit Sanctum by Conquer -> 1 point(s)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 3, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 4, seat 1 — awaken phase",
+    "awaken: seat 1 readies 4 object(s) (315.1.b)",
+    "— turn 4, seat 1 — beginning phase",
+    "— turn 4, seat 1 — channel phase",
+    "seat 1 channels 2: Mind Rune, Order Rune",
+    "— turn 4, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "Lecturing Yordle [u9] exhausts",
+    "Lecturing Yordle [u9] moves seat 1's base -> The Candlelit Sanctum (bf:1)",
+    "The Candlelit Sanctum becomes CONTESTED by seat 1 (190.3.a.1)",
+    "COMBAT opens at The Candlelit Sanctum as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at The Candlelit Sanctum closes (348)",
+    "combat at The Candlelit Sanctum: seat 1 2 Might vs seat 0 2 Might (465.2.a-b)",
+    "  Pouty Poro [u4] takes 2 damage (2/2)",
+    "  Lecturing Yordle [u9] takes 2 damage (2/2)",
+    "Pouty Poro [u4] -> trash (lethal damage marked (323.5))",
+    "Lecturing Yordle [u9] -> trash (lethal damage marked (323.5))",
+    "combat result at The Candlelit Sanctum: no result (466.3.d)",
+    "The Candlelit Sanctum becomes uncontrolled (466.5.b)",
+    "combat at The Candlelit Sanctum ends (466.7)",
+    "seat 1 plays Viktor, Leader [c16] onto the Chain — pending (354)",
+    "seat 1 recycles Order Rune [r5] for 1 Order Power",
+    "seat 1 exhausts 4 rune(s) for 4 Energy",
+    "seat 1 pays 4E + 1P for Viktor, Leader",
+    "  Viktor, Leader [c16] is finalized (359)",
+    "seat 1 puts Viktor, Leader [u17] into play exhausted at seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 4, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 5, seat 0 — awaken phase",
+    "awaken: seat 0 readies 4 object(s) (315.1.b)",
+    "— turn 5, seat 0 — beginning phase",
+    "— turn 5, seat 0 — channel phase",
+    "seat 0 channels 2: Fury Rune, Chaos Rune",
+    "— turn 5, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Annie, Stubborn [c20] onto the Chain — pending (354)",
+    "seat 0 recycles Chaos Rune [r1] for 1 Chaos Power",
+    "seat 0 exhausts 4 rune(s) for 4 Energy",
+    "seat 0 pays 4E + 1P for Annie, Stubborn",
+    "  Annie, Stubborn [c20] is finalized (359)",
+    "seat 0 puts Annie, Stubborn [u21] into play exhausted at seat 0's base",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 5, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 6, seat 1 — awaken phase",
+    "awaken: seat 1 readies 5 object(s) (315.1.b)",
+    "— turn 6, seat 1 — beginning phase",
+    "— turn 6, seat 1 — channel phase",
+    "seat 1 channels 2: Order Rune, Order Rune",
+    "— turn 6, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Sprite Mother [c24] onto the Chain — pending (354)",
+    "seat 1 recycles Mind Rune [r6] for 1 Mind Power",
+    "seat 1 exhausts 4 rune(s) for 4 Energy",
+    "seat 1 pays 4E + 1P for Sprite Mother",
+    "  Sprite Mother [c24] is finalized (359)",
+    "seat 1 puts Sprite Mother [u25] into play exhausted at seat 1's base",
+    "Viktor, Leader [u17] exhausts",
+    "Viktor, Leader [u17] moves seat 1's base -> The Candlelit Sanctum (bf:1)",
+    "The Candlelit Sanctum becomes CONTESTED by seat 1 (190.3.a.1)",
+    "a SHOWDOWN opens at The Candlelit Sanctum; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at The Candlelit Sanctum closes (348)",
+    "seat 1 establishes control of The Candlelit Sanctum",
+    "seat 1 SCORES The Candlelit Sanctum by Conquer -> 1 point(s)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 6, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 7, seat 0 — awaken phase",
+    "awaken: seat 0 readies 5 object(s) (315.1.b)",
+    "— turn 7, seat 0 — beginning phase",
+    "— turn 7, seat 0 — channel phase",
+    "seat 0 channels 2: Fury Rune, Fury Rune",
+    "— turn 7, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Sneaky Deckhand [u13] exhausts",
+    "Sneaky Deckhand [u13] moves seat 0's base -> Zaun Warrens (bf:0)",
+    "Zaun Warrens becomes CONTESTED by seat 0 (190.3.a.1)",
+    "a SHOWDOWN opens at Zaun Warrens; seat 0 applied Contested and takes Focus (344, 345)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Zaun Warrens closes (348)",
+    "seat 0 establishes control of Zaun Warrens",
+    "seat 0 SCORES Zaun Warrens by Conquer -> 2 point(s)",
+    "seat 0 plays Scrapheap [c28] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Scrapheap",
+    "  Scrapheap [c28] is finalized (359)",
+    "seat 0 puts Scrapheap [u29] into play ready at seat 0's base",
+    "seat 0 plays Ride the Wind [c30] onto the Chain — pending (354)",
+    "seat 0 recycles Chaos Rune [r10] for 1 Chaos Power",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E + 1P for Ride the Wind",
+    "  Ride the Wind [c30] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Ride the Wind [c30] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 plays Pouty Poro [c31] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Pouty Poro",
+    "  Pouty Poro [c31] is finalized (359)",
+    "seat 0 puts Pouty Poro [u32] into play exhausted at seat 0's base",
+    "seat 0 plays Gust [c33] onto the Chain — pending (354)",
+    "seat 0 exhausts 1 rune(s) for 1 Energy",
+    "seat 0 pays 1E for Gust",
+    "  Gust [c33] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Gust [c33] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Annie, Stubborn [u21] exhausts",
+    "Annie, Stubborn [u21] moves seat 0's base -> The Candlelit Sanctum (bf:1)",
+    "The Candlelit Sanctum becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at The Candlelit Sanctum as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at The Candlelit Sanctum closes (348)",
+    "combat at The Candlelit Sanctum: seat 0 3 Might vs seat 1 4 Might (465.2.a-b)",
+    "  Viktor, Leader [u17] takes 3 damage (3/4)",
+    "  Annie, Stubborn [u21] takes 4 damage (4/3)",
+    "Annie, Stubborn [u21] -> trash (lethal damage marked (323.5))",
+    "combat result at The Candlelit Sanctum: seat 1 wins the combat (466.3.a)",
+    "combat at The Candlelit Sanctum ends (466.7)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 7, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 8, seat 1 — awaken phase",
+    "awaken: seat 1 readies 6 object(s) (315.1.b)",
+    "— turn 8, seat 1 — beginning phase",
+    "seat 1 SCORES The Candlelit Sanctum by Hold -> 2 point(s)",
+    "— turn 8, seat 1 — channel phase",
+    "seat 1 channels 2: Order Rune, Order Rune",
+    "— turn 8, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "Viktor, Leader [u17] exhausts",
+    "Viktor, Leader [u17] moves The Candlelit Sanctum (bf:1) -> seat 1's base",
+    "seat 1 loses control of The Candlelit Sanctum (323.6)",
+    "Sprite Mother [u25] exhausts",
+    "Sprite Mother [u25] moves seat 1's base -> Zaun Warrens (bf:0)",
+    "Zaun Warrens becomes CONTESTED by seat 1 (190.3.a.1)",
+    "COMBAT opens at Zaun Warrens as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Zaun Warrens closes (348)",
+    "combat at Zaun Warrens: seat 1 3 Might vs seat 0 2 Might (465.2.a-b)",
+    "  Sneaky Deckhand [u13] takes 3 damage (3/2)",
+    "  Sprite Mother [u25] takes 2 damage (2/3)",
+    "Sneaky Deckhand [u13] -> trash (lethal damage marked (323.5))",
+    "combat result at Zaun Warrens: seat 1 wins the combat (466.3.a)",
+    "combat at Zaun Warrens ends (466.7)",
+    "seat 0 loses control of Zaun Warrens (323.6)",
+    "a SHOWDOWN opens at Zaun Warrens; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Zaun Warrens closes (348)",
+    "seat 1 establishes control of Zaun Warrens",
+    "seat 1 SCORES Zaun Warrens by Conquer -> 3 point(s)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 8, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 9, seat 0 — awaken phase",
+    "awaken: seat 0 readies 7 object(s) (315.1.b)",
+    "— turn 9, seat 0 — beginning phase",
+    "— turn 9, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Chaos Rune",
+    "— turn 9, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Sneaky Deckhand [c38] onto the Chain — pending (354)",
+    "seat 0 exhausts 3 rune(s) for 3 Energy",
+    "seat 0 pays 3E for Sneaky Deckhand",
+    "  Sneaky Deckhand [c38] is finalized (359)",
+    "seat 0 puts Sneaky Deckhand [u39] into play exhausted at seat 0's base",
+    "seat 0 plays Void Seeker [c40] onto the Chain — pending (354)",
+    "seat 0 recycles Fury Rune [r2] for 1 Fury Power",
+    "seat 0 exhausts 3 rune(s) for 3 Energy",
+    "seat 0 pays 3E + 1P for Void Seeker",
+    "  Void Seeker [c40] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Void Seeker [c40] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 9, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 10, seat 1 — awaken phase",
+    "awaken: seat 1 readies 2 object(s) (315.1.b)",
+    "— turn 10, seat 1 — beginning phase",
+    "seat 1 SCORES Zaun Warrens by Hold -> 4 point(s)",
+    "— turn 10, seat 1 — channel phase",
+    "seat 1 channels 2: Order Rune, Mind Rune",
+    "— turn 10, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Hidden Blade [c43] onto the Chain — pending (354)",
+    "seat 1 recycles Order Rune [r7] for 1 Order Power",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E + 1P for Hidden Blade",
+    "  Hidden Blade [c43] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Hidden Blade [c43] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Viktor, Leader [u17] exhausts",
+    "Viktor, Leader [u17] moves seat 1's base -> Zaun Warrens (bf:0)",
+    "seat 1 plays Vanguard Captain [c44] onto the Chain — pending (354)",
+    "seat 1 recycles Order Rune [r15] for 1 Order Power",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E + 1P for Vanguard Captain",
+    "  Vanguard Captain [c44] is finalized (359)",
+    "seat 1 puts Vanguard Captain [u45] into play exhausted at Zaun Warrens (bf:0)",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 10, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 11, seat 0 — awaken phase",
+    "awaken: seat 0 readies 6 object(s) (315.1.b)",
+    "— turn 11, seat 0 — beginning phase",
+    "— turn 11, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Fury Rune",
+    "— turn 11, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Pouty Poro [u32] exhausts",
+    "Pouty Poro [u32] moves seat 0's base -> Zaun Warrens (bf:0)",
+    "Zaun Warrens becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at Zaun Warrens as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Zaun Warrens closes (348)",
+    "combat at Zaun Warrens: seat 0 2 Might vs seat 1 10 Might (465.2.a-b)",
+    "  Viktor, Leader [u17] takes 2 damage (2/4)",
+    "  Pouty Poro [u32] takes 10 damage (10/2)",
+    "Pouty Poro [u32] -> trash (lethal damage marked (323.5))",
+    "combat result at Zaun Warrens: seat 1 wins the combat (466.3.a)",
+    "combat at Zaun Warrens ends (466.7)",
+    "seat 0 plays Traveling Merchant [c48] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Traveling Merchant",
+    "  Traveling Merchant [c48] is finalized (359)",
+    "seat 0 puts Traveling Merchant [u49] into play exhausted at seat 0's base",
+    "Sneaky Deckhand [u39] exhausts",
+    "Sneaky Deckhand [u39] moves seat 0's base -> The Candlelit Sanctum (bf:1)",
+    "The Candlelit Sanctum becomes CONTESTED by seat 0 (190.3.a.1)",
+    "a SHOWDOWN opens at The Candlelit Sanctum; seat 0 applied Contested and takes Focus (344, 345)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at The Candlelit Sanctum closes (348)",
+    "seat 0 establishes control of The Candlelit Sanctum",
+    "seat 0 SCORES The Candlelit Sanctum by Conquer -> 3 point(s)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 11, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 12, seat 1 — awaken phase",
+    "awaken: seat 1 readies 6 object(s) (315.1.b)",
+    "— turn 12, seat 1 — beginning phase",
+    "seat 1 SCORES Zaun Warrens by Hold -> 5 point(s)",
+    "— turn 12, seat 1 — channel phase",
+    "seat 1 channels 2: Mind Rune, Order Rune",
+    "— turn 12, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Daring Poro [c52] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Daring Poro",
+    "  Daring Poro [c52] is finalized (359)",
+    "seat 1 puts Daring Poro [u53] into play exhausted at Zaun Warrens (bf:0)",
+    "Viktor, Leader [u17] exhausts",
+    "Viktor, Leader [u17] moves Zaun Warrens (bf:0) -> seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 12, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 13, seat 0 — awaken phase",
+    "awaken: seat 0 readies 4 object(s) (315.1.b)",
+    "— turn 13, seat 0 — beginning phase",
+    "seat 0 SCORES The Candlelit Sanctum by Hold -> 4 point(s)",
+    "— turn 13, seat 0 — channel phase",
+    "seat 0 channels 2: Chaos Rune, Chaos Rune",
+    "— turn 13, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 13, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 14, seat 1 — awaken phase",
+    "awaken: seat 1 readies 4 object(s) (315.1.b)",
+    "— turn 14, seat 1 — beginning phase",
+    "seat 1 SCORES Zaun Warrens by Hold -> 6 point(s)",
+    "— turn 14, seat 1 — channel phase",
+    "seat 1 channels 2: Mind Rune, Order Rune",
+    "— turn 14, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Faithful Manufactor [c58] onto the Chain — pending (354)",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E for Faithful Manufactor",
+    "  Faithful Manufactor [c58] is finalized (359)",
+    "seat 1 puts Faithful Manufactor [u59] into play exhausted at seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 14, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 15, seat 0 — awaken phase",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
+    "— turn 15, seat 0 — beginning phase",
+    "seat 0 SCORES The Candlelit Sanctum by Hold -> 5 point(s)",
+    "— turn 15, seat 0 — channel phase",
+    "seat 0 channels 1: Fury Rune",
+    "— turn 15, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "Sneaky Deckhand [u39] exhausts",
+    "Sneaky Deckhand [u39] moves The Candlelit Sanctum (bf:1) -> seat 0's base",
+    "seat 0 loses control of The Candlelit Sanctum (323.6)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 15, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 16, seat 1 — awaken phase",
+    "awaken: seat 1 readies 4 object(s) (315.1.b)",
+    "— turn 16, seat 1 — beginning phase",
+    "seat 1 SCORES Zaun Warrens by Hold -> 7 point(s)",
+    "— turn 16, seat 1 — channel phase",
+    "seat 1 channels 1: Order Rune",
+    "— turn 16, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "Sprite Mother [u25] exhausts",
+    "Sprite Mother [u25] moves Zaun Warrens (bf:0) -> seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 16, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 17, seat 0 — awaken phase",
+    "awaken: seat 0 readies 1 object(s) (315.1.b)",
+    "— turn 17, seat 0 — beginning phase",
+    "— turn 17, seat 0 — channel phase",
+    "seat 0 cannot channel — Rune Deck is empty",
+    "— turn 17, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 plays Fight or Flight [c62] onto the Chain — pending (354)",
+    "seat 0 exhausts 2 rune(s) for 2 Energy",
+    "seat 0 pays 2E for Fight or Flight",
+    "  Fight or Flight [c62] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Fight or Flight [c62] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 0 plays Stacked Deck [c63] onto the Chain — pending (354)",
+    "seat 0 exhausts 1 rune(s) for 1 Energy",
+    "seat 0 pays 1E for Stacked Deck",
+    "  Stacked Deck [c63] is finalized (359)",
+    "  seat 0 passes priority (338.1.b)",
+    "  seat 1 passes priority (338.1.b)",
+    "  Stacked Deck [c63] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Sneaky Deckhand [u39] exhausts",
+    "Sneaky Deckhand [u39] moves seat 0's base -> Zaun Warrens (bf:0)",
+    "Zaun Warrens becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at Zaun Warrens as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  seat 0 passes focus (347.2)",
+    "  focus passes to seat 1 (347.2.b)",
+    "  seat 1 passes focus (347.2)",
+    "the Showdown at Zaun Warrens closes (348)",
+    "combat at Zaun Warrens: seat 0 2 Might vs seat 1 5 Might (465.2.a-b)",
+    "  Vanguard Captain [u45] takes 2 damage (2/3)",
+    "  Sneaky Deckhand [u39] takes 5 damage (5/2)",
+    "Sneaky Deckhand [u39] -> trash (lethal damage marked (323.5))",
+    "combat result at Zaun Warrens: seat 1 wins the combat (466.3.a)",
+    "combat at Zaun Warrens ends (466.7)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 17, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 18, seat 1 — awaken phase",
+    "awaken: seat 1 readies 1 object(s) (315.1.b)",
+    "— turn 18, seat 1 — beginning phase",
+    "seat 1 SCORES Zaun Warrens by Hold -> 8 point(s)",
+    "seat 1 WINS with 8 points (472)",
+    "game over: seat 1 reached the Victory Score (472)"
+   ]
+  }
+ ]
+}

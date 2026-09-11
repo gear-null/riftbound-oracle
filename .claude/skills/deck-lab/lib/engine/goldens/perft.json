@@ -1,0 +1,30 @@
+{
+ "note": "legal-action perft; regenerate with `engine perft --write`",
+ "depth": 6,
+ "boards": {
+  "contested": [
+   8,
+   40,
+   187,
+   929,
+   4821,
+   25903
+  ],
+  "midgame": [
+   6,
+   27,
+   146,
+   708,
+   3094,
+   13303
+  ],
+  "opening": [
+   4,
+   15,
+   71,
+   311,
+   1365,
+   5331
+  ]
+ }
+}

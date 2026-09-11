@@ -1799,7 +1799,8 @@ def documentation():
     t = fresh(first=0)
     t.begin_turn()
     commands = {"decks", "check", "card", "analyze", "report", "new", "state",
-                "do", "log", "games", "record", "journal", "selftest", "mutants", "help"}
+                "do", "log", "games", "record", "journal", "engine", "selftest",
+                "mutants", "help"}
 
     # The verbs the CLI's own help advertises must all be real.
     help_text = deck_cli.__doc__ or ""
@@ -1929,11 +1930,25 @@ def main():
         card_lookup, card_text_display, deck_legality, setup_rules, turn_structure, resources,
         paying, movement, combat, scoring, burn_out, persistence, rendering,
         privacy, journalling, atomicity, importing, minted_identifiers, guards,
-        gauntlet_identity, documentation, action_scripts, proven_ratio,
+        gauntlet_identity, documentation, action_scripts,
     ):
         print(f"{section.__name__}:")
         section()
         print()
+
+    # The engine (lib/engine) keeps its checks next to the code they test, and
+    # runs them here so there is ONE suite, one total, and one record of which
+    # checks have been watched to fail. A second entry point would be a second
+    # place to forget to run.
+    import engine.selftest as engine_selftest
+    for section in engine_selftest.SECTIONS:
+        print(f"{section.__name__}:")
+        section(check)
+        print()
+
+    print("proven_ratio:")
+    proven_ratio()
+    print()
     print(f"{RAN[0] - len(FAILS)}/{RAN[0]} passed")
     print(proven_line())
     if FAILS:
