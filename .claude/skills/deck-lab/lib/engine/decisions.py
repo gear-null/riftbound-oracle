@@ -48,8 +48,10 @@ against this shape:
 #:   modal             "choose one -" on a card (355.3)
 #:   optional          a "you may" (355.13)
 #:   order             ordering simultaneous triggers (303.2.a, 382)
-#:   assign_damage     a combat assignment the player chooses (465.2.c); this
-#:                     slice computes the lethal-first assignment itself
+#:   assign_damage     which unit takes the next combat damage assignment
+#:                     (465.2.c) — asked one target at a time, because lethal
+#:                     goes on in full before the next unit (465.2.c.3) and the
+#:                     product of whole assignments is what explodes
 #:   cost              which rune pays which Power symbol (164.2.b, 357)
 #:   resolve_manually  the bridge to the table: a card with no accepted script
 #:                     is applied by hand and the log says so (ADR 0009)
@@ -60,8 +62,10 @@ KINDS = (
 
 #: The kinds this slice can actually produce. `selftest` asserts that nothing
 #: outside this set is ever emitted by a vanilla game, so the day a later slice
-#: starts emitting `modal` it has to move the name and say so.
-EMITTED = ("mulligan", "main", "chain", "target")
+#: starts emitting `modal` it has to move the name and say so. `assign_damage`
+#: joined it with issue #23: a combat with two units on a side has more than one
+#: legal assignment, and which one is chosen decides who lives.
+EMITTED = ("mulligan", "main", "chain", "target", "assign_damage")
 
 
 class Option:

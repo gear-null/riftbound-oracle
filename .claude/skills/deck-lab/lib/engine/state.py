@@ -45,6 +45,14 @@ def new_unit(oid, name, controller, location, exhausted):
     `might` is cached at creation rather than looked up per read: combat sums it
     once per unit per damage step, and the lookup is a dict miss away from being
     the hottest line in the engine.
+
+    The last six fields are the **combat keyword hooks**. No card text sets them
+    in this slice — nothing reads a card's keywords yet (issue #27) — but the
+    rules that consume them are implemented and tested, so the day a script
+    writes `unit["tank"] = True` the assignment order is already right. They are
+    fields on the unit rather than a lookup because 807.2/814.2/809.2 all sum
+    GRANTED instances on top of the printed one, which is a per-object value and
+    not a property of the card.
     """
     return {
         "id": oid,
@@ -57,6 +65,24 @@ def new_unit(oid, name, controller, location, exhausted):
         "buffs": 0,
         "might": cards.might(name) or 0,
         "unit": cards.card_type(name) == cards.UNIT,
+        #: 464.2.c.3 / 323.2: "attacker", "defender", or None outside combat.
+        "role": None,
+        #: 815: must be assigned lethal damage before its controller's units
+        #: that do not have it.
+        "tank": False,
+        #: 826: must be assigned lethal damage after its controller's units
+        #: that do not have it.
+        "backline": False,
+        #: 807.1.c: +X Might while this unit is an attacker.
+        "assault": 0,
+        #: 814.1.c: +X Might while this unit is a defender.
+        "shield": 0,
+        #: 809.1.c: an opponent's spell or ability that chooses this unit costs
+        #: X more Power to play.
+        "deflect": 0,
+        #: 712-715: Bonus Damage granted to the Deal action this unit's combat
+        #: damage is part of.
+        "bonus": 0,
     }
 
 
@@ -107,6 +133,7 @@ class State:
         "victory_target", "winner", "end_reason",
         "chain", "priority", "passes", "showdown", "resolve_now",
         "tasks", "choosing", "pending", "next_id", "cleanups", "combat_recalled",
+        "combat_attacker",
     )
 
     def __init__(self):
@@ -149,6 +176,12 @@ class State:
         #: the Resolution Step can tell a repel (No Result, 466.3.d) from a side
         #: that was simply wiped out.
         self.combat_recalled = False
+        #: The seat holding the Attacker designation (464.2.c.1), for as long as
+        #: a Combat is in progress. Kept beside `contested_by` rather than
+        #: derived from it because 466.5.a clears Contested one step BEFORE
+        #: 466.7.a removes the designations, so for that step the battlefield no
+        #: longer remembers who attacked and 323.2 still has to.
+        self.combat_attacker = None
         #: Outstanding Tasks (333), oldest first. `tasks[0]` is next. New Tasks
         #: incurred partway through a process go to the FRONT, which is 334.2.a:
         #: complete the current step, then pause and complete the new Task.
@@ -196,6 +229,7 @@ class State:
         s.showdown = dict(self.showdown) if self.showdown else None
         s.resolve_now = self.resolve_now
         s.combat_recalled = self.combat_recalled
+        s.combat_attacker = self.combat_attacker
         s.tasks = self.tasks[:]
         # Both of these carry a LIST, and `dict(x)` copies neither. A shallow
         # copy here meant `clone().s.pending["options"].append(...)` added an
@@ -251,8 +285,33 @@ class State:
         return set(u["ctrl"] for u in self.units_at(loc_bf(index)))
 
     def might_of(self, unit):
-        """Printed Might plus buffs (703). Damage does not reduce Might."""
-        return unit["might"] + unit["buffs"]
+        """Printed Might, plus buffs (703), plus Assault or Shield (807, 814).
+
+        Damage does not reduce Might. Assault and Shield are conditional on the
+        unit's DESIGNATION and not on which side of the battlefield it happens
+        to be standing: 807.1.d and 814.1.d both say "being an attacker means
+        the Unit has gained the Attacker designation", and 807.1.d.1 keeps it in
+        effect exactly as long as the designation lasts. Reading the designation
+        is therefore the whole of the difference between a Shield 1 unit that
+        survives a combat and one that does not.
+        """
+        might = unit["might"] + unit["buffs"]
+        if unit["role"] == "attacker":
+            might += unit["assault"]
+        elif unit["role"] == "defender":
+            might += unit["shield"]
+        return might
+
+    def is_mighty(self, unit):
+        """708: a Unit is Mighty as long as its Might is 5 or greater.
+
+        710 evaluates a unit on the Board by its CURRENT Might, which is what
+        `might_of` returns — so a buff, or an Assault that is live because this
+        unit is an attacker, can make a unit Mighty for the length of a combat.
+        711's printed-Might reading applies to units in non-Board zones, which
+        this kernel does not put anywhere a rule can ask about.
+        """
+        return self.might_of(unit) >= 5
 
     # -- the four states of the turn (307-310) ---------------------------
 
@@ -310,7 +369,9 @@ class State:
             tuple(tuple(z) for z in self.banished),
             tuple(tuple(z) for z in self.champion),
             tuple((u["id"], u["name"], u["ctrl"], u["owner"], u["loc"],
-                   u["exh"], u["dmg"], u["buffs"]) for u in self.units),
+                   u["exh"], u["dmg"], u["buffs"], u["role"], u["tank"],
+                   u["backline"], u["assault"], u["shield"], u["deflect"],
+                   u["bonus"]) for u in self.units),
             tuple((r["id"], r["name"], r["ctrl"], r["exh"]) for r in self.runes),
             tuple((b["i"], b["name"], b["by"], b["ctrl"], b["contested"],
                    b["contested_by"], tuple(b["scored"]), b["sd_staged"],
@@ -321,7 +382,7 @@ class State:
                 self.showdown["bf"], self.showdown["combat"],
                 self.showdown["focus"], self.showdown["passes"],
                 self.showdown["closed"]),
-            self.resolve_now, self.combat_recalled,
+            self.resolve_now, self.combat_recalled, self.combat_attacker,
             tuple(self.tasks),
             tuple(sorted(self.choosing.items())) if self.choosing else None,
             tuple(self.seat_rng), self.shared_rng,

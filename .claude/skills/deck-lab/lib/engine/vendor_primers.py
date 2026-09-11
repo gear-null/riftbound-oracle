@@ -1,7 +1,7 @@
-"""Maintainer-only: vendor the chain and showdown primers' transitions.
+"""Maintainer-only: vendor the chain, showdown and combat primers' transitions.
 
-The spec for `chain.py` is two rules-report primers whose every citation has been
-verified verbatim against the Core Rules. The engine cannot READ them at
+The spec for `chain.py` and `combat.py` is three rules-report primers whose every
+citation has been verified verbatim against the Core Rules. The engine cannot READ them at
 runtime — copying the deck-lab folder has to be the whole install (ADR 0004), and
 rules-report is a different folder — so the transitions are vendored here into
 `goldens/chain-transitions.json` and the selftest walks that.
@@ -23,7 +23,9 @@ OUT = os.path.join(HERE, "goldens", "chain-transitions.json")
 PRIMERS = os.path.abspath(os.path.join(
     HERE, "..", "..", "..", "rules-report", "lib"))
 
-SOURCES = [("hot-fepr", "hot-fepr-primer.json"), ("showdowns", "showdowns-primer.json")]
+SOURCES = [("hot-fepr", "hot-fepr-primer.json"),
+           ("showdowns", "showdowns-primer.json"),
+           ("combat", "combat-primer.json")]
 
 
 def build():

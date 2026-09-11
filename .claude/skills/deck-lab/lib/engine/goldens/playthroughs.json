@@ -422,6 +422,58 @@
     ],
     [
      1,
+     "assign_damage",
+     [
+      "hit",
+      "u38",
+      1
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u9"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "assign_damage",
+     [
+      "hit",
+      "u38",
+      2
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Bellows Breath"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Stupefy"
+     ]
+    ],
+    [
+     1,
      "main",
      [
       "move",
@@ -438,229 +490,88 @@
     ],
     [
      1,
-     "main",
+     "assign_damage",
      [
-      "play",
-      "hand",
-      "Stupefy"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "champion",
-      "Viktor - Leader"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Bellows Breath"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u9"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:0"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "end"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u9"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Imperial Decree"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u54"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:1"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "play",
-      "hand",
-      "Tideturner"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "move",
-      "u30"
-     ]
-    ],
-    [
-     0,
-     "target",
-     [
-      "to",
-      "bf:1"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "end"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Singularity"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u9"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:1"
+      "hit",
+      "u28",
+      3
      ]
     ]
    ],
    "step_hashes": [
-    "353827f2a93e4756",
-    "77352689d3cce52c",
-    "47e9c09a11417ea1",
-    "f98c6db264df9953",
-    "d467e01d3b10de48",
-    "6866332c4d949ef0",
-    "6b1843259face467",
-    "afcb25fb48fb0dfd",
-    "85f6cd97096a81c0",
-    "cdd30068808fd598",
-    "694574246b77657e",
-    "9615ba64a662bf23",
-    "8e44fd8c6b0ae709",
-    "cb26fa2f5fdf0c16",
-    "24350a1b4657a1be",
-    "6c99330e51357e44",
-    "d87d373cc86ab0b4",
-    "3c0e8dbbc4252e07",
-    "17058cccb2feb829",
-    "bee36fb562f86df2",
-    "8519c356f80d052b",
-    "313cbfbd19c44490",
-    "11d1223de9ece8d1",
-    "16700bc62e0a87e6",
-    "8ca9d376a25204fd",
-    "3dfbcbc1841bda8e",
-    "171f9de4fab443ad",
-    "90ad8d9944776ff3",
-    "961fb3dc3caf140b",
-    "d168f86ea8dafe66",
-    "229b1ee05596f082",
-    "032bf621f80d5c8a",
-    "2c2685c3cad741ea",
-    "89f06102e2f324b5",
-    "371818cbea34d23a",
-    "efc952fc4233ca84",
-    "f7128eec81758437",
-    "f68298986d0637c6",
-    "4a9405abafcb881a",
-    "28259cee6b9414cc",
-    "829405694620098a",
-    "f747e2835ed64a0c",
-    "d2eea7fcf1cd71e9",
-    "f1d993764598faf5",
-    "038b790c98379fcc",
-    "c120735df3f8ff54",
-    "c7d294ad887e99d5",
-    "2b3613b981ce2b13",
-    "9192f0ae53c5db8a",
-    "a2afc7514e3b3c62",
-    "9d62b30a5d7c9f7e",
-    "f729756710976033",
-    "cf67d73abbcbdbf6",
-    "19060e8a12e773e5",
-    "881f0a60ecdc857d",
-    "4564357be6283785",
-    "07bd293021ed81b3",
-    "71a72fb7c5a1c5e2",
-    "e7cf67dddb421e11",
-    "8a69a5e210f75a22",
-    "c252c7b9812b9c8c",
-    "0bba535c475563fd",
-    "abcb17ebbeb468fe",
-    "30e66c4a0f9e3f5b",
-    "2579c6580a3b4f78",
-    "cd9038c6b9aeb255",
-    "d33200e858aaea5d",
-    "7d721c0ff0772d62",
-    "768f5445269ae204"
+    "3f94c43384177f36",
+    "43b35e1b1e8f00f7",
+    "63fdd373bc8b4e34",
+    "086bd907961a3c8e",
+    "e9e2d6a674bacf2f",
+    "43767da07e0c6321",
+    "96f1b76c8372f400",
+    "afb63f5d52423fc5",
+    "0004b32324ede69d",
+    "a1cf7175db336595",
+    "6476e4c0433c6bfb",
+    "3a48b82b995bdb5d",
+    "91f8b73ed08039f1",
+    "c6b94e4d14c4c697",
+    "4b92cb09c94e013b",
+    "af43afb4420db073",
+    "c379031c6a768088",
+    "e0d6747d27c04e61",
+    "0c6fa6e658df970a",
+    "4e4df65b13376f46",
+    "9dde8456b01d669c",
+    "f8284d93620475d1",
+    "f26bdc675e41be73",
+    "6e7a9b4c6190f6de",
+    "ce95a65f511e2483",
+    "4e408a211f45e69a",
+    "416dd76259aaabe1",
+    "7a6fe3ab0a05db53",
+    "9a921d55f6385696",
+    "a0ff5b45724f553a",
+    "fc7868c63271479f",
+    "0a0e46220bc80a83",
+    "3ad4bfdbdbdc98a0",
+    "2f3fcbaaf8169a1c",
+    "8130ac734cc88dca",
+    "21663c8ab76e4a0d",
+    "b53b3e4c89519284",
+    "44e9437ba9b34a74",
+    "2e6d01ced4b77668",
+    "acc5cb864ae39518",
+    "51d7f17b3b7116f9",
+    "d27f970d1a6e0e7c",
+    "5e8158d555d5b712",
+    "62da30b04cae94ba",
+    "3815a87cfdcaf4d9",
+    "ade54baa6ac16556",
+    "5ab39edff18d223e",
+    "0d5a1b5ef511b1d2",
+    "db083236e4d36c6f",
+    "fbf34d12c7e06862",
+    "653af3c2d02ed4f2",
+    "f05bbd12bed68792",
+    "b9474259eb0001e5",
+    "65a7895c1143faa2",
+    "479ccb42f1a042e3",
+    "b3892101049a6499",
+    "1016f3a3c4936fa2",
+    "d5ddbfb6e4dc46ba",
+    "e94999fa099744aa"
    ],
    "summary": {
     "seed": 7,
     "first_player": 0,
-    "turns": 17,
+    "turns": 13,
     "winner": 0,
     "end_reason": "seat 0 reached the Victory Score (472, noticed at 323.1)",
     "points": [
      8,
-     4
+     2
     ],
-    "decisions": 69,
-    "log_entries": 470,
-    "state_hash": "7fd1827d4c8438ab"
+    "decisions": 59,
+    "log_entries": 351,
+    "state_hash": "d0b952251937edb1"
    },
    "log": [
     "seat 0 draws 4 (opening hand)",
@@ -946,190 +857,71 @@
     "Carrion Dredger [u16] moves seat 1's base -> Treasure Hoard (bf:1)",
     "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
     "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 1 is the Attacker and seat 0 the Defender at Treasure Hoard; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 1 passes focus (347.2)",
     "  focus passes to seat 0 (347.2.b)",
     "  seat 0 passes focus (347.2)",
     "the Showdown at Treasure Hoard closes (348)",
     "combat at Treasure Hoard: seat 1 1 Might vs seat 0 7 Might (465.2.a-b)",
-    "  Fizz - Trickster [u28] takes 1 damage (1/3)",
+    "  Tideturner [u38] takes 1 damage (1/2)",
     "  Carrion Dredger [u16] takes 7 damage (7/1)",
     "Carrion Dredger [u16] -> trash (lethal damage marked (323.5))",
     "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
-    "combat at Treasure Hoard ends (466.7)",
-    "Card Sharp [u24] exhausts",
-    "Card Sharp [u24] moves seat 1's base -> Treasure Hoard (bf:1)",
+    "combat at Treasure Hoard ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
+    "Honest Broker [u9] exhausts",
+    "Honest Broker [u9] moves seat 1's base -> Treasure Hoard (bf:1)",
     "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
     "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 1 is the Attacker and seat 0 the Defender at Treasure Hoard; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 1 passes focus (347.2)",
     "  focus passes to seat 0 (347.2.b)",
     "  seat 0 passes focus (347.2)",
     "the Showdown at Treasure Hoard closes (348)",
-    "combat at Treasure Hoard: seat 1 3 Might vs seat 0 7 Might (465.2.a-b)",
-    "  Fizz - Trickster [u28] takes 3 damage (3/3)",
-    "  Card Sharp [u24] takes 7 damage (7/3)",
-    "Card Sharp [u24] -> trash (lethal damage marked (323.5))",
-    "Fizz - Trickster [u28] -> trash (lethal damage marked (323.5))",
+    "combat at Treasure Hoard: seat 1 2 Might vs seat 0 7 Might (465.2.a-b)",
+    "  Tideturner [u38] takes 2 damage (2/2)",
+    "  Honest Broker [u9] takes 7 damage (7/2)",
+    "Honest Broker [u9] -> trash (lethal damage marked (323.5))",
+    "Tideturner [u38] -> trash (lethal damage marked (323.5))",
     "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
-    "combat at Treasure Hoard ends (466.7)",
-    "seat 1 plays Stupefy [c52] onto the Chain — pending (354)",
-    "seat 1 exhausts 1 rune(s) for 1 Energy",
-    "seat 1 pays 1E for Stupefy",
-    "  Stupefy [c52] is finalized (359)",
-    "  seat 1 passes priority (338.1.b)",
-    "  seat 0 passes priority (338.1.b)",
-    "  Stupefy [c52] resolves — vanilla kernel, its text is not executed (340.1)",
-    "seat 1 plays Viktor - Leader [c53] onto the Chain — pending (354)",
-    "seat 1 recycles Order Rune [r13] for 1 Order Power",
-    "seat 1 exhausts 4 rune(s) for 4 Energy",
-    "seat 1 pays 4E + 1P for Viktor - Leader",
-    "  Viktor - Leader [c53] is finalized (359)",
-    "seat 1 puts Viktor - Leader [u54] into play exhausted at seat 1's base",
-    "seat 1 plays Bellows Breath [c55] onto the Chain — pending (354)",
+    "combat at Treasure Hoard ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
+    "seat 1 plays Bellows Breath [c52] onto the Chain — pending (354)",
     "seat 1 recycles Mind Rune [r31] for 1 Mind Power",
     "seat 1 exhausts 1 rune(s) for 1 Energy",
     "seat 1 pays 1E + 1P for Bellows Breath",
-    "  Bellows Breath [c55] is finalized (359)",
+    "  Bellows Breath [c52] is finalized (359)",
     "  seat 1 passes priority (338.1.b)",
     "  seat 0 passes priority (338.1.b)",
-    "  Bellows Breath [c55] resolves — vanilla kernel, its text is not executed (340.1)",
-    "Honest Broker [u9] exhausts",
-    "Honest Broker [u9] moves seat 1's base -> Abandoned Hall (bf:0)",
-    "Abandoned Hall becomes CONTESTED by seat 1 (190.3.a.1)",
-    "COMBAT opens at Abandoned Hall as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "  Bellows Breath [c52] resolves — vanilla kernel, its text is not executed (340.1)",
+    "seat 1 plays Stupefy [c53] onto the Chain — pending (354)",
+    "seat 1 exhausts 1 rune(s) for 1 Energy",
+    "seat 1 pays 1E for Stupefy",
+    "  Stupefy [c53] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Stupefy [c53] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Card Sharp [u24] exhausts",
+    "Card Sharp [u24] moves seat 1's base -> Treasure Hoard (bf:1)",
+    "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
+    "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 1 is the Attacker and seat 0 the Defender at Treasure Hoard; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 1 passes focus (347.2)",
     "  focus passes to seat 0 (347.2.b)",
     "  seat 0 passes focus (347.2)",
-    "the Showdown at Abandoned Hall closes (348)",
-    "combat at Abandoned Hall: seat 1 2 Might vs seat 0 0 Might (465.2.a-b)",
-    "  Scuttle Crab [u4] takes 2 damage (2/0)",
-    "Scuttle Crab [u4] -> trash (lethal damage marked (323.5))",
-    "combat result at Abandoned Hall: seat 1 wins the combat (466.3.a)",
-    "combat at Abandoned Hall ends (466.7)",
-    "seat 0 loses control of Abandoned Hall (323.6)",
-    "a SHOWDOWN opens at Abandoned Hall; seat 1 applied Contested and takes Focus (344, 345)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Abandoned Hall closes (348)",
-    "seat 1 establishes control of Abandoned Hall",
-    "seat 1 SCORES Abandoned Hall by Conquer -> 3 point(s)",
+    "the Showdown at Treasure Hoard closes (348)",
+    "combat at Treasure Hoard: seat 1 3 Might vs seat 0 5 Might (465.2.a-b)",
+    "  Fizz - Trickster [u28] takes 3 damage (3/3)",
+    "  Card Sharp [u24] takes 5 damage (5/3)",
+    "Card Sharp [u24] -> trash (lethal damage marked (323.5))",
+    "Fizz - Trickster [u28] -> trash (lethal damage marked (323.5))",
+    "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
+    "combat at Treasure Hoard ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
     "seat 1 ends their Main Phase (316.9)",
     "— turn 12, seat 1 — ending phase",
     "turn passes to seat 0 (317.3)",
     "— turn 13, seat 0 — awaken phase",
     "awaken: seat 0 readies 3 object(s) (315.1.b)",
     "— turn 13, seat 0 — beginning phase",
-    "seat 0 SCORES Treasure Hoard by Hold -> 7 point(s)",
-    "— turn 13, seat 0 — channel phase",
-    "seat 0 channels 2: Chaos Rune, Calm Rune",
-    "— turn 13, seat 0 — draw phase",
-    "seat 0 draws 1 (draw phase)",
-    "seat 0 ends their Main Phase (316.9)",
-    "— turn 13, seat 0 — ending phase",
-    "turn passes to seat 1 (317.3)",
-    "— turn 14, seat 1 — awaken phase",
-    "awaken: seat 1 readies 8 object(s) (315.1.b)",
-    "— turn 14, seat 1 — beginning phase",
-    "seat 1 SCORES Abandoned Hall by Hold -> 4 point(s)",
-    "— turn 14, seat 1 — channel phase",
-    "seat 1 channels 2: Mind Rune, Mind Rune",
-    "— turn 14, seat 1 — draw phase",
-    "seat 1 draws 1 (draw phase)",
-    "Honest Broker [u9] exhausts",
-    "Honest Broker [u9] moves Abandoned Hall (bf:0) -> seat 1's base",
-    "seat 1 loses control of Abandoned Hall (323.6)",
-    "seat 1 plays Imperial Decree [c60] onto the Chain — pending (354)",
-    "seat 1 recycles Order Rune [r21] for 1 Order Power",
-    "seat 1 recycles Order Rune [r41] for 1 Order Power",
-    "seat 1 exhausts 5 rune(s) for 5 Energy",
-    "seat 1 pays 5E + 2P for Imperial Decree",
-    "  Imperial Decree [c60] is finalized (359)",
-    "  seat 1 passes priority (338.1.b)",
-    "  seat 0 passes priority (338.1.b)",
-    "  Imperial Decree [c60] resolves — vanilla kernel, its text is not executed (340.1)",
-    "Viktor - Leader [u54] exhausts",
-    "Viktor - Leader [u54] moves seat 1's base -> Treasure Hoard (bf:1)",
-    "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
-    "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Treasure Hoard closes (348)",
-    "combat at Treasure Hoard: seat 1 4 Might vs seat 0 4 Might (465.2.a-b)",
-    "  Tideturner [u38] takes 2 damage (2/2)",
-    "  Tideturner [u47] takes 2 damage (2/2)",
-    "  Viktor - Leader [u54] takes 4 damage (4/4)",
-    "Tideturner [u38] -> trash (lethal damage marked (323.5))",
-    "Tideturner [u47] -> trash (lethal damage marked (323.5))",
-    "Viktor - Leader [u54] -> trash (lethal damage marked (323.5))",
-    "combat result at Treasure Hoard: no result (466.3.d)",
-    "Treasure Hoard becomes uncontrolled (466.5.b)",
-    "combat at Treasure Hoard ends (466.7)",
-    "seat 1 ends their Main Phase (316.9)",
-    "— turn 14, seat 1 — ending phase",
-    "turn passes to seat 0 (317.3)",
-    "— turn 15, seat 0 — awaken phase",
-    "awaken: seat 0 readies 0 object(s) (315.1.b)",
-    "— turn 15, seat 0 — beginning phase",
-    "— turn 15, seat 0 — channel phase",
-    "seat 0 channels 2: Chaos Rune, Calm Rune",
-    "— turn 15, seat 0 — draw phase",
-    "seat 0 draws 1 (draw phase)",
-    "seat 0 plays Tideturner [c63] onto the Chain — pending (354)",
-    "seat 0 exhausts 2 rune(s) for 2 Energy",
-    "seat 0 pays 2E for Tideturner",
-    "  Tideturner [c63] is finalized (359)",
-    "seat 0 puts Tideturner [u64] into play exhausted at seat 0's base",
-    "Akali, Silent [u30] exhausts",
-    "Akali, Silent [u30] moves seat 0's base -> Treasure Hoard (bf:1)",
-    "Treasure Hoard becomes CONTESTED by seat 0 (190.3.a.1)",
-    "a SHOWDOWN opens at Treasure Hoard; seat 0 applied Contested and takes Focus (344, 345)",
-    "  seat 0 passes focus (347.2)",
-    "  focus passes to seat 1 (347.2.b)",
-    "  seat 1 passes focus (347.2)",
-    "the Showdown at Treasure Hoard closes (348)",
-    "seat 0 establishes control of Treasure Hoard",
-    "seat 0 conquers Treasure Hoard but has not scored every battlefield this turn — draws a card instead of the final point (471.1.b.1)",
-    "seat 0 draws 1 (final point denied)",
-    "seat 0 ends their Main Phase (316.9)",
-    "— turn 15, seat 0 — ending phase",
-    "turn passes to seat 1 (317.3)",
-    "— turn 16, seat 1 — awaken phase",
-    "awaken: seat 1 readies 6 object(s) (315.1.b)",
-    "— turn 16, seat 1 — beginning phase",
-    "— turn 16, seat 1 — channel phase",
-    "seat 1 channels 2: Order Rune, Mind Rune",
-    "— turn 16, seat 1 — draw phase",
-    "seat 1 draws 1 (draw phase)",
-    "seat 1 plays Singularity [c67] onto the Chain — pending (354)",
-    "seat 1 recycles Mind Rune [r32] for 1 Mind Power",
-    "seat 1 recycles Mind Rune [r48] for 1 Mind Power",
-    "seat 1 exhausts 6 rune(s) for 6 Energy",
-    "seat 1 pays 6E + 2P for Singularity",
-    "  Singularity [c67] is finalized (359)",
-    "  seat 1 passes priority (338.1.b)",
-    "  seat 0 passes priority (338.1.b)",
-    "  Singularity [c67] resolves — vanilla kernel, its text is not executed (340.1)",
-    "Honest Broker [u9] exhausts",
-    "Honest Broker [u9] moves seat 1's base -> Treasure Hoard (bf:1)",
-    "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
-    "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Treasure Hoard closes (348)",
-    "combat at Treasure Hoard: seat 1 2 Might vs seat 0 4 Might (465.2.a-b)",
-    "  Akali, Silent [u30] takes 2 damage (2/4)",
-    "  Honest Broker [u9] takes 4 damage (4/2)",
-    "Honest Broker [u9] -> trash (lethal damage marked (323.5))",
-    "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
-    "combat at Treasure Hoard ends (466.7)",
-    "seat 1 ends their Main Phase (316.9)",
-    "— turn 16, seat 1 — ending phase",
-    "turn passes to seat 0 (317.3)",
-    "— turn 17, seat 0 — awaken phase",
-    "awaken: seat 0 readies 4 object(s) (315.1.b)",
-    "— turn 17, seat 0 — beginning phase",
+    "seat 0 SCORES Abandoned Hall by Hold -> 7 point(s)",
     "seat 0 SCORES Treasure Hoard by Hold -> 8 point(s)",
     "seat 0 WINS with 8 points (472, at 323.1)",
     "game over: seat 0 reached the Victory Score (472, noticed at 323.1)"
@@ -1516,6 +1308,15 @@
     ],
     [
      0,
+     "assign_damage",
+     [
+      "hit",
+      "u42",
+      2
+     ]
+    ],
+    [
+     0,
      "main",
      [
       "play",
@@ -1536,7 +1337,113 @@
      "target",
      [
       "to",
+      "bf:1"
+     ]
+    ],
+    [
+     0,
+     "assign_damage",
+     [
+      "hit",
+      "u33",
+      3
+     ]
+    ],
+    [
+     0,
+     "assign_damage",
+     [
+      "hit",
+      "u42",
+      1
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Pyke - Returned"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "base:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u63"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
       "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u25"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u42"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Scuttle Crab"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:1"
      ]
     ],
     [
@@ -1551,40 +1458,31 @@
      1,
      "main",
      [
-      "move",
-      "u42"
+      "end"
+     ]
+    ],
+    [
+     0,
+     "main",
+     [
+      "end"
      ]
     ],
     [
      1,
      "main",
      [
-      "end"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
       "play",
       "hand",
-      "Imperial Decree"
+      "Tideturner"
      ]
     ],
     [
-     0,
-     "main",
+     1,
+     "target",
      [
-      "play",
-      "hand",
-      "Wages of Pain"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "end"
+      "at",
+      "base:1"
      ]
     ],
     [
@@ -1597,80 +1495,50 @@
     ],
     [
      1,
-     "target",
-     [
-      "to",
-      "bf:0"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u33"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "end"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "play",
-      "hand",
-      "Vi - Peacekeeper"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "end"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u33"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:0"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "end"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "move",
-      "u69"
-     ]
-    ],
-    [
-     0,
      "target",
      [
       "to",
       "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Tideturner"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u54"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "end"
      ]
     ],
     [
@@ -1686,72 +1554,25 @@
      "target",
      [
       "to",
-      "bf:0"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "end"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u54"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
       "bf:1"
      ]
     ],
     [
-     1,
-     "main",
+     0,
+     "assign_damage",
      [
-      "play",
-      "hand",
-      "Pyke - Returned"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Discipline"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "end"
+      "hit",
+      "u67",
+      1
      ]
     ],
     [
      0,
-     "main",
+     "assign_damage",
      [
-      "play",
-      "hand",
-      "Carrion Dredger"
-     ]
-    ],
-    [
-     0,
-     "target",
-     [
-      "at",
-      "base:0"
+      "hit",
+      "u42",
+      2
      ]
     ],
     [
@@ -1759,349 +1580,103 @@
      "main",
      [
       "end"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u25"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:0"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u73"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:1"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Defiant Dance"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Scuttle Crab"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "at",
-      "base:1"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Tideturner"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "at",
-      "bf:0"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Tideturner"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "at",
-      "bf:0"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "move",
-      "u69"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "play",
-      "hand",
-      "Stupefy"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "move",
-      "u77"
-     ]
-    ],
-    [
-     0,
-     "target",
-     [
-      "to",
-      "bf:0"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "play",
-      "hand",
-      "Thousand-Tailed Watcher"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "end"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u25"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Scuttle Crab"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "at",
-      "base:1"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "end"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "move",
-      "u69"
-     ]
-    ],
-    [
-     0,
-     "target",
-     [
-      "to",
-      "bf:0"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "play",
-      "hand",
-      "Thousand-Tailed Watcher"
-     ]
-    ],
-    [
-     0,
-     "target",
-     [
-      "at",
-      "bf:0"
-     ]
-    ],
-    [
-     0,
-     "main",
-     [
-      "move",
-      "u87"
-     ]
-    ],
-    [
-     0,
-     "target",
-     [
-      "to",
-      "bf:1"
      ]
     ]
    ],
    "step_hashes": [
-    "bb16da40db2c35a4",
-    "a0083dca55106966",
-    "cf4342a2220c29c3",
-    "ea5d10659548d178",
-    "b6d97a5772a0e384",
-    "27027614e00596e1",
-    "cc10edeb2708c037",
-    "af9d2375e09aa28f",
-    "c4a2eac747abd2c5",
-    "36827a92bf8e20c0",
-    "3abb6b215519b357",
-    "b3df07a461dc1cd6",
-    "c4cb44ba99d6ab08",
-    "7858bde4720eb1ef",
-    "ca3a613827c8d430",
-    "22ca2409f60ca677",
-    "560b3e990983a06a",
-    "5d5f05d0c970f5fa",
-    "06e4749c4186c944",
-    "566e8beb5fe9d59e",
-    "87963e9d27cdb32e",
-    "7bdd87dd2f71b893",
-    "f23d5e0fd9b6477d",
-    "69f55306cc4b5f66",
-    "2573746b0c80c4f0",
-    "7657a8d31c94ec57",
-    "8084c231f1a86fde",
-    "8c3fe8ecba5c8d87",
-    "7a23cec953e0c9d3",
-    "f37d3d99186769f6",
-    "2f98be72c486d5e7",
-    "794376db9834ef18",
-    "6a5398b3988c9e63",
-    "b730b48e08a5e61f",
-    "3ec59478f06d89f9",
-    "7a2aa02f5c160294",
-    "b6526cacb57a14ff",
-    "4afd3f873ef30bd1",
-    "80b936c86fb4365e",
-    "ce13e3de4ab8c46b",
-    "8a54171412bceff0",
-    "586b7ed7bb43e0d0",
-    "5f9449ebcaea5f01",
-    "5091eb2dc7318755",
-    "c62b35b9656daabb",
-    "67a88aa551c1e77d",
-    "a27af4454c2cd679",
-    "c78e2d494191bd53",
-    "1227b51aadb13442",
-    "4d13a05d8a0b377d",
-    "d956ae9d5293f5f8",
-    "7f7873dc56d5dc6d",
-    "9b0eb6bbdd2b7e4e",
-    "58b2680830c7ad38",
-    "1d1388d8add159b8",
-    "96df1c45b4dbf16a",
-    "607112625fee3929",
-    "f9fe163553d56182",
-    "d77450027b81ab81",
-    "3953373db2118f92",
-    "a6dcfedb81563171",
-    "39fd8eda3ff3bdca",
-    "d04c9f06950103df",
-    "0efdd613f5a6b07e",
-    "315f5ad4c4c245c8",
-    "5740dc22874af47f",
-    "2d5dd5eb56b900c1",
-    "4e759492c095c18e",
-    "bdeb2505e8ef88db",
-    "c4fec904a1b92d95",
-    "ecf48212c3f2f0e6",
-    "1c71061b35b5439a",
-    "37d9fdf2e2405e05",
-    "47fa83b53f0914f7",
-    "b608e9ecf57d38b1",
-    "d1b2909dad004330",
-    "26069e2dcfba99db",
-    "3b5e01eac8bab979",
-    "b3074c5d7aea7cc7",
-    "72696bccc011a47d",
-    "f64bd78fb12b1c87",
-    "25323ce04275d81d",
-    "21149df7ef6c4607",
-    "9ddf749297c4e09e",
-    "3990f33a24d8ceec",
-    "4a737bb8e07080e8",
-    "a6c159e5d4b02f08",
-    "483325a929b3805f",
-    "a243edc4d73d6d44",
-    "054853c3bd74b463",
-    "f456d572cec08b3e",
-    "973c8dc3e93b5cd6",
-    "ed8cee5b8a0f5686",
-    "0d0be4e785249016",
-    "6015baa4481c1d45",
-    "1fd28720a7ea7830",
-    "f686d8db27d551b2",
-    "7e4cb949a766ecb4",
-    "403580d51acedcb8",
-    "14cbc539d872fa1d",
-    "9cf102b793a2f6f5",
-    "cd11f8ad76f30ac6",
-    "83d4d4e29417430c"
+    "fa039563768de3dd",
+    "aaf2875e4a4de1de",
+    "c14e98f5d74f865c",
+    "dbe7c79be121454e",
+    "2153993c13a5634d",
+    "3209e9cdd6cd054b",
+    "6572a77626689cb0",
+    "2650432b6df0a224",
+    "3df321a462dc9f6d",
+    "a68afc7181921ec2",
+    "b60b2fa89f73d36d",
+    "a2ee49d767a48278",
+    "370830eb2eb972e2",
+    "c42eac600def7caf",
+    "4c2b8cecf87aa3b8",
+    "1ac67af64cfbace8",
+    "e3c85ef16d8117f2",
+    "eae19ebd2bb4bd55",
+    "48a278fd3bbaeecf",
+    "3a0ab9208fec70af",
+    "529db35620bb1855",
+    "b6bd8c7b3bb00cf9",
+    "5b77bb5c61f24df8",
+    "2df150a13b9c7b6e",
+    "9ec1a88f91093900",
+    "ccb80b22dfc61a28",
+    "973df8eabd2a84b1",
+    "c3a573965f6c144b",
+    "b6844b32ed371025",
+    "b09afc245a260a57",
+    "4e88e6f8af6951ba",
+    "1e93afbd0db7e3e7",
+    "eab5491400a18a9b",
+    "068d10d4249dfdab",
+    "810fe598bab45a12",
+    "f12f014fbf0bfbfe",
+    "884b7b3e56531a29",
+    "3fff1b9f71a27d2d",
+    "3068315afd2164c9",
+    "f8f2c0eb3b1214de",
+    "7fb8005498a6e653",
+    "c7ccaa0ee944b2e0",
+    "974355d92a67fbfe",
+    "ca3615cc5f1b22dd",
+    "1ccadd452373dbe1",
+    "2fdc7c79b02a552f",
+    "b930ca3c925cbd76",
+    "a968417bd7922380",
+    "c8d9af1b4eefe291",
+    "79b164516a14c4c0",
+    "4e2d40a3016ffdca",
+    "427d4dd3f52792b8",
+    "42aa377ef53ab829",
+    "585276cd5d498f01",
+    "3c67ee21ee01dffd",
+    "dd7886f17d244ba0",
+    "3d34c0a4c406829b",
+    "955d5ff4383adf9c",
+    "2fdfb6d1163b070e",
+    "707c61f081017756",
+    "cc1139526073479c",
+    "797dbebfcffe71c4",
+    "9b35be9f4e05b5e5",
+    "721d571b660d5610",
+    "81ffb957699cfc49",
+    "a530c194bdf1a6a0",
+    "4eea35e69e54dca6",
+    "c48e519060b46b60",
+    "b090118dad91abdd",
+    "972e6dac80afb986",
+    "5d16dff382bbf63a",
+    "53780427d089f3d0",
+    "efb77c9b129d75b0",
+    "5833ba40af4ae84b",
+    "e97e0baeec3ee36f",
+    "f3d29ddfd65bd4d6",
+    "8abf2662e4ef4af7",
+    "83237e416f1f5128",
+    "6599d1de5f6c143b"
    ],
    "summary": {
     "seed": 7,
     "first_player": 1,
-    "turns": 26,
-    "winner": 0,
-    "end_reason": "seat 0 reached the Victory Score (472, noticed at 323.1)",
+    "turns": 21,
+    "winner": 1,
+    "end_reason": "seat 1 reached the Victory Score (472, noticed at 323.1)",
     "points": [
-     8,
-     7
+     2,
+     9
     ],
-    "decisions": 103,
-    "log_entries": 697,
-    "state_hash": "470308fa19354cf5"
+    "decisions": 79,
+    "log_entries": 471,
+    "state_hash": "dad9daa783e1a0f8"
    },
    "log": [
     "seat 1 draws 4 (opening hand)",
@@ -2411,131 +1986,78 @@
     "Honest Broker [u37] moves seat 0's base -> Forbidding Waste (bf:1)",
     "Forbidding Waste becomes CONTESTED by seat 0 (190.3.a.1)",
     "COMBAT opens at Forbidding Waste as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 0 is the Attacker and seat 1 the Defender at Forbidding Waste; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 0 passes focus (347.2)",
     "  focus passes to seat 1 (347.2.b)",
     "  seat 1 passes focus (347.2)",
     "the Showdown at Forbidding Waste closes (348)",
     "combat at Forbidding Waste: seat 0 2 Might vs seat 1 10 Might (465.2.a-b)",
-    "  Stellacorn Herder [u33] takes 2 damage (2/3)",
+    "  Irelia, Fervent [u42] takes 2 damage (2/4)",
     "  Honest Broker [u37] takes 10 damage (10/2)",
     "Honest Broker [u37] -> trash (lethal damage marked (323.5))",
     "combat result at Forbidding Waste: seat 1 wins the combat (466.3.a)",
-    "combat at Forbidding Waste ends (466.7)",
+    "combat at Forbidding Waste ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
     "seat 0 plays Card Sharp [c58] onto the Chain — pending (354)",
     "seat 0 exhausts 3 rune(s) for 3 Energy",
     "seat 0 pays 3E for Card Sharp",
     "  Card Sharp [c58] is finalized (359)",
     "seat 0 puts Card Sharp [u59] into play exhausted at seat 0's base",
     "Viktor - Leader [u29] exhausts",
-    "Viktor - Leader [u29] moves seat 0's base -> Targon's Peak (bf:0)",
-    "Targon's Peak becomes CONTESTED by seat 0 (190.3.a.1)",
-    "a SHOWDOWN opens at Targon's Peak; seat 0 applied Contested and takes Focus (344, 345)",
+    "Viktor - Leader [u29] moves seat 0's base -> Forbidding Waste (bf:1)",
+    "Forbidding Waste becomes CONTESTED by seat 0 (190.3.a.1)",
+    "COMBAT opens at Forbidding Waste as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 0 is the Attacker and seat 1 the Defender at Forbidding Waste; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 0 passes focus (347.2)",
     "  focus passes to seat 1 (347.2.b)",
     "  seat 1 passes focus (347.2)",
-    "the Showdown at Targon's Peak closes (348)",
-    "seat 0 establishes control of Targon's Peak",
-    "seat 0 SCORES Targon's Peak by Conquer -> 3 point(s)",
+    "the Showdown at Forbidding Waste closes (348)",
+    "combat at Forbidding Waste: seat 0 4 Might vs seat 1 10 Might (465.2.a-b)",
+    "  Stellacorn Herder [u33] takes 3 damage (3/3)",
+    "  Irelia, Fervent [u42] takes 1 damage (1/4)",
+    "  Viktor - Leader [u29] takes 10 damage (10/4)",
+    "Viktor - Leader [u29] -> trash (lethal damage marked (323.5))",
+    "Stellacorn Herder [u33] -> trash (lethal damage marked (323.5))",
+    "combat result at Forbidding Waste: seat 1 wins the combat (466.3.a)",
+    "combat at Forbidding Waste ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
     "seat 0 ends their Main Phase (316.9)",
     "— turn 14, seat 0 — ending phase",
     "turn passes to seat 1 (317.3)",
     "— turn 15, seat 1 — awaken phase",
-    "awaken: seat 1 readies 9 object(s) (315.1.b)",
+    "awaken: seat 1 readies 8 object(s) (315.1.b)",
     "— turn 15, seat 1 — beginning phase",
     "seat 1 SCORES Forbidding Waste by Hold -> 3 point(s)",
     "— turn 15, seat 1 — channel phase",
     "seat 1 channels 2: Chaos Rune, Chaos Rune",
     "— turn 15, seat 1 — draw phase",
     "seat 1 draws 1 (draw phase)",
-    "Fizz - Trickster [u54] exhausts",
-    "Fizz - Trickster [u54] moves Forbidding Waste (bf:1) -> seat 1's base",
-    "Irelia, Fervent [u42] exhausts",
-    "Irelia, Fervent [u42] moves Forbidding Waste (bf:1) -> seat 1's base",
+    "seat 1 plays Pyke - Returned [c62] onto the Chain — pending (354)",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E for Pyke - Returned",
+    "  Pyke - Returned [c62] is finalized (359)",
+    "seat 1 puts Pyke - Returned [u63] into play exhausted at seat 1's base",
     "seat 1 ends their Main Phase (316.9)",
     "— turn 15, seat 1 — ending phase",
     "turn passes to seat 0 (317.3)",
     "— turn 16, seat 0 — awaken phase",
-    "awaken: seat 0 readies 10 object(s) (315.1.b)",
+    "awaken: seat 0 readies 9 object(s) (315.1.b)",
     "— turn 16, seat 0 — beginning phase",
-    "seat 0 SCORES Targon's Peak by Hold -> 4 point(s)",
     "— turn 16, seat 0 — channel phase",
     "seat 0 channels 2: Order Rune, Mind Rune",
     "— turn 16, seat 0 — draw phase",
     "seat 0 draws 1 (draw phase)",
-    "seat 0 plays Imperial Decree [c64] onto the Chain — pending (354)",
-    "seat 0 recycles Order Rune [r34] for 1 Order Power",
-    "seat 0 recycles Order Rune [r35] for 1 Order Power",
-    "seat 0 exhausts 5 rune(s) for 5 Energy",
-    "seat 0 pays 5E + 2P for Imperial Decree",
-    "  Imperial Decree [c64] is finalized (359)",
-    "  seat 0 passes priority (338.1.b)",
-    "  seat 1 passes priority (338.1.b)",
-    "  Imperial Decree [c64] resolves — vanilla kernel, its text is not executed (340.1)",
-    "seat 0 plays Wages of Pain [c65] onto the Chain — pending (354)",
-    "seat 0 exhausts 3 rune(s) for 3 Energy",
-    "seat 0 pays 3E for Wages of Pain",
-    "  Wages of Pain [c65] is finalized (359)",
-    "  seat 0 passes priority (338.1.b)",
-    "  seat 1 passes priority (338.1.b)",
-    "  Wages of Pain [c65] resolves — vanilla kernel, its text is not executed (340.1)",
     "seat 0 ends their Main Phase (316.9)",
     "— turn 16, seat 0 — ending phase",
     "turn passes to seat 1 (317.3)",
     "— turn 17, seat 1 — awaken phase",
-    "awaken: seat 1 readies 2 object(s) (315.1.b)",
+    "awaken: seat 1 readies 4 object(s) (315.1.b)",
     "— turn 17, seat 1 — beginning phase",
     "seat 1 SCORES Forbidding Waste by Hold -> 4 point(s)",
     "— turn 17, seat 1 — channel phase",
     "seat 1 cannot channel — Rune Deck is empty",
     "— turn 17, seat 1 — draw phase",
     "seat 1 draws 1 (draw phase)",
-    "Irelia, Fervent [u42] exhausts",
-    "Irelia, Fervent [u42] moves seat 1's base -> Targon's Peak (bf:0)",
-    "Targon's Peak becomes CONTESTED by seat 1 (190.3.a.1)",
-    "COMBAT opens at Targon's Peak as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Targon's Peak closes (348)",
-    "combat at Targon's Peak: seat 1 4 Might vs seat 0 4 Might (465.2.a-b)",
-    "  Viktor - Leader [u29] takes 4 damage (4/4)",
-    "  Irelia, Fervent [u42] takes 4 damage (4/4)",
-    "Viktor - Leader [u29] -> trash (lethal damage marked (323.5))",
-    "Irelia, Fervent [u42] -> trash (lethal damage marked (323.5))",
-    "combat result at Targon's Peak: no result (466.3.d)",
-    "Targon's Peak becomes uncontrolled (466.5.b)",
-    "combat at Targon's Peak ends (466.7)",
-    "Stellacorn Herder [u33] exhausts",
-    "Stellacorn Herder [u33] moves Forbidding Waste (bf:1) -> seat 1's base",
-    "seat 1 loses control of Forbidding Waste (323.6)",
-    "seat 1 ends their Main Phase (316.9)",
-    "— turn 17, seat 1 — ending phase",
-    "turn passes to seat 0 (317.3)",
-    "— turn 18, seat 0 — awaken phase",
-    "awaken: seat 0 readies 8 object(s) (315.1.b)",
-    "— turn 18, seat 0 — beginning phase",
-    "— turn 18, seat 0 — channel phase",
-    "seat 0 channels 2: Order Rune, Order Rune",
-    "— turn 18, seat 0 — draw phase",
-    "seat 0 draws 1 (draw phase)",
-    "seat 0 plays Vi - Peacekeeper [c68] onto the Chain — pending (354)",
-    "seat 0 recycles Order Rune [r56] for 1 Order Power",
-    "seat 0 exhausts 5 rune(s) for 5 Energy",
-    "seat 0 pays 5E + 1P for Vi - Peacekeeper",
-    "  Vi - Peacekeeper [c68] is finalized (359)",
-    "seat 0 puts Vi - Peacekeeper [u69] into play exhausted at seat 0's base",
-    "seat 0 ends their Main Phase (316.9)",
-    "— turn 18, seat 0 — ending phase",
-    "turn passes to seat 1 (317.3)",
-    "— turn 19, seat 1 — awaken phase",
-    "awaken: seat 1 readies 1 object(s) (315.1.b)",
-    "— turn 19, seat 1 — beginning phase",
-    "— turn 19, seat 1 — channel phase",
-    "seat 1 cannot channel — Rune Deck is empty",
-    "— turn 19, seat 1 — draw phase",
-    "seat 1 draws 1 (draw phase)",
-    "Stellacorn Herder [u33] exhausts",
-    "Stellacorn Herder [u33] moves seat 1's base -> Targon's Peak (bf:0)",
+    "Pyke - Returned [u63] exhausts",
+    "Pyke - Returned [u63] moves seat 1's base -> Targon's Peak (bf:0)",
     "Targon's Peak becomes CONTESTED by seat 1 (190.3.a.1)",
     "a SHOWDOWN opens at Targon's Peak; seat 1 applied Contested and takes Focus (344, 345)",
     "  seat 1 passes focus (347.2)",
@@ -2544,263 +2066,90 @@
     "the Showdown at Targon's Peak closes (348)",
     "seat 1 establishes control of Targon's Peak",
     "seat 1 SCORES Targon's Peak by Conquer -> 5 point(s)",
+    "Adaptatron [u25] exhausts",
+    "Adaptatron [u25] moves seat 1's base -> Forbidding Waste (bf:1)",
+    "Irelia, Fervent [u42] exhausts",
+    "Irelia, Fervent [u42] moves Forbidding Waste (bf:1) -> seat 1's base",
+    "seat 1 plays Scuttle Crab [c66] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Scuttle Crab",
+    "  Scuttle Crab [c66] is finalized (359)",
+    "seat 1 puts Scuttle Crab [u67] into play exhausted at Forbidding Waste (bf:1)",
+    "Fizz - Trickster [u54] exhausts",
+    "Fizz - Trickster [u54] moves Forbidding Waste (bf:1) -> seat 1's base",
+    "seat 1 ends their Main Phase (316.9)",
+    "— turn 17, seat 1 — ending phase",
+    "turn passes to seat 0 (317.3)",
+    "— turn 18, seat 0 — awaken phase",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
+    "— turn 18, seat 0 — beginning phase",
+    "— turn 18, seat 0 — channel phase",
+    "seat 0 channels 2: Order Rune, Order Rune",
+    "— turn 18, seat 0 — draw phase",
+    "seat 0 draws 1 (draw phase)",
+    "seat 0 ends their Main Phase (316.9)",
+    "— turn 18, seat 0 — ending phase",
+    "turn passes to seat 1 (317.3)",
+    "— turn 19, seat 1 — awaken phase",
+    "awaken: seat 1 readies 7 object(s) (315.1.b)",
+    "— turn 19, seat 1 — beginning phase",
+    "seat 1 SCORES Targon's Peak by Hold -> 6 point(s)",
+    "seat 1 SCORES Forbidding Waste by Hold -> 7 point(s)",
+    "— turn 19, seat 1 — channel phase",
+    "seat 1 cannot channel — Rune Deck is empty",
+    "— turn 19, seat 1 — draw phase",
+    "seat 1 draws 1 (draw phase)",
+    "seat 1 plays Tideturner [c70] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Tideturner",
+    "  Tideturner [c70] is finalized (359)",
+    "seat 1 puts Tideturner [u71] into play exhausted at seat 1's base",
+    "Irelia, Fervent [u42] exhausts",
+    "Irelia, Fervent [u42] moves seat 1's base -> Forbidding Waste (bf:1)",
+    "seat 1 plays Tideturner [c72] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Tideturner",
+    "  Tideturner [c72] is finalized (359)",
+    "seat 1 puts Tideturner [u73] into play exhausted at Forbidding Waste (bf:1)",
+    "Fizz - Trickster [u54] exhausts",
+    "Fizz - Trickster [u54] moves seat 1's base -> Targon's Peak (bf:0)",
     "seat 1 ends their Main Phase (316.9)",
     "— turn 19, seat 1 — ending phase",
     "turn passes to seat 0 (317.3)",
     "— turn 20, seat 0 — awaken phase",
-    "awaken: seat 0 readies 6 object(s) (315.1.b)",
+    "awaken: seat 0 readies 0 object(s) (315.1.b)",
     "— turn 20, seat 0 — beginning phase",
     "— turn 20, seat 0 — channel phase",
-    "seat 0 channels 2: Order Rune, Order Rune",
+    "seat 0 cannot channel — Rune Deck is empty",
     "— turn 20, seat 0 — draw phase",
     "seat 0 draws 1 (draw phase)",
-    "Vi - Peacekeeper [u69] exhausts",
-    "Vi - Peacekeeper [u69] moves seat 0's base -> Forbidding Waste (bf:1)",
+    "Card Sharp [u59] exhausts",
+    "Card Sharp [u59] moves seat 0's base -> Forbidding Waste (bf:1)",
     "Forbidding Waste becomes CONTESTED by seat 0 (190.3.a.1)",
-    "a SHOWDOWN opens at Forbidding Waste; seat 0 applied Contested and takes Focus (344, 345)",
+    "COMBAT opens at Forbidding Waste as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 0 is the Attacker and seat 1 the Defender at Forbidding Waste; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 0 passes focus (347.2)",
     "  focus passes to seat 1 (347.2.b)",
     "  seat 1 passes focus (347.2)",
     "the Showdown at Forbidding Waste closes (348)",
-    "seat 0 establishes control of Forbidding Waste",
-    "seat 0 SCORES Forbidding Waste by Conquer -> 5 point(s)",
-    "Card Sharp [u59] exhausts",
-    "Card Sharp [u59] moves seat 0's base -> Targon's Peak (bf:0)",
-    "Targon's Peak becomes CONTESTED by seat 0 (190.3.a.1)",
-    "COMBAT opens at Targon's Peak as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 0 passes focus (347.2)",
-    "  focus passes to seat 1 (347.2.b)",
-    "  seat 1 passes focus (347.2)",
-    "the Showdown at Targon's Peak closes (348)",
-    "combat at Targon's Peak: seat 0 3 Might vs seat 1 3 Might (465.2.a-b)",
-    "  Stellacorn Herder [u33] takes 3 damage (3/3)",
-    "  Card Sharp [u59] takes 3 damage (3/3)",
-    "Stellacorn Herder [u33] -> trash (lethal damage marked (323.5))",
+    "combat at Forbidding Waste: seat 0 3 Might vs seat 1 9 Might (465.2.a-b)",
+    "  Scuttle Crab [u67] takes 1 damage (1/0)",
+    "  Irelia, Fervent [u42] takes 2 damage (2/4)",
+    "  Card Sharp [u59] takes 9 damage (9/3)",
     "Card Sharp [u59] -> trash (lethal damage marked (323.5))",
-    "combat result at Targon's Peak: no result (466.3.d)",
-    "Targon's Peak becomes uncontrolled (466.5.b)",
-    "combat at Targon's Peak ends (466.7)",
+    "Scuttle Crab [u67] -> trash (lethal damage marked (323.5))",
+    "combat result at Forbidding Waste: seat 1 wins the combat (466.3.a)",
+    "combat at Forbidding Waste ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
     "seat 0 ends their Main Phase (316.9)",
     "— turn 20, seat 0 — ending phase",
     "turn passes to seat 1 (317.3)",
     "— turn 21, seat 1 — awaken phase",
-    "awaken: seat 1 readies 0 object(s) (315.1.b)",
+    "awaken: seat 1 readies 8 object(s) (315.1.b)",
     "— turn 21, seat 1 — beginning phase",
-    "— turn 21, seat 1 — channel phase",
-    "seat 1 cannot channel — Rune Deck is empty",
-    "— turn 21, seat 1 — draw phase",
-    "seat 1 draws 1 (draw phase)",
-    "Fizz - Trickster [u54] exhausts",
-    "Fizz - Trickster [u54] moves seat 1's base -> Forbidding Waste (bf:1)",
-    "Forbidding Waste becomes CONTESTED by seat 1 (190.3.a.1)",
-    "COMBAT opens at Forbidding Waste as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Forbidding Waste closes (348)",
-    "combat at Forbidding Waste: seat 1 3 Might vs seat 0 5 Might (465.2.a-b)",
-    "  Vi - Peacekeeper [u69] takes 3 damage (3/5)",
-    "  Fizz - Trickster [u54] takes 5 damage (5/3)",
-    "Fizz - Trickster [u54] -> trash (lethal damage marked (323.5))",
-    "combat result at Forbidding Waste: seat 0 wins the combat (466.3.a)",
-    "combat at Forbidding Waste ends (466.7)",
-    "seat 1 plays Pyke - Returned [c72] onto the Chain — pending (354)",
-    "seat 1 exhausts 3 rune(s) for 3 Energy",
-    "seat 1 pays 3E for Pyke - Returned",
-    "  Pyke - Returned [c72] is finalized (359)",
-    "seat 1 puts Pyke - Returned [u73] into play exhausted at seat 1's base",
-    "seat 1 plays Discipline [c74] onto the Chain — pending (354)",
-    "seat 1 exhausts 2 rune(s) for 2 Energy",
-    "seat 1 pays 2E for Discipline",
-    "  Discipline [c74] is finalized (359)",
-    "  seat 1 passes priority (338.1.b)",
-    "  seat 0 passes priority (338.1.b)",
-    "  Discipline [c74] resolves — vanilla kernel, its text is not executed (340.1)",
-    "seat 1 ends their Main Phase (316.9)",
-    "— turn 21, seat 1 — ending phase",
-    "turn passes to seat 0 (317.3)",
-    "— turn 22, seat 0 — awaken phase",
-    "awaken: seat 0 readies 1 object(s) (315.1.b)",
-    "— turn 22, seat 0 — beginning phase",
-    "seat 0 SCORES Forbidding Waste by Hold -> 6 point(s)",
-    "— turn 22, seat 0 — channel phase",
-    "seat 0 channels 1: Order Rune",
-    "— turn 22, seat 0 — draw phase",
-    "seat 0 draws 1 (draw phase)",
-    "seat 0 plays Carrion Dredger [c76] onto the Chain — pending (354)",
-    "seat 0 exhausts 2 rune(s) for 2 Energy",
-    "seat 0 pays 2E for Carrion Dredger",
-    "  Carrion Dredger [c76] is finalized (359)",
-    "seat 0 puts Carrion Dredger [u77] into play exhausted at seat 0's base",
-    "seat 0 ends their Main Phase (316.9)",
-    "— turn 22, seat 0 — ending phase",
-    "turn passes to seat 1 (317.3)",
-    "— turn 23, seat 1 — awaken phase",
-    "awaken: seat 1 readies 6 object(s) (315.1.b)",
-    "— turn 23, seat 1 — beginning phase",
-    "— turn 23, seat 1 — channel phase",
-    "seat 1 cannot channel — Rune Deck is empty",
-    "— turn 23, seat 1 — draw phase",
-    "seat 1 draws 1 (draw phase)",
-    "Adaptatron [u25] exhausts",
-    "Adaptatron [u25] moves seat 1's base -> Targon's Peak (bf:0)",
-    "Targon's Peak becomes CONTESTED by seat 1 (190.3.a.1)",
-    "a SHOWDOWN opens at Targon's Peak; seat 1 applied Contested and takes Focus (344, 345)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Targon's Peak closes (348)",
-    "seat 1 establishes control of Targon's Peak",
-    "seat 1 SCORES Targon's Peak by Conquer -> 6 point(s)",
-    "Pyke - Returned [u73] exhausts",
-    "Pyke - Returned [u73] moves seat 1's base -> Forbidding Waste (bf:1)",
-    "Forbidding Waste becomes CONTESTED by seat 1 (190.3.a.1)",
-    "COMBAT opens at Forbidding Waste as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Forbidding Waste closes (348)",
-    "combat at Forbidding Waste: seat 1 3 Might vs seat 0 5 Might (465.2.a-b)",
-    "  Vi - Peacekeeper [u69] takes 3 damage (3/5)",
-    "  Pyke - Returned [u73] takes 5 damage (5/3)",
-    "Pyke - Returned [u73] -> trash (lethal damage marked (323.5))",
-    "combat result at Forbidding Waste: seat 0 wins the combat (466.3.a)",
-    "combat at Forbidding Waste ends (466.7)",
-    "seat 1 plays Defiant Dance [c78] onto the Chain — pending (354)",
-    "seat 1 recycles Chaos Rune [r12] for 1 Chaos Power",
-    "seat 1 exhausts 1 rune(s) for 1 Energy",
-    "seat 1 pays 1E + 1P for Defiant Dance  [power domain split not in the card data]",
-    "  Defiant Dance [c78] is finalized (359)",
-    "  seat 1 passes priority (338.1.b)",
-    "  seat 0 passes priority (338.1.b)",
-    "  Defiant Dance [c78] resolves — vanilla kernel, its text is not executed (340.1)",
-    "seat 1 plays Scuttle Crab [c79] onto the Chain — pending (354)",
-    "seat 1 exhausts 2 rune(s) for 2 Energy",
-    "seat 1 pays 2E for Scuttle Crab",
-    "  Scuttle Crab [c79] is finalized (359)",
-    "seat 1 puts Scuttle Crab [u80] into play exhausted at seat 1's base",
-    "seat 1 plays Tideturner [c81] onto the Chain — pending (354)",
-    "seat 1 exhausts 2 rune(s) for 2 Energy",
-    "seat 1 pays 2E for Tideturner",
-    "  Tideturner [c81] is finalized (359)",
-    "seat 1 puts Tideturner [u82] into play exhausted at Targon's Peak (bf:0)",
-    "seat 1 plays Tideturner [c83] onto the Chain — pending (354)",
-    "seat 1 exhausts 2 rune(s) for 2 Energy",
-    "seat 1 pays 2E for Tideturner",
-    "  Tideturner [c83] is finalized (359)",
-    "seat 1 puts Tideturner [u84] into play exhausted at Targon's Peak (bf:0)",
-    "seat 1 ends their Main Phase (316.9)",
-    "— turn 23, seat 1 — ending phase",
-    "turn passes to seat 0 (317.3)",
-    "— turn 24, seat 0 — awaken phase",
-    "awaken: seat 0 readies 3 object(s) (315.1.b)",
-    "— turn 24, seat 0 — beginning phase",
-    "seat 0 SCORES Forbidding Waste by Hold -> 7 point(s)",
-    "— turn 24, seat 0 — channel phase",
-    "seat 0 cannot channel — Rune Deck is empty",
-    "— turn 24, seat 0 — draw phase",
-    "seat 0 draws 1 (draw phase)",
-    "Vi - Peacekeeper [u69] exhausts",
-    "Vi - Peacekeeper [u69] moves Forbidding Waste (bf:1) -> seat 0's base",
-    "seat 0 loses control of Forbidding Waste (323.6)",
-    "seat 0 plays Stupefy [c85] onto the Chain — pending (354)",
-    "seat 0 exhausts 1 rune(s) for 1 Energy",
-    "seat 0 pays 1E for Stupefy",
-    "  Stupefy [c85] is finalized (359)",
-    "  seat 0 passes priority (338.1.b)",
-    "  seat 1 passes priority (338.1.b)",
-    "  Stupefy [c85] resolves — vanilla kernel, its text is not executed (340.1)",
-    "Carrion Dredger [u77] exhausts",
-    "Carrion Dredger [u77] moves seat 0's base -> Targon's Peak (bf:0)",
-    "Targon's Peak becomes CONTESTED by seat 0 (190.3.a.1)",
-    "COMBAT opens at Targon's Peak as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 0 passes focus (347.2)",
-    "  focus passes to seat 1 (347.2.b)",
-    "  seat 1 passes focus (347.2)",
-    "the Showdown at Targon's Peak closes (348)",
-    "combat at Targon's Peak: seat 0 1 Might vs seat 1 7 Might (465.2.a-b)",
-    "  Adaptatron [u25] takes 1 damage (1/3)",
-    "  Carrion Dredger [u77] takes 7 damage (7/1)",
-    "Carrion Dredger [u77] -> trash (lethal damage marked (323.5))",
-    "combat result at Targon's Peak: seat 1 wins the combat (466.3.a)",
-    "combat at Targon's Peak ends (466.7)",
-    "seat 0 plays Thousand-Tailed Watcher [c86] onto the Chain — pending (354)",
-    "seat 0 recycles Mind Rune [r17] for 1 Mind Power",
-    "seat 0 exhausts 7 rune(s) for 7 Energy",
-    "seat 0 pays 7E + 1P for Thousand-Tailed Watcher",
-    "  Thousand-Tailed Watcher [c86] is finalized (359)",
-    "seat 0 puts Thousand-Tailed Watcher [u87] into play exhausted at seat 0's base",
-    "seat 0 ends their Main Phase (316.9)",
-    "— turn 24, seat 0 — ending phase",
-    "turn passes to seat 1 (317.3)",
-    "— turn 25, seat 1 — awaken phase",
-    "awaken: seat 1 readies 11 object(s) (315.1.b)",
-    "— turn 25, seat 1 — beginning phase",
-    "seat 1 SCORES Targon's Peak by Hold -> 7 point(s)",
-    "— turn 25, seat 1 — channel phase",
-    "seat 1 channels 1: Chaos Rune",
-    "— turn 25, seat 1 — draw phase",
-    "seat 1 draws 1 (draw phase)",
-    "Adaptatron [u25] exhausts",
-    "Adaptatron [u25] moves Targon's Peak (bf:0) -> seat 1's base",
-    "seat 1 plays Scuttle Crab [c89] onto the Chain — pending (354)",
-    "seat 1 exhausts 2 rune(s) for 2 Energy",
-    "seat 1 pays 2E for Scuttle Crab",
-    "  Scuttle Crab [c89] is finalized (359)",
-    "seat 1 puts Scuttle Crab [u90] into play exhausted at seat 1's base",
-    "seat 1 ends their Main Phase (316.9)",
-    "— turn 25, seat 1 — ending phase",
-    "turn passes to seat 0 (317.3)",
-    "— turn 26, seat 0 — awaken phase",
-    "awaken: seat 0 readies 9 object(s) (315.1.b)",
-    "— turn 26, seat 0 — beginning phase",
-    "— turn 26, seat 0 — channel phase",
-    "seat 0 channels 1: Mind Rune",
-    "— turn 26, seat 0 — draw phase",
-    "seat 0 draws 1 (draw phase)",
-    "Vi - Peacekeeper [u69] exhausts",
-    "Vi - Peacekeeper [u69] moves seat 0's base -> Targon's Peak (bf:0)",
-    "Targon's Peak becomes CONTESTED by seat 0 (190.3.a.1)",
-    "COMBAT opens at Targon's Peak as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 0 passes focus (347.2)",
-    "  focus passes to seat 1 (347.2.b)",
-    "  seat 1 passes focus (347.2)",
-    "the Showdown at Targon's Peak closes (348)",
-    "combat at Targon's Peak: seat 0 5 Might vs seat 1 4 Might (465.2.a-b)",
-    "  Tideturner [u82] takes 2 damage (2/2)",
-    "  Tideturner [u84] takes 3 damage (3/2)",
-    "  Vi - Peacekeeper [u69] takes 4 damage (4/5)",
-    "Tideturner [u82] -> trash (lethal damage marked (323.5))",
-    "Tideturner [u84] -> trash (lethal damage marked (323.5))",
-    "combat result at Targon's Peak: seat 0 wins the combat (466.3.a)",
-    "combat at Targon's Peak ends (466.7)",
-    "seat 1 loses control of Targon's Peak (323.6)",
-    "a SHOWDOWN opens at Targon's Peak; seat 0 applied Contested and takes Focus (344, 345)",
-    "  seat 0 passes focus (347.2)",
-    "  focus passes to seat 1 (347.2.b)",
-    "  seat 1 passes focus (347.2)",
-    "the Showdown at Targon's Peak closes (348)",
-    "seat 0 establishes control of Targon's Peak",
-    "seat 0 conquers Targon's Peak but has not scored every battlefield this turn — draws a card instead of the final point (471.1.b.1)",
-    "seat 0 draws 1 (final point denied)",
-    "seat 0 plays Thousand-Tailed Watcher [c92] onto the Chain — pending (354)",
-    "seat 0 recycles Mind Rune [r26] for 1 Mind Power",
-    "seat 0 exhausts 7 rune(s) for 7 Energy",
-    "seat 0 pays 7E + 1P for Thousand-Tailed Watcher",
-    "  Thousand-Tailed Watcher [c92] is finalized (359)",
-    "seat 0 puts Thousand-Tailed Watcher [u93] into play exhausted at Targon's Peak (bf:0)",
-    "Thousand-Tailed Watcher [u87] exhausts",
-    "Thousand-Tailed Watcher [u87] moves seat 0's base -> Forbidding Waste (bf:1)",
-    "Forbidding Waste becomes CONTESTED by seat 0 (190.3.a.1)",
-    "a SHOWDOWN opens at Forbidding Waste; seat 0 applied Contested and takes Focus (344, 345)",
-    "  seat 0 passes focus (347.2)",
-    "  focus passes to seat 1 (347.2.b)",
-    "  seat 1 passes focus (347.2)",
-    "the Showdown at Forbidding Waste closes (348)",
-    "seat 0 establishes control of Forbidding Waste",
-    "seat 0 takes the FINAL POINT at Forbidding Waste -> 8 (471.1.b.1)",
-    "seat 0 WINS with 8 points (472, at 323.1)",
-    "game over: seat 0 reached the Victory Score (472, noticed at 323.1)"
+    "seat 1 SCORES Targon's Peak by Hold -> 8 point(s)",
+    "seat 1 SCORES Forbidding Waste by Hold -> 9 point(s)",
+    "seat 1 WINS with 9 points (472, at 323.1)",
+    "game over: seat 1 reached the Victory Score (472, noticed at 323.1)"
    ]
   },
   {
@@ -3238,19 +2587,36 @@
     ],
     [
      1,
+     "assign_damage",
+     [
+      "hit",
+      "u50",
+      4
+     ]
+    ],
+    [
+     1,
      "main",
      [
-      "play",
-      "hand",
-      "Nocturne - Horrifying"
+      "move",
+      "u53"
      ]
     ],
     [
      1,
      "target",
      [
-      "at",
-      "bf:1"
+      "to",
+      "bf:0"
+     ]
+    ],
+    [
+     1,
+     "assign_damage",
+     [
+      "hit",
+      "u67",
+      2
      ]
     ],
     [
@@ -3265,7 +2631,17 @@
      1,
      "main",
      [
-      "end"
+      "play",
+      "hand",
+      "Nocturne - Horrifying"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "bf:1"
      ]
     ],
     [
@@ -3287,16 +2663,17 @@
      1,
      "main",
      [
-      "move",
-      "u53"
+      "play",
+      "hand",
+      "Star-Crossed"
      ]
     ],
     [
      1,
-     "target",
+     "main",
      [
-      "to",
-      "bf:0"
+      "move",
+      "u72"
      ]
     ],
     [
@@ -3325,15 +2702,6 @@
      1,
      "main",
      [
-      "play",
-      "hand",
-      "Star-Crossed"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
       "move",
       "u74"
      ]
@@ -3342,7 +2710,49 @@
      1,
      "main",
      [
-      "end"
+      "move",
+      "u55"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "play",
+      "hand",
+      "Traveling Merchant"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "at",
+      "base:1"
+     ]
+    ],
+    [
+     1,
+     "main",
+     [
+      "move",
+      "u72"
+     ]
+    ],
+    [
+     1,
+     "target",
+     [
+      "to",
+      "bf:0"
      ]
     ],
     [
@@ -3390,66 +2800,7 @@
      1,
      "main",
      [
-      "move",
-      "u55"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:1"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u72"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Lightning Rush"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u74"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:0"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Traveling Merchant"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "at",
-      "bf:1"
+      "end"
      ]
     ],
     [
@@ -3474,7 +2825,7 @@
      "main",
      [
       "move",
-      "u82"
+      "u85"
      ]
     ],
     [
@@ -3533,157 +2884,111 @@
      [
       "end"
      ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u87"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u72"
-     ]
-    ],
-    [
-     1,
-     "target",
-     [
-      "to",
-      "bf:1"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "play",
-      "hand",
-      "Lightning Rush"
-     ]
-    ],
-    [
-     1,
-     "main",
-     [
-      "move",
-      "u55"
-     ]
     ]
    ],
    "step_hashes": [
-    "30f2f03314eb4e35",
-    "a7a13f8a71adc072",
-    "c3ba1a251c3afd28",
-    "bd4fcae54b49c8da",
-    "1204ae165d46dee1",
-    "0b7666c5bb1deb9b",
-    "95efd28ed92ea3d4",
-    "1cecaa7b173d2673",
-    "2b9231dc9fd51d06",
-    "d36d469364bad07a",
-    "e54879044c5fbaa9",
-    "515b026f51139887",
-    "1d263374ffb6a60e",
-    "563f9c988ab7b98c",
-    "2dc7c2489981b456",
-    "834e8aca8749c4e1",
-    "0daab6c89b5a964d",
-    "6a687b6f3e9e14ef",
-    "ce921df90192922f",
-    "830aae16c1e902d1",
-    "f7a29f10161d73b1",
-    "1e1bc5829b21e529",
-    "f1795c0ea388caba",
-    "eb4dba20ca9a25e1",
-    "9f908f68b812f47e",
-    "19e35818a80a3eb2",
-    "21ed903064c14151",
-    "43c00ffd29857e57",
-    "b4bc7618d69f1bec",
-    "6a130df7650c86f2",
-    "93ea7588040478b2",
-    "5fc388545afa826b",
-    "b05321ea2bc84dd9",
-    "da52d77245f86f97",
-    "6dfb5ff6da5bb786",
-    "7848c881292f4bb1",
-    "125571edefd4931d",
-    "2a4c56755171f4e2",
-    "ffa4e224b69c6b75",
-    "dee9ec715f7f3588",
-    "22a0ae8a428b0d0f",
-    "726cf7abd4e15b28",
-    "e583a044bc7d57b6",
-    "0c82535199b33c6f",
-    "54c56e00b03ce2fb",
-    "fc6dbe67253a3dc6",
-    "999dcdede2e92621",
-    "1b467aba88814301",
-    "b94f6839db752375",
-    "fe1e620749ef7512",
-    "37fb65bc31105e67",
-    "925137e1acf9b8aa",
-    "83b6836927706e3e",
-    "9a4ce7d5a14159b6",
-    "08bd9309f9fa6f79",
-    "a44c53b122c5eea8",
-    "989d94c247e9f1b0",
-    "cb47bb546033923a",
-    "4aec4bf07f95ba2c",
-    "aa0fb1fdb6418b97",
-    "c7cfd5d3d2afe93e",
-    "1882b12862d4e9a5",
-    "9186e71b07a404bd",
-    "eed6730adcc48cdd",
-    "cb877198675487d7",
-    "89278dbc8658617c",
-    "59396035969c771a",
-    "d6a9c65ca3eccbd8",
-    "fd08ef6f2c6bcecd",
-    "787bf69ae038c322",
-    "f2a4c3911947e8d0",
-    "40bbfb0fe7205348",
-    "910b202fb62a7f2c",
-    "7a4bd0632a98ba71",
-    "c191813a818654be",
-    "55cac04eb224687f",
-    "520cf64c157178c1",
-    "4ae22fc0138af00f",
-    "ae3c9eb41f9c344a",
-    "362b806d9437589f",
-    "af50a28261e012b3",
-    "e4bb630e550d7fb5",
-    "59c0379990c850bd",
-    "d982b863a38a9dc5",
-    "a1f04195fee20076",
-    "ef673759155ddf63",
-    "8a3cfebf4edb23e0",
-    "eb9ad35c4279b3ac",
-    "923d24db4326b4c0",
-    "f2f0a800a3b044b8",
-    "c9ee0f05e8c67b92",
-    "710203c105a2ab61",
-    "d720ee8cde57fd4c"
+    "980a3139159d714e",
+    "05216c305ad0d96c",
+    "24c38aaceed80877",
+    "632b079675f91f70",
+    "518965f9da096213",
+    "6a5cf3165cc0723e",
+    "40b9a19a56ad88f2",
+    "213884048128a16a",
+    "94166060e1030cd6",
+    "939547ca3eec7620",
+    "a0e545b8789c29a9",
+    "9fbe1cd83105f54d",
+    "42f9c918a8e25055",
+    "ef2b22f2dc14649c",
+    "22c6e40aa1a0f6d0",
+    "7b06dc7e529ce6f5",
+    "bde7a775389f8644",
+    "b503d0587c8cf940",
+    "c856188f7e8cb57b",
+    "c2d74940e26fafae",
+    "bb770c6247fcc78a",
+    "12d0276ad1a3b55e",
+    "7bf3261421f3d1cd",
+    "dfc60528e537ceb5",
+    "d733f507d9554f3b",
+    "24c251af11211a04",
+    "b68a12440160d80a",
+    "af9adb8960f549ba",
+    "dce08e1bd27c8c81",
+    "e6b27e9ef5da86ea",
+    "ad8213d4311ef00c",
+    "a13467f451bfb1fa",
+    "8cd51fab26e96128",
+    "59ffce381f522d15",
+    "ea140cc3a449bbba",
+    "83cc3022416e54e2",
+    "f44198a8286d1765",
+    "3ab457971a7b650d",
+    "3765a947b55aa0ae",
+    "d4eb876fbe28e32f",
+    "a0739c7f048ed79b",
+    "6614b4bcd8ecb56e",
+    "112d4387f3b0814d",
+    "c21a912e724b7c3f",
+    "c1e89643e36c2208",
+    "c9297f94c90875d7",
+    "d9946440f11fe3c9",
+    "a50b758eaed57cc8",
+    "4646b6150fbdd70e",
+    "d8f1bec6eb3f39bd",
+    "f1cb1f8c095ca51f",
+    "10e5e7035e0c32c3",
+    "2cfd984e076909f6",
+    "4bbf24e7ad5b32dc",
+    "4cf77530d9bf5bbc",
+    "86da5a3a3956529e",
+    "d6c088a78056f0f3",
+    "864034cdd01a70b3",
+    "6dcd531dc5d58b06",
+    "efdf9da647ce3aa7",
+    "a6e1aea9f2bc15dd",
+    "a922044200bad37c",
+    "dc5eaaaffd56e1aa",
+    "07cf5c8e7bf83fe0",
+    "83982e9e9e61b136",
+    "81c2cde8a7e2bc8e",
+    "ed67258ad0a15932",
+    "c3d03bbaf5dcbe23",
+    "2e03294e656230d9",
+    "111bfc6f09919736",
+    "578820e23cee4236",
+    "23a1d02a1fe35197",
+    "d37f133bb71daf8c",
+    "af2b89c68cbc0fc2",
+    "d7e623fb0d99c52f",
+    "04de46561c41cc75",
+    "e35a66bd5e703b18",
+    "c7eeda94029c98f6",
+    "e301ed03fb3431a8",
+    "dd65bd53a3b3d570",
+    "96edcbc51180d5cf",
+    "128f1c338ab54829",
+    "d0d8120077da10ca",
+    "6c43aefc4d3d11d3",
+    "3a16ecad6dc98e51",
+    "a3f05f42c400212d",
+    "07fbe3755b844fb3",
+    "8c3b5732277307e4"
    ],
    "summary": {
     "seed": 23,
     "first_player": 0,
-    "turns": 27,
-    "winner": 0,
-    "end_reason": "seat 0 reached the Victory Score (472, noticed at 323.1)",
+    "turns": 26,
+    "winner": 1,
+    "end_reason": "seat 1 reached the Victory Score (472, noticed at 323.1)",
     "points": [
-     8,
-     7
+     7,
+     8
     ],
-    "decisions": 93,
-    "log_entries": 673,
-    "state_hash": "d2f8d33ec66e1df5"
+    "decisions": 88,
+    "log_entries": 652,
+    "state_hash": "e8faab9eaba9e43a"
    },
    "log": [
     "seat 0 draws 4 (opening hand)",
@@ -3916,6 +3221,7 @@
     "Honest Broker [u35] moves seat 0's base -> Treasure Hoard (bf:0)",
     "Treasure Hoard becomes CONTESTED by seat 0 (190.3.a.1)",
     "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 0 is the Attacker and seat 1 the Defender at Treasure Hoard; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 0 passes focus (347.2)",
     "  focus passes to seat 1 (347.2.b)",
     "  seat 1 passes focus (347.2)",
@@ -3927,7 +3233,7 @@
     "Honest Broker [u35] -> trash (lethal damage marked (323.5))",
     "combat result at Treasure Hoard: no result (466.3.d)",
     "Treasure Hoard becomes uncontrolled (466.5.b)",
-    "combat at Treasure Hoard ends (466.7)",
+    "combat at Treasure Hoard ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
     "seat 0 ends their Main Phase (316.9)",
     "— turn 11, seat 0 — ending phase",
     "turn passes to seat 1 (317.3)",
@@ -4056,6 +3362,7 @@
     "Rhasa the Sunderer [u55] moves seat 1's base -> Bandle Tree (bf:1)",
     "Bandle Tree becomes CONTESTED by seat 1 (190.3.a.1)",
     "COMBAT opens at Bandle Tree as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 1 is the Attacker and seat 0 the Defender at Bandle Tree; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 1 passes focus (347.2)",
     "  focus passes to seat 0 (347.2.b)",
     "  seat 0 passes focus (347.2)",
@@ -4065,15 +3372,9 @@
     "  Rhasa the Sunderer [u55] takes 4 damage (4/6)",
     "Viktor - Leader [u48] -> trash (lethal damage marked (323.5))",
     "combat result at Bandle Tree: seat 1 wins the combat (466.3.a)",
-    "combat at Bandle Tree ends (466.7)",
-    "seat 0 loses control of Bandle Tree (323.6)",
-    "a SHOWDOWN opens at Bandle Tree; seat 1 applied Contested and takes Focus (344, 345)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Bandle Tree closes (348)",
     "seat 1 establishes control of Bandle Tree",
     "seat 1 SCORES Bandle Tree by Conquer -> 2 point(s)",
+    "combat at Bandle Tree ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
     "seat 1 ends their Main Phase (316.9)",
     "— turn 16, seat 1 — ending phase",
     "turn passes to seat 0 (317.3)",
@@ -4118,6 +3419,7 @@
     "Kennen, Storm of Shuriken [u62] moves seat 1's base -> Treasure Hoard (bf:0)",
     "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
     "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 1 is the Attacker and seat 0 the Defender at Treasure Hoard; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 1 passes focus (347.2)",
     "  focus passes to seat 0 (347.2.b)",
     "  seat 0 passes focus (347.2)",
@@ -4127,15 +3429,30 @@
     "  Kennen, Storm of Shuriken [u62] takes 12 damage (12/4)",
     "Kennen, Storm of Shuriken [u62] -> trash (lethal damage marked (323.5))",
     "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
-    "combat at Treasure Hoard ends (466.7)",
+    "combat at Treasure Hoard ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
+    "Tideturner [u53] exhausts",
+    "Tideturner [u53] moves seat 1's base -> Treasure Hoard (bf:0)",
+    "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
+    "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 1 is the Attacker and seat 0 the Defender at Treasure Hoard; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Treasure Hoard closes (348)",
+    "combat at Treasure Hoard: seat 1 2 Might vs seat 0 12 Might (465.2.a-b)",
+    "  Thousand-Tailed Watcher [u67] takes 2 damage (2/7)",
+    "  Tideturner [u53] takes 12 damage (12/2)",
+    "Tideturner [u53] -> trash (lethal damage marked (323.5))",
+    "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
+    "combat at Treasure Hoard ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
+    "Rhasa the Sunderer [u55] exhausts",
+    "Rhasa the Sunderer [u55] moves Bandle Tree (bf:1) -> seat 1's base",
     "seat 1 plays Nocturne - Horrifying [c73] onto the Chain — pending (354)",
     "seat 1 recycles Chaos Rune [r29] for 1 Chaos Power",
     "seat 1 exhausts 4 rune(s) for 4 Energy",
     "seat 1 pays 4E + 1P for Nocturne - Horrifying",
     "  Nocturne - Horrifying [c73] is finalized (359)",
     "seat 1 puts Nocturne - Horrifying [u74] into play exhausted at Bandle Tree (bf:1)",
-    "Rhasa the Sunderer [u55] exhausts",
-    "Rhasa the Sunderer [u55] moves Bandle Tree (bf:1) -> seat 1's base",
     "seat 1 ends their Main Phase (316.9)",
     "— turn 18, seat 1 — ending phase",
     "turn passes to seat 0 (317.3)",
@@ -4160,20 +3477,16 @@
     "seat 1 channels 1: Chaos Rune",
     "— turn 20, seat 1 — draw phase",
     "seat 1 draws 1 (draw phase)",
-    "Tideturner [u53] exhausts",
-    "Tideturner [u53] moves seat 1's base -> Treasure Hoard (bf:0)",
-    "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
-    "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Treasure Hoard closes (348)",
-    "combat at Treasure Hoard: seat 1 2 Might vs seat 0 5 Might (465.2.a-b)",
-    "  Vi - Peacekeeper [u50] takes 2 damage (2/5)",
-    "  Tideturner [u53] takes 5 damage (5/2)",
-    "Tideturner [u53] -> trash (lethal damage marked (323.5))",
-    "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
-    "combat at Treasure Hoard ends (466.7)",
+    "seat 1 plays Star-Crossed [c78] onto the Chain — pending (354)",
+    "seat 1 recycles Chaos Rune [r36] for 1 Chaos Power",
+    "seat 1 exhausts 3 rune(s) for 3 Energy",
+    "seat 1 pays 3E + 1P for Star-Crossed",
+    "  Star-Crossed [c78] is finalized (359)",
+    "  seat 1 passes priority (338.1.b)",
+    "  seat 0 passes priority (338.1.b)",
+    "  Star-Crossed [c78] resolves — vanilla kernel, its text is not executed (340.1)",
+    "Tornado Warrior [u72] exhausts",
+    "Tornado Warrior [u72] moves Bandle Tree (bf:1) -> seat 1's base",
     "seat 1 ends their Main Phase (316.9)",
     "— turn 20, seat 1 — ending phase",
     "turn passes to seat 0 (317.3)",
@@ -4192,23 +3505,40 @@
     "— turn 21, seat 0 — ending phase",
     "turn passes to seat 1 (317.3)",
     "— turn 22, seat 1 — awaken phase",
-    "awaken: seat 1 readies 0 object(s) (315.1.b)",
+    "awaken: seat 1 readies 4 object(s) (315.1.b)",
     "— turn 22, seat 1 — beginning phase",
     "seat 1 SCORES Bandle Tree by Hold -> 5 point(s)",
     "— turn 22, seat 1 — channel phase",
-    "seat 1 cannot channel — Rune Deck is empty",
+    "seat 1 channels 1: Chaos Rune",
     "— turn 22, seat 1 — draw phase",
     "seat 1 draws 1 (draw phase)",
-    "seat 1 plays Star-Crossed [c80] onto the Chain — pending (354)",
-    "seat 1 recycles Chaos Rune [r36] for 1 Chaos Power",
-    "seat 1 exhausts 3 rune(s) for 3 Energy",
-    "seat 1 pays 3E + 1P for Star-Crossed",
-    "  Star-Crossed [c80] is finalized (359)",
-    "  seat 1 passes priority (338.1.b)",
-    "  seat 0 passes priority (338.1.b)",
-    "  Star-Crossed [c80] resolves — vanilla kernel, its text is not executed (340.1)",
     "Nocturne - Horrifying [u74] exhausts",
     "Nocturne - Horrifying [u74] moves Bandle Tree (bf:1) -> seat 1's base",
+    "seat 1 loses control of Bandle Tree (323.6)",
+    "Rhasa the Sunderer [u55] exhausts",
+    "Rhasa the Sunderer [u55] moves seat 1's base -> Bandle Tree (bf:1)",
+    "Bandle Tree becomes CONTESTED by seat 1 (190.3.a.1)",
+    "a SHOWDOWN opens at Bandle Tree; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Bandle Tree closes (348)",
+    "seat 1 establishes control of Bandle Tree",
+    "seat 1 plays Traveling Merchant [c82] onto the Chain — pending (354)",
+    "seat 1 exhausts 2 rune(s) for 2 Energy",
+    "seat 1 pays 2E for Traveling Merchant",
+    "  Traveling Merchant [c82] is finalized (359)",
+    "seat 1 puts Traveling Merchant [u83] into play exhausted at seat 1's base",
+    "Tornado Warrior [u72] exhausts",
+    "Tornado Warrior [u72] moves seat 1's base -> Treasure Hoard (bf:0)",
+    "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
+    "a SHOWDOWN opens at Treasure Hoard; seat 1 applied Contested and takes Focus (344, 345)",
+    "  seat 1 passes focus (347.2)",
+    "  focus passes to seat 0 (347.2.b)",
+    "  seat 0 passes focus (347.2)",
+    "the Showdown at Treasure Hoard closes (348)",
+    "seat 1 establishes control of Treasure Hoard",
+    "seat 1 SCORES Treasure Hoard by Conquer -> 6 point(s)",
     "seat 1 ends their Main Phase (316.9)",
     "— turn 22, seat 1 — ending phase",
     "turn passes to seat 0 (317.3)",
@@ -4219,69 +3549,46 @@
     "seat 0 cannot channel — Rune Deck is empty",
     "— turn 23, seat 0 — draw phase",
     "seat 0 draws 1 (draw phase)",
-    "seat 0 plays Honest Broker [c81] onto the Chain — pending (354)",
+    "seat 0 plays Honest Broker [c84] onto the Chain — pending (354)",
     "seat 0 exhausts 2 rune(s) for 2 Energy",
     "seat 0 pays 2E for Honest Broker",
-    "  Honest Broker [c81] is finalized (359)",
-    "seat 0 puts Honest Broker [u82] into play exhausted at seat 0's base",
-    "seat 0 plays Shadow's Call [c83] onto the Chain — pending (354)",
+    "  Honest Broker [c84] is finalized (359)",
+    "seat 0 puts Honest Broker [u85] into play exhausted at seat 0's base",
+    "seat 0 plays Shadow's Call [c86] onto the Chain — pending (354)",
     "seat 0 exhausts 2 rune(s) for 2 Energy",
     "seat 0 pays 2E for Shadow's Call",
-    "  Shadow's Call [c83] is finalized (359)",
+    "  Shadow's Call [c86] is finalized (359)",
     "  seat 0 passes priority (338.1.b)",
     "  seat 1 passes priority (338.1.b)",
-    "  Shadow's Call [c83] resolves — vanilla kernel, its text is not executed (340.1)",
+    "  Shadow's Call [c86] resolves — vanilla kernel, its text is not executed (340.1)",
     "Vi - Peacekeeper [u50] exhausts",
     "Vi - Peacekeeper [u50] moves seat 0's base -> Treasure Hoard (bf:0)",
     "Treasure Hoard becomes CONTESTED by seat 0 (190.3.a.1)",
-    "a SHOWDOWN opens at Treasure Hoard; seat 0 applied Contested and takes Focus (344, 345)",
+    "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 0 is the Attacker and seat 1 the Defender at Treasure Hoard; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 0 passes focus (347.2)",
     "  focus passes to seat 1 (347.2.b)",
     "  seat 1 passes focus (347.2)",
     "the Showdown at Treasure Hoard closes (348)",
+    "combat at Treasure Hoard: seat 0 5 Might vs seat 1 3 Might (465.2.a-b)",
+    "  Tornado Warrior [u72] takes 5 damage (5/3)",
+    "  Vi - Peacekeeper [u50] takes 3 damage (3/5)",
+    "Tornado Warrior [u72] -> trash (lethal damage marked (323.5))",
+    "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
     "seat 0 establishes control of Treasure Hoard",
     "seat 0 SCORES Treasure Hoard by Conquer -> 6 point(s)",
+    "combat at Treasure Hoard ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
     "seat 0 ends their Main Phase (316.9)",
     "— turn 23, seat 0 — ending phase",
     "turn passes to seat 1 (317.3)",
     "— turn 24, seat 1 — awaken phase",
-    "awaken: seat 1 readies 4 object(s) (315.1.b)",
+    "awaken: seat 1 readies 5 object(s) (315.1.b)",
     "— turn 24, seat 1 — beginning phase",
-    "seat 1 SCORES Bandle Tree by Hold -> 6 point(s)",
+    "seat 1 SCORES Bandle Tree by Hold -> 7 point(s)",
     "— turn 24, seat 1 — channel phase",
-    "seat 1 channels 1: Chaos Rune",
+    "seat 1 cannot channel — Rune Deck is empty",
     "— turn 24, seat 1 — draw phase",
     "seat 1 draws 1 (draw phase)",
-    "Rhasa the Sunderer [u55] exhausts",
-    "Rhasa the Sunderer [u55] moves seat 1's base -> Bandle Tree (bf:1)",
-    "Tornado Warrior [u72] exhausts",
-    "Tornado Warrior [u72] moves Bandle Tree (bf:1) -> seat 1's base",
-    "seat 1 plays Lightning Rush [c85] onto the Chain — pending (354)",
-    "seat 1 exhausts 1 rune(s) for 1 Energy",
-    "seat 1 pays 1E for Lightning Rush",
-    "  Lightning Rush [c85] is finalized (359)",
-    "  seat 1 passes priority (338.1.b)",
-    "  seat 0 passes priority (338.1.b)",
-    "  Lightning Rush [c85] resolves — vanilla kernel, its text is not executed (340.1)",
-    "Nocturne - Horrifying [u74] exhausts",
-    "Nocturne - Horrifying [u74] moves seat 1's base -> Treasure Hoard (bf:0)",
-    "Treasure Hoard becomes CONTESTED by seat 1 (190.3.a.1)",
-    "COMBAT opens at Treasure Hoard as a Combat Showdown; seat 1 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
-    "  seat 1 passes focus (347.2)",
-    "  focus passes to seat 0 (347.2.b)",
-    "  seat 0 passes focus (347.2)",
-    "the Showdown at Treasure Hoard closes (348)",
-    "combat at Treasure Hoard: seat 1 4 Might vs seat 0 5 Might (465.2.a-b)",
-    "  Vi - Peacekeeper [u50] takes 4 damage (4/5)",
-    "  Nocturne - Horrifying [u74] takes 5 damage (5/4)",
-    "Nocturne - Horrifying [u74] -> trash (lethal damage marked (323.5))",
-    "combat result at Treasure Hoard: seat 0 wins the combat (466.3.a)",
-    "combat at Treasure Hoard ends (466.7)",
-    "seat 1 plays Traveling Merchant [c86] onto the Chain — pending (354)",
-    "seat 1 exhausts 2 rune(s) for 2 Energy",
-    "seat 1 pays 2E for Traveling Merchant",
-    "  Traveling Merchant [c86] is finalized (359)",
-    "seat 1 puts Traveling Merchant [u87] into play exhausted at Bandle Tree (bf:1)",
     "seat 1 ends their Main Phase (316.9)",
     "— turn 24, seat 1 — ending phase",
     "turn passes to seat 0 (317.3)",
@@ -4293,72 +3600,49 @@
     "seat 0 cannot channel — Rune Deck is empty",
     "— turn 25, seat 0 — draw phase",
     "seat 0 draws 1 (draw phase)",
-    "seat 0 plays Carrion Dredger [c88] onto the Chain — pending (354)",
+    "seat 0 plays Carrion Dredger [c87] onto the Chain — pending (354)",
     "seat 0 exhausts 2 rune(s) for 2 Energy",
     "seat 0 pays 2E for Carrion Dredger",
-    "  Carrion Dredger [c88] is finalized (359)",
-    "seat 0 puts Carrion Dredger [u89] into play exhausted at seat 0's base",
-    "Honest Broker [u82] exhausts",
-    "Honest Broker [u82] moves seat 0's base -> Bandle Tree (bf:1)",
+    "  Carrion Dredger [c87] is finalized (359)",
+    "seat 0 puts Carrion Dredger [u88] into play exhausted at seat 0's base",
+    "Honest Broker [u85] exhausts",
+    "Honest Broker [u85] moves seat 0's base -> Bandle Tree (bf:1)",
     "Bandle Tree becomes CONTESTED by seat 0 (190.3.a.1)",
     "COMBAT opens at Bandle Tree as a Combat Showdown; seat 0 is the Attacker and takes Focus (464.1, 464.2.c.1, 464.2.d)",
+    "seat 0 is the Attacker and seat 1 the Defender at Bandle Tree; their units here are designated (464.2.c.1, 464.2.c.2, 464.2.c.3)",
     "  seat 0 passes focus (347.2)",
     "  focus passes to seat 1 (347.2.b)",
     "  seat 1 passes focus (347.2)",
     "the Showdown at Bandle Tree closes (348)",
-    "combat at Bandle Tree: seat 0 2 Might vs seat 1 8 Might (465.2.a-b)",
+    "combat at Bandle Tree: seat 0 2 Might vs seat 1 6 Might (465.2.a-b)",
     "  Rhasa the Sunderer [u55] takes 2 damage (2/6)",
-    "  Honest Broker [u82] takes 8 damage (8/2)",
-    "Honest Broker [u82] -> trash (lethal damage marked (323.5))",
+    "  Honest Broker [u85] takes 6 damage (6/2)",
+    "Honest Broker [u85] -> trash (lethal damage marked (323.5))",
     "combat result at Bandle Tree: seat 1 wins the combat (466.3.a)",
-    "combat at Bandle Tree ends (466.7)",
-    "seat 0 plays Thousand-Tailed Watcher [c90] onto the Chain — pending (354)",
+    "combat at Bandle Tree ends; the Attacker and Defender designations are removed (466.7, 466.7.a)",
+    "seat 0 plays Thousand-Tailed Watcher [c89] onto the Chain — pending (354)",
     "seat 0 recycles Mind Rune [r16] for 1 Mind Power",
     "seat 0 exhausts 7 rune(s) for 7 Energy",
     "seat 0 pays 7E + 1P for Thousand-Tailed Watcher",
-    "  Thousand-Tailed Watcher [c90] is finalized (359)",
-    "seat 0 puts Thousand-Tailed Watcher [u91] into play exhausted at Treasure Hoard (bf:0)",
-    "seat 0 plays Sprite Fountain [c92] onto the Chain — pending (354)",
+    "  Thousand-Tailed Watcher [c89] is finalized (359)",
+    "seat 0 puts Thousand-Tailed Watcher [u90] into play exhausted at Treasure Hoard (bf:0)",
+    "seat 0 plays Sprite Fountain [c91] onto the Chain — pending (354)",
     "seat 0 recycles Mind Rune [r31] for 1 Mind Power",
     "seat 0 exhausts 2 rune(s) for 2 Energy",
     "seat 0 pays 2E + 1P for Sprite Fountain",
-    "  Sprite Fountain [c92] is finalized (359)",
-    "seat 0 puts Sprite Fountain [u93] into play ready at seat 0's base",
+    "  Sprite Fountain [c91] is finalized (359)",
+    "seat 0 puts Sprite Fountain [u92] into play ready at seat 0's base",
     "Thousand-Tailed Watcher [u67] exhausts",
     "Thousand-Tailed Watcher [u67] moves seat 0's base -> Treasure Hoard (bf:0)",
     "seat 0 ends their Main Phase (316.9)",
     "— turn 25, seat 0 — ending phase",
     "turn passes to seat 1 (317.3)",
     "— turn 26, seat 1 — awaken phase",
-    "awaken: seat 1 readies 6 object(s) (315.1.b)",
+    "awaken: seat 1 readies 0 object(s) (315.1.b)",
     "— turn 26, seat 1 — beginning phase",
-    "seat 1 SCORES Bandle Tree by Hold -> 7 point(s)",
-    "— turn 26, seat 1 — channel phase",
-    "seat 1 cannot channel — Rune Deck is empty",
-    "— turn 26, seat 1 — draw phase",
-    "seat 1 draws 1 (draw phase)",
-    "Traveling Merchant [u87] exhausts",
-    "Traveling Merchant [u87] moves Bandle Tree (bf:1) -> seat 1's base",
-    "Tornado Warrior [u72] exhausts",
-    "Tornado Warrior [u72] moves seat 1's base -> Bandle Tree (bf:1)",
-    "seat 1 plays Lightning Rush [c94] onto the Chain — pending (354)",
-    "seat 1 exhausts 1 rune(s) for 1 Energy",
-    "seat 1 pays 1E for Lightning Rush",
-    "  Lightning Rush [c94] is finalized (359)",
-    "  seat 1 passes priority (338.1.b)",
-    "  seat 0 passes priority (338.1.b)",
-    "  Lightning Rush [c94] resolves — vanilla kernel, its text is not executed (340.1)",
-    "Rhasa the Sunderer [u55] exhausts",
-    "Rhasa the Sunderer [u55] moves Bandle Tree (bf:1) -> seat 1's base",
-    "seat 1 ends their Main Phase (316.9)",
-    "— turn 26, seat 1 — ending phase",
-    "turn passes to seat 0 (317.3)",
-    "— turn 27, seat 0 — awaken phase",
-    "awaken: seat 0 readies 12 object(s) (315.1.b)",
-    "— turn 27, seat 0 — beginning phase",
-    "seat 0 SCORES Treasure Hoard by Hold -> 8 point(s)",
-    "seat 0 WINS with 8 points (472, at 323.1)",
-    "game over: seat 0 reached the Victory Score (472, noticed at 323.1)"
+    "seat 1 SCORES Bandle Tree by Hold -> 8 point(s)",
+    "seat 1 WINS with 8 points (472, at 323.1)",
+    "game over: seat 1 reached the Victory Score (472, noticed at 323.1)"
    ]
   }
  ]
