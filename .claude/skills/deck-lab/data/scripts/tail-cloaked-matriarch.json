@@ -2,7 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Tail-Cloaked Matriarch",
  "source": "manual",
- "notes": "Two bounds on one selector, because the card names two: an Energy cost of at most {3} and a Power cost of at most one. Both are the census's `by_cost` atom over a different numeric trait.",
+ "notes": "`targets: true` because a trash is a PUBLIC zone (CR 128.5): choosing from it is a Target, where choosing from a hand or a deck is not. Two bounds on one selector, because the card names two — an Energy cost of at most {3} and a Power cost of at most one.",
  "abilities": [
   {
    "kind": "activated",
@@ -63,7 +63,7 @@
      "do": [
       {
        "choice": "choose_object",
-       "targets": false,
+       "targets": true,
        "bind": "raised",
        "what": {
         "type": "unit",
@@ -261,5 +261,5 @@
    ]
   }
  ],
- "version": "sha256:d7cda9204ea13128"
+ "version": "sha256:91e127740f272f29"
 }

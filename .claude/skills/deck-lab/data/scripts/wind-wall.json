@@ -49,6 +49,13 @@
    "given": {
     "turn_player": 1,
     "phase": "main",
+    "chain": [
+     {
+      "card": "Hextech Ray",
+      "seat": 1,
+      "kind": "spell"
+     }
+    ],
     "seats": [
      {
       "seat": 0,
@@ -62,13 +69,6 @@
      },
      {
       "seat": 1,
-      "hand": [
-       "Hextech Ray"
-      ],
-      "energy": 1,
-      "power": {
-       "Fury": 1
-      },
       "board": [
        {
         "card": "Lecturing Yordle",
@@ -98,14 +98,25 @@
      "seat": 1,
      "card": "Lecturing Yordle",
      "n": 1
+    },
+    {
+     "expect": "chain",
+     "n": 0
     }
    ]
   },
   {
-   "name": "an ability is not a spell",
+   "name": "an ability on the chain is not a spell",
    "given": {
     "turn_player": 1,
     "phase": "main",
+    "chain": [
+     {
+      "card": "Arena Bar",
+      "seat": 1,
+      "kind": "ability"
+     }
+    ],
     "seats": [
      {
       "seat": 0,
@@ -125,6 +136,40 @@
         "at": "base"
        }
       ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Wind Wall",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no spell to choose"
+    }
+   ]
+  },
+  {
+   "name": "with nothing on the chain there is nothing to counter",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "chain": [],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Wind Wall"
+      ],
+      "energy": 3,
+      "power": {
+       "Calm": 2
+      }
+     },
+     {
+      "seat": 1
      }
     ]
    },

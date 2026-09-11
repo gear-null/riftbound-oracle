@@ -123,7 +123,10 @@
        {
         "card": "Sprite",
         "at": "base",
-        "token": true
+        "token": true,
+        "keywords": [
+         "Temporary"
+        ]
        }
       ]
      },

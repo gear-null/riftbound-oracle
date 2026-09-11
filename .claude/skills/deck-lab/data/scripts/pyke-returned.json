@@ -2,7 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Pyke - Returned",
  "source": "manual",
- "notes": "`frequency.limit` is CR 383.3.e's 'once each turn' and the condition is on PYKE's location, not the dying unit's: an enemy unit dying at a battlefield Pyke is not standing at does nothing.",
+ "notes": "`frequency.limit` is CR 383.3.e's 'once each turn', on the ability where the rules put it. The condition is on PYKE's location, not the dying unit's. CR 184.3: the minting effect grants the token its abilities, and inside them `self` is the TOKEN.",
  "keywords": [
   {
    "keyword": "Hidden",
@@ -24,6 +24,10 @@
     "CR:382",
     "CR:383"
    ],
+   "frequency": {
+    "limit": 1,
+    "per": "turn"
+   },
    "trigger": {
     "events": [
      "die"
@@ -32,10 +36,6 @@
     "what": {
      "type": "unit",
      "side": "enemy"
-    },
-    "frequency": {
-     "limit": 1,
-     "per": "turn"
     },
     "condition": {
      "cond": "zone_of_object",
@@ -56,7 +56,48 @@
      "what": {
       "token": {
        "name": "Gold",
-       "type": "gear"
+       "type": "gear",
+       "abilities": [
+        {
+         "kind": "activated",
+         "timing": {
+          "keyword": "Reaction",
+          "cites": [
+           "CR:813"
+          ]
+         },
+         "cites": [
+          "CR:376"
+         ],
+         "cost": [
+          {
+           "cost": "sacrifice",
+           "what": {
+            "self": true
+           },
+           "cites": [
+            "CR:428"
+           ]
+          },
+          {
+           "cost": "exhaust_self",
+           "cites": [
+            "CR:414"
+           ]
+          }
+         ],
+         "effect": [
+          {
+           "op": "add",
+           "power": "any",
+           "n": 1,
+           "cites": [
+            "CR:429"
+           ]
+          }
+         ]
+        }
+       ]
       }
      }
     }
@@ -226,5 +267,5 @@
    ]
   }
  ],
- "version": "sha256:71af55bc2df95ace"
+ "version": "sha256:db42a78d0b9f4592"
 }

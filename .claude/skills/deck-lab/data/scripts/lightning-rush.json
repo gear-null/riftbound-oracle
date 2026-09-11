@@ -2,7 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Lightning Rush",
  "source": "manual",
- "notes": "The cards looked at are in a non-public zone, so choosing one is NOT targeting (CR 355.10) — hence `targets: false` on a choice the player still makes.",
+ "notes": "The cards looked at are in a non-public zone, so choosing one is NOT targeting (CR 355.10, CR 128.3) — hence `targets: false` on a choice the player still makes.",
  "keywords": [
   {
    "keyword": "Flow",
@@ -61,8 +61,7 @@
        "targets": false,
        "bind": "picked",
        "what": {
-        "ref": "seen",
-        "type": "card"
+        "ref": "seen"
        },
        "do": [
         {
@@ -218,5 +217,5 @@
    ]
   }
  ],
- "version": "sha256:0ac78f5a6c2b4f11"
+ "version": "sha256:1dff86180c2dd43e"
 }

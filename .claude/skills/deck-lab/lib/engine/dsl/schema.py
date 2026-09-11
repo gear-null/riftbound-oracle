@@ -521,6 +521,9 @@ COMPOSED = {
     "play.enters": (("replacement", "enters_modified"), ("primitive", "enter")),
     "play.ignoring": (("replacement", "ignoring_cost"), ("primitive", "ignore"),
                       ("cost", "free")),
+    # "you may play me for [A]" replaces the card's printed cost with the one
+    # named here (CR 356.1.a) — it does not charge both.
+    "play.cost": (("replacement", "cost_replacement"), ("primitive", "pay")),
     "buff": (("duration", "permanent"),),
     "reveal.until_find": (("duration", "until_event"),),
     "selector.count": (("selector", "count:two_plus"),),
@@ -652,6 +655,7 @@ PREDICATES = {
     "deal_combat_damage": "[Stun]",
     "be_reacted_to": "Seal of Unity",
     "play_from_trash": "[Flow] · Last Rites",
+    "move_here_from_anywhere": "the Baron Pit battlefield token",
 }
 
 #: What a scenario test may ask the engine to do, and what it may assert. Both
@@ -697,7 +701,22 @@ CODES = (
     "bad_test",                # a scenario test the interpreter could not run
     "filename_mismatch",       # the file is not named after the card it scripts
     "unreadable",              # the file is not JSON at all
+    "clauses_not_a_partition", # the clauses do not reconstruct the printed text
+    "contradictory_selector",  # two axes that cannot both hold
+    "duplicate_id",            # two abilities claiming one id
+    "unknown_ref",             # a `ref` to a bind nothing establishes
+    "too_deep",                # nested past the walker's limit
+    "internal_error",          # the backstop: a walk that raised anyway
 )
+
+#: How deep a document may nest before the walker stops, measured by the
+#: length of the JSON path it is reporting against. JSON has no cycles, but a
+#: hand-built dict does, and 400 nested `not`s exhaust Python's stack either
+#: way — both have to arrive as a record rather than as a traceback. Measuring
+#: the path rather than counting frames needs no increment/decrement
+#: discipline to stay correct down every early return. The deepest real
+#: script's path is under 80 characters.
+MAX_PATH = 600
 
 
 def error(code, path, message, token=None, expected=None, cite=None):
@@ -716,6 +735,33 @@ def error(code, path, message, token=None, expected=None, cite=None):
     if cite is not None:
         record["cite"] = cite
     return record
+
+
+def _named(value, path, w, what, expected=None, cite=None):
+    """The string a table lookup needs, or None with the record already filed.
+
+    Every one of this module's tables is keyed by string, and hostile input
+    reaches all of them: `{"op": ["ready"]}` is JSON a compiler can emit, and
+    `["ready"] in PRIMITIVES` raises TypeError rather than reporting anything.
+    The contract is that `validate` RETURNS the problem, so nothing
+    user-supplied is used as a key without coming through here.
+    """
+    if isinstance(value, str):
+        return value
+    w.add("wrong_type", path, "expected a %s, written as a string" % what,
+          token=repr(value)[:60], expected=expected, cite=cite)
+    return None
+
+
+def _as_list(value, path, w, what):
+    """The list an iteration needs, or [] with the record already filed."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    w.add("wrong_type", path, "expected a list of %s" % what,
+          token=repr(value)[:60])
+    return []
 
 
 class _Walk(object):
@@ -739,13 +785,36 @@ class _Walk(object):
         #: credited. Crediting it there would have a filter report itself as
         #: token creation, which is the coverage number lying about what a
         #: script does.
-        self.negated = 0
+        #: Is the selector being walked in a CREATING position — the `what` of
+        #: a `play`, the `token` of an `add` — or a filtering one? The same token
+        #: spec means two things: `play a Recruit token` makes one, `another
+        #: non-Recruit unit` and `your Sand Soldiers` name a kind and make
+        #: nothing. Only the creating use prints a Might and only it credits
+        #: `create_token`; a filter that reported itself as token creation would
+        #: be the coverage number lying about what a script does.
+        self.creating = 0
+        #: Every `bind` the document establishes and every `ref` that reads
+        #: one, with the path that read it. Checked at the end rather than
+        #: on the way past, because a bind may be established by a sibling
+        #: the walk has not reached.
+        self.binds = set()
+        self.refs = []
+        self.ids = []
 
     def add(self, *a, **kw):
         self.errors.append(error(*a, **kw))
 
     def atom(self, category, name):
         self.atoms.add("%s:%s" % (category, name))
+
+    def too_deep(self, path):
+        if len(path) <= MAX_PATH:
+            return False
+        self.add("too_deep", path[:120],
+                 "nested past the walker's limit — a script this deep is "
+                 "either a cycle or a mistake, and either way the walk stops "
+                 "here rather than exhausting the stack")
+        return True
 
 
 # ---------------------------------------------------------------------------
@@ -757,7 +826,7 @@ class _Walk(object):
 # error record name the expected set without a second table to drift from.
 
 _EFFECTS = {
-    "draw":        dict(req={"n": "value"}, opt={"seat": "seat"}),
+    "draw":        dict(req={"n": "count"}, opt={"seat": "seat"}),
     "exhaust":     dict(req={"what": "selector"}, opt={}),
     "ready":       dict(req={"what": "selector"}, opt={}),
     "recycle":     dict(req={"what": "selector"}, opt={"n": "value", "from": "zone"}),
@@ -827,12 +896,12 @@ _CHOICE_NODES = {
 }
 
 _COST_NODES = {
-    "energy":          dict(req={"n": "int"}, opt={}),
-    "power_domain":    dict(req={"domain": "domain", "n": "int"}, opt={}),
-    "power_any":       dict(req={"n": "int"}, opt={}),
+    "energy":          dict(req={"n": "count"}, opt={}),
+    "power_domain":    dict(req={"domain": "domain", "n": "count"}, opt={}),
+    "power_any":       dict(req={"n": "count"}, opt={}),
     "exhaust_self":    dict(req={}, opt={"what": "selector"}),
-    "recycle_cost":    dict(req={"n": "int"}, opt={"from": "zone", "what": "selector"}),
-    "discard_cost":    dict(req={"n": "int"}, opt={"what": "selector"}),
+    "recycle_cost":    dict(req={"n": "count"}, opt={"from": "zone", "what": "selector"}),
+    "discard_cost":    dict(req={"n": "count"}, opt={"what": "selector"}),
     "banish_cost":     dict(req={}, opt={"what": "selector"}),
     "sacrifice":       dict(req={"what": "selector"}, opt={}),
     "additional_cost": dict(req={"pay": "costs"}, opt={"optional": "bool", "keyword": "keyword"}),
@@ -845,9 +914,18 @@ _ABILITIES = {
                         opt={"frequency": "frequency", "timing": "keyword",
                              "keyword": "keyword"}),
     "triggered":   dict(req={"trigger": "trigger", "effect": "effects"},
-                        opt={"keyword": "keyword"}),
-    "reflexive":   dict(req={"effect": "effects"}, opt={"trigger": "trigger"}),
-    "delayed":     dict(req={"trigger": "trigger", "effect": "effects"}, opt={}),
+                        opt={"keyword": "keyword", "frequency": "frequency"}),
+    "reflexive":   dict(req={"effect": "effects"},
+                        opt={"trigger": "trigger", "frequency": "frequency"}),
+    # CR 389-392. `delayed_next` is a WINDOW, not an event: "the next unit you
+    # play this turn" cannot be said by `{"events": ["delayed_next"]}`, which
+    # names the delay and not the thing delayed. So a delayed ability says what
+    # it waits FOR (`until`, a real event), on what (`what`), for how long
+    # (`window`), and how often (`frequency`) — the same move `nth_time` made
+    # when it stopped being an event and became a frequency.
+    "delayed":     dict(req={"until": "trigger_event", "effect": "effects"},
+                        opt={"what": "selector", "who": "who", "window": "duration",
+                             "frequency": "frequency", "seat": "seat"}),
     # the six replacement kinds, each its own node type
     "cost_replacement": dict(req={"applies_to": "selector", "delta": "int"},
                              opt={"min": "int", "affects": "cost_kind", "when": "condition"}),
@@ -887,6 +965,9 @@ _ABILITY_ATOMS = {
     "would": (("replacement", "would"), ("replacement", "instead"),
               ("condition", "would_event")),
     "as_enters": (("replacement", "as_enters"), ("trigger", "as_played")),
+    # A delayed ability IS the census's `delayed_next`: the atom names the
+    # window, and the window is the construct.
+    "delayed": (("trigger", "delayed_next"),),
     "ignoring_cost": (("replacement", "ignoring_cost"), ("primitive", "ignore"),
                       ("cost", "free")),
 }
@@ -940,9 +1021,15 @@ _CONDITIONS = {
     "has_keyword":          dict(req={"what": "selector", "keyword": "keyword"}, opt={"value": "int"}),
 }
 
+#: `frequency` is deliberately NOT here. It had two homes — inside the trigger
+#: and on the ability — and two homes for one fact is two places for it to
+#: disagree. CR 383.1.b's "the first time … each turn" and 383.3.e's "once each
+#: turn" bound how often the ABILITY fires, not how the event is recognised, so
+#: the ability is where it lives. A `frequency` inside a trigger gets a record
+#: saying where to move it rather than a bare "unexpected field".
 _TRIGGER_FIELDS = {
     "events": "events", "who": "who", "what": "selector", "where": "location",
-    "condition": "condition", "frequency": "frequency", "keyword": "keyword",
+    "condition": "condition", "keyword": "keyword",
     "seat": "seat", "state": "state", "zone": "zone",
 }
 
@@ -982,6 +1069,21 @@ def _field(value, checker, path, w):
     if checker == "int":
         if not _is_int(value):
             w.add("wrong_type", path, "expected an integer", token=repr(value))
+    elif checker == "count":
+        # A count that can go negative is a cost that pays you and a draw that
+        # un-draws. Only a MODIFIER may be negative, and a modifier says its
+        # floor — see `_effect_extras`. A count may still be scaled: "draw 1 for
+        # each other battlefield you control" is a count, and cannot be negative
+        # either.
+        if _is_int(value):
+            if value < 0:
+                w.add("bad_value", path, "expected a count of zero or more",
+                      token=repr(value))
+        elif isinstance(value, dict):
+            _value(value, path, w)
+        else:
+            w.add("bad_value", path, "expected a count of zero or more",
+                  token=repr(value))
     elif checker == "bool":
         if not isinstance(value, bool):
             w.add("wrong_type", path, "expected true or false", token=repr(value))
@@ -1011,7 +1113,7 @@ def _field(value, checker, path, w):
     elif checker == "keyword":
         _keyword(value, path, w)
     elif checker == "predicate":
-        if value not in PREDICATES:
+        if not isinstance(value, str) or value not in PREDICATES:
             w.add("unknown_atom", path, "no such predicate", token=value,
                   expected=PREDICATES.keys(), cite="CR:364")
     elif checker == "bound":
@@ -1054,7 +1156,7 @@ def _enum(value, checker, path, w):
 
 
 def _atom_or_reserved(name, table, category, path, w):
-    atom = table.get(name)
+    atom = table.get(name) if isinstance(name, str) else None
     if atom is None:
         w.add("unknown_atom", path, "no census atom named %r" % (name,),
               token=name, expected=_active(table))
@@ -1135,7 +1237,7 @@ def _token(value, path, w):
               expected=TOKENS.keys())
         return
     name = value.get("name")
-    if name not in TOKENS:
+    if not isinstance(name, str) or name not in TOKENS:
         w.add("unknown_atom", "%s.name" % path, "no such token in the corpus",
               token=name, expected=TOKENS.keys(), cite="CR:179")
         return
@@ -1144,20 +1246,31 @@ def _token(value, path, w):
         w.add("bad_value", "%s.type" % path,
               "the corpus prints %r as a %s token" % (name, kind),
               token=value.get("type"), expected=(kind,), cite="CR:179")
-    allowed = {"name", "type", "might", "keywords", "tags", "text", "state"}
+    # `text` is gone: a free string nothing reads is where a token's ability
+    # goes to be forgotten. CR 184.3 lets the creating effect grant abilities,
+    # and they are written in `abilities`, in the same schema a card's use.
+    allowed = {"name", "type", "might", "keywords", "tags", "abilities", "state"}
     for key in sorted(value):
         if key not in allowed:
             w.add("unexpected_field", "%s.%s" % (path, key), "not a field of a token spec",
                   token=key, expected=allowed)
-    if kind == "unit" and not _is_int(value.get("might")) and not w.negated:
+    if kind == "unit" and not _is_int(value.get("might")) and w.creating:
         w.add("missing_field", "%s.might" % path, "a unit token prints a Might",
               expected=("might",), cite="CR:179")
-    for i, kw in enumerate(value.get("keywords") or []):
+    for i, kw in enumerate(_as_list(value.get("keywords"),
+                                    "%s.keywords" % path, w, "keywords")):
         _keyword(kw, "%s.keywords[%d]" % (path, i), w)
+    for i, ability in enumerate(_as_list(value.get("abilities"),
+                                         "%s.abilities" % path, w, "abilities")):
+        # CR 184.3: the effect that creates a token may grant it abilities, and
+        # they are written in the same schema a card's are. Inside one, `self`
+        # is the TOKEN — the Gold token's "Kill this" kills the Gold, not the
+        # card that minted it.
+        _ability(ability, "%s.abilities[%d]" % (path, i), w)
     if "state" in value:
         _enum(value["state"], "state", "%s.state" % path, w)
     w.atom("token", name)
-    if not w.negated:
+    if w.creating:
         _compose("selector.token", path, w)
 
 
@@ -1176,23 +1289,26 @@ def _keyword(value, path, w):
             _costs(value["cost"], "%s.cost" % path, w)
     else:
         name, param = value, None
-    if name in NOT_KEYWORDS:
+    if isinstance(name, str) and name in NOT_KEYWORDS:
         cite, why = NOT_KEYWORDS[name]
         w.add("not_a_keyword", path,
               "%r is bracketed in the corpus and is not in CR 805-829: %s" % (name, why),
               token=name, expected=sorted(KEYWORDS), cite=cite)
         return
-    if name not in KEYWORDS:
-        w.add("unknown_keyword", path, "no such keyword in CR 805-829", token=name,
+    if not isinstance(name, str) or name not in KEYWORDS:
+        w.add("unknown_keyword", path, "no such keyword in CR 805-829",
+              token=name if isinstance(name, str) else repr(name)[:60],
               expected=sorted(KEYWORDS), cite="CR:800")
         return
     cite, kind, takes_param = KEYWORDS[name]
     if takes_param and param is None:
         w.add("keyword_parameter", path, "[%s N] takes a numeric parameter" % name,
-              token=name, cite=cite)
+              token=name, cite=cite,
+              expected=[k for k, v in KEYWORDS.items() if not v[2]])
     if not takes_param and param is not None:
         w.add("keyword_parameter", path, "[%s] takes no parameter" % name,
-              token=repr(param), cite=cite)
+              token=repr(param), cite=cite,
+              expected=[k for k, v in KEYWORDS.items() if v[2]])
     if param is not None and not _is_int(param):
         w.add("wrong_type", "%s.value" % path, "a keyword parameter is a number",
               token=repr(param))
@@ -1201,13 +1317,34 @@ def _keyword(value, path, w):
     w.atom("keyword", name)
 
 
+#: Atoms the census counts as trigger events that are NOT events a trigger may
+#: list. Both are windows or modifiers on an event, and both have their own
+#: construct: `nth_time` and `frequency_only` are a `frequency`, `delayed_next`
+#: is a `delayed` ability. Writing one here would name the delay and not the
+#: thing delayed.
+NOT_EVENTS = {
+    "delayed_next": ("delayed", "a delayed ability (CR 389): `{\"kind\": \"delayed\", "
+                                "\"until\": <the event it waits for>}`"),
+    "nth_time": ("frequency", 'an ability\'s `frequency` (CR 383.1.b)'),
+    "frequency_only": ("frequency", 'an ability\'s `frequency` (CR 383.3.e)'),
+}
+
+
 def _events(value, path, w):
     if not isinstance(value, list) or not value:
         w.add("bad_value", path, "a trigger names at least one event",
               token=repr(value), expected=_active(TRIGGERS))
         return
     for i, name in enumerate(value):
-        _enum_atom(name, TRIGGERS, "trigger", "%s[%d]" % (path, i), w)
+        here = "%s[%d]" % (path, i)
+        if isinstance(name, str) and name in NOT_EVENTS:
+            construct, why = NOT_EVENTS[name]
+            w.add("unknown_atom", here,
+                  "%r is not an event a trigger can listen for — it is %s"
+                  % (name, why),
+                  token=name, expected=(construct,), cite=TRIGGERS[name].cite)
+            continue
+        _enum_atom(name, TRIGGERS, "trigger", here, w)
 
 
 def _frequency(value, path, w):
@@ -1240,6 +1377,8 @@ def _frequency(value, path, w):
 
 
 def _selector(value, path, w):
+    if w.too_deep(path):
+        return
     if not isinstance(value, dict) or not value:
         w.add("wrong_type", path, "expected a selector with at least one axis",
               token=repr(value), expected=sorted(_SELECTOR_FIELDS))
@@ -1251,20 +1390,65 @@ def _selector(value, path, w):
                   "not a selector axis", token=key, expected=sorted(_SELECTOR_FIELDS))
             continue
         if key == "not":
-            w.negated += 1
-        try:
-            _field(value[key], checker, "%s.%s" % (path, key), w)
-        finally:
-            if key == "not":
-                w.negated -= 1
+            w.creating = 0
+        _field(value[key], checker, "%s.%s" % (path, key), w)
+        if key == "bind" and isinstance(value[key], str):
+            w.binds.add(value[key])
+        if key == "ref" and isinstance(value[key], str):
+            w.refs.append((value[key], "%s.ref" % path))
         atom = _SELECTOR_ATOM_OF.get(key)
         if atom is not None:
             _atom_or_reserved(atom, SELECTORS, "selector", "%s.%s" % (path, key), w)
-    if value.get("count") is not None and value["count"] >= 2:
+    if _is_int(value.get("count")) and value["count"] >= 2:
         _compose("selector.count", "%s.count" % path, w)
+    _selector_contradictions(value, path, w)
+
+
+#: Pairs of selector axes that cannot both hold. A selector naming all four of
+#: `self`, `side: enemy`, `at: base` and `zone: trash` is not a narrow selector,
+#: it is a selector nobody read — and it validated clean until this table.
+_EXCLUSIVE = (
+    ("self", "side", "`self` is always yours; it has no side to choose"),
+    ("self", "all", "`self` is one object; `all` is every one of them"),
+    ("self", "another", "`another` means other than the subject, which `self` is"),
+    ("self", "count", "`self` is one object"),
+    ("self", "up_to", "`self` is one object"),
+    ("at", "zone", "an object is at a place ON the board or in a non-board zone, "
+                   "never both (CR 106-108)"),
+    ("all", "up_to", "`all` is not a choice and `up_to` is"),
+    ("all", "count", "`all` is however many there are"),
+    ("ref", "type", "a `ref` names an object already chosen; filtering it again "
+                    "asks a question whose answer was fixed when it was bound"),
+    ("ref", "side", "a `ref` names an object already chosen"),
+    ("ref", "zone", "a `ref` names an object already chosen"),
+)
+
+
+def _selector_contradictions(value, path, w):
+    for a, b, why in _EXCLUSIVE:
+        if a in value and b in value and value.get(a) is not False:
+            w.add("contradictory_selector", path,
+                  "`%s` and `%s` cannot both hold: %s" % (a, b, why),
+                  token="%s+%s" % (a, b), expected=(a, b), cite="CR:355")
+    # CR 355.10: a programmatically selected set is not a set of Targets, and
+    # neither is anything in a non-public zone (CR 128.3-128.4 — a hand is
+    # Private and a deck is Secret; a trash is Public, so a trash CAN be
+    # targeted).
+    if value.get("targets") is True:
+        if value.get("all") is True:
+            w.add("bad_value", "%s.targets" % path,
+                  "`all` selects programmatically, so nothing in it is a Target",
+                  token="all+targets", cite="CR:355")
+        if value.get("zone") in ("hand", "deck", "top_of_deck"):
+            w.add("bad_value", "%s.targets" % path,
+                  "a %s is not a public zone (CR 128), so an object in it cannot "
+                  "be a Target" % value["zone"],
+                  token=value["zone"], cite="CR:355")
 
 
 def _condition(value, path, w):
+    if w.too_deep(path):
+        return
     if not isinstance(value, dict):
         w.add("wrong_type", path, "expected a condition", token=repr(value),
               expected=_active(CONDITIONS))
@@ -1326,11 +1510,15 @@ def _effects(value, path, w):
 
 
 def _effect(node, path, w):
+    if w.too_deep(path):
+        return
     if not isinstance(node, dict):
         w.add("wrong_type", path, "expected an effect node", token=repr(node),
               expected=_active(PRIMITIVES))
         return
     w.node_paths.add(path)
+    if isinstance(node.get("bind"), str):
+        w.binds.add(node["bind"])
     if "choice" in node:
         _choice(node, path, w)
         return
@@ -1348,7 +1536,7 @@ def _effect(node, path, w):
         w.add("missing_field", "%s.op" % path,
               "an effect node is an `op` or a `choice`", expected=_active(PRIMITIVES))
         return
-    if name in ENGINE_ONLY:
+    if isinstance(name, str) and name in ENGINE_ONLY:
         cite, why = ENGINE_ONLY[name]
         w.add("engine_only_atom", "%s.op" % path,
               "%r is a game action no card's text names — %s" % (name, why),
@@ -1366,7 +1554,15 @@ def _effect(node, path, w):
     _cites(node, PRIMITIVES[name].cite, path, w)
     for key, checker in list(spec["req"].items()) + list(spec["opt"].items()):
         if key in node:
-            _field(node[key], checker, "%s.%s" % (path, key), w)
+            # `play`'s `what` and `add`'s `token` are the two creating positions:
+            # a token spec there MAKES one. Anywhere else it names a kind.
+            creating = (name == "play" and key == "what") or \
+                       (name == "add" and key == "token")
+            was, w.creating = w.creating, 1 if creating else 0
+            try:
+                _field(node[key], checker, "%s.%s" % (path, key), w)
+            finally:
+                w.creating = was
     if "when" in node:
         _condition(node["when"], "%s.when" % path, w)
     _effect_extras(name, node, path, w)
@@ -1382,6 +1578,8 @@ def _effect_extras(name, node, path, w):
         _compose("play.enters", "%s.enters" % path, w)
     if name == "play" and "ignoring" in node:
         _compose("play.ignoring", "%s.ignoring" % path, w)
+    if name == "play" and "cost" in node:
+        _compose("play.cost", "%s.cost" % path, w)
     if name == "buff":
         # CR 701-703: a Buff is a counter on a unit worth +1 Might, and it stays
         # until the unit leaves play. The census reads the word "buff" as the
@@ -1402,14 +1600,18 @@ def _effect_extras(name, node, path, w):
                   "Add puts exactly one of a Power (CR 429) or a token (CR 179) into play",
                   token=json.dumps(sorted(node.keys())), expected=("power", "token"),
                   cite="CR:429")
-    if name == "modify_cost" and node.get("delta", 0) < 0 and "min" not in node:
+    negative = (_is_int(node.get("delta")) and node["delta"] < 0) or \
+               (_is_int(node.get("n")) and node["n"] < 0)
+    if name in ("modify_cost", "give_might") and negative and "min" not in node:
         # The prior engine's gap audit lists min-clamped modifiers among its
         # documented failures, and "to a minimum of {1}" is printed in the same
         # breath as the reduction it bounds. A reduction with no floor is
         # therefore a claim, and has to be made on purpose.
         w.add("missing_field", "%s.min" % path,
-              "a cost reduction states its floor: printed reductions come with "
-              "'to a minimum of', and an unclamped one must say `min: 0`",
+              "a negative modifier states its floor: printed reductions come "
+              "with 'to a minimum of' in the same breath, the prior engine's "
+              "audit lists min-clamped modifiers among its failures, and an "
+              "unclamped one must say `min: 0` on purpose",
               expected=("min",), cite="CR:356")
     if (name in ("give_might", "grant_keyword") and node.get("until") == "while_state"
             and "state" not in node and not w.gated):
@@ -1475,6 +1677,13 @@ def _trigger(value, path, w):
     for key in sorted(value):
         checker = _TRIGGER_FIELDS.get(key)
         if checker is None:
+            if key == "frequency":
+                w.add("unexpected_field", "%s.frequency" % path,
+                      "how often an ability fires belongs on the ABILITY, not on "
+                      "its trigger: CR 383.1.b and 383.3.e bound the ability, and "
+                      "two homes for one fact is two places for it to disagree",
+                      token=key, expected=("frequency",), cite="CR:383")
+                continue
             w.add("unexpected_field", "%s.%s" % (path, key), "not a field of a trigger",
                   token=key, expected=sorted(_TRIGGER_FIELDS))
             continue
@@ -1526,12 +1735,14 @@ def _cites(node, canonical, path, w, required=True):
 
 
 def _ability(node, path, w):
+    if w.too_deep(path):
+        return
     if not isinstance(node, dict):
         w.add("wrong_type", path, "expected an ability", token=repr(node),
               expected=sorted(_ABILITIES))
         return
     kind = node.get("kind")
-    if kind not in _ABILITIES:
+    if not isinstance(kind, str) or kind not in _ABILITIES:
         w.add("unknown_atom", "%s.kind" % path, "not an ability kind", token=kind,
               expected=sorted(_ABILITIES), cite="CR:360")
         return
@@ -1548,6 +1759,10 @@ def _ability(node, path, w):
         if key not in node:
             w.add("missing_field", "%s.%s" % (path, key),
                   "a %s ability requires %r" % (kind, key), expected=sorted(spec["req"]))
+    if isinstance(node.get("id"), str):
+        w.ids.append(("%s.id" % path, node["id"]))
+    if "bind" in node and isinstance(node.get("bind"), str):
+        w.binds.add(node["bind"])
     if "gate" in node:
         w.gated += 1
     try:
@@ -1605,7 +1820,7 @@ def _gate(value, path, w):
                   token=key, expected=("keyword", "value", "cites", "note"))
     _keyword(value, path, w)
     name = value.get("keyword")
-    if name in KEYWORDS and KEYWORDS[name][1] != "dependent":
+    if isinstance(name, str) and name in KEYWORDS and KEYWORDS[name][1] != "dependent":
         w.add("keyword_kind", "%s.keyword" % path,
               "[%s] is a %s keyword; only a dependent keyword gates an ability "
               "(CR 135.2.e.7.b)" % (name, KEYWORDS[name][1]),
@@ -1633,7 +1848,7 @@ def _timing(value, path, w):
     """`[Action][>]` / `[Reaction][>]` — when an ability may be used (CR 135.2.e.7)."""
     _keyword(value, path, w)
     name = value.get("keyword") if isinstance(value, dict) else value
-    if name in KEYWORDS and KEYWORDS[name][1] != "permissive":
+    if isinstance(name, str) and name in KEYWORDS and KEYWORDS[name][1] != "permissive":
         w.add("keyword_kind", path,
               "[%s] is a %s keyword; timing comes from a permissive one"
               % (name, KEYWORDS[name][1]), token=name,
@@ -1645,7 +1860,7 @@ def _ability_keyword(kind, node, path, w):
     """The keyword that introduces an ability must be of a matching kind."""
     ref = node["keyword"]
     name = ref.get("keyword") if isinstance(ref, dict) else ref
-    if name not in KEYWORDS:
+    if not isinstance(name, str) or name not in KEYWORDS:
         return                                   # `_keyword` already said so
     kw_kind = KEYWORDS[name][1]
     wanted = _KEYWORD_MAY_INTRODUCE.get(kind)
@@ -1657,7 +1872,10 @@ def _ability_keyword(kind, node, path, w):
               cite=KEYWORDS[name][0])
         return
     if kind == "triggered" and name in KEYWORD_TRIGGERS:
-        events = set(node.get("trigger", {}).get("events") or [])
+        trigger = node.get("trigger")
+        raw = trigger.get("events") if isinstance(trigger, dict) else None
+        events = set(e for e in (raw or []) if isinstance(e, str)) \
+            if isinstance(raw, list) else set()
         expected = set(KEYWORD_TRIGGERS[name])
         if not (events & expected):
             w.add("keyword_kind", "%s.trigger.events" % path,
@@ -1765,11 +1983,39 @@ def _clauses(doc, card, w):
         # `abilities[0].effect[1]` and quietly let a clause point at the general
         # area of its implementation — which is the shape of claim this whole
         # instrument exists to refuse.
+        if node is not None and not isinstance(node, str):
+            w.add("wrong_type", "%s.node" % path,
+                  "a clause names one node, as a path string",
+                  token=repr(node)[:60])
+            node = None
         if node and node not in w.node_paths:
             w.add("bad_clause_ref", "%s.node" % path,
                   "no node at this path — a clause cannot be implemented by "
                   "something that is not there", token=node,
                   expected=sorted(w.node_paths))
+
+    # The clauses must PARTITION the printed text: their words, in order, are the
+    # card's words. Without this, coverage inflates two ways — delete an
+    # `unsupported` clause and the ratio rises; write a clause nobody printed and
+    # it rises too. Partitioning makes the denominator the card rather than the
+    # script's own choice of denominator.
+    if printed:
+        joined = []
+        for clause in clauses:
+            if isinstance(clause, dict) and isinstance(clause.get("text"), str):
+                joined.extend(words(clause["text"]))
+        want = words(printed)
+        if joined != want:
+            extra = [x for x in joined if x not in want]
+            missing = [x for x in want if x not in joined]
+            w.add("clauses_not_a_partition", "clauses",
+                  "the clauses do not reconstruct the printed text. %d word(s) "
+                  "the card does not print: %s. %d word(s) of the card left out: "
+                  "%s. Coverage over a denominator the script chose is not "
+                  "coverage of the card."
+                  % (len(extra), ", ".join(extra[:6]) or "none",
+                     len(missing), ", ".join(missing[:6]) or "none"),
+                  token=" ".join(joined)[:120])
 
 
 def _tests(doc, w):
@@ -1828,7 +2074,13 @@ def _fixture(given, path, w):
     if not isinstance(given, dict):
         w.add("wrong_type", path, "expected a fixture", token=repr(given))
         return
-    allowed = {"turn_player", "phase", "seats", "battlefields", "note"}
+    # A test can only pin what its fixture can say. "Counter a spell" needs a
+    # spell ON THE CHAIN, and "if you've played an Equipment this turn" needs a
+    # played-this-turn history — pinning either with a board state lets an
+    # implementation that reads the board instead of the history pass. The
+    # fixture therefore states the precondition the clause actually needs.
+    allowed = {"turn_player", "phase", "seats", "battlefields", "note",
+               "chain", "played_this_turn", "scored_this_turn"}
     for key in sorted(given):
         if key not in allowed:
             w.add("unexpected_field", "%s.%s" % (path, key), "not a field of a fixture",
@@ -1839,7 +2091,8 @@ def _fixture(given, path, w):
               "a fixture describes at least one seat", token=repr(seats))
         return
     seat_fields = {"seat", "hand", "board", "trash", "deck", "banished", "champion",
-                   "energy", "power", "points", "xp", "runes"}
+                   "energy", "power", "points", "xp", "runes", "hidden",
+                   "played_this_turn"}
     for i, seat in enumerate(seats):
         if not isinstance(seat, dict):
             w.add("wrong_type", "%s.seats[%d]" % (path, i), "expected a seat",
@@ -1852,16 +2105,28 @@ def _fixture(given, path, w):
         if seat.get("seat") not in (0, 1):
             w.add("bad_test", "%s.seats[%d].seat" % (path, i), "seat is 0 or 1",
                   token=repr(seat.get("seat")), expected=("0", "1"))
-        for j, unit in enumerate(seat.get("board") or []):
+        for j, unit in enumerate(_as_list(seat.get("board"),
+                                          "%s.seats[%d].board" % (path, i),
+                                          w, "board entries")):
             here = "%s.seats[%d].board[%d]" % (path, i, j)
             if not isinstance(unit, dict) or "card" not in unit:
                 w.add("bad_test", here, "a board entry names a card", token=repr(unit))
                 continue
             for key in sorted(unit):
                 if key not in ("card", "at", "exhausted", "damage", "buffs", "state",
-                               "attached", "token"):
+                               "attached", "token", "keywords"):
                     w.add("unexpected_field", "%s.%s" % (here, key),
                           "not a field of a board entry", token=key)
+    for i, item in enumerate(_as_list(given.get("chain"), "%s.chain" % path, w,
+                                      "chain items")):
+        here = "%s.chain[%d]" % (path, i)
+        if not isinstance(item, dict) or "card" not in item:
+            w.add("bad_test", here, "a chain item names a card", token=repr(item)[:60])
+            continue
+        for key in sorted(item):
+            if key not in ("card", "seat", "kind"):
+                w.add("unexpected_field", "%s.%s" % (here, key),
+                      "not a field of a chain item", token=key)
 
 
 def _expectation(node, path, w):
@@ -1923,12 +2188,35 @@ def stamp(doc):
 # ---------------------------------------------------------------------------
 
 def validate(doc, lookup=None):
-    """Every error in one script, as records. Never raises on a bad script.
+    """Every error in one script, as records. **Never raises**, for any input.
+
+    That is a contract, not an aspiration. The compiler's repair loop feeds this
+    whatever a model emitted, and a walker that raises on `{"op": ["ready"]}`
+    hands the loop a traceback it cannot repair from — and, worse, one bad file
+    in `data/scripts/` would take `library.load_all` down for every other
+    script. Every table lookup goes through `_named`, every iteration through
+    `_as_list`, every numeric comparison through `_is_int`, and the depth guard
+    turns a cycle into a record.
+
+    `_validate` is where that work lives; this wrapper is the backstop, and it
+    is meant to stay unreachable. The fuzz check asserts it never fires across
+    ~107k hostile inputs, so if it ever does it is a bug report rather than a
+    shrug — a record naming the exception, at the path the walk had reached.
 
     `lookup` resolves a card name to the vendored pool entry; the default is the
     deck lab's own index, so the card a script claims to implement has to exist
     and its printed text is what the clause marks are checked against.
     """
+    try:
+        return _validate(doc, lookup)
+    except Exception as err:                                    # noqa: BLE001
+        return [error("internal_error", "",
+                      "the validator raised instead of reporting: %s: %s. This is "
+                      "a defect in the validator, not in the script."
+                      % (type(err).__name__, err))]
+
+
+def _validate(doc, lookup=None):
     lookup = cards.find if lookup is None else lookup
     w = _Walk(lookup)
     if not isinstance(doc, dict):
@@ -1956,6 +2244,8 @@ def validate(doc, lookup=None):
 
     card = None
     name = doc.get("card")
+    if name is not None and not isinstance(name, str):
+        w.add("wrong_type", "card", "a card name is a string", token=repr(name)[:60])
     if isinstance(name, str):
         card = w.lookup(name)
         if card is None:
@@ -1968,7 +2258,8 @@ def validate(doc, lookup=None):
                   "use the card's own name, not an alias the index resolves",
                   token=name, expected=(card["name"],))
 
-    for i, kw in enumerate(doc.get("keywords") or []):
+    for i, kw in enumerate(_as_list(doc.get("keywords"), "keywords", w,
+                                    "keyword references")):
         w.node_paths.add("keywords[%d]" % i)
         _keyword(kw, "keywords[%d]" % i, w)
 
@@ -1984,6 +2275,21 @@ def validate(doc, lookup=None):
 
     _clauses(doc, card, w)
     _tests(doc, w)
+
+    seen = {}
+    for path, ident in w.ids:
+        if ident in seen:
+            w.add("duplicate_id", path,
+                  "two abilities claim the id %r; %s has it too" % (ident, seen[ident]),
+                  token=ident)
+        else:
+            seen[ident] = path
+    for name, path in w.refs:
+        if name not in w.binds:
+            w.add("unknown_ref", path,
+                  "nothing in this script binds %r, so this reads an object that "
+                  "was never chosen" % name,
+                  token=name, expected=sorted(w.binds) or None)
 
     if "version" in doc and isinstance(doc.get("version"), str):
         want = body_hash(doc)

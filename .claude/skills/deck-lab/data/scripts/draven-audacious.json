@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Draven - Audacious",
  "source": "manual",
+ "notes": "`frequency` sits on the ability, not inside the trigger: CR 383.1.b bounds how often the ABILITY fires, not how the event is recognised.",
  "keywords": [
   {
    "keyword": "Deflect",
@@ -18,15 +19,15 @@
     "CR:382",
     "CR:383"
    ],
+   "frequency": {
+    "nth": 1,
+    "per": "turn"
+   },
    "trigger": {
     "events": [
      "win_combat"
     ],
-    "who": "me",
-    "frequency": {
-     "nth": 1,
-     "per": "turn"
-    }
+    "who": "me"
    },
    "effect": [
     {
@@ -82,7 +83,7 @@
    "text": "When I die in combat, choose an opponent. They score 1 point.",
    "status": "approx",
    "node": "abilities[1]",
-   "reason": "the choice of opponent is forced in 1v1 (CR 485) and is scripted as `seat: opponent`. The vocabulary has no PLAYER selector, so a multiplayer mode (CR 487 FFA3) would read this card wrongly."
+   "reason": "the choice of opponent is forced in 1v1 (CR 485) and is scripted as `seat: opponent`. The vocabulary has no PLAYER selector — the census found none in the corpus to size one from — so a multiplayer mode (CR 487 FFA3) would read this card wrongly."
   }
  ],
  "tests": [
@@ -203,5 +204,5 @@
    ]
   }
  ],
- "version": "sha256:094af09714a4f73b"
+ "version": "sha256:f7f2447b2a0c0031"
 }

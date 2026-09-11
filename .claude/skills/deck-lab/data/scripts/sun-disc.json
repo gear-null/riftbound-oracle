@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Sun Disc",
  "source": "manual",
+ "notes": "A delayed ability says what it WAITS FOR. `delayed_next` is the census's name for the window, not for an event: `the next unit you play this turn` is a `play_other`, bounded by a window and a frequency, and a trigger listening for `delayed_next` would name the delay and not the thing delayed.",
  "abilities": [
   {
    "kind": "activated",
@@ -28,19 +29,17 @@
      "cites": [
       "CR:389"
      ],
-     "trigger": {
-      "events": [
-       "delayed_next"
-      ],
-      "who": "you",
-      "what": {
-       "type": "unit",
-       "side": "friendly"
-      },
-      "frequency": {
-       "nth": 1,
-       "per": "turn"
-      }
+     "until": "play_other",
+     "who": "you",
+     "window": "this_turn",
+     "what": {
+      "type": "unit",
+      "side": "friendly",
+      "bind": "next"
+     },
+     "frequency": {
+      "nth": 1,
+      "per": "turn"
      },
      "effect": [
       {
@@ -48,10 +47,8 @@
        "cites": [
         "CR:367"
        ],
-       "until": "this_turn",
        "applies_to": {
-        "type": "unit",
-        "side": "friendly"
+        "ref": "next"
        },
        "enters": "ready"
       }
@@ -73,6 +70,12 @@
    "given": {
     "turn_player": 0,
     "phase": "main",
+    "played_this_turn": [
+     {
+      "card": "Mobilize",
+      "seat": 0
+     }
+    ],
     "seats": [
      {
       "seat": 0,
@@ -85,9 +88,6 @@
         "card": "Sun Disc",
         "at": "base"
        }
-      ],
-      "trash": [
-       "Mobilize"
       ]
      },
      {
@@ -114,6 +114,12 @@
    "given": {
     "turn_player": 0,
     "phase": "main",
+    "played_this_turn": [
+     {
+      "card": "Mobilize",
+      "seat": 0
+     }
+    ],
     "seats": [
      {
       "seat": 0,
@@ -127,9 +133,6 @@
         "card": "Sun Disc",
         "at": "base"
        }
-      ],
-      "trash": [
-       "Mobilize"
       ]
      },
      {
@@ -150,7 +153,44 @@
      "n": 1
     }
    ]
+  },
+  {
+   "name": "with nothing played this turn, Legion is not live",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "played_this_turn": [],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Sun Disc",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Sun Disc",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "[Legion] is not live"
+    }
+   ]
   }
  ],
- "version": "sha256:57424eaafb0508ff"
+ "version": "sha256:6a7eb7955637c8ff"
 }

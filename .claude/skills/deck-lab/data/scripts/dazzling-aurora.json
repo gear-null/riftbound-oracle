@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Dazzling Aurora",
  "source": "manual",
+ "notes": "Two bindings, because the clause names two things: `seen` is the run of revealed cards and `found` is the unit that ended it. Referring to one binding for both would recycle the unit it just played.",
  "abilities": [
   {
    "kind": "triggered",
@@ -22,7 +23,8 @@
      "position": "top",
      "bind": "seen",
      "until_find": {
-      "type": "unit"
+      "type": "unit",
+      "bind": "found"
      },
      "cites": [
       "CR:424"
@@ -161,5 +163,5 @@
    ]
   }
  ],
- "version": "sha256:88bca88ba840b470"
+ "version": "sha256:105b0ec0b63e5a14"
 }

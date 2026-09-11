@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Azir - Emperor of the Sands",
  "source": "manual",
+ "notes": "`Your Sand Soldiers` names the TOKEN, not a tag: the corpus prints no Sand Soldier tag, and keying the passive on one would grant [Weaponmaster] to nothing. A token spec outside a creating position names a kind and makes nothing.",
  "abilities": [
   {
    "kind": "passive",
@@ -20,7 +21,10 @@
      "what": {
       "type": "unit",
       "side": "friendly",
-      "tag": "Sand Soldier"
+      "token": {
+       "name": "Sand Soldier",
+       "type": "unit"
+      }
      }
     }
    ]
@@ -96,16 +100,16 @@
    "given": {
     "turn_player": 0,
     "phase": "main",
+    "played_this_turn": [
+     {
+      "card": "Cloth Armor",
+      "seat": 0
+     }
+    ],
     "seats": [
      {
       "seat": 0,
-      "energy": 1,
-      "board": [
-       {
-        "card": "Cloth Armor",
-        "at": "base"
-       }
-      ]
+      "energy": 1
      },
      {
       "seat": 1
@@ -133,10 +137,50 @@
    ]
   },
   {
-   "name": "with no Equipment played, the ability is not available",
+   "name": "an Equipment on the board that was NOT played this turn does not",
    "given": {
     "turn_player": 0,
     "phase": "main",
+    "played_this_turn": [],
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 1,
+      "board": [
+       {
+        "card": "Cloth Armor",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Azir - Emperor of the Sands",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no Equipment played this turn"
+    }
+   ]
+  },
+  {
+   "name": "a non-Equipment gear played this turn does not either",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "played_this_turn": [
+     {
+      "card": "Arena Bar",
+      "seat": 0
+     }
+    ],
     "seats": [
      {
       "seat": 0,
@@ -160,5 +204,5 @@
    ]
   }
  ],
- "version": "sha256:af404c527f0d99d0"
+ "version": "sha256:1f5f12b01a853ff5"
 }

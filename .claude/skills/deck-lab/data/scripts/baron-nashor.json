@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Baron Nashor",
  "source": "manual",
+ "notes": "The Baron Pit carries its own rules text — 'Units can move here from anywhere' — which is the token's ability under CR 184.3 and not the Baron's.",
  "abilities": [
   {
    "kind": "triggered",
@@ -24,7 +25,28 @@
      ],
      "token": {
       "name": "Baron Pit",
-      "type": "battlefield"
+      "type": "battlefield",
+      "abilities": [
+       {
+        "kind": "passive",
+        "cites": [
+         "CR:363"
+        ],
+        "effect": [
+         {
+          "op": "permission",
+          "may": "move_here_from_anywhere",
+          "who": {
+           "type": "unit",
+           "side": "any"
+          },
+          "cites": [
+           "CR:364"
+          ]
+         }
+        ]
+       }
+      ]
      },
      "when": {
       "cond": "already",
@@ -247,5 +269,5 @@
    ]
   }
  ],
- "version": "sha256:f65e93a8b0410371"
+ "version": "sha256:5454dc55d6d799c8"
 }

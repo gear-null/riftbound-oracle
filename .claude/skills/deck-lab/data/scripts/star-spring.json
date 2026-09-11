@@ -9,6 +9,10 @@
     "CR:382",
     "CR:383"
    ],
+   "frequency": {
+    "nth": 1,
+    "per": "turn"
+   },
    "trigger": {
     "events": [
      "play_other"
@@ -21,10 +25,6 @@
      "not": {
       "type": "token"
      }
-    },
-    "frequency": {
-     "nth": 1,
-     "per": "turn"
     }
    },
    "effect": [
@@ -197,5 +197,5 @@
    ]
   }
  ],
- "version": "sha256:63fa4081225bc9cc"
+ "version": "sha256:586f26feb90b1eec"
 }

@@ -265,6 +265,11 @@ def cmd_scripts(args):
     print(f"  clause coverage: {cov['marks']['implemented']} of {cov['clauses']} "
           f"implemented ({cov['clause_coverage']:.0%})  ·  "
           f"{cov['marks']['approx']} approx  ·  {cov['marks']['unsupported']} unsupported")
+    # The second number, and the one that cannot be moved by splitting a clause
+    # in half. The clauses partition the printed text, so this is coverage of the
+    # card rather than of a denominator the script chose.
+    print(f"  word coverage:   {cov['words_implemented']} of {cov['words']} printed "
+          f"words ({cov['word_coverage']:.0%})")
     print(f"  census atoms:    {cov['atoms_exercised']} of {cov['atoms_active']} "
           f"exercised ({cov['atoms_exercised'] / max(cov['atoms_active'], 1):.0%})")
     if cov["unexercised"]:

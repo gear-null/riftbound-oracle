@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Treasure Hunter",
  "source": "manual",
+ "notes": "CR 184.3: the minting effect grants the token its abilities, so they are written here in the same schema a card's use. Inside them `self` is the TOKEN, not the card that made it.",
  "abilities": [
   {
    "kind": "triggered",
@@ -26,7 +27,48 @@
      "what": {
       "token": {
        "name": "Gold",
-       "type": "gear"
+       "type": "gear",
+       "abilities": [
+        {
+         "kind": "activated",
+         "timing": {
+          "keyword": "Reaction",
+          "cites": [
+           "CR:813"
+          ]
+         },
+         "cites": [
+          "CR:376"
+         ],
+         "cost": [
+          {
+           "cost": "sacrifice",
+           "what": {
+            "self": true
+           },
+           "cites": [
+            "CR:428"
+           ]
+          },
+          {
+           "cost": "exhaust_self",
+           "cites": [
+            "CR:414"
+           ]
+          }
+         ],
+         "effect": [
+          {
+           "op": "add",
+           "power": "any",
+           "n": 1,
+           "cites": [
+            "CR:429"
+           ]
+          }
+         ]
+        }
+       ]
       }
      }
     }
@@ -86,6 +128,47 @@
    ]
   },
   {
+   "name": "the Gold it mints can be cashed in for a Power of any Domain",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Gold",
+        "at": "base",
+        "token": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Gold",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 0
+    },
+    {
+     "expect": "power",
+     "seat": 0,
+     "domain": "any",
+     "n": 1
+    }
+   ]
+  },
+  {
    "name": "standing still is not a Move (CR 447)",
    "given": {
     "turn_player": 0,
@@ -119,5 +202,5 @@
    ]
   }
  ],
- "version": "sha256:86a29761b7339cda"
+ "version": "sha256:18140a8c976529a7"
 }

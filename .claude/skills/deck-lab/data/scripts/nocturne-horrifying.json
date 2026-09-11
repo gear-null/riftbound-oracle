@@ -2,7 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Nocturne - Horrifying",
  "source": "manual",
- "notes": "The trigger fires from the top of the deck, which is its own census selector atom rather than the deck plus a position: a trigger has a zone, and `[A]` is CR 135.2.e.5's any-Domain Power.",
+ "notes": "`play ... for [A]` REPLACES the printed cost (CR 356.1.a); it does not charge one Power on top of four Energy. The cost belongs on the `play`, not on the `may`, or the interpreter pays both. The census's `reveal_trigger` atom covers 'look at' as well as 'reveal', which is why one event carries both halves of 'as you look at or reveal me'.",
  "keywords": [
   {
    "keyword": "Ganking",
@@ -43,15 +43,6 @@
       },
       {
        "choice": "may",
-       "cost": [
-        {
-         "cost": "power_any",
-         "n": 1,
-         "cites": [
-          "CR:444"
-         ]
-        }
-       ],
        "when": {
         "cond": "if_you_do"
        },
@@ -62,7 +53,17 @@
           "self": true
          },
          "cites": [
-          "CR:419"
+          "CR:419",
+          "CR:356"
+         ],
+         "cost": [
+          {
+           "cost": "power_any",
+           "n": 1,
+           "cites": [
+            "CR:444"
+           ]
+          }
          ]
         }
        ]
@@ -91,13 +92,14 @@
  ],
  "tests": [
   {
-   "name": "seen off the top, it can banish itself and come down for one Power",
+   "name": "seen off the top, it banishes itself and comes down for one Power alone",
    "given": {
     "turn_player": 0,
     "phase": "main",
     "seats": [
      {
       "seat": 0,
+      "energy": 0,
       "power": {
        "Chaos": 1
       },
@@ -138,6 +140,59 @@
      "seat": 0,
      "domain": "Chaos",
      "n": 0
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "with no Power at all it is banished and stays banished",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 8,
+      "deck": [
+       "Nocturne - Horrifying",
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Mystic Poro",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "trigger",
+    "card": "Mystic Poro",
+    "seat": 0
+   },
+   "choices": [
+    "yes",
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Nocturne - Horrifying",
+     "n": 0
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 8
     }
    ]
   },
@@ -192,5 +247,5 @@
    ]
   }
  ],
- "version": "sha256:4ea9d7892c1ec21c"
+ "version": "sha256:49f3a334144cc5d1"
 }

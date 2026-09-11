@@ -2,7 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Tactical Retreat",
  "source": "manual",
- "notes": "A Recall is NOT a Move (CR 456), so this is `recall` and not `move(to=base)`: nothing that stops Movement stops it, and a script that spelled it as a Move would produce a plausible game and the wrong one.",
+ "notes": "A Recall is NOT a Move (CR 456), so this is `recall` and not `move(to=base)`: nothing that stops Movement stops it. The `would` carries its own window and frequency — 'the next time it would die this turn' — so there is no delayed wrapper around it to say the same thing twice.",
  "keywords": [
   {
    "keyword": "Reaction",
@@ -28,62 +28,45 @@
      },
      "do": [
       {
-       "kind": "delayed",
+       "kind": "would",
        "cites": [
-        "CR:389"
+        "CR:369"
        ],
-       "trigger": {
-        "events": [
-         "delayed_next"
-        ],
-        "who": "you",
-        "what": {
-         "ref": "saved"
-        }
+       "event": "die",
+       "applies_to": {
+        "ref": "saved"
        },
-       "effect": [
+       "until": "this_turn",
+       "frequency": {
+        "nth": 1,
+        "per": "turn"
+       },
+       "do": [
         {
-         "kind": "would",
-         "cites": [
-          "CR:369"
-         ],
-         "event": "die",
-         "applies_to": {
+         "op": "heal",
+         "what": {
           "ref": "saved"
          },
-         "until": "this_turn",
-         "frequency": {
-          "nth": 1,
-          "per": "turn"
+         "cites": [
+          "CR:418"
+         ]
+        },
+        {
+         "op": "exhaust",
+         "what": {
+          "ref": "saved"
          },
-         "do": [
-          {
-           "op": "heal",
-           "what": {
-            "ref": "saved"
-           },
-           "cites": [
-            "CR:418"
-           ]
-          },
-          {
-           "op": "exhaust",
-           "what": {
-            "ref": "saved"
-           },
-           "cites": [
-            "CR:414"
-           ]
-          },
-          {
-           "op": "recall",
-           "what": {
-            "ref": "saved"
-           },
-           "cites": [
-            "CR:455"
-           ]
-          }
+         "cites": [
+          "CR:414"
+         ]
+        },
+        {
+         "op": "recall",
+         "what": {
+          "ref": "saved"
+         },
+         "cites": [
+          "CR:455"
          ]
         }
        ]
@@ -232,5 +215,5 @@
    ]
   }
  ],
- "version": "sha256:3322be675cb3f2c0"
+ "version": "sha256:4c108da5193634ca"
 }

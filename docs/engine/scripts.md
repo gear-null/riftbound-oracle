@@ -130,7 +130,12 @@ constructs a cut left out.
 | `version` | `sha256:` + 16 hex of the **executable body** |
 
 The file name is derived from the card name (`slug()`), so two people scripting
-one card collide in git rather than shipping two scripts for it.
+one card collide in git rather than shipping two scripts for it. The name is
+**canonicalised first**: the corpus spells a subtitled card two ways — Riftcodex
+writes `Irelia - Fervent`, decklist sites write `Irelia, Fervent` — and both
+forms appear in the committed gauntlet, so slugging the raw string made a deck
+naming the other form report the card unscripted with its script sitting right
+there.
 
 ---
 
@@ -215,11 +220,15 @@ from a unit present at the battlefield, the second from anything referencing the
 player. The census counts the event; only the rules say who is listening, so the
 script says which rather than leaving it to a convention.
 
-`frequency` is a modifier on the event and not an event of its own:
+`frequency` is a modifier on the event and not an event of its own — and it
+lives on the **ability**, not inside the trigger. It had two homes once, and two
+homes for one fact is two places for it to disagree; CR 383.1.b and 383.3.e bound
+how often the *ability* fires, not how the event is recognised. A `frequency`
+inside a trigger is refused with a record saying where it belongs.
 
 ```json
-"trigger": {"events": ["win_combat"], "who": "me",
-            "frequency": {"nth": 1, "per": "turn"}}
+{"kind": "triggered", "frequency": {"nth": 1, "per": "turn"},
+ "trigger": {"events": ["win_combat"], "who": "me"}, …}
 ```
 
 `{"nth": N}` is CR 383.1.b's "the first time … each turn"; `{"limit": N}` is CR
@@ -236,6 +245,11 @@ the rules give that keyword:
  "cites": ["CR:382", "CR:823"]}
 ```
 
+**`linked` is not an ability kind.** CR 393-396 make a Linked Ability a *set* of
+abilities that reference each other, not a kind of one — so linkage is a relation
+between the entries in `abilities`, and a card with two abilities is never
+ambiguous about which of them it is.
+
 ### `reflexive` (CR 386-387) — "Then do this:"
 
 ```json
@@ -247,14 +261,21 @@ the rules give that keyword:
 
 ### `delayed` (CR 389-392) — "The next … this turn"
 
+A delayed ability says what it **waits for**. `delayed_next` is the census's name
+for the *window*, not for an event: `{"events": ["delayed_next"]}` names the
+delay and not the thing delayed, and an interpreter reading it would have nothing
+to subscribe to. So the ability carries `until` (a real event), `what`, `window`
+and `frequency` — the same move `nth_time` made when it stopped being an event
+and became a frequency. Writing `delayed_next`, `nth_time` or `frequency_only` in
+a trigger's `events` is refused, with the construct to use instead.
+
 ```json
 {"kind": "delayed", "cites": ["CR:389"],
- "trigger": {"events": ["delayed_next"], "who": "you",
-             "what": {"type": "unit", "side": "friendly"},
-             "frequency": {"nth": 1, "per": "turn"}},
- "effect": [{"kind": "enters_modified", "cites": ["CR:367"], "until": "this_turn",
-             "applies_to": {"type": "unit", "side": "friendly"},
-             "enters": "ready"}]}
+ "until": "play_other", "who": "you", "window": "this_turn",
+ "what": {"type": "unit", "side": "friendly", "bind": "next"},
+ "frequency": {"nth": 1, "per": "turn"},
+ "effect": [{"kind": "enters_modified", "cites": ["CR:367"],
+             "applies_to": {"ref": "next"}, "enters": "ready"}]}
 ```
 
 **An ability written inside an effect list is an ability *created* there.** CR
@@ -536,7 +557,34 @@ should not have to say it twice.
  "what": {"token": {"name": "Mech", "type": "unit", "might": 3}}}
 ```
 
-Unit tokens print a Might; a token may carry `keywords`, `tags` and a `state`.
+Unit tokens print a Might; a token may carry `keywords`, `tags`, a `state` —
+and **`abilities`**, in the same schema a card's use. CR 184.3 lets the creating
+effect grant a token abilities, and the corpus prints them: the Gold token's
+`[Reaction][>] Kill this, [E]: [Add] [A]`, the Shadow Clone's attack trigger, the
+Baron Pit's "Units can move here from anywhere". A free-text `text` field was
+there first, and it was where those abilities went to be forgotten — a clause
+marked `implemented` on the strength of a string nothing reads.
+
+**Inside a token's abilities, `self` is the TOKEN.** The Gold's "Kill this" kills
+the Gold, not the card that minted it.
+
+```json
+{"op": "play", "enters": "exhausted", "cites": ["CR:419", "CR:179"],
+ "what": {"token": {
+   "name": "Gold", "type": "gear",
+   "abilities": [
+     {"kind": "activated", "timing": {"keyword": "Reaction"}, "cites": ["CR:376"],
+      "cost": [{"cost": "sacrifice", "what": {"self": true}},
+               {"cost": "exhaust_self"}],
+      "effect": [{"op": "add", "power": "any", "n": 1, "cites": ["CR:429"]}]}]}}}
+```
+
+A token spec means two different things depending on where it stands. In a
+**creating** position — the `what` of a `play`, the `token` of an `add` — it
+makes one, prints a Might, and credits `create_token`. Anywhere else it **names a
+kind and makes nothing**: `another non-Recruit unit` and `your Sand Soldiers` are
+filters, and crediting them as token creation would have the coverage number
+report a filter as a thing built.
 
 ---
 
@@ -560,7 +608,25 @@ with a real gap ([ADR 0009](../adr/0009-the-engine-plays.md) decision 3).
 - `approx` — implemented differently; `reason` says how the script and the card differ
 - `unsupported` — not implemented; `reason` says what is missing
 
-Two mechanical checks stand behind the marks:
+**The clauses must PARTITION the printed text**: their words, in order, are the
+card's words. Without that rule the ratio inflates two ways — delete an
+`unsupported` clause and it rises, invent an implemented one and it rises again —
+because the script chooses its own denominator. Partitioning makes the
+denominator the card.
+
+Splitting is the half a partition cannot catch: cut one implemented clause in
+two and the words are identical while the clause count rises. Two things bound
+it. The report carries a **word ratio** beside the clause ratio, and splitting
+does not move it. And `data/clause-counts.json` vendors the **census splitter's**
+clause count per card — `engine-train/census.py` cannot be imported from inside
+the skill (ADR 0004), so its number is vendored — as a bound: no script may claim
+more clauses than the splitter found. It is a bound rather than an equality
+because the two granularities differ on purpose: the splitter cuts a sentence
+into its trigger condition, its gating conditions and its instructions, where a
+clause here is the readable span a person marks. The splitter is finer on 56 of
+67 cards and never coarser.
+
+Two more mechanical checks stand behind the marks:
 
 1. **The clause has to be in the printed text.** Its word sequence must be a run
    of the card's, after reminder text and symbols are removed — CR 135.2.d.3
@@ -588,6 +654,13 @@ anything can run it.
  "choices": ["Sunlit Guardian"],
  "then": [{"expect": "state", "card": "Sunlit Guardian", "seat": 0, "is": "ready"}]}
 ```
+
+A fixture can state the precondition its clause actually needs, and has to:
+`given` carries `chain` (what is on the Chain to be countered), `played_this_turn`
+(the history "if you've played an Equipment this turn" reads) and per-seat
+`hidden` alongside the zones. Pinning "played an Equipment this turn" with an
+Equipment *on the board* is the kind of fixture an implementation that reads the
+board instead of the history also passes.
 
 `when.do` is one of `play · activate · trigger · move · standard_move ·
 begin_turn · end_turn · combat · showdown · score · conquer · hold · discard ·
@@ -619,6 +692,27 @@ re-stamped itself on read would be answering its own question.
 Validation returns a **list of records**, never a raised message: the compiler's
 repair loop needs every error in a script, and it needs them as data (plan §4.3
 step 1). `deck_cli.py scripts --card X` prints exactly what the repair loop sees.
+
+**`validate()` never raises, for any JSON value.** That is a contract, not an
+aspiration, and it did not hold at first: a fuzz sweep of ~107k hostile inputs —
+every value in every script swapped for a `None`, a list, a dict, a float, at
+every path — found **3,570 raising inputs across fourteen sites**, every one a
+table lookup, an iteration or a comparison against something the schema had
+assumed was a string. `{"op": ["ready"]}` is JSON a model can emit, and
+`["ready"] in PRIMITIVES` raises `TypeError` rather than reporting anything. One
+such file in `data/scripts/` took `library.load_all` down for all sixty-seven.
+
+Three things hold it now, and the fuzz check in the selftest re-runs the sweep:
+
+- every table lookup goes through `_named`, every iteration through `_as_list`,
+  every numeric comparison through `_is_int`;
+- a **depth guard** turns a cycle or an absurd nest into a `too_deep` record
+  rather than a `RecursionError`;
+- a backstop turns anything still unforeseen into an `internal_error` record —
+  and the fuzz check asserts the backstop **never fires**, so if it ever does it
+  is a bug report rather than a shrug.
+
+`library.check` is isolated the same way: one hostile file is one bad row.
 
 ```json
 {"code": "reserved_atom",
@@ -662,6 +756,12 @@ step 1). `deck_cli.py scripts --card X` prints exactly what the repair loop sees
 | `bad_test` | a scenario test the interpreter could not run |
 | `filename_mismatch` | the file is not named after the card it scripts |
 | `unreadable` | the file is not JSON at all |
+| `clauses_not_a_partition` | the clauses do not reconstruct the printed text |
+| `contradictory_selector` | two selector axes that cannot both hold |
+| `duplicate_id` | two abilities claiming one id |
+| `unknown_ref` | a `ref` to a bind nothing establishes |
+| `too_deep` | nested past the walker's limit |
+| `internal_error` | the backstop: a walk that raised anyway |
 
 `dsl/selftest.py` produces every one of these from a deliberately broken script
 and asserts the record field by field. A code no broken script can produce is a
@@ -682,7 +782,8 @@ Everything not listed maps one-to-one.
 |---|---|---|
 | `create_token` (primitive) | a `token` spec inside a selector | the census counts "play a Gold gear token" in both the `play` and `create_token` tables; one clause, one node, both atoms credited |
 | `choose` (primitive) | the `choose_object` / `up_to` choice forms | the printed word "choose" is counted in the primitive table and the choice table, and it is one construct |
-| `nth_time`, `frequency_only` (triggers) | `trigger.frequency` | CR 383.1.b and 383.3.e modify an event; they are not events, and modelling them as such would be 40 more trigger rows |
+| `nth_time`, `frequency_only` (triggers) | `ability.frequency` | CR 383.1.b and 383.3.e bound how often the ABILITY fires; they are not events, and modelling them as such would be 40 more trigger rows |
+| `delayed_next` (trigger) | the `delayed` ability kind | the atom names the WINDOW ("the next unit you play this turn"), not an event; the ability says what it waits for in `until` |
 | `zone:top_of_deck` (selector) | `zone: "top_of_deck"` on a selector | a census SELECTOR atom, so a selector says it; `position` stays on the primitives that look at or put a card at one end of a deck |
 | `up_to_n` (selector) | the `up_to` choice form | the quantity and the choice are the same construct |
 | `enters_modified` (replacement) | `play.enters`, or the ability kind | the instruction form ("play a Gold token exhausted") and the continuous form ("Friendly units enter ready this turn") are different things |

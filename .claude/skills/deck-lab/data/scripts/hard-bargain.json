@@ -82,6 +82,13 @@
    "given": {
     "turn_player": 1,
     "phase": "main",
+    "chain": [
+     {
+      "card": "Hextech Ray",
+      "seat": 1,
+      "kind": "spell"
+     }
+    ],
     "seats": [
      {
       "seat": 0,
@@ -92,13 +99,7 @@
      },
      {
       "seat": 1,
-      "hand": [
-       "Hextech Ray"
-      ],
-      "energy": 1,
-      "power": {
-       "Fury": 1
-      }
+      "energy": 0
      }
     ]
    },
@@ -117,6 +118,10 @@
      "seat": 1,
      "zone": "trash",
      "card": "Hextech Ray"
+    },
+    {
+     "expect": "chain",
+     "n": 0
     }
    ]
   },
@@ -125,6 +130,13 @@
    "given": {
     "turn_player": 1,
     "phase": "main",
+    "chain": [
+     {
+      "card": "Hextech Ray",
+      "seat": 1,
+      "kind": "spell"
+     }
+    ],
     "seats": [
      {
       "seat": 0,
@@ -135,13 +147,7 @@
      },
      {
       "seat": 1,
-      "hand": [
-       "Hextech Ray"
-      ],
-      "energy": 3,
-      "power": {
-       "Fury": 1
-      }
+      "energy": 2
      }
     ]
    },

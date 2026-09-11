@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Zed, Without a Sound",
  "source": "manual",
+ "notes": "CR 184.3: the minting effect grants the token its abilities, so they are written here in the same schema a card's use. Inside them `self` is the TOKEN, not the card that made it.",
  "abilities": [
   {
    "kind": "triggered",
@@ -27,7 +28,62 @@
       "token": {
        "name": "Shadow Clone",
        "type": "unit",
-       "might": 0
+       "might": 0,
+       "abilities": [
+        {
+         "kind": "triggered",
+         "cites": [
+          "CR:382",
+          "CR:383"
+         ],
+         "trigger": {
+          "events": [
+           "attack"
+          ],
+          "who": "me"
+         },
+         "effect": [
+          {
+           "choice": "may",
+           "do": [
+            {
+             "op": "banish",
+             "cites": [
+              "CR:427"
+             ],
+             "what": {
+              "type": "unit",
+              "side": "friendly",
+              "zone": "trash",
+              "targets": true
+             }
+            },
+            {
+             "op": "grant_keyword",
+             "what": {
+              "self": true
+             },
+             "until": "this_turn",
+             "keyword": {
+              "keyword": "Assault",
+              "value": 4,
+              "cites": [
+               "CR:807"
+              ]
+             },
+             "cites": [
+              "CR:800",
+              "CR:807"
+             ],
+             "when": {
+              "cond": "if_you_do"
+             }
+            }
+           ]
+          }
+         ]
+        }
+       ]
       }
      }
     }
@@ -132,6 +188,63 @@
    ]
   },
   {
+   "name": "the clone's own attack trigger can banish a unit for Assault 4",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "trash": [
+       "Lecturing Yordle"
+      ],
+      "board": [
+       {
+        "card": "Shadow Clone",
+        "at": "battlefield",
+        "token": true
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "attack",
+    "card": "Shadow Clone",
+    "seat": 0
+   },
+   "choices": [
+    "yes",
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Shadow Clone",
+     "seat": 0,
+     "n": 4
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "trash",
+     "n": 0
+    }
+   ]
+  },
+  {
    "name": "the swap puts Zed where the clone stood, and the clone where Zed was",
    "given": {
     "turn_player": 0,
@@ -189,5 +302,5 @@
    ]
   }
  ],
- "version": "sha256:16841eaba58ac748"
+ "version": "sha256:cd1e63db4172616e"
 }

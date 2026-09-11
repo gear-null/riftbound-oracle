@@ -2,7 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "LeBlanc - Deceiver",
  "source": "manual",
- "notes": "CR 477.1.b puts the copy in layer 1: the Reflection's copiable traits are REPLACED, so its printed 0 {M} is gone rather than added to. [Temporary] is granted after, in layer 2, and survives the copy.",
+ "notes": "CR 477.1.b puts the copy in layer 1: the Reflection's copiable traits are REPLACED, so its printed 0 {M} is gone rather than added to. [Temporary] goes to the Reflection and nothing else — `ref` names the token this effect just made, not every token standing there.",
  "abilities": [
   {
    "kind": "triggered",
@@ -170,7 +170,7 @@
    ]
   },
   {
-   "name": "with nothing else there it stays a 0-Might Reflection",
+   "name": "an ally already standing there does not get [Temporary] as well",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -187,6 +187,11 @@
        {
         "card": "Cithria of Cloudfield",
         "at": "battlefield"
+       },
+       {
+        "card": "Recruit",
+        "at": "battlefield",
+        "token": true
        }
       ]
      },
@@ -202,19 +207,15 @@
    },
    "choices": [
     "yes",
-    "Mobilize"
+    "Mobilize",
+    "Cithria of Cloudfield"
    ],
    "then": [
     {
-     "expect": "board_count",
+     "expect": "keyword",
+     "card": "Recruit",
      "seat": 0,
-     "card": "Reflection",
-     "n": 1
-    },
-    {
-     "expect": "might",
-     "card": "Reflection",
-     "seat": 0,
+     "keyword": "Temporary",
      "n": 0
     }
    ]
