@@ -1,0 +1,122 @@
+{
+ "name": "MtyAlley Kuroji — #12 — Singapore RQ",
+ "legend": "Kha'Zix, Voidreaver",
+ "chosenChampion": "Kha'Zix, Mutating Horror",
+ "domains": [
+  "Body",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Irresistible Faefolk",
+   "qty": 3
+  },
+  {
+   "name": "Dragonsoul Sage",
+   "qty": 2
+  },
+  {
+   "name": "Mister Root",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Zed, Without a Sound",
+   "qty": 2
+  },
+  {
+   "name": "Illaoi, Prophet of the Great Kraken",
+   "qty": 3
+  },
+  {
+   "name": "Baron Nashor",
+   "qty": 2
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Punch First",
+   "qty": 2
+  },
+  {
+   "name": "Void Assault",
+   "qty": 3
+  },
+  {
+   "name": "Here to Help",
+   "qty": 1
+  },
+  {
+   "name": "Switcheroo",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 1
+  },
+  {
+   "name": "Rampage",
+   "qty": 2
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Up from the Deep",
+   "qty": 3
+  },
+  {
+   "name": "Overt Operation",
+   "qty": 1
+  },
+  {
+   "name": "Kha'Zix, Mutating Horror",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 7
+  },
+  {
+   "name": "Body Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forbidding Waste",
+   "qty": 1
+  },
+  {
+   "name": "Sandswept Tomb",
+   "qty": 1
+  },
+  {
+   "name": "Star Spring",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/singapore-rq/12-mtyalley-kuroji-kha-zix",
+  "author": "MtyAlley Kuroji",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "Singapore RQ",
+  "placement": 12,
+  "event_date": "2026-09-05",
+  "event_size": "Premier event"
+ }
+}

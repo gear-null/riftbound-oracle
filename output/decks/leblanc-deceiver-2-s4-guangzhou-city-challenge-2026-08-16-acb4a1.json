@@ -1,0 +1,110 @@
+{
+ "name": "貓島巡禮-詭術妖姬練習生 — #2 — S4 Guangzhou City Challenge 2026-08-16",
+ "legend": "LeBlanc, Deceiver",
+ "chosenChampion": "LeBlanc, Everywhere at Once",
+ "domains": [
+  "Mind",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Honest Broker",
+   "qty": 2
+  },
+  {
+   "name": "Patched Porobot",
+   "qty": 2
+  },
+  {
+   "name": "Soaring Scout",
+   "qty": 3
+  },
+  {
+   "name": "Lecturing Yordle",
+   "qty": 2
+  },
+  {
+   "name": "Lillia, Fae Fawn",
+   "qty": 3
+  },
+  {
+   "name": "Azir, Sovereign",
+   "qty": 2
+  },
+  {
+   "name": "Hwei, Brooding Painter",
+   "qty": 3
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "qty": 3
+  },
+  {
+   "name": "Stupefy",
+   "qty": 2
+  },
+  {
+   "name": "Smoke and Mirrors",
+   "qty": 3
+  },
+  {
+   "name": "Deathgrip",
+   "qty": 3
+  },
+  {
+   "name": "Salvage",
+   "qty": 2
+  },
+  {
+   "name": "Cull the Weak",
+   "qty": 3
+  },
+  {
+   "name": "Dredge Up",
+   "qty": 3
+  },
+  {
+   "name": "Sprite Fountain",
+   "qty": 3
+  },
+  {
+   "name": "LeBlanc, Everywhere at Once",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Mind Rune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Black Flame Altar",
+   "qty": 1
+  },
+  {
+   "name": "Dusk Rose Lab",
+   "qty": 1
+  },
+  {
+   "name": "Windswept Hillock",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-guangzhou-city-challenge-2026-08-16/2-player-caa2a880-leblanc",
+  "author": "貓島巡禮-詭術妖姬練習生",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Guangzhou City Challenge 2026-08-16",
+  "placement": 2,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

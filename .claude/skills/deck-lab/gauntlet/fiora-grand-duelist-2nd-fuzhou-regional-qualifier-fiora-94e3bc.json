@@ -127,8 +127,12 @@
   "url": "https://rift-atlas.com/meta/b60e8a0b-94be-4b8b-8064-c1c28f6d713e",
   "author": "challengertcg",
   "meta": true,
-  "fetched": "2026-08-24"
+  "fetched": "2026-09-11"
  },
+ "championCandidates": [
+  "Fiora, Victorious",
+  "Fiora, Worthy"
+ ],
  "chosen_champion": "Fiora, Victorious",
  "chosen_champion_note": "chosen by the maintainer, not by the source: the list legally runs 3x Fiora, Victorious and 1x Fiora, Worthy, and only the pilot knows which sat in the Champion Zone. Picked the one with the most copies (ties to the cheaper). Change it if you know better."
 }

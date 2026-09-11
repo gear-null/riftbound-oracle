@@ -1,0 +1,110 @@
+{
+ "name": "天津cardtime-金角大王 — #4 — S4 Tianjin City Challenge 2026-08-16",
+ "legend": "Ornn, Fire Below the Mountain",
+ "chosenChampion": "Ornn, Forge God",
+ "domains": [
+  "Calm",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Clockwork Keeper",
+   "qty": 3
+  },
+  {
+   "name": "Patched Porobot",
+   "qty": 3
+  },
+  {
+   "name": "Pit Crew",
+   "qty": 3
+  },
+  {
+   "name": "Dropboarder",
+   "qty": 2
+  },
+  {
+   "name": "Ornn, Forge God",
+   "qty": 2
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 1
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Seal of Focus",
+   "qty": 3
+  },
+  {
+   "name": "Poro Snax",
+   "qty": 3
+  },
+  {
+   "name": "Brutalizer",
+   "qty": 3
+  },
+  {
+   "name": "Sprite Fountain",
+   "qty": 3
+  },
+  {
+   "name": "Heart of Dark Ice",
+   "qty": 2
+  },
+  {
+   "name": "Sterak's Gage",
+   "qty": 3
+  },
+  {
+   "name": "Shurelya's Requiem",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 7
+  },
+  {
+   "name": "Mind Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Ornn's Forge",
+   "qty": 1
+  },
+  {
+   "name": "Treasure Hoard",
+   "qty": 1
+  },
+  {
+   "name": "Veiled Temple",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-tianjin-city-challenge-2026-08-16/4-cardtime-ornn",
+  "author": "天津cardtime-金角大王",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Tianjin City Challenge 2026-08-16",
+  "placement": 4,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

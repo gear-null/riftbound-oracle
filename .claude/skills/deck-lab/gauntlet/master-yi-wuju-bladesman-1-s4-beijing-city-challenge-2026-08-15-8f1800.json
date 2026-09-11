@@ -1,0 +1,122 @@
+{
+ "name": "元气-九萬 — #1 — S4 Beijing City Challenge 2026-08-15",
+ "legend": "Master Yi, Wuju Bladesman",
+ "chosenChampion": "Master Yi, Tempered",
+ "domains": [
+  "Calm",
+  "Body"
+ ],
+ "main": [
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Lonely Poro",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 1
+  },
+  {
+   "name": "First Mate",
+   "qty": 2
+  },
+  {
+   "name": "Tomb-Raider Barbara",
+   "qty": 2
+  },
+  {
+   "name": "Irelia, Fervent",
+   "qty": 2
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 2
+  },
+  {
+   "name": "Ruin Runner",
+   "qty": 2
+  },
+  {
+   "name": "Sabotage",
+   "qty": 1
+  },
+  {
+   "name": "Charm",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 3
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Rampage",
+   "qty": 2
+  },
+  {
+   "name": "Onslaught",
+   "qty": 1
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 2
+  },
+  {
+   "name": "Mask of Foresight",
+   "qty": 1
+  },
+  {
+   "name": "Master Yi, Tempered",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 6
+  },
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Emperor's Dais",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Star Spring",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-beijing-city-challenge-2026-08-15/1-player-dadbed08-master-yi",
+  "author": "元气-九萬",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Beijing City Challenge 2026-08-15",
+  "placement": 1,
+  "event_date": "2026-08-15",
+  "event_size": "Premier event"
+ }
+}

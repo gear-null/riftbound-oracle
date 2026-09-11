@@ -8,13 +8,13 @@
  ],
  "main": [
   {
-   "name": "Fizz, Trickster",
-   "code": "SFD-140",
+   "name": "Jinx, Rebel",
+   "code": "OGN-202",
    "qty": 1
   },
   {
-   "name": "Jinx, Rebel",
-   "code": "OGN-202",
+   "name": "Rengar, Pouncing",
+   "code": "SFD-025",
    "qty": 1
   },
   {
@@ -25,7 +25,7 @@
   {
    "name": "Vi, Destructive",
    "code": "OGN-036",
-   "qty": 2
+   "qty": 1
   },
   {
    "name": "Zed, From the Shadows",
@@ -38,9 +38,14 @@
    "qty": 2
   },
   {
+   "name": "Inferna",
+   "code": "UNL-002",
+   "qty": 3
+  },
+  {
    "name": "Noxus Hopeful",
    "code": "OGN-012",
-   "qty": 2
+   "qty": 3
   },
   {
    "name": "Punching Poro",
@@ -63,14 +68,19 @@
    "qty": 1
   },
   {
-   "name": "Falling Star",
-   "code": "OGN-029",
+   "name": "Cleave",
+   "code": "OGN-004",
    "qty": 2
   },
   {
-   "name": "Flash",
-   "code": "OGS-011",
+   "name": "Downwell",
+   "code": "SFD-147",
    "qty": 1
+  },
+  {
+   "name": "Falling Star",
+   "code": "OGN-029",
+   "qty": 2
   },
   {
    "name": "Gust",
@@ -83,9 +93,9 @@
    "qty": 2
   },
   {
-   "name": "Stacked Deck",
-   "code": "OGN-183",
-   "qty": 2
+   "name": "Rebuke",
+   "code": "OGN-172",
+   "qty": 1
   },
   {
    "name": "Star-Crossed",
@@ -98,23 +108,8 @@
    "qty": 3
   },
   {
-   "name": "Up from the Deep",
-   "code": "VEN-100",
-   "qty": 1
-  },
-  {
-   "name": "Vault Breaker",
-   "code": "UNL-010",
-   "qty": 1
-  },
-  {
    "name": "Long Sword",
    "code": "SFD-022",
-   "qty": 2
-  },
-  {
-   "name": "Seal of Rage",
-   "code": "SFD-222",
    "qty": 2
   },
   {
@@ -142,8 +137,8 @@
    "qty": 1
   },
   {
-   "name": "Void Gate",
-   "code": "OGN-296",
+   "name": "Rockfall Path",
+   "code": "SFD-216",
    "qty": 1
   },
   {
@@ -157,6 +152,6 @@
   "url": "https://rift-atlas.com/meta/653feb68-93c1-4949-84ee-f1bd72b69753",
   "author": "deuceishiphop",
   "meta": true,
-  "fetched": "2026-08-24"
+  "fetched": "2026-09-11"
  }
 }

@@ -1,0 +1,118 @@
+{
+ "name": "NGNL.纯爱.紫红1383 — #4 — S4 Wuhan Regional Open 2026-08-29",
+ "legend": "Fiora, Grand Duelist",
+ "chosenChampion": "Fiora, Victorious",
+ "domains": [
+  "Body",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Pit Rookie",
+   "qty": 3
+  },
+  {
+   "name": "Sea Monkey",
+   "qty": 3
+  },
+  {
+   "name": "Kennen, Keeper of Balance",
+   "qty": 2
+  },
+  {
+   "name": "First Mate",
+   "qty": 3
+  },
+  {
+   "name": "Kinkou Initiate",
+   "qty": 2
+  },
+  {
+   "name": "Poppy, Paragon",
+   "qty": 2
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Vi, Peacekeeper",
+   "qty": 2
+  },
+  {
+   "name": "Harnessed Dragon",
+   "qty": 2
+  },
+  {
+   "name": "Sacrifice",
+   "qty": 1
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Riposte",
+   "qty": 2
+  },
+  {
+   "name": "Salvage",
+   "qty": 1
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 1
+  },
+  {
+   "name": "Rampage",
+   "qty": 3
+  },
+  {
+   "name": "Call to Glory",
+   "qty": 3
+  },
+  {
+   "name": "Shepherd's Heirloom",
+   "qty": 3
+  },
+  {
+   "name": "Fiora, Victorious",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 7
+  },
+  {
+   "name": "Order Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Grove of the God-Willow",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "qty": 1
+  },
+  {
+   "name": "Valley of Idols",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-wuhan-regional-open-2026-08-29/4-ngnl-1383-fiora",
+  "author": "NGNL.纯爱.紫红1383",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Wuhan Regional Open 2026-08-29",
+  "placement": 4,
+  "event_date": "2026-08-29",
+  "event_size": "Premier event"
+ }
+}

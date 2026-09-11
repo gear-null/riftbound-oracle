@@ -1,0 +1,130 @@
+{
+ "name": "灵花祭.Asuka — #1 — S4 Tianjin City Challenge 2026-08-16",
+ "legend": "Nasus, Curator of the Sands",
+ "chosenChampion": "Nasus, Ascended",
+ "domains": [
+  "Calm",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Steel Paws",
+   "qty": 1
+  },
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Ravenbloom Student",
+   "qty": 3
+  },
+  {
+   "name": "Frostcoat Mother",
+   "qty": 1
+  },
+  {
+   "name": "Astral Heron",
+   "qty": 3
+  },
+  {
+   "name": "Tasty Faefolk",
+   "qty": 1
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "qty": 3
+  },
+  {
+   "name": "Whiteflame Protector",
+   "qty": 1
+  },
+  {
+   "name": "Bellows Breath",
+   "qty": 1
+  },
+  {
+   "name": "Retreat",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 2
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "Stupefy",
+   "qty": 3
+  },
+  {
+   "name": "Temporal Breach",
+   "qty": 2
+  },
+  {
+   "name": "Block",
+   "qty": 1
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Meditation",
+   "qty": 1
+  },
+  {
+   "name": "Back Off",
+   "qty": 1
+  },
+  {
+   "name": "Find Your Center",
+   "qty": 2
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 2
+  },
+  {
+   "name": "Nasus, Ascended",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  },
+  {
+   "name": "Mind Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forgotten Monument",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "qty": 1
+  },
+  {
+   "name": "The Papertree",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-tianjin-city-challenge-2026-08-16/1-asuka-nasus",
+  "author": "灵花祭.Asuka",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Tianjin City Challenge 2026-08-16",
+  "placement": 1,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

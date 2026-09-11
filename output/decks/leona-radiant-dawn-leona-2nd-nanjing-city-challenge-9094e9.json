@@ -142,10 +142,12 @@
   "url": "https://rift-atlas.com/meta/82f6aa0a-17be-42a0-88c1-9d6ad4a6a3ab",
   "author": "moonfox",
   "meta": true,
-  "fetched": "2026-08-24"
+  "fetched": "2026-09-11"
  },
  "championCandidates": [
   "Leona, Determined",
   "Leona, Zealot"
- ]
+ ],
+ "chosen_champion": "Leona, Determined",
+ "chosen_champion_note": "chosen by the maintainer, not by the source: the list legally runs 2x Leona, Determined and 2x Leona, Zealot, and only the pilot knows which sat in the Champion Zone. Picked the one with the most copies (ties to the cheaper). Change it if you know better."
 }

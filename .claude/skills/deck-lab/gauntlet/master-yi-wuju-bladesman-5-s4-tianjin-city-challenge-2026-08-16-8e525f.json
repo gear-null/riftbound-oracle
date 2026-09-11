@@ -1,0 +1,110 @@
+{
+ "name": "梦之星-李白 — #5 — S4 Tianjin City Challenge 2026-08-16",
+ "legend": "Master Yi, Wuju Bladesman",
+ "chosenChampion": "Master Yi, Tempered",
+ "domains": [
+  "Calm",
+  "Body"
+ ],
+ "main": [
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Lonely Poro",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 3
+  },
+  {
+   "name": "First Mate",
+   "qty": 3
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Ruin Runner",
+   "qty": 3
+  },
+  {
+   "name": "Charm",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 3
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Twilight Shroud",
+   "qty": 1
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Not So Fast",
+   "qty": 2
+  },
+  {
+   "name": "Rampage",
+   "qty": 1
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 2
+  },
+  {
+   "name": "Master Yi, Tempered",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 7
+  },
+  {
+   "name": "Calm Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Emperor's Dais",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Star Spring",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-tianjin-city-challenge-2026-08-16/5-player-d161ec8f-master-yi",
+  "author": "梦之星-李白",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Tianjin City Challenge 2026-08-16",
+  "placement": 5,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

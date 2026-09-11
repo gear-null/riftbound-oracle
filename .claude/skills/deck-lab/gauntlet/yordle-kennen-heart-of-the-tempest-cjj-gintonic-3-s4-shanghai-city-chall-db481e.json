@@ -1,0 +1,122 @@
+{
+ "name": "CJJ.琴酒Gintonic — #3 — S4 Shanghai City Challenge 2026-08-16",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosenChampion": "Kennen, Keeper of Balance",
+ "domains": [
+  "Order",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Traveling Merchant",
+   "qty": 3
+  },
+  {
+   "name": "Carrion Dredger",
+   "qty": 2
+  },
+  {
+   "name": "Shadow Order Disciple",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Nocturne, Horrifying",
+   "qty": 3
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 3
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Switcheroo",
+   "qty": 1
+  },
+  {
+   "name": "Facebreaker",
+   "qty": 1
+  },
+  {
+   "name": "Cull the Weak",
+   "qty": 1
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 2
+  },
+  {
+   "name": "Dragon Form",
+   "qty": 2
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Up from the Deep",
+   "qty": 2
+  },
+  {
+   "name": "Seal of Discord",
+   "qty": 3
+  },
+  {
+   "name": "Last Rites",
+   "qty": 2
+  },
+  {
+   "name": "Kennen, Keeper of Balance",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 8
+  },
+  {
+   "name": "Order Rune",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "The Candlelit Sanctum",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-shanghai-city-challenge-2026-08-16/3-cjj-gintonic-kennen",
+  "author": "CJJ.琴酒Gintonic",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Shanghai City Challenge 2026-08-16",
+  "placement": 3,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

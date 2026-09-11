@@ -1,0 +1,118 @@
+{
+ "name": "猫岛巡礼.No.Jay — #4 — S4 Guangzhou City Challenge 2026-08-09",
+ "legend": "Kai'Sa, Daughter of the Void",
+ "chosenChampion": "Kai'Sa, Survivor",
+ "domains": [
+  "Fury",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Plundering Poro",
+   "qty": 3
+  },
+  {
+   "name": "Watchful Sentry",
+   "qty": 3
+  },
+  {
+   "name": "Pouty Poro",
+   "qty": 2
+  },
+  {
+   "name": "Lecturing Yordle",
+   "qty": 2
+  },
+  {
+   "name": "Noxus Hopeful",
+   "qty": 2
+  },
+  {
+   "name": "Brynhir Thundersong",
+   "qty": 2
+  },
+  {
+   "name": "Ferrous Forerunner",
+   "qty": 2
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "qty": 3
+  },
+  {
+   "name": "Bellows Breath",
+   "qty": 1
+  },
+  {
+   "name": "Retreat",
+   "qty": 1
+  },
+  {
+   "name": "Hextech Ray",
+   "qty": 3
+  },
+  {
+   "name": "Stupefy",
+   "qty": 3
+  },
+  {
+   "name": "Falling Star",
+   "qty": 3
+  },
+  {
+   "name": "Temporal Breach",
+   "qty": 3
+  },
+  {
+   "name": "Progress Day",
+   "qty": 2
+  },
+  {
+   "name": "Singularity",
+   "qty": 2
+  },
+  {
+   "name": "Time Warp",
+   "qty": 2
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Fury Rune",
+   "qty": 6
+  },
+  {
+   "name": "Mind Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Frozen Fortress",
+   "qty": 1
+  },
+  {
+   "name": "Rockfall Path",
+   "qty": 1
+  },
+  {
+   "name": "Void Gate",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-guangzhou-city-challenge-2026-08-09/4-no-jay-kai-sa",
+  "author": "猫岛巡礼.No.Jay",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Guangzhou City Challenge 2026-08-09",
+  "placement": 4,
+  "event_date": "2026-08-09",
+  "event_size": "Premier event"
+ }
+}

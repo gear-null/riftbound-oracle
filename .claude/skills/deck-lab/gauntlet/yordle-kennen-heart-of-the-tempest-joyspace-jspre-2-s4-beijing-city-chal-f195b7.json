@@ -1,0 +1,110 @@
+{
+ "name": "joyspace_Jspre — #2 — S4 Beijing City Challenge 2026-08-15",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosenChampion": "Kennen, Storm of Shuriken",
+ "domains": [
+  "Order",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Traveling Merchant",
+   "qty": 3
+  },
+  {
+   "name": "Treasure Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Ezreal, Prodigy",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 3
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 3
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Switcheroo",
+   "qty": 2
+  },
+  {
+   "name": "Abandon",
+   "qty": 2
+  },
+  {
+   "name": "Flash",
+   "qty": 2
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 2
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 3
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Seal of Discord",
+   "qty": 3
+  },
+  {
+   "name": "Last Rites",
+   "qty": 2
+  },
+  {
+   "name": "Kennen, Storm of Shuriken",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 8
+  },
+  {
+   "name": "Order Rune",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "Shadow Temple",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-beijing-city-challenge-2026-08-15/2-joyspace-jspre-kennen",
+  "author": "joyspace_Jspre",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Beijing City Challenge 2026-08-15",
+  "placement": 2,
+  "event_date": "2026-08-15",
+  "event_size": "Premier event"
+ }
+}

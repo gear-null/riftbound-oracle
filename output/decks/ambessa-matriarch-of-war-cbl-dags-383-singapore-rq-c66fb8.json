@@ -1,0 +1,122 @@
+{
+ "name": "CBL DAGS — #383 — Singapore RQ",
+ "legend": "Ambessa, Matriarch of War",
+ "chosenChampion": "Ambessa, The Wolf",
+ "domains": [
+  "Body",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Irresistible Faefolk",
+   "qty": 3
+  },
+  {
+   "name": "Legion Marauder",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 2
+  },
+  {
+   "name": "Kayle, Justified",
+   "qty": 3
+  },
+  {
+   "name": "Kennen, Keeper of Balance",
+   "qty": 3
+  },
+  {
+   "name": "Nidalee, Cat Form",
+   "qty": 2
+  },
+  {
+   "name": "Solari Sunhawk",
+   "qty": 3
+  },
+  {
+   "name": "Vi, Peacekeeper",
+   "qty": 2
+  },
+  {
+   "name": "Sabotage",
+   "qty": 2
+  },
+  {
+   "name": "Repulse",
+   "qty": 1
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Public Execution",
+   "qty": 1
+  },
+  {
+   "name": "Tactical Retreat",
+   "qty": 2
+  },
+  {
+   "name": "Guttural Roar",
+   "qty": 2
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 2
+  },
+  {
+   "name": "Rampage",
+   "qty": 3
+  },
+  {
+   "name": "Onslaught",
+   "qty": 1
+  },
+  {
+   "name": "Forge of the Future",
+   "qty": 1
+  },
+  {
+   "name": "Ambessa, The Wolf",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 7
+  },
+  {
+   "name": "Order Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forbidding Waste",
+   "qty": 1
+  },
+  {
+   "name": "Risen Altar",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/singapore-rq/383-cbl-dags-ambessa",
+  "author": "CBL DAGS",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "Singapore RQ",
+  "placement": 383,
+  "event_date": "2026-09-05",
+  "event_size": "Premier event"
+ }
+}

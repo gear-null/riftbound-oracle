@@ -1,0 +1,126 @@
+{
+ "name": "铁头-不灭狂雷的信徒 — #5 — S4 Shenyang City Challenge 2026-08-16",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosenChampion": "Kennen, Storm of Shuriken",
+ "domains": [
+  "Order",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Tideturner",
+   "qty": 2
+  },
+  {
+   "name": "Traveling Merchant",
+   "qty": 2
+  },
+  {
+   "name": "Carrion Dredger",
+   "qty": 2
+  },
+  {
+   "name": "Overzealous Fan",
+   "qty": 2
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Vex, Apathetic",
+   "qty": 1
+  },
+  {
+   "name": "Nocturne, Horrifying",
+   "qty": 3
+  },
+  {
+   "name": "Tail-Cloaked Matriarch",
+   "qty": 2
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 3
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Switcheroo",
+   "qty": 1
+  },
+  {
+   "name": "Flash",
+   "qty": 1
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 3
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 2
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Seal of Discord",
+   "qty": 3
+  },
+  {
+   "name": "Last Rites",
+   "qty": 1
+  },
+  {
+   "name": "Edge of Night",
+   "qty": 1
+  },
+  {
+   "name": "Kennen, Storm of Shuriken",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 8
+  },
+  {
+   "name": "Order Rune",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "The Candlelit Sanctum",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-shenyang-city-challenge-2026-08-16/5-player-2bda2df0-kennen",
+  "author": "铁头-不灭狂雷的信徒",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Shenyang City Challenge 2026-08-16",
+  "placement": 5,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

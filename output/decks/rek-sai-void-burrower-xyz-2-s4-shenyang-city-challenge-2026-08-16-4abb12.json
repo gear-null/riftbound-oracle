@@ -1,0 +1,110 @@
+{
+ "name": "XYZ.媄猗 — #2 — S4 Shenyang City Challenge 2026-08-16",
+ "legend": "Rek'Sai, Void Burrower",
+ "chosenChampion": "Rek'Sai, Breacher",
+ "domains": [
+  "Fury",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Vi, Destructive",
+   "qty": 2
+  },
+  {
+   "name": "Noxian Emissary",
+   "qty": 3
+  },
+  {
+   "name": "Carrion Dredger",
+   "qty": 3
+  },
+  {
+   "name": "Honest Broker",
+   "qty": 3
+  },
+  {
+   "name": "Inferna",
+   "qty": 2
+  },
+  {
+   "name": "Faithful Manufactor",
+   "qty": 3
+  },
+  {
+   "name": "Noxus Hopeful",
+   "qty": 3
+  },
+  {
+   "name": "Undertitan",
+   "qty": 3
+  },
+  {
+   "name": "Blood Rush",
+   "qty": 3
+  },
+  {
+   "name": "Cleave",
+   "qty": 2
+  },
+  {
+   "name": "Void Rush",
+   "qty": 3
+  },
+  {
+   "name": "Falling Star",
+   "qty": 3
+  },
+  {
+   "name": "Cull the Weak",
+   "qty": 3
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 1
+  },
+  {
+   "name": "Sun Disc",
+   "qty": 2
+  },
+  {
+   "name": "Rek'Sai, Breacher",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Fury Rune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forbidding Waste",
+   "qty": 1
+  },
+  {
+   "name": "The Candlelit Sanctum",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-shenyang-city-challenge-2026-08-16/2-xyz-rek-sai",
+  "author": "XYZ.媄猗",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Shenyang City Challenge 2026-08-16",
+  "placement": 2,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "name": "🐊司书🐊 — #1 — S4 Shanghai City Challenge 2026-08-16",
+ "legend": "Azir, Emperor of the Sands",
+ "chosenChampion": "Azir, Sovereign",
+ "domains": [
+  "Calm",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Vi, Peacekeeper",
+   "qty": 2
+  },
+  {
+   "name": "Sacrifice",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 1
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 1
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Salvage",
+   "qty": 2
+  },
+  {
+   "name": "Shadow's Call",
+   "qty": 1
+  },
+  {
+   "name": "Cull the Weak",
+   "qty": 1
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 3
+  },
+  {
+   "name": "Guards!",
+   "qty": 2
+  },
+  {
+   "name": "Arise!",
+   "qty": 3
+  },
+  {
+   "name": "Doran's Shield",
+   "qty": 3
+  },
+  {
+   "name": "Eye of the Herald",
+   "qty": 3
+  },
+  {
+   "name": "Soul Sword",
+   "qty": 3
+  },
+  {
+   "name": "Brutalizer",
+   "qty": 3
+  },
+  {
+   "name": "B.F. Sword",
+   "qty": 3
+  },
+  {
+   "name": "Azir, Sovereign",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Hall of Legends",
+   "qty": 1
+  },
+  {
+   "name": "Ornn's Forge",
+   "qty": 1
+  },
+  {
+   "name": "Trifarian War Camp",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-shanghai-city-challenge-2026-08-16/1-player-75dd3f15-azir",
+  "author": "🐊司书🐊",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Shanghai City Challenge 2026-08-16",
+  "placement": 1,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

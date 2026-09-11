@@ -1,0 +1,126 @@
+{
+ "name": "CCB.冷静 — #4 — S4 Qingdao City Challenge 2026-08-16",
+ "legend": "Irelia, Blade Dancer",
+ "chosenChampion": "Irelia, Fervent",
+ "domains": [
+  "Calm",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Tideturner",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 1
+  },
+  {
+   "name": "Akali, Silent",
+   "qty": 2
+  },
+  {
+   "name": "Stellacorn Herder",
+   "qty": 3
+  },
+  {
+   "name": "Defiant Dance",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 2
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 2
+  },
+  {
+   "name": "Gust",
+   "qty": 1
+  },
+  {
+   "name": "Abandon",
+   "qty": 1
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Flash",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 2
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Guardian Angel",
+   "qty": 1
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 2
+  },
+  {
+   "name": "Boots of Swiftness",
+   "qty": 2
+  },
+  {
+   "name": "Irelia, Fervent",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  },
+  {
+   "name": "Chaos Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Abandoned Hall",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-qingdao-city-challenge-2026-08-16/4-ccb-irelia",
+  "author": "CCB.冷静",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Qingdao City Challenge 2026-08-16",
+  "placement": 4,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

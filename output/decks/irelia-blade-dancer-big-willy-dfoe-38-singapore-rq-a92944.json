@@ -1,0 +1,122 @@
+{
+ "name": "Big Willy Dfoe — #38 — Singapore RQ",
+ "legend": "Irelia, Blade Dancer",
+ "chosenChampion": "Irelia, Fervent",
+ "domains": [
+  "Calm",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Tideturner",
+   "qty": 3
+  },
+  {
+   "name": "Lonely Poro",
+   "qty": 1
+  },
+  {
+   "name": "Pyke, Returned",
+   "qty": 1
+  },
+  {
+   "name": "Akali, Silent",
+   "qty": 2
+  },
+  {
+   "name": "Stellacorn Herder",
+   "qty": 3
+  },
+  {
+   "name": "Defiant Dance",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 2
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 2
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Flash",
+   "qty": 2
+  },
+  {
+   "name": "Rebuke",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 2
+  },
+  {
+   "name": "Guardian Angel",
+   "qty": 2
+  },
+  {
+   "name": "Edge of Night",
+   "qty": 1
+  },
+  {
+   "name": "Boots of Swiftness",
+   "qty": 3
+  },
+  {
+   "name": "Irelia, Fervent",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  },
+  {
+   "name": "Chaos Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Abandoned Hall",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/singapore-rq/38-big-willy-dfoe-irelia",
+  "author": "Big Willy Dfoe",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "Singapore RQ",
+  "placement": 38,
+  "event_date": "2026-09-05",
+  "event_size": "Premier event"
+ }
+}

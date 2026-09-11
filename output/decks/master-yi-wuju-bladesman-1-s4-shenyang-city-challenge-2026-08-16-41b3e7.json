@@ -1,0 +1,118 @@
+{
+ "name": "紫蝎 — #1 — S4 Shenyang City Challenge 2026-08-16",
+ "legend": "Master Yi, Wuju Bladesman",
+ "chosenChampion": "Master Yi, Tempered",
+ "domains": [
+  "Calm",
+  "Body"
+ ],
+ "main": [
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Lonely Poro",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 2
+  },
+  {
+   "name": "First Mate",
+   "qty": 3
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Irelia, Fervent",
+   "qty": 3
+  },
+  {
+   "name": "Whiteflame Protector",
+   "qty": 1
+  },
+  {
+   "name": "Sabotage",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 2
+  },
+  {
+   "name": "Defy",
+   "qty": 2
+  },
+  {
+   "name": "En Garde",
+   "qty": 2
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Not So Fast",
+   "qty": 1
+  },
+  {
+   "name": "Rampage",
+   "qty": 2
+  },
+  {
+   "name": "Onslaught",
+   "qty": 1
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 3
+  },
+  {
+   "name": "Master Yi, Tempered",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 7
+  },
+  {
+   "name": "Calm Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Emperor's Dais",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Star Spring",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-shenyang-city-challenge-2026-08-16/1-player-ec4a631b-master-yi",
+  "author": "紫蝎",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Shenyang City Challenge 2026-08-16",
+  "placement": 1,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}
