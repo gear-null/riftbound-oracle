@@ -125,11 +125,6 @@ def expire(g, duration, event=""):
     return True
 
 
-def effects_on(s, oid):
-    """Every stored effect currently applying to one object. For the log."""
-    return [e for e in s.effects if oid in e["targets"]]
-
-
 # -- the recomputation ---------------------------------------------------
 
 def recompute(g):
@@ -172,7 +167,7 @@ def recompute(g):
         for layer in LAYERS:
             pool = [e for e in _all_effects(g)
                     if e["layer"] == layer and e["id"] not in applied]
-            for effect in _ordered(pool, layer):
+            for effect in ordered(pool, layer):
                 targets = [u for u in s.units if u["id"] in effect["targets"]]
                 if not targets:
                     continue                       # 476.1: not yet able
@@ -217,7 +212,7 @@ def _all_effects(g):
     return list(g.s.effects) + abilities.passive_effects(g)
 
 
-def _ordered(effects, layer):
+def ordered(effects, layer):
     """One layer's effects, in Timestamp order (480.3), increases before decreases.
 
     478/479's Dependency is a declared gap and 476.2 is why it is a small one:

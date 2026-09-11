@@ -22,7 +22,7 @@ Two jobs:
 a test that leaves its fixtures behind changes every game that runs after it —
 which is exactly how a perft golden moves for no reason anybody can name.
 """
-from . import abilities, actions, layers
+from . import abilities, actions
 
 #: The fixture cards these hang on. Named here rather than inline so that a
 #: gauntlet rename breaks `engine_setup`'s deck check with a sentence, the same
@@ -63,7 +63,11 @@ def _enters_ready(g, event, src):
 
 
 def _enters_applies(g, event, src):
-    return event.get("name") == src["name"] and event.get("seat") == src["seat"]
+    # `and event["exh"]` is not decoration: "I enter ready" has nothing to say
+    # about an entry that is already ready, and saying so is what keeps the
+    # replacement from qualifying for its own output (370.1.b).
+    return (event.get("name") == src["name"]
+            and event.get("seat") == src["seat"] and event["exh"])
 
 
 def _cheaper(g, event, src):
@@ -84,7 +88,7 @@ def _soften(g, event, src):
 
 
 def _soften_applies(g, event, src):
-    return event.get("oid") == src["oid"]
+    return event.get("oid") == src["oid"] and event["n"] > 0
 
 
 # -- the fixture set -----------------------------------------------------
@@ -192,7 +196,3 @@ def missing(decks):
             pool.add(deck.chosen_champion)
     return [name for name in CARDS if name not in pool]
 
-
-def relayer(g):
-    """Recompute the layers. For tests that build a board by hand."""
-    return layers.recompute(g)

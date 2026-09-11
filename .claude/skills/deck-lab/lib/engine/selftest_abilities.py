@@ -85,6 +85,34 @@ def drive(g, prefer=(), limit=200):
     raise AssertionError("the game did not reach a Main Phase in %d steps" % limit)
 
 
+def survives(fn):
+    """Run `fn` and say whether the kernel stayed on its feet.
+
+    A check whose subject is "the engine refuses X rather than doing X" has to
+    survive the mutant that makes it do X — otherwise the suite dies, the battery
+    records a CRASH instead of a named check, and the check keeps a credit nobody
+    earned.
+    """
+    from .state import RulesError
+    try:
+        fn()
+    except RulesError:
+        return False
+    return True
+
+
+def settle(g, prefer=()):
+    """Throw away the question the engine is holding, then drive on.
+
+    `step()` returns the PENDING decision before it runs anything, so a second
+    `drive` after a first one returns the same Main Phase decision instantly and
+    the rules in between never run. That is how "a once each turn ability does
+    not trigger twice" passed while triggering exactly once for the wrong reason.
+    """
+    _h().refresh(g)
+    return drive(g, prefer)
+
+
 def xp_effect(n=1):
     def effect(g, ctx):
         actions.gain_xp(g, ctx["seat"], n)
@@ -103,6 +131,17 @@ def run_triggers(g):
     if g.s.pending is not None:
         SEEN.add(g.s.pending["kind"])
     return g.s.chain
+
+
+def kernel_modules():
+    """The engine's own modules - the suite's own files are not the kernel.
+
+    Both scans below ask what the RULES raise, and a test that constructs an
+    event in order to prove it is refused is not a rule raising one. Counting
+    this file would have the suite answer its own question.
+    """
+    return [n for n in sorted(os.listdir(HERE))
+            if n.endswith(".py") and not n.startswith("selftest")]
 
 
 def a_spell(deck):
@@ -264,7 +303,7 @@ def _gates(check):
     # 721.2 / 727.1.c.1: an Inactive trigger is not even evaluated.
     abilities.clear()
     abilities.register(PYKE, Ability(
-        "triggered", text="[Level 4] when I die, gain 1 XP",
+        "triggered", text="when I die, gain 1 XP",
         gate=Gate("Level", 4), trigger=Trigger(("die",), who="me"),
         effect=xp_effect()))
     g, (unit,) = board([(0, PYKE, loc_base(0))])
@@ -292,12 +331,18 @@ def _activated(check):
     abilities.register(HERDER, Ability("activated", text="[E]: gain 1 XP",
                                        cost=Cost(exhaust_self=True),
                                        effect=xp_effect()))
-    g, (unit,) = board([(0, HERDER, loc_base(0))])
+    # BOTH seats have one. Without the opponent's copy the second check below
+    # passes for the wrong reason — there is nothing of theirs to offer — and a
+    # kernel that ignored 381 entirely would still look right.
+    g, (unit, theirs) = board([(0, HERDER, loc_base(0)), (1, HERDER, loc_base(1))])
     offered = [src for src in abilities.activatable(g, 0)]
     check("an Activated Ability is offered to its controller in a Neutral Open "
-          "State (377, 381)", len(offered) == 1)
+          "State (377, 381)",
+          len(offered) == 1 and offered[0]["oid"] == unit["id"])
     check("and not to the other seat, whose turn it is not (381)",
-          not abilities.activatable(g, 1))
+          not abilities.activatable(g, 1),
+          "seat 1 controls %s and it is seat %d's turn"
+          % (theirs["name"], g.s.turn_player))
 
     unit["exh"] = True
     check("an Activated Ability whose cost cannot be paid is not offered "
@@ -429,13 +474,17 @@ def _triggered(check):
     drive(g, prefer=("pay",))
     check("paying performs it (404.1, 203)", g.s.xp[0] == 2, "XP %r" % (g.s.xp,))
 
-    # 203.3: a cost that is impossible cannot be paid, so the ability goes.
+    # 203.3: a cost that is impossible cannot be paid, so the ability goes. Run
+    # through `survives`, because the defect this names is "pay it anyway", and
+    # paying 1 XP out of 0 raises — which would take the suite down with it.
     g, (unit,) = board([(0, PYKE, loc_base(0))])
     actions.to_trash(g, unit["id"])
-    drive(g)
+    stood = survives(lambda: drive(g))
     check("a Triggered Ability whose cost is impossible leaves the Chain "
           "without being asked about (403, 404.2, 203.3)",
-          g.s.xp[0] == 0 and not g.s.chain)
+          stood and g.s.xp[0] == 0 and not g.s.chain,
+          "the kernel tried to pay a cost it had already been told was "
+          "impossible" if not stood else "")
 
     # 383.2.c.1 / 808: the object that died is not on the Board any more.
     abilities.clear()
@@ -484,14 +533,16 @@ def _triggered(check):
     g, (unit,) = board([(0, TIDE, loc_base(0))])
     unit["exh"] = True
     actions.ready(g, unit["id"])
-    drive(g)
+    settle(g)
     first = g.s.xp[0]
     g.s.unit(unit["id"])["exh"] = True
     actions.ready(g, unit["id"])
-    drive(g)
+    queued = len(g.s.trigs)
+    settle(g)
     check("a \"once each turn\" Triggered Ability does not trigger again once it "
           "has been performed (383.3.e.1)",
-          first == 1 and g.s.xp[0] == 1, "XP %r" % (g.s.xp,))
+          first == 1 and queued == 0 and g.s.xp[0] == 1,
+          "XP %r, %d queued the second time" % (g.s.xp, queued))
 
     abilities.clear()
     abilities.register(TIDE, Ability(
@@ -692,19 +743,17 @@ def _events(check):
     """Every declared trigger event, and the decision kinds this slice emits."""
     abilities.clear()
     raised = set()
-    for name in sorted(os.listdir(HERE)):
-        if not name.endswith(".py"):
-            continue
+    for name in kernel_modules():
         with open(os.path.join(HERE, name), encoding="utf-8") as fh:
             raised.update(re.findall(r'emit\(g, "(\w+)"', fh.read()))
     declared = set(abilities.EVENTS)
     check("every trigger event this framework declares is raised somewhere in "
           "the kernel (383, census 3)",
           declared <= raised,
-          "never raised: %s" % ", ".join(sorted(declared - raised)))
+          "never raised: %s" % (", ".join(sorted(declared - raised)) or "none"))
     check("and nothing raises an event the vocabulary does not declare",
           raised <= declared,
-          "undeclared: %s" % ", ".join(sorted(raised - declared)))
+          "undeclared: %s" % (", ".join(sorted(raised - declared)) or "none"))
     check("the census's `nth_time` and `delayed_next` are NOT events — one is a "
           "frequency (383.1.b) and one is a window (390.2)",
           "nth_time" not in declared and "delayed_next" not in declared
@@ -738,7 +787,7 @@ def _events(check):
     abilities.clear()
     check("every card the hand-built ability set names is still in the fixture "
           "decks", not demo.missing(list(fixtures.pair())),
-          "gone: %s" % ", ".join(demo.missing(list(fixtures.pair()))))
+          "gone: %s" % (", ".join(demo.missing(list(fixtures.pair()))) or "none"))
     demo.attach()
     try:
         kinds = set(a.kind for _n, abils in demo.build() for a in abils)
@@ -799,7 +848,9 @@ def _replacement_shapes(check):
     abilities.clear()
     abilities.register(DREDGER, Ability(
         "enters_modified", text="I enter ready",
-        applies=lambda g, ev, src: ev.get("name") == DREDGER,
+        # "I enter ready" has nothing to say about an entry that is already
+        # ready, which is also what stops it applying to its own output.
+        applies=lambda g, ev, src: ev.get("name") == DREDGER and ev["exh"],
         replace=lambda g, ev, src: dict(ev, exh=False)))
     g, _ = board([])
     unit = actions.put_into_play(g, 0, DREDGER, loc_base(0), True, "chain")
@@ -811,7 +862,7 @@ def _replacement_shapes(check):
     marks = []
     abilities.register(DREDGER, Ability(
         "as_enters", text="as I enter, note it",
-        applies=lambda g, ev, src: ev.get("name") == DREDGER,
+        applies=lambda g, ev, src: ev.get("name") == DREDGER and not marks,
         replace=lambda g, ev, src: (marks.append(ev["name"]), ev)[1]))
     g, _ = board([])
     unit = actions.put_into_play(g, 0, DREDGER, loc_base(0), True, "chain")
@@ -836,8 +887,9 @@ def _replacement_shapes(check):
     abilities.clear()
     abilities.register(AKALI, Ability(
         "would", text="damage dealt to me is 1 less",
-        applies=lambda g, ev, src: ev["ev"] == "damage" and ev["oid"] == src["oid"],
-        replace=lambda g, ev, src: dict(ev, n=max(ev["n"] - 1, 0))))
+        applies=lambda g, ev, src: (ev["ev"] == "damage"
+                                    and ev["oid"] == src["oid"] and ev["n"] > 0),
+        replace=lambda g, ev, src: dict(ev, n=ev["n"] - 1)))
     g, (unit,) = board([(0, AKALI, loc_base(0))])
     event = replacements.apply(g, {"ev": "damage", "oid": unit["id"], "n": 3,
                                    "seat": 0, "name": AKALI})
@@ -869,6 +921,11 @@ def _replacement_shapes(check):
         replace=lambda gg, ev, src: "energy"))
     g, _ = board([(0, SHARP, loc_base(0))])
     cost = actions.total_cost(g, 0, spell)
+    check("the spell this check uses has a Power cost, so 356.1.b.2 has "
+          "something to leave alone",
+          actions.cost_of(spell)["power"] > 0,
+          "%s costs %dE %dP" % (spell, actions.cost_of(spell)["energy"],
+                                actions.cost_of(spell)["power"]))
     check("`ignoring_cost`: naming one component zeroes only that one "
           "(356.1.b.2)",
           cost["energy"] == 0 and cost["power"] == actions.cost_of(spell)["power"],
@@ -906,13 +963,16 @@ def _replacement_rules(check):
     # 054.1: can't beats can.
     abilities.clear()
     order = []
+    # Each refuses itself once it has run. 370.2 would do that for them, and
+    # these two exist to watch a DIFFERENT rule — so they must not depend on the
+    # one whose mutant would otherwise loop them against each other forever.
     abilities.register(AKALI, Ability(
         "would", text="a permissive replacement",
-        applies=lambda g, ev, src: ev["ev"] == "damage",
+        applies=lambda g, ev, src: ev["ev"] == "damage" and "can" not in order,
         replace=lambda g, ev, src: (order.append("can"), ev)[1]))
     abilities.register(TIDE, Ability(
         "would", text="a forbidding replacement", forbids=True,
-        applies=lambda g, ev, src: ev["ev"] == "damage",
+        applies=lambda g, ev, src: ev["ev"] == "damage" and "cant" not in order,
         replace=lambda g, ev, src: (order.append("cant"), ev)[1]))
     g, (akali, tide) = board([(0, AKALI, loc_base(0)), (0, TIDE, loc_base(0))])
     replacements.apply(g, {"ev": "damage", "oid": akali["id"], "n": 2,
@@ -925,7 +985,8 @@ def _replacement_rules(check):
     abilities.register(AKALI, Ability(
         "would", text="once each turn, damage dealt to me is 1 less",
         frequency=("limit", 1, "turn"),
-        applies=lambda g, ev, src: ev["ev"] == "damage" and ev["oid"] == src["oid"],
+        applies=lambda g, ev, src: (ev["ev"] == "damage"
+                                    and ev["oid"] == src["oid"] and ev["n"] > 0),
         replace=lambda g, ev, src: dict(ev, n=ev["n"] - 1)))
     g, (unit,) = board([(0, AKALI, loc_base(0))])
     one = replacements.apply(g, {"ev": "damage", "oid": unit["id"], "n": 3,
@@ -945,7 +1006,8 @@ def _replacement_rules(check):
     abilities.register(AKALI, Ability(
         "would", text="[Level 5] damage dealt to me is 1 less",
         gate=Gate("Level", 5),
-        applies=lambda g, ev, src: ev["ev"] == "damage" and ev["oid"] == src["oid"],
+        applies=lambda g, ev, src: (ev["ev"] == "damage"
+                                    and ev["oid"] == src["oid"] and ev["n"] > 0),
         replace=lambda g, ev, src: dict(ev, n=ev["n"] - 1)))
     g, (unit,) = board([(0, AKALI, loc_base(0))])
     closed = replacements.apply(g, {"ev": "damage", "oid": unit["id"], "n": 3,
@@ -964,11 +1026,27 @@ def _replacement_rules(check):
           _h().raises(lambda: replacements.apply(g, {"ev": "sneeze"}),
                       "not a replaceable event"))
 
+    # And every name INSIDE it is one some rule builds. A vocabulary entry with
+    # no call site is a replacement a script can be written against and that can
+    # never fire — the same silent hole `engine_abilities` scans for on the
+    # trigger side.
+    built = set()
+    for name in kernel_modules():
+        with open(os.path.join(HERE, name), encoding="utf-8") as fh:
+            built.update(re.findall(r'replacements\.apply\(g, \{"ev": "(\w+)"',
+                                    fh.read()))
+    check("every replaceable event is one some rule actually builds (370.1.a)",
+          set(replacements.EVENTS) == built,
+          "declared-only: %s; built-only: %s"
+          % (", ".join(sorted(set(replacements.EVENTS) - built)) or "none",
+             ", ".join(sorted(built - set(replacements.EVENTS))) or "none"))
+
     # Combat damage really does go through the pipeline.
     abilities.clear()
     abilities.register(AKALI, Ability(
         "would", text="damage dealt to me is reduced to 0",
-        applies=lambda g, ev, src: ev["ev"] == "damage" and ev["oid"] == src["oid"],
+        applies=lambda g, ev, src: (ev["ev"] == "damage"
+                                    and ev["oid"] == src["oid"] and ev["n"] > 0),
         replace=lambda g, ev, src: dict(ev, n=0)))
     g, (mine,) = board([(0, AKALI, loc_base(0))])
     event = replacements.apply(g, {"ev": "damage", "oid": mine["id"], "n": 9,
@@ -1013,18 +1091,43 @@ def _layer_order(check):
     # that lands first would floor the value before the increase arrives.
     abilities.clear()
     g, (unit,) = board([(0, CRAB, loc_base(0))])
-    seen = []
     layers.new_effect(g, "give_might", n=-1, targets=(unit["id"],),
                       until="permanent")
-    seen.append(g.s.might_of(unit))
     layers.new_effect(g, "give_might", n=3, targets=(unit["id"],), until="permanent")
-    applied = [e["n"] for e in sorted(
-        [e for e in g.s.effects if e["op"] == "give_might"],
-        key=lambda e: (0 if e["n"] >= 0 else 1, e["ts"]))]
+    # Asked of the ENGINE's own ordering function, not of a sort this file
+    # repeats. A check that re-implements the rule it is checking agrees with
+    # itself whatever the engine does, which is how this one passed while the
+    # engine was free to apply them in either order.
+    applied = [e["n"] for e in layers.ordered(
+        [e for e in g.s.effects if e["op"] == "give_might"], layers.ARITHMETIC)]
     check("within the arithmetic layer, increases are applied before decreases "
           "(477.3.e.1, 477.3.e.2)", applied == [3, -1], "%r" % (applied,))
-    check("and the total is the same either way, which is why the ORDER is what "
-          "has to be checked", g.s.might_of(unit) == unit["might"] + 2)
+    check("and the total is the same either way — the order is pinned because "
+          "477.3.b's snapshotting is what will make it visible",
+          g.s.might_of(unit) == unit["might"] + 2)
+
+    # 477: the order the layers run in is observable in WHEN an effect becomes
+    # applicable, and nowhere else — a layer-2 grant whose condition a layer-3
+    # effect creates cannot apply in the same sequence the +Might does, so it
+    # lands on the next one (476.2). Running the layers in any other order
+    # settles a sequence earlier, with the grant already in place.
+    abilities.clear()
+
+    def tank_the_big(g, src):
+        return [{"op": "grant", "kw": "tank", "n": 1, "targets": tuple(
+            u["id"] for u in g.s.units if g.s.might_of(u) >= 4)}]
+
+    abilities.register(SHARP, Ability("passive", text="units with Might 4+ gain Tank",
+                                      modifier=tank_the_big))
+    g, (source, small) = board([(0, SHARP, loc_base(0)), (0, CRAB, loc_base(0))])
+    layers.new_effect(g, "give_might", n=4, targets=(small["id"],), until="permanent")
+    sequences = layers.recompute(g)
+    check("the layers run in the order 477 lists them, so a layer-2 grant whose "
+          "condition a layer-3 effect creates lands one sequence later "
+          "(477, 476.2)",
+          layers.has_keyword(small, "tank") and sequences >= 3,
+          "settled in %d sequence(s), Tank %s"
+          % (sequences, layers.has_keyword(small, "tank")))
 
     # 477.2: a keyword grant is layer 2, and 807.2 sums it onto the printed one.
     abilities.clear()

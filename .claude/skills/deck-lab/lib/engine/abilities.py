@@ -35,7 +35,7 @@ Ability and 477 makes a passive's contribution a thing with a layer — two
 mechanisms that read this module's objects rather than living inside it.
 """
 from .decisions import Option
-from .state import RulesError, loc_bf
+from .state import RulesError
 
 # -- the vocabulary ------------------------------------------------------
 
@@ -52,10 +52,6 @@ KINDS = (
     "cost_replacement", "enters_modified", "instead", "would", "as_enters",
     "ignoring_cost",
 )
-
-#: The kinds `replacements.py` owns (367-375).
-REPLACEMENT_KINDS = ("cost_replacement", "enters_modified", "instead", "would",
-                     "as_enters", "ignoring_cost")
 
 #: The trigger events the census counted in the gauntlet, spelled as the DSL's
 #: `TRIGGERS` atoms. Four carry a `_trigger` suffix because the bare word is
@@ -128,6 +124,14 @@ class Gate(object):
             # 812.1.c: as long as a card DIFFERENT from the one with Legion has
             # been Finalized by you this turn. Two finalizations always satisfy
             # it; one satisfies it only if it was not this card's own.
+            #
+            # Compared by NAME, which is a simplification and the one place this
+            # gate is imprecise: a second copy of the same card is a different
+            # card and does satisfy 812.1.c, and this reading says it does when
+            # there are two finalizations and does not when the one on the board
+            # shares its name with the one just played. Comparing the play that
+            # created the object would need a permanent to remember which Chain
+            # Item put it there, which nothing else in the kernel wants.
             played = s.played[seat]
             return len(played) > 1 or (len(played) == 1 and played[0] != src["name"])
         if self.keyword == "Level":
@@ -259,7 +263,6 @@ class Cost(object):
 
     def pay(self, g, seat, src):
         from . import actions
-        s = g.s
         if self.exhaust_self:
             actions.exhaust(g, src["oid"])
         if self.xp:
@@ -271,7 +274,6 @@ class Cost(object):
                 "an activated ability")
         if self.extra is not None:
             self.extra(g, seat, src)
-        del s
 
 
 class Ability(object):
@@ -437,7 +439,12 @@ def sources(g, kinds=None):
     for zone in (HAND, TRASH, CHAMPION, BANISHED, DECK):
         pile = getattr(s, {HAND: "hand", TRASH: "trash", CHAMPION: "champion",
                            BANISHED: "banished", DECK: "main_deck"}[zone])
-        for seat in (0, 1):
+        # 303.2.a, like every other loop over both players in this kernel. The
+        # order of this list decides which of two equal replacements is offered
+        # first and which seat's triggers are queued first, so a loop over seat
+        # NUMBERS bakes the labels into the order of events and the mirror test
+        # fails for a reason that has nothing to do with the rule being tested.
+        for seat in s.turn_order():
             for name in pile[seat]:
                 for ability in of(name):
                     add(ability, "", seat, zone, name)
@@ -458,10 +465,6 @@ def active(g, src):
     """
     gate = src["ab"].gate
     return gate is None or gate.met(g, src)
-
-
-def active_sources(g, kinds=None):
-    return [src for src in sources(g, kinds) if active(g, src)]
 
 
 def passive_effects(g):
@@ -581,7 +584,6 @@ def entering_sources(g, event):
 
 
 def _fire_triggers(g, event, leaving=None):
-    s = g.s
     found = 0
     pool = list(sources(g, kinds=("triggered",)))
     if leaving is not None:
@@ -603,7 +605,6 @@ def _fire_triggers(g, event, leaving=None):
         _queue(g, src, event, "triggered")
     if found:
         g.need_triggers()
-    del s
 
 
 def frequency_key(src):
@@ -889,7 +890,7 @@ def resolve(g, item):
 def finish_unless(g, choice, key):
     """The other half of an "unless ... pays": run the effect either way."""
     ability = by_key(tuple(choice["abil"]))
-    seat, cost, _why = ability.unless
+    _seat, cost, _why = ability.unless
     target = choice["seat"]
     src = _src_by_id(g, choice["src_id"], choice["ctrl"])
     paid = key[0] == "pay"
@@ -901,7 +902,6 @@ def finish_unless(g, choice, key):
                seat=target)
     ability.effect(g, {"seat": choice["ctrl"], "src": src, "item": None,
                        "ev": dict(choice["ev"] or ()), "paid": paid})
-    del seat
 
 
 def _count_performed(g, src, ability):
@@ -1092,7 +1092,3 @@ def describe(g, unit):
         out.append("%s — %s" % (src["ab"].label(), state))
     return out
 
-
-def units_at(s, index, seat=None):
-    """A selector the hand-built tests share: everything at one battlefield."""
-    return s.units_at(loc_bf(index), seat)

@@ -1,10 +1,10 @@
 """Replacement Effects (367-375) — the six shapes the gauntlet actually prints.
 
 The census counted them before any of this was written: 59 of 389 gauntlet cards
-(15%) carry one, over six kinds — `cost_replacement` (19 cards),
-`enters_modified` (17), `instead` (15), `ignoring_cost` (8), `would` (7) and
-`as_enters` (3). So this is not general machinery for a rule nobody uses; it is
-six shapes, and two of them are not interception at all:
+with text (15%) carry one, over six kinds and 69 clauses — `cost_replacement`
+(19 clauses), `enters_modified` (17), `instead` (15), `ignoring_cost` (8),
+`would` (7) and `as_enters` (3). So this is not general machinery for a rule
+nobody uses; it is six shapes, and two of them are not interception at all:
 
 * **`cost_replacement` and `ignoring_cost` are arithmetic**, done inside the cost
   calculation (356.1.b, 356.3, 356.4). They never see an event.
@@ -28,9 +28,12 @@ from . import abilities
 from .state import RulesError
 
 #: The events a Replacement Effect may intercept in this slice. Closed on
-#: purpose: an event named here is one some call site actually raises, and one
-#: that is not is a refusal rather than a replacement that silently never fires.
-EVENTS = ("enter", "die", "damage", "draw", "gain_point")
+#: purpose, and the list is exactly what some call site raises — `engine_
+#: replacements` scans this package and refuses a name with nowhere that builds
+#: it. A vocabulary entry with no call site is a replacement that can be written
+#: and can never fire, which is the silent partial coverage this project exists
+#: to avoid; a name outside the list is refused outright.
+EVENTS = ("enter", "die", "damage")
 
 #: 370.1.b lets a replacement replace an event with further events, which can
 #: themselves be replaced. A bound, because a pair that replaces each other's
@@ -89,6 +92,13 @@ def _qualifying(g, event, applied):
         pool.extend(abilities.entering_sources(g, event))
     for src in pool:
         ability = src["ab"]
+        if (ability.kind in ("enters_modified", "as_enters")
+                and event["ev"] != "enter"):
+            # 369.3 defines both by the entry: one describes HOW a unit enters
+            # and the other a game action that occurs "as" it enters. Offering
+            # either a death or a damage event would have its `applies` read
+            # fields that only an entry has, and the kind is what says so.
+            continue
         if src["key"] in applied:
             continue                                       # 370.2
         if not abilities.active(g, src):
@@ -122,7 +132,14 @@ def _freq_key(src):
 
 
 def _frequency_ok(g, src):
-    """371.1: "once each turn" caps how many EVENTS it may be applied to."""
+    """371.1: "once each turn" caps how many EVENTS it may be applied to.
+
+    Read as a limit whatever the frequency's kind says, because 371 defines only
+    that form for a Replacement Effect: "once each turn, or N times each turn ...
+    may only be applied to the specified number of events each turn". 383.1.b's
+    "the Nth time" is a TRIGGER condition and has no meaning here, and the census
+    counts none.
+    """
     if src["ab"].frequency is None:
         return True
     _kind, n, _per = src["ab"].frequency

@@ -10,11 +10,12 @@ discipline, and one — the differential harness against `table.py` — from hav
 second implementation of the same rules lying around. All seven run on every
 commit.
 
-    python3 deck_cli.py selftest        # the suite: table + engine, ~2s
-    python3 deck_cli.py mutants         # proves the suite can fail, ~25 min
+    python3 deck_cli.py selftest        # the suite: table + engine, ~4s
+    python3 deck_cli.py mutants         # proves the suite can fail, ~30 min
     python3 deck_cli.py engine perft    # the deeper perft depths
     python3 deck_cli.py engine golden   # replay the recorded playthroughs
     python3 deck_cli.py engine soak --games 1000
+    python3 deck_cli.py engine soak --games 1000 --abilities
     python3 deck_cli.py engine bench    # clones, decisions and games per second
 
 ## 1. Legal-action perft
@@ -79,6 +80,26 @@ Three goldens (`engine/goldens/playthroughs.json`, ~90KB): one ordinary game,
 the same pair seated the other way round, and a different archetype pair. Their
 decks come from `engine/fixtures.py` too.
 
+## 2b. The ability soak
+
+`engine soak --abilities` is the only instrument that plays **whole games with
+card text in them**. It attaches `engine/demo.py`'s eight hand-built abilities to
+real fixture cards — a Play Effect with a "you may", a `[Legion]`-gated passive,
+an activated ability with an exhaust cost, a Deathknell-shaped `die` trigger, an
+`enters_modified`, a Conquer Effect that creates a Delayed Ability, a
+`cost_replacement` and a once-each-turn `would` — and plays a thousand random
+games with them. Every one must still end by a named rule.
+
+Why it earns a place beside the plain soak: a framework that deadlocks, loops, or
+leaves a Pending Item on the Chain produces no wrong *answer* for a golden or a
+perft to catch. It produces a game that does not finish, and only a run of whole
+games finds that.
+
+Abilities live in a module-global registry, which is card data shared by every
+clone. The soak, and every check that attaches one, therefore detaches in a
+`finally` — a fixture left behind moves every perft and golden run after it, and
+a check asserts the detach actually happened.
+
 ## 3. Conservation invariants
 
 Cheap properties no legal sequence of decisions can break, checked after every
@@ -86,7 +107,16 @@ mandatory operation when a game is created with `invariants=True`:
 
 - every card a seat brought is in exactly one of that seat's zones — Main Deck
   cards and Rune Deck cards counted separately, because 416 sends a recycled
-  rune to a different deck from a recycled card;
+  rune to a different deck from a recycled card, and an Ability on the Chain is
+  not counted at all because 401.1 gives it no card to represent it;
+- **the layered traits are exactly what a fresh recomputation produces** (476).
+  `setm`, `mod` and `kw` are caches, and a cache nobody checks is a second source
+  of truth. This one earned its keep on the day it was written: run across 120
+  ability-soak games it reported 78 stale positions, all the same defect — a
+  keyword gate that opened when a card was finalized stayed shut until the next
+  Cleanup, so a `[Legion]` passive was off for one FEPR step. 476 now runs at
+  every 319 board change. The check runs on a COPY, so an invariant cannot
+  repair what it is checking;
 - points are monotone and never past the Victory Score (303.2 forbids
   simultaneous actions, so the first seat to reach it wins there);
 - no id answers for two objects;
@@ -230,6 +260,40 @@ where, assigning the whole pool to one unit, ignoring Tank or Backline, applying
 Assault to a defender, keeping the Tasks 465.3 cancels, and ending combat without
 removing the designations.
 
+The ability block adds the defects a framework hides best, because each produces
+a game that finishes: a keyword gate that never closes, `[Legion]` satisfied by
+the card's own play, a `me` listener that hears every object's event, a "you may"
+performed without asking, a declined trigger performed anyway, simultaneous
+triggers ordered by seat number, a delayed ability that dies with its source, a
+linked component that can touch the whole board, a replacement applied twice to
+one event, "can't" losing to "can", a Might assignment that wins over the
+arithmetic layer, the layers run backwards, decreases applied before increases,
+and a Timestamp kept while its text is Inactive.
+
+**What it found on this branch is the argument for it.** Of the 43 ability
+mutants, six were not caught on the first full run, and every one was a check
+that was not checking what its name said:
+
+| the mutant | what the check was really doing |
+|---|---|
+| ignore a triggered ability's once-each-turn limit | the second trigger never ran: `step()` returns the PENDING decision before it runs anything, so a second `drive()` handed back the same Main Phase decision instantly. The check triggered once and called that "not twice" |
+| offer an activated ability on the opponent's turn | the board had no unit of the opponent's carrying the ability, so "not offered to them" was true whatever 381 said |
+| a Might assignment wipes the arithmetic layer | the mutant wrote a field the reading order made irrelevant. The defect a reader would actually write is "the assignment wins", and the mutant now writes that, in `state.might_of` |
+| apply Might decreases before increases | the check re-implemented the engine's sort and compared the engine against itself. It now calls `layers.ordered` |
+| finalize a triggered ability whose cost cannot be paid | paying an impossible cost raises, and the raise took the suite down instead of failing the check. The check now runs through `survives()` |
+| apply a replacement effect to an event more than once | three test fixtures and one demo ability relied on 370.2 to stop applying. Removing 370.2 span them against the 32-application bound and killed the suite. Each fixture's `applies` now describes a condition the replacement actually changes — "I enter ready" says nothing about an entry that is already ready |
+
+All six PASSED on the correct engine, and all six passed for reasons that had
+nothing to do with the rule they name. That is exactly the failure the battery
+exists to find, and not one of them is visible by reading the check.
+
+Three anchors in the existing battery had to be re-pointed because this branch
+moved the lines they name (`_copy_choice`'s loop, which is now shared word for
+word with `_copy_effect`; `resolve_newest`'s `put_into_play`, which now keeps the
+unit so a Play Effect can name it; and `damage_pool`, which now skips Stunned
+units). A stale anchor is reported as STALE and tests nothing, which is why the
+battery refuses to pass with one.
+
 A mutant that is caught **by a different check from the one it names** is not
 caught. Something went red, but the check whose coverage the mutant claims to
 prove is still one nobody has watched fail, and recording it as proven is the
@@ -268,6 +332,13 @@ python3 deck_cli.py engine perft --write      # perft.json
 python3 engine/vendor_primers.py              # chain-transitions.json (maintainer-only)
 ```
 
+Issue #24 moved the playthroughs and left perft and the vendored transitions
+alone. The reason: the state now carries the ability framework's records (XP,
+what each seat has played this turn, continuous effects, delayed abilities,
+queued triggers, the Timestamp counter) and five new per-unit fields, so every
+state hash moved — while no vanilla decision tree changed, which is exactly what
+perft holding still says.
+
 Issue #23 moved all three, and the reason is in that commit: a combat now asks
 between one and several `assign_damage` questions, sums Might over the units that
 hold the designation rather than over the units standing there, and resolves over
@@ -291,11 +362,12 @@ laptop, at the kernel's first slice:
 
 | | |
 |---|---|
-| clones/second | ~200,000 (noisy: 185k-290k across runs) |
-| decisions/second | ~12,000 |
-| games/second (random self-play) | ~186 |
-| games/second (with a state hash per log entry) | ~48 |
+| clones/second | ~175,000-240,000 (noisy across runs) |
+| decisions/second | ~10,300 |
+| games/second (random self-play) | ~150 |
+| games/second (with a state hash per log entry) | ~42 |
 | decisions per game | ~67 |
+| games/second (random self-play, abilities attached) | ~36 |
 
 Measured on the fixture pair, not on whatever sorts first in the gauntlet, so
 the number does not move when someone adds a decklist. Rigorous combat (issue
@@ -303,6 +375,25 @@ the number does not move when someone adds a decklist. Rigorous combat (issue
 (the `assign_damage` decisions, most of which have a single legal target), and
 the state hash grew by the designation and the six keyword fields per unit,
 which is where the auditable rate moved.
+
+The ability framework cost about 19% of the vanilla throughput (186 -> 150
+games/s, 12k -> 10.1k decisions/s) and it is all in one place: 476's
+recomputation now runs at every 319 board change, because a keyword gate has to
+close in the step it stops holding rather than at the next Cleanup. A vanilla
+game takes the fast path — no stored effects and no registered abilities means
+the printed traits are the answer and one sequence reaches it — which is why the
+number moved by a fifth and not by a half.
+
+**A game WITH abilities attached runs at ~36 games/s**, four times slower, and
+that is the honest cost of asking the layers a real question: every board change
+walks every registered passive, re-derives what it contributes, and recurs the
+sequence until nothing more applies. It is the number to watch when the
+interpreter lands, because a real deck will have abilities on most of its cards
+rather than on eight of them, and a search that needs thousands of positions per
+decision cannot pay it. Two obvious levers are untouched on purpose: the
+recomputation is not incremental (476 is written as a full re-derivation and
+making it incremental before anything measures it is optimising a guess), and
+`passive_effects` re-walks every zone rather than keeping an index.
 
 For comparison, the table measures ~9,000 snapshot+restore/s, ~890 deepcopies/s
 and ~70 turn cycles/s. The clone rate is the one that matters for search, and it

@@ -118,12 +118,14 @@ def _ask_execute(g, seat):
 def chain_plays(g, seat):
     """What `seat` may legally play into a Closed State (338.1.a).
 
-    Empty, always, in the vanilla slice: 338.1.a.1 says cards and activated
-    abilities cannot by default be played during a Closed State, and 338.1.a.2
-    says what qualifies is something with Reaction — which is card text, and
-    this slice executes none. The generator exists so that the window is a real
-    window with a real (currently empty) option set, rather than a hole where
-    one will have to be cut later.
+    Empty, always: 338.1.a.1 says cards and activated abilities cannot by default
+    be played during a Closed State, and 338.1.a.2 says what qualifies is
+    something with Reaction. [Reaction] is a permissive keyword (813) and nothing
+    reads a card's keywords yet (issue #27), so an ability that could be played
+    here cannot yet exist — `abilities.activatable` refuses a Closed State for
+    the same rule. The generator exists so that the window is a real window with
+    a real (currently empty) option set, rather than a hole where one will have
+    to be cut later.
     """
     return []
 
@@ -221,9 +223,10 @@ def resolve_newest(g):
         _played(g, seat, item, unit)
     else:
         # 351.2: a Spell's game effects are executed and the card is then placed
-        # in the trash. This slice executes no card text, so the effect is
-        # nothing and the log says as much — an unexecuted spell that looked
-        # executed would be the worst possible silent failure.
+        # in the trash. A Spell with no ability attached has no game effects, and
+        # the log says exactly that rather than nothing — an unexecuted spell
+        # that looked executed would be the worst possible silent failure. A
+        # Spell that HAS one reaches its text through 383/406, not through here.
         s.trash[seat].append(item["name"])
         g.note("  %s [%s] resolves — no script is attached to it (340.1)"
                % (item["name"], item["id"]), seat=seat)
