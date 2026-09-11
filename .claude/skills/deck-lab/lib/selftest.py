@@ -1640,6 +1640,20 @@ def gauntlet_identity():
           version)
     check("`gauntlet` prints the version it is measuring against",
           version in out, out.splitlines()[0] if out else "(no output)")
+
+    # The NAME is a promise someone remembered to keep. The digest is the same
+    # claim made by the folder, so a re-pull under an unchanged name is
+    # detectable instead of merely regrettable.
+    digest = deckfile.gauntlet_digest()
+    check("`gauntlet` prints a fingerprint of the field, not just its name",
+          f"({digest})" in out and len(digest) == 12,
+          out.splitlines()[0] if out else "(no output)")
+    check("the fingerprint follows the contents, not the file names alone",
+          _digest_moves_when_a_card_changes(),
+          "a list whose cards changed under an unchanged name is the drift this catches")
+    check("the fingerprint is stable when nothing has changed",
+          deckfile.gauntlet_digest() == digest,
+          "two reads of an unchanged folder must agree, or it measures nothing")
     # The two numbers are checked against a recomputation rather than against
     # constants: pinning "96" would go stale the next time the gauntlet grows,
     # and pinning nothing would let the line print a number it did not compute.
@@ -1692,20 +1706,60 @@ def gauntlet_identity():
 
     # `decks/` holds whatever you are building right now. Counting it would make
     # the named field change shape depending on who was mid-analysis.
+    #
+    # The second clause used to be `len(gauntlet_paths()) < len(available()) + 1`,
+    # which is true of any subset and of any superset and therefore of anything
+    # at all: the check read as two conditions and was one. It is now the
+    # partition identity, which a `gauntlet` reading the wrong folder breaks.
+    building = [p for p in deckfile.available() if os.sep + "decks" + os.sep in p]
     check("the gauntlet is only gauntlet/, never the decks you are building",
-          all(os.sep + "gauntlet" + os.sep in p for p in deckfile.gauntlet_paths())
-          and len(deckfile.gauntlet_paths()) < len(deckfile.available()) + 1,
-          f"{len(deckfile.gauntlet_paths())} of {len(deckfile.available())} decks")
+          bool(building)
+          and all(os.sep + "gauntlet" + os.sep in p for p in deckfile.gauntlet_paths())
+          and len(deckfile.gauntlet_paths()) + len(building) == len(deckfile.available()),
+          f"{len(deckfile.gauntlet_paths())} in the field, {len(building)} under construction"
+          if building else "no deck under construction — this check cannot discriminate")
 
     check("a copy with no version file reports one rather than crashing",
           _gauntlet_version_without_file() == "unversioned")
 
-    # Provenance is what makes a list auditable a year from now. A deck with no
-    # URL and no date cannot be re-checked against its source at all.
-    undated = [d.name for d in gauntlet if not d.source.get("fetched")]
+    # Provenance is what makes a list auditable a year from now, and "when"
+    # without "where" is not provenance — a date alone cannot be re-checked
+    # against anything. The URL is also the identity a re-pull matches on when a
+    # page has been renamed, so a list without one accumulates twins silently.
+    missing = [d.name for d in gauntlet
+               if not d.source.get("fetched") or not d.source.get("url")]
     check("every list in the field records where and when it came from",
-          not undated,
-          f"{len(gauntlet)} lists" if not undated else f"{len(undated)} without a date")
+          not missing,
+          f"{len(gauntlet)} lists" if not missing
+          else f"{len(missing)} without a URL or a date: {missing[0]}")
+
+
+def _digest_moves_when_a_card_changes():
+    """Rewrite one gauntlet list in a scratch copy and read the digest again.
+
+    A copy rather than the real folder: a selftest that edits the committed
+    gauntlet to prove a point is a selftest that can leave the gauntlet edited.
+    """
+    import json
+    import shutil
+    import tempfile
+
+    paths = deckfile.gauntlet_paths()
+    if not paths:
+        return False
+    with tempfile.TemporaryDirectory() as tmp:
+        for p in paths:
+            shutil.copy(p, os.path.join(tmp, os.path.basename(p)))
+        copies = sorted(os.path.join(tmp, os.path.basename(p)) for p in paths)
+        before = deckfile.gauntlet_digest(copies)
+        with open(copies[0], encoding="utf-8") as fh:
+            deck = json.load(fh)
+        # One copy of one card, under the same filename: the smallest change
+        # that makes the field a different field.
+        deck["main"][0]["qty"] = int(deck["main"][0]["qty"]) + 1
+        with open(copies[0], "w", encoding="utf-8") as fh:
+            json.dump(deck, fh)
+        return deckfile.gauntlet_digest(copies) != before
 
 
 def _gauntlet_version_without_file():

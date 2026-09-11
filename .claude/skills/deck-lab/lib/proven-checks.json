@@ -1,10 +1,11 @@
 {
- "mutants": 115,
+ "mutants": 118,
  "observed_to_fail": [
   "--verbose brings the text back",
   "Awaken readies everything the turn player controls (315.1.b)",
   "Gear attached to a unit is NOT recalled off the battlefield (323.7)",
   "Power can be recycled from an EXHAUSTED rune (164.2.b)",
+  "`gauntlet` prints a fingerprint of the field, not just its name",
   "`gauntlet` prints how many lists the field holds",
   "`gauntlet` prints the distinct-card count, the scripting frontier",
   "`gauntlet` prints the version it is measuring against",
@@ -111,6 +112,8 @@
   "the excess is not dumped while a unit is still owed lethal (465.2.c.4)",
   "the extra rune is granted once, not every turn",
   "the final point lands once every battlefield has been scored that turn",
+  "the fingerprint follows the contents, not the file names alone",
+  "the fingerprint is stable when nothing has changed",
   "the gauntlet is only gauntlet/, never the decks you are building",
   "the gauntlet is versioned, not merely dated",
   "the legend and the Chosen Champion are inside the frontier",

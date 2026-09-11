@@ -351,6 +351,50 @@ def gauntlet_version():
         return "unversioned"
 
 
+def composition_key(deck):
+    """What a deck IS, as a string: its legend, champion and every card in it.
+
+    Canonical names and sorted sections, so the key describes the deck rather
+    than the order a site happened to render it in or the spelling it happened
+    to use.
+    """
+    def section(entries):
+        return "|".join(sorted(f"{q}x{canonical(n)}" for n, q in entries))
+
+    return "::".join([
+        canonical(deck.legend),
+        canonical(deck.chosen_champion) if deck.chosen_champion else "",
+        section(deck.main),
+        section(deck.runes),
+        section(deck.battlefields),
+    ])
+
+
+def gauntlet_digest(paths=None):
+    """A fingerprint of the field: which lists are in it and what they hold.
+
+    The version NAME is a promise a human makes, and a promise is exactly the
+    thing that goes quietly wrong — someone re-pulls, the folder changes, the
+    name does not, and two results carrying `gauntlet-2026-09` now describe
+    different fields with nothing able to say so. The digest is the same claim
+    made by the contents instead, so a stale name is detectable rather than
+    merely regrettable.
+
+    Over slug AND composition: a renamed file with identical cards is still a
+    different field to anyone matching results by filename, and a file whose
+    cards changed under the same name is the drift this exists to catch.
+    """
+    import hashlib
+
+    entries = []
+    for path in (paths if paths is not None else gauntlet_paths()):
+        deck = load(path)
+        slug = os.path.splitext(os.path.basename(path))[0]
+        entries.append(f"{slug}::{composition_key(deck)}")
+    payload = "\n".join(sorted(entries))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:12]
+
+
 def distinct_cards(decks):
     """Every distinct card the given decks name — the scripting frontier.
 

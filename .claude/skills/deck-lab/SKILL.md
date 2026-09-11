@@ -186,17 +186,19 @@ Played games are expensive, so samples are small, and small samples lie confiden
 
     gauntlet --against <your deck>
 
-Its first line is the gauntlet's identity: `gauntlet-2026-09 — 96 list(s), 398
-distinct cards`. Then it reports the gauntlet by source and by domain identity,
-and names the pairings missing. A gauntlet with no deck in your own pairing
-cannot tell you anything about your mirror, and that gap is otherwise invisible
-until an analysis is already running.
+Its first line is the gauntlet's identity: `gauntlet-2026-09 (591cd98a6510) —
+95 list(s), 396 distinct cards`. Then it reports the gauntlet by source and by
+domain identity, and names the pairings missing. A gauntlet with no deck in your
+own pairing cannot tell you anything about your mirror, and that gap is otherwise
+invisible until an analysis is already running.
 
-**Quote the version with every result.** "56% against the meta" is not a fact
-about a deck, it is a fact about a deck *and a field*. Re-pull the gauntlet and
-the same sentence silently starts meaning something else, with nothing to tell
-two such numbers apart afterwards. Two rates carrying different gauntlet
-versions are known not to be comparable, which is the whole point of naming it.
+**Quote the version AND the digest with every result.** "56% against the meta" is
+not a fact about a deck, it is a fact about a deck *and a field*. Re-pull the
+gauntlet and the same sentence silently starts meaning something else, with
+nothing to tell two such numbers apart afterwards. The name is what someone
+called the field; the digest in brackets is what the field actually contains, so
+two results quoting the same name and different digests were not measured against
+the same thing.
 
 The distinct-card count is the **scripting frontier**: how many different cards
 anything that wants to play these games has to know. It comes from the meta

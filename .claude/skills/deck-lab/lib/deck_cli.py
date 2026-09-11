@@ -472,7 +472,11 @@ def cmd_gauntlet(args):
         if not deckfile.check(d).legal:
             illegal.append(d.name)
 
-    print(f"{deckfile.gauntlet_version()} — {len(gauntlet)} list(s), "
+    # The digest is beside the name because the name alone is a promise someone
+    # remembered to keep. Two results quoting the same version and different
+    # digests were not measured against the same field.
+    print(f"{deckfile.gauntlet_version()} ({deckfile.gauntlet_digest()}) — "
+          f"{len(gauntlet)} list(s), "
           f"{len(deckfile.distinct_cards(gauntlet))} distinct cards\n")
     print("  by source:")
     for site, n in sorted(by_site.items(), key=lambda x: (-x[1], x[0])):
