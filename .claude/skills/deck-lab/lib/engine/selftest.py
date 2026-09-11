@@ -22,6 +22,8 @@ from . import (actions, chain, combat, fixtures, goldens, invariants, parity,
                perft, policies, ported, rng, scoring, turn)
 from .decisions import EMITTED
 from .game import Game
+from .selftest_abilities import (engine_abilities, engine_layers,
+                                 engine_replacements)
 from .state import RulesError, loc_base, loc_bf, new_rune, new_unit
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -2592,7 +2594,8 @@ def engine_ported(check):
 SECTIONS = (
     engine_setup, engine_cloning, engine_instruments_bite,
     engine_designations, engine_keywords, engine_assignment, engine_combat,
-    engine_combat_steps, engine_decision_api,
+    engine_combat_steps, engine_layers, engine_replacements, engine_abilities,
+    engine_decision_api,
     engine_turn, engine_turn_steps, engine_resources, engine_chain,
     engine_showdowns, engine_scoring, engine_victory, engine_movement,
     engine_control, engine_guards, engine_privacy, engine_determinization,

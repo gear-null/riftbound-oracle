@@ -43,16 +43,28 @@ against this shape:
 #:                     (355.2), where a Unit Moves (144.4), which staged
 #:                     Showdown or Combat the Turn Player opens (323.12, 323.13)
 #:
-#: Declared, NOT YET EMITTED — no vanilla card produces one. Each is wired to a
-#: named gap in docs/engine/spec.md:
-#:   modal             "choose one -" on a card (355.3)
-#:   optional          a "you may" (355.13)
-#:   order             ordering simultaneous triggers (303.2.a, 382)
+#: Emitted once an ability is attached (issue #24). A vanilla game still never
+#: produces one, because a vanilla card has no abilities — which is why the
+#: check on `EMITTED` plays a vanilla game and a second check plays one with
+#: `engine/demo.py`'s abilities attached:
+#:   optional          a "you may" as the first part of a Triggered Ability's
+#:                     effect, decided during finalization (383.3.a, 402.1), and
+#:                     a "may apply" on a Replacement Effect (371.2)
+#:   order             which of several simultaneously triggered abilities goes
+#:                     on the Chain next (383.3.d), asked one at a time; across
+#:                     seats the order is Turn Order and not a choice (383.3.d.1,
+#:                     303.2.a)
+#:   cost              declining to pay for a Triggered Ability that incurred one
+#:                     (404.2), and "unless [a player] pays" asked of that seat
+#:                     on resolution (355.10.c.1)
 #:   assign_damage     which unit takes the next combat damage assignment
 #:                     (465.2.c) — asked one target at a time, because lethal
 #:                     goes on in full before the next unit (465.2.c.3) and the
 #:                     product of whole assignments is what explodes
-#:   cost              which rune pays which Power symbol (164.2.b, 357)
+#:
+#: Declared, NOT YET EMITTED. Each is wired to a named gap in
+#: docs/engine/spec.md:
+#:   modal             "choose one -" on a card (355.3)
 #:   resolve_manually  the bridge to the table: a card with no accepted script
 #:                     is applied by hand and the log says so (ADR 0009)
 KINDS = (
@@ -61,11 +73,15 @@ KINDS = (
 )
 
 #: The kinds this slice can actually produce. `selftest` asserts that nothing
-#: outside this set is ever emitted by a vanilla game, so the day a later slice
-#: starts emitting `modal` it has to move the name and say so. `assign_damage`
-#: joined it with issue #23: a combat with two units on a side has more than one
-#: legal assignment, and which one is chosen decides who lives.
-EMITTED = ("mulligan", "main", "chain", "target", "assign_damage")
+#: outside this set is ever emitted, so the day a later slice starts emitting
+#: `modal` it has to move the name and say so. `assign_damage` joined it with
+#: issue #23: a combat with two units on a side has more than one legal
+#: assignment, and which one is chosen decides who lives. `optional`, `order`
+#: and `cost` joined it with issue #24, which is the slice that made abilities
+#: real — and a name in this tuple is a claim, so `engine_abilities` asserts
+#: each of the three is actually produced rather than merely permitted.
+EMITTED = ("mulligan", "main", "chain", "target", "assign_damage",
+           "optional", "order", "cost")
 
 
 class Option:

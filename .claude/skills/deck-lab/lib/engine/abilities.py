@@ -555,6 +555,31 @@ def leaving_sources(g, gone):
     return out
 
 
+def entering_sources(g, event):
+    """The Replacement Effects of the object that is ENTERING (370.3, 369.3).
+
+    370.3: "if a Game Object has a Replacement Effect that is active in a
+    specific zone, it is evaluated and subsequently applied if it enters that
+    zone before an event occurs that it could replace." The two commonest
+    replacement shapes in the gauntlet are exactly this — `enters_modified`
+    (17 cards) and `as_enters` (3) — and both are printed on the card that is
+    arriving, which is in no zone any `sources()` walk can see: 340.1 has taken
+    it off the Chain and it is not on the Board yet.
+
+    The mirror image of `leaving_sources`, and for the same reason: the moment
+    an object changes zone is the one moment its own text has to be read from
+    somewhere other than a zone.
+    """
+    out = []
+    for ability in of(event.get("name", "")):
+        if ability.kind not in ("enters_modified", "as_enters", "instead", "would"):
+            continue
+        out.append({"key": ability.key(), "ab": ability, "oid": "",
+                    "seat": event.get("seat"), "zone": BOARD,
+                    "name": event.get("name", ""), "unit": None})
+    return out
+
+
 def _fire_triggers(g, event, leaving=None):
     s = g.s
     found = 0

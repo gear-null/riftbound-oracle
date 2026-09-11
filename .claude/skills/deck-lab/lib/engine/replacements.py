@@ -80,8 +80,14 @@ def _qualifying(g, event, applied):
     s = g.s
     order = list(s.turn_order())
     out = []
-    for src in abilities.sources(g, kinds=("instead", "would", "enters_modified",
-                                           "as_enters")):
+    pool = list(abilities.sources(g, kinds=("instead", "would", "enters_modified",
+                                            "as_enters")))
+    if event["ev"] == "enter":
+        # 370.3: the arriving object's own replacements are evaluated as it
+        # enters. It is in no zone at this instant, so they come from the card
+        # rather than from a zone walk.
+        pool.extend(abilities.entering_sources(g, event))
+    for src in pool:
         ability = src["ab"]
         if src["key"] in applied:
             continue                                       # 370.2

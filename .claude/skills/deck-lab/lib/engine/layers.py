@@ -133,30 +133,57 @@ def effects_on(s, oid):
 # -- the recomputation ---------------------------------------------------
 
 def recompute(g):
-    """476: apply the layers repeatedly until nothing changes.
+    """476: apply each effect once, and recur until nothing more can apply.
 
-    Returns the number of passes it took, which the selftest reads: a rule that
-    settles in one pass and a rule that settles in four are different rules, and
-    the count is the only way to watch the fixpoint actually iterate.
+    The three sentences of 476 are each load-bearing and each easy to get wrong:
+
+    * 476: "applied repeatedly until all effects operating on objects have been
+      applied once and no changes have been processed" — so the traits are reset
+      ONCE, at the start, and the sequence then accumulates.
+    * 476.1: "each effect ... applied as soon as able, and only a single time
+      across all sequences". An effect whose scope is empty is not yet able, and
+      one that has applied never applies again — which is also 477.3.b's
+      snapshotting: what it selected when it applied is what it keeps.
+    * 476.2: "when a sequence of applications completes, recur the process, and
+      evaluate each layer again applying any effects that may now be
+      applicable". That recursion is the whole point: a layer-2 grant whose
+      condition a layer-3 effect makes true applies on the SECOND sequence.
+
+    Returns the number of sequences it took. The selftest reads it, because a
+    rule that settles in one sequence and one that settles in three are
+    different rules and the count is the only way to watch the recursion happen.
     """
     from . import abilities
     s = g.s
+    _reset(s)
     if not s.effects and not abilities.REGISTRY:
-        # Nothing can contribute, so the fixpoint is the printed traits and one
-        # pass reaches it. The fast path exists because this runs at every 319
-        # board change, and a vanilla game has thousands of those.
-        _reset(s)
+        # Nothing can contribute, so the printed traits are the answer and one
+        # sequence reaches it. The fast path exists because this runs at every
+        # 319 board change, and a vanilla game has thousands of those.
         return 1
-    for n in range(MAX_PASSES):
-        before = _derived(s)
-        _reset(s)
-        active = _all_effects(g)
+    applied = set()
+    # Each sequence applies at least one effect or stops, so the number of
+    # sequences cannot exceed the number of effects plus one. The bound is
+    # therefore a guard on 476.1's apply-once rather than on the rules: if it
+    # ever fires, something is applying an effect twice.
+    bound = max(MAX_PASSES, len(s.effects) + 2)
+    for n in range(bound):
+        progress = False
         for layer in LAYERS:
-            _apply_layer(s, [e for e in active if e["layer"] == layer], layer)
-        if _derived(s) == before:
+            pool = [e for e in _all_effects(g)
+                    if e["layer"] == layer and e["id"] not in applied]
+            for effect in _ordered(pool, layer):
+                targets = [u for u in s.units if u["id"] in effect["targets"]]
+                if not targets:
+                    continue                       # 476.1: not yet able
+                for unit in targets:
+                    _apply(unit, effect)
+                applied.add(effect["id"])
+                progress = True
+        if not progress:
             return n + 1
-    raise RulesError("the layers did not settle in %d passes — two effects are "
-                     "disqualifying each other (476.2)" % MAX_PASSES)
+    raise RulesError("the layers ran %d sequences and never ran out of effects "
+                     "to apply — something is applying twice (476.1)" % bound)
 
 
 def _derived(s):
@@ -190,25 +217,22 @@ def _all_effects(g):
     return list(g.s.effects) + abilities.passive_effects(g)
 
 
-def _apply_layer(s, effects, layer):
-    """One layer, in Timestamp order (480.3), increases before decreases.
+def _ordered(effects, layer):
+    """One layer's effects, in Timestamp order (480.3), increases before decreases.
 
-    478/479's Dependency is a declared gap and the reason is 476.2: the scope of
-    every effect here is recomputed from scratch on each pass, so an effect
-    whose set of objects another effect widens picks the wider set up on the
-    next pass. Where 479.2's explicit ordering differs is an effect that would
-    be DISQUALIFIED by the other — `docs/engine/spec.md` names that.
+    478/479's Dependency is a declared gap and 476.2 is why it is a small one:
+    the scope of an effect that has not applied yet is recomputed on every
+    sequence, so an effect whose set of objects another effect widens picks the
+    wider set up on the next sequence — which is the outcome 479.2 prescribes
+    for the reachable cases. Where the two genuinely differ is an effect that
+    the other DISQUALIFIES; `docs/engine/spec.md` names that as the gap.
     """
-    ordered = sorted(effects, key=lambda e: e["ts"])
     if layer == ARITHMETIC:
         # 477.3.e: increases first (477.3.e.1), decreases last (477.3.e.2).
         # Within each half, Timestamp order (480.3). Sorting by (sign, ts) in
         # one pass is the same walk and keeps the two rules in one place.
-        ordered = sorted(ordered, key=lambda e: (0 if e["n"] >= 0 else 1, e["ts"]))
-    for effect in ordered:
-        for unit in s.units:
-            if unit["id"] in effect["targets"]:
-                _apply(unit, effect)
+        return sorted(effects, key=lambda e: (0 if e["n"] >= 0 else 1, e["ts"]))
+    return sorted(effects, key=lambda e: e["ts"])
 
 
 def _apply(unit, effect):
