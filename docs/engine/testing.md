@@ -154,13 +154,24 @@ Two things make it a real comparison rather than a copy:
   itself is checked by asking each tool for its own lethal-first assignment on
   the same board and requiring the same dict — without that, a wrong assignment
   would be copied over and agree with itself. A mutant that inflates the damage
-  pool by one is caught by exactly this and by nothing else in the harness.
+  pool by one is caught by exactly this and by nothing else in the harness. Once
+  per SIDE of each combat, not once per combat: keyed on "is this the first
+  assignment decision here" it compared the Attacker's and never the Defender's,
+  and the swap branch that exists for the Defender was dead code.
 
-**Where they are compared: at every Main Phase decision, and at the end.** Those
-are the states the table can be in. It has no Chain, no Focus and no Steps of
-Combat, so between "play this card" and "it is on the board" the engine passes
-through positions the table has no way to hold, and comparing there would be
-comparing the engine against a tool that does not model the thing compared.
+**Where they are compared: at every Main Phase decision, and at the end**
+(`parity.comparable`). Those are the states the table can be in. It has no
+Chain, no Focus and no Steps of Combat, so between "play this card" and "it is
+on the board" the engine passes through positions the table has no way to hold,
+and comparing there would be comparing the engine against a tool that does not
+model the thing compared.
+
+**Three numbers, because they measure three things.** Across the three scenarios
+the harness feeds the engine **354 scripted answers**, makes **159 state
+comparisons** — the Main Phase decisions and the ends, about 45% of the answers —
+and compares **14 damage assignments**, one for each side of each of the seven
+combats. Reporting the answer count alone, which is what it used to do, claims
+a little over twice the state coverage it has.
 
 **What cannot be mapped** is `parity.UNMAPPED`, and it is two lists. Engine
 decisions with no table verb: the Execute window of 338.1 and the Focus window of

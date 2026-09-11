@@ -175,6 +175,27 @@ def pending_targets(s, targets, assignment):
     return [u for u in targets if minimum_lethal(s, u, assignment.get(u["id"], 0))]
 
 
+def priority(unit):
+    """Which of the assignment-order keywords a unit is bound by (815, 826).
+
+    Lower goes first. 815.1.b puts Tank before every unit of its controller's
+    without it; 826.3 puts Backline after every unit of its controller's without
+    it; a unit with neither sits between them.
+
+    A unit carrying BOTH has two exclusionary requirements, and 465.2.c.8 hands
+    the assigning player the choice of which to apply. That choice is not
+    modelled — Tank wins — and this function is the single place that decides
+    it, so the generator and the validator cannot end up reading it differently.
+    They did: `assign_damage` put such a unit first and `validate_assignment`
+    then refused its own answer under 826.4.b.
+    """
+    if unit["tank"]:
+        return 0
+    if unit["backline"]:
+        return 2
+    return 1
+
+
 def eligible_targets(s, targets, assignment):
     """Which of the pending units this player may assign to NEXT.
 
@@ -183,17 +204,12 @@ def eligible_targets(s, targets, assignment):
     each unit without it has. 465.2.c.7 then says units sharing a priority may
     be taken in any order, which is why this returns a LIST and every member of
     it becomes an option, rather than the code picking one.
-
-    A unit carrying both keywords has two exclusionary requirements and 465.2.c.8
-    hands the assigning player the choice of which to apply. That choice is not
-    modelled: Tank wins, and `docs/engine/spec.md` records the gap.
     """
     pending = pending_targets(s, targets, assignment)
-    tanks = [u for u in pending if u["tank"]]
-    if tanks:
-        return tanks
-    plain = [u for u in pending if not u["backline"]]
-    return plain if plain else pending
+    if not pending:
+        return []
+    first = min(priority(u) for u in pending)
+    return [u for u in pending if priority(u) == first]
 
 
 def next_amount(s, targets, assignment, target, pool):
@@ -234,6 +250,58 @@ def assign_damage(s, attackers, defenders):
     return assignment
 
 
+#: A bound on how many partial assignments `legal_assignments` will walk. Two
+#: to the number of units that can still take damage, which is a handful at a
+#: battlefield; the bound exists so a board nobody anticipated degrades to the
+#: clause checks rather than to a hang.
+ENUMERATION_BOUND = 4096
+
+
+class _TooManyAssignments(Exception):
+    pass
+
+
+def legal_assignments(s, attackers, defenders, bound=ENUMERATION_BOUND):
+    """Every assignment `assign_damage` could have produced (465.2.c.7).
+
+    Derived by walking the generator's own choices rather than by restating its
+    rules, because a validator that restates them is a second implementation
+    that drifts. It did: 7 Might onto a 3-Might and a 2-Might unit has exactly
+    two legal assignments, and the hand-written clause checks accepted six —
+    including one that left 2 of the 7 unassigned and one that put both units
+    past their minimum lethal.
+
+    Returns a set of sorted (id, amount) tuples. Memoised on the partial
+    assignment, so the cost is the number of REACHABLE partials and not the
+    number of orders that reach them.
+    """
+    out = set()
+    seen = set()
+
+    def walk(assignment, left):
+        key = (tuple(sorted(assignment.items())), left)
+        if key in seen:
+            return
+        seen.add(key)
+        if len(seen) > bound:
+            raise _TooManyAssignments()
+        targets = eligible_targets(s, defenders, assignment) if left > 0 else []
+        if not targets:
+            out.add(tuple(sorted(assignment.items())))
+            return
+        for target in targets:
+            give = next_amount(s, defenders, assignment, target, left)
+            if give <= 0:
+                out.add(tuple(sorted(assignment.items())))
+                continue
+            nxt = dict(assignment)
+            nxt[target["id"]] = nxt.get(target["id"], 0) + give
+            walk(nxt, left - give)
+
+    walk({}, damage_pool(s, attackers))
+    return out
+
+
 def validate_assignment(s, attackers, defenders, assignment):
     """Every way `assignment` breaks 465.2.c, named with the rule that says so.
 
@@ -244,11 +312,12 @@ def validate_assignment(s, attackers, defenders, assignment):
     restrictions mandatory, so an assignment that fails here is not a choice.
 
     The assignment arrives as a {id: amount} map, which has lost the ORDER it
-    was made in — so what is checked is whether some legal order produces it.
-    That is exactly four properties: the whole pool is spent while anything can
-    still take damage; at most one unit ends up short of lethal (the one the
-    pool ran out on); more than the minimum lands on a unit only when nothing
-    else is left to take any; and the Tank/Backline priorities were respected.
+    was made in, so what is asked is whether SOME legal order produces it — and
+    that question is answered by `legal_assignments`, which walks the generator.
+    The decision is therefore exactly as strict as the option list by
+    construction; the clause checks below exist only to name the rule a refused
+    assignment broke, because "this is not one of the legal assignments" is true
+    and useless.
     """
     bad = []
     ids = set(u["id"] for u in defenders)
@@ -262,6 +331,27 @@ def validate_assignment(s, attackers, defenders, assignment):
     if bad:
         return bad
 
+    try:
+        legal = legal_assignments(s, attackers, defenders)
+    except _TooManyAssignments:
+        legal = None
+    if legal is not None:
+        if tuple(sorted(assignment.items())) in legal:
+            return []
+        bad = _why_illegal(s, attackers, defenders, assignment)
+        return bad or ["no order of assignment the rules allow produces this "
+                       "(465.2.c, 465.2.c.6)"]
+    return _why_illegal(s, attackers, defenders, assignment)
+
+
+def _why_illegal(s, attackers, defenders, assignment):
+    """The rules an assignment breaks, for the message. Never the decision.
+
+    Kept apart from `validate_assignment` on purpose: whether an assignment is
+    legal is decided in ONE place, by the generator. This says why, and a clause
+    that is too weak here costs a vague sentence rather than an illegal game.
+    """
+    bad = []
     pool = damage_pool(s, attackers)
     total = sum(assignment.values())
     if total > pool:
@@ -276,9 +366,11 @@ def validate_assignment(s, attackers, defenders, assignment):
     over = [u for u in defenders if lethal[u["id"]] and got(u) > lethal[u["id"]]]
 
     # 465.2.c: the whole summed Might is assigned. Stopping early is only legal
-    # once nothing on the other side can be assigned any more damage.
-    if total < pool and pending_targets(s, defenders, assignment):
-        bad.append("%d of %d damage was assigned while a unit could still take some "
+    # when there was nothing on the other side to assign it to in the first
+    # place — NOT when everything happens to be lethal already, because the last
+    # unit assigned takes the excess (465.2.c.4) and so the pool always empties.
+    if total < pool and pending_targets(s, defenders, {}):
+        bad.append("%d of %d damage was assigned, and the rest had somewhere to go "
                    "(465.2.c, 465.2.c.6)" % (total, pool))
     # 465.2.c.3: lethal in full before the next unit. Two units left short means
     # the assignment moved on from one of them before it was finished.
@@ -287,29 +379,33 @@ def validate_assignment(s, attackers, defenders, assignment):
                    "of them before it was assigned in full (465.2.c.3)"
                    % ", ".join(u["id"] for u in short))
     # 465.2.c.4: more than the minimum lethal, while something else could still
-    # have been assigned damage.
+    # have been assigned damage. Only the LAST unit assigned can exceed it, so
+    # two units past their lethal is two last units.
     if over and (short or untouched):
         bad.append("%s has more than the minimum lethal while %d unit(s) remain to "
                    "have damage assigned (465.2.c.4)"
                    % (", ".join(u["id"] for u in over), len(short) + len(untouched)))
+    elif len(over) > 1:
+        bad.append("%s are each past their minimum lethal, and only the unit "
+                   "assigned last may be (465.2.c.4)"
+                   % ", ".join(u["id"] for u in over))
 
-    # 815.1.c.2 / 826.4.b: the ordering keywords are restrictions on assignment,
-    # and 465.2.c.6 makes obeying them mandatory. Both read the same way — until
-    # every unit in the higher priority has its lethal, every unit outside it is
-    # an invalid assignment.
-    def jumped(priority, others, rule):
-        if all(got(u) >= lethal[u["id"]] for u in priority):
-            return
-        taken = sorted(u["id"] for u in others if got(u))
-        if taken:
-            bad.append("%s was assigned damage before every %s"
-                       % (", ".join(taken), rule))
-
+    # 815.1.c.2 / 826.4.b: the ordering keywords are restrictions on assignment
+    # and 465.2.c.6 makes obeying them mandatory. Read through `priority`, the
+    # same function the generator reads, so a unit with both keywords cannot be
+    # a Tank to one and a Backline unit to the other.
     live = [u for u in defenders if lethal[u["id"]]]
-    jumped([u for u in live if u["tank"]], [u for u in live if not u["tank"]],
-           "Tank had its lethal (815.1.c.2)")
-    jumped([u for u in live if not u["backline"]], [u for u in live if u["backline"]],
-           "unit without Backline had its lethal (826.4.b)")
+    for unit in sorted(live, key=lambda u: u["id"]):
+        if not got(unit):
+            continue
+        jumped = sorted(v["id"] for v in live
+                        if priority(v) < priority(unit)
+                        and got(v) < lethal[v["id"]])
+        if jumped:
+            rule = ("815.1.c.2" if any(v["tank"] for v in live
+                                       if v["id"] in jumped) else "826.4.b")
+            bad.append("%s was assigned damage before %s had its lethal (%s)"
+                       % (unit["id"], ", ".join(jumped), rule))
     return bad
 
 
@@ -464,6 +560,18 @@ def fepr_window(g, index):
     chain.fepr_step(g)
 
 
+def restaged(s, index):
+    """466.3.d.1: No Result with both players still present re-stages here.
+
+    The one thing that stages a Showdown or a Combat at this battlefield DURING
+    the Resolution Step, and therefore the one thing 466.5's "if no Showdown or
+    Combat is staged at this location" can be asking about. Read by 466.3 to do
+    the staging and by 466.5 to stand down, from one place, so the two cannot
+    disagree about what was staged.
+    """
+    return len(set(u["ctrl"] for u in s.units_at(loc_bf(index)))) == 2
+
+
 def result_step(g, index):
     """466.3: determine the Combat Result."""
     s = g.s
@@ -489,7 +597,7 @@ def result_step(g, index):
     # Unreachable in the vanilla slice — 3d recalls every attacker when any
     # defender survives — and kept because the day a card prevents the recall it
     # is the difference between a re-staged combat and a silently lost one.
-    if len(seats) == 2:
+    if restaged(s, index):
         bf["sd_staged"] = True
         bf["cb_staged"] = True
 
@@ -503,11 +611,23 @@ def control_step(g, index):
     remaining = s.units_at(location)
     seats = set(u["ctrl"] for u in remaining)
 
-    if bf["sd_staged"] or bf["cb_staged"]:
-        return
+    # 466.5's condition, read as 466.3.d.1 and nothing else.
+    #
+    # It used to read `bf["sd_staged"] or bf["cb_staged"]`, and those flags are
+    # recomputed from the board by 323.8 in every Cleanup — including 466.1's.
+    # So a battlefield the WINNING ATTACKER still occupied was Contested by a
+    # player with units present, 323.8 had marked a Showdown staged there, and
+    # 466.5 stood down. Control was then settled a whole Cleanup later by
+    # 348.2.a, through a second Showdown the rules never open: two more Focus
+    # windows, and a real Combat staged at the other battlefield delayed behind
+    # it. Reading the flags was reading bookkeeping that 466.5.a is about to
+    # invalidate one line below.
+    #
     # This runs whether or not the attackers were repelled: a defender who has
     # just held off an attack, and who may not have controlled the battlefield
     # before it, takes it. 466.5.e says so in as many words.
+    if restaged(s, index):
+        return
     if len(seats) == 1:
         winner = next(iter(seats))
         if bf["ctrl"] != winner:

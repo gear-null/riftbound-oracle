@@ -78,7 +78,7 @@ declared unreachable with a reason.
 | 465 the Damage Step | `combat.damage_step`, `combat.assign_damage` | `engine_assignment`, `engine_combat_steps` | implemented — 465.1's skip when one side is gone, Might summed over the units that HOLD the designation (465.2.a-b), the assignment as an **`assign_damage` decision** asked one target at a time (465.2.c), lethal-first (465.2.c.3) and minimum-lethal (465.2.c.4, 142.4.b), dealt simultaneously (465.2.c.1.a, 465.2.d), and 465.3's cancellation of the Tasks the Showdown left outstanding |
 | 465.2.c.5-c.10 assignment corner cases | `combat.validate_assignment` | `engine_assignment` | simplified — c.5 (replacement applies to the assignment) is where Bonus Damage lands; c.6's "obey every restriction if able" is the validator; c.7's free order within a priority is why every eligible unit is an option. **c.8 and c.9** — the player's choice of which exclusionary requirement applies to a unit carrying two — are a declared gap: a unit with both Tank and Backline is assigned as a Tank. **c.10** (a unit that cannot be dealt damage) needs an effect no vanilla card has |
 | 466 the Resolution Step | `combat.result_step`, `combat.control_step`, `combat.end_step`, `combat.fepr_window` | `engine_combat_steps` | implemented — 466.1's Combat Special Cleanup, then 466.3, 466.5 and 466.7 as three separate Tasks with 466.2 / 466.4 / 466.6's window between each. 466.3.d.1's re-stage is written and unreachable (see below) |
-| 466.5 establishing control | `combat.control_step` | `engine_combat_steps` | implemented, and **narrower than it reads**. 466.1's Combat Cleanup re-runs 323.8, so a battlefield the winning ATTACKER still occupies is Contested by a player with units present and therefore has a Showdown staged — which makes 466.5's "if no Showdown or Combat is staged at this location" false. Control is then settled one cleanup later by 348.2.a, with the same Conquer. 466.5 fires when the attackers were repelled or wiped, which is 466.5.e's case. Both paths score the point; only the rule id differs, and the checks say which |
+| 466.5 establishing control | `combat.control_step`, `combat.restaged` | `engine_combat_steps` | implemented — the side left standing takes the battlefield inside the Resolution Step, and that is a Conquer (466.5.d), whether it attacked or defended (466.5.e). **"If no Showdown or Combat is staged at this location" is read as 466.3.d.1 and nothing else**, because 466.3.d.1 is the only thing that stages anything here during the step. Reading the `sd_staged`/`cb_staged` flags instead was wrong: 466.1's Combat Cleanup re-runs 323.8, so a battlefield the winning ATTACKER still occupied was marked staged, 466.5 stood down, and control arrived a Cleanup later through a Showdown the rules never open — two Focus windows nobody is entitled to, and a real Combat staged elsewhere delayed behind it. The flags are bookkeeping that 466.5.a invalidates one line later. The combat primer does not contradict this: its s4 exits are 466.3.d.1's re-stage and 466.7's settle, and settling inside the step is the second of those |
 | 467-472 scoring | `scoring` | `engine_scoring` | implemented — Hold (469.2), Conquer (469.1), once per battlefield per turn (470), the final-point rule (471.1.b.1) and its non-Conquer exemption (471.1.a.1), victory (472) |
 | 471.2 Score abilities | — | — | out of scope — battlefield text is card text |
 | 701-705 buffs | `state.might_of` | `engine_keywords` | implemented — 703's +1 Might each. 702.3's one-buff-per-unit cap is not enforced because nothing adds a buff yet |
@@ -133,6 +133,14 @@ So they are one list rather than scattered through the table above:
 - The keyword fields on a unit are never set by anything. Every rule that reads
   them is implemented and checked against a hand-built board.
 - 702.3 (one buff per unit) is not enforced, because nothing adds one.
+- `combat.validate_assignment` does not restate 465.2.c. It asks whether the
+  assignment is one `legal_assignments` — the generator's own walk — produces,
+  and the clause checks exist only to NAME the rule a refusal broke. A validator
+  that restates the rules is a second implementation that drifts, and this one
+  had: 7 Might onto a 3-Might and a 2-Might unit has two legal assignments and
+  the clauses accepted six. Above `ENUMERATION_BOUND` reachable partials the
+  walk gives up and the clauses decide alone, which no board the kernel builds
+  comes close to.
 - Cost modification (356.1-356.5) is not implemented: a card costs what it says.
 - A card with two domains and one Power symbol has its requirement widened to
   "any of the card's domains", because the card data carries a Power count and a

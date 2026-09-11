@@ -843,15 +843,54 @@ def engine_combat(check):
     check("a 0-Might unit needs a non-zero assignment to take lethal damage (142.4.b)",
           combat.assign_damage(s2, one, [zero, spare]) == {zero["id"]: 1},
           "one point of Might, and it belongs on the 0-Might unit, not past it")
+    # 465.2.c.2's reminder is that lethal is NON-ZERO damage, so a unit the pool
+    # never reached is not lethally damaged however low its Might. Given a real
+    # pool that goes somewhere else — the previous version passed an EMPTY pool,
+    # where "nothing was assigned" is true of any implementation at all.
+    shy = put(g2, 1, a_unit(), loc_bf(2 if len(s2.battlefields) > 2 else 0))
+    shy["might"] = 0
+    shy["backline"] = True
+    ahead = put(g2, 1, shy["name"], shy["loc"])
+    ahead["might"] = 1
+    striker = put(g2, 0, a_unit(), shy["loc"])
+    striker["might"] = 1
+    unassigned = combat.assign_damage(s2, [striker], [shy, ahead]) == {ahead["id"]: 1}
+    turn.run_cleanup(g2)
     check("and assigning nothing at all leaves it alive (465.2.c.2)",
-          combat.assign_damage(s2, [], [zero]) == {})
+          unassigned and shy["dmg"] == 0
+          and shy["id"] in [u["id"] for u in s2.units],
+          "Backline keeps the 0-Might unit last, the pool runs out on the other, "
+          "and a unit with no damage marked survives the cleanup that kills the "
+          "lethally damaged (323.5)")
 
     g3 = _combat_board(seed=51)
     log = texts(g3)
     check("combat sums the Might of both sides (465.2.a-b)",
           any("Might vs" in t for t in log))
+
+    # 466.1.a.1, watched on a SURVIVOR. Asserting "nothing is damaged once the
+    # combat is over" is true of an engine that never heals: everything that
+    # took lethal damage is in the trash by then, and the Ending Phase heals
+    # what is left. The heal is only observable on a unit that took damage and
+    # lived, at the moment 466.3 is about to read the board.
+    g3b = at_main(seed=53, auto_trivial=False)
+    s3b = g3b.s
+    s3b.battlefields[0]["ctrl"] = 0
+    tough = put(g3b, 0, a_unit(), loc_bf(0))
+    tough["might"] = 9
+    nibbler = put(g3b, 1, a_unit(), loc_bf(0))
+    nibbler["might"] = 1
+    refresh(g3b)
+    _open_combat(g3b, 0, 1)
+    _run_damage(g3b, 0)
+    hurt = tough["dmg"]
+    turn.run_cleanup(g3b, "combat")
+    healed = tough["dmg"]
+    combat.result_step(g3b, 0)
     check("combat heals every unit before the result is determined (466.1.a.1)",
-          all(u["dmg"] == 0 for u in g3.s.units))
+          hurt == 1 and healed == 0 and tough["id"] in [u["id"] for u in s3b.units],
+          "a 9-Might defender took %d and is on %d when 466.3 reads the board"
+          % (hurt, healed))
     check("a combat resolves to a named result (466.3)",
           any("combat result at" in t for t in log))
     check("combat ends and the turn leaves the Showdown State (466.7)",
@@ -1474,6 +1513,44 @@ def _two_on_two(seed=101, attacker=1, might=(5, 5, 2, 2)):
     return g, a1, d1, d2
 
 
+#: Boards for the brute-force equivalence sweep. Small on purpose — every
+#: assignment of the pool over the defenders is enumerated — and chosen so the
+#: keyword orderings, an over-lethal excess and a pool that runs out short are
+#: all inside the set. "T" is Tank, "B" is Backline, "TB" is the unit 465.2.c.8
+#: would hand its controller a choice about.
+_ASSIGNMENT_SHAPES = (
+    {"name": "7 onto 3 and 2", "seed": 311, "might": 7,
+     "defenders": ((3, ""), (2, ""))},
+    {"name": "4 onto 2 and 2", "seed": 313, "might": 4,
+     "defenders": ((2, ""), (2, ""))},
+    {"name": "3 onto 2 and 2 — the pool runs out", "seed": 317, "might": 3,
+     "defenders": ((2, ""), (2, ""))},
+    {"name": "5 onto a Tank, a plain and a Backline", "seed": 331, "might": 5,
+     "defenders": ((2, "T"), (1, ""), (1, "B"))},
+    {"name": "4 onto Tank-and-Backline and a plain", "seed": 337, "might": 4,
+     "defenders": ((2, "TB"), (2, ""))},
+    {"name": "2 onto a 0-Might unit and a 1-Might unit", "seed": 347, "might": 2,
+     "defenders": ((0, ""), (1, ""))},
+)
+
+
+def _every_assignment(defenders, pool):
+    """Every {id: amount} map over `defenders` totalling at most `pool`."""
+    out = []
+
+    def walk(index, so_far, left):
+        if index == len(defenders):
+            out.append(dict((k, v) for k, v in so_far.items() if v))
+            return
+        for amount in range(left + 1):
+            so_far[defenders[index]["id"]] = amount
+            walk(index + 1, so_far, left - amount)
+        so_far.pop(defenders[index]["id"], None)
+
+    walk(0, {}, pool)
+    return out
+
+
 def engine_designations(check):
     """464.2.c, 323.2 and 466.7.a — the designations combat is read through."""
     g, a1, d1, d2 = _two_on_two(seed=103)
@@ -1490,9 +1567,11 @@ def engine_designations(check):
 
     # 464.2.c.3.a: a unit that becomes present later is designated in the
     # Cleanup that follows, which is 323.2.a.
+    # 464.2.c.3.a defers the designation to the next Cleanup. The "it has none
+    # yet" half is not checked here: it is `new_unit`'s own default, and a check
+    # that a constructor returns what it was written to return is a check of the
+    # test fixture. What IS observable is the designation arriving.
     late = put(g, 1, a_unit(), loc_bf(0))
-    check("a unit that arrives after combat opened has no designation yet "
-          "(464.2.c.3.a)", late["role"] is None)
     turn.run_cleanup(g)
     check("and the next cleanup gives it its controller's designation (323.2.a)",
           late["role"] == "attacker")
@@ -1585,14 +1664,17 @@ def engine_assignment(check):
           by_first_option == want, "%r vs %r" % (by_first_option, want))
 
     g3, a3, f1, f2 = _two_on_two(seed=113)
+    # Taken before the damage lands, for the same reason as `want` above: once
+    # both defenders are dead-marked, every question about what may be assigned
+    # to them answers "nothing".
+    legal = combat.legal_assignments(g3.s, [a3], [f1, f2])
     _run_damage(g3, 0, pick=1)
+    landed = tuple(sorted((u["id"], u["dmg"]) for u in (f1, f2) if u["dmg"]))
     check("and a different answer is a different, still legal, assignment "
           "(465.2.c.7)",
-          f2["dmg"] >= 2 and f1["dmg"] + f2["dmg"] == 5
-          and not combat.validate_assignment(g3.s, [a3], [f1, f2],
-                                             {f1["id"]: f1["dmg"],
-                                              f2["id"]: f2["dmg"]}),
-          "%d / %d" % (f1["dmg"], f2["dmg"]))
+          landed in legal and landed != tuple(sorted(
+              combat.assign_damage(g3.s, [a3], [f1, f2]).items())),
+          "%r, out of %d legal assignment(s)" % (landed, len(legal)))
 
     # 465.2.c.4: the excess is allowed only once nothing else can take damage.
     g4 = at_main(seed=117)
@@ -1623,9 +1705,26 @@ def engine_assignment(check):
                                          {lone["id"]: 2, spare["id"]: 9})))
     check("leaving damage unassigned while a unit could take it is refused "
           "(465.2.c.6)",
-          any("could still take some" in v for v in
+          any("had somewhere to go" in v for v in
               combat.validate_assignment(s4, [big], [lone, spare],
                                          {lone["id"]: 2})))
+    # The clause that was missing: with everything already lethal the pool STILL
+    # has to be spent, because 465.2.c.4 puts the excess on the last unit
+    # assigned. `pending_targets` is empty at that point, so a check written
+    # against it accepted 5 of 7 damage assigned and called it legal.
+    # A pool bigger than the lethal total: 465.2.c.4 puts the excess on the last
+    # unit assigned, so leaving it unspent is illegal even though every unit is
+    # already dead-marked. `pending_targets` is empty there, and a check written
+    # against it accepted 4 of 7 damage assigned and called it legal.
+    huge = put(g4, 0, a_unit(), loc_bf(0))
+    huge["might"] = 7
+    check("and so is stopping early once every unit happens to be lethal "
+          "(465.2.c)",
+          any("had somewhere to go" in v for v in
+              combat.validate_assignment(s4, [huge], [lone, spare],
+                                         {lone["id"]: 2, spare["id"]: 2})),
+          "%r" % combat.validate_assignment(s4, [huge], [lone, spare],
+                                            {lone["id"]: 2, spare["id"]: 2}))
     # Two units left short needs a pool small enough that BOTH could be: with
     # a 4-Might attacker one of them is over its lethal instead, which is a
     # different clause and would let this check pass for the wrong reason.
@@ -1644,6 +1743,39 @@ def engine_assignment(check):
           not combat.validate_assignment(
               s4, [big], [lone, spare],
               combat.assign_damage(s4, [big], [lone, spare])))
+
+    # The validator and the option list must accept exactly the same set. They
+    # did not: 7 Might onto a 3-Might and a 2-Might unit has two legal
+    # assignments and the hand-written clauses accepted six. This brute-forces
+    # every assignment of the pool over the defenders and requires the two
+    # answers to agree, on boards that include the keyword orderings.
+    disagreed = []
+    boards = 0
+    for shape in _ASSIGNMENT_SHAPES:
+        gb = at_main(seed=shape["seed"])
+        sb = gb.s
+        hitter = put(gb, 0, a_unit(), loc_bf(0))
+        hitter["might"] = shape["might"]
+        defs = []
+        for spec in shape["defenders"]:
+            unit = put(gb, 1, a_unit(), loc_bf(0))
+            unit["might"] = spec[0]
+            unit["tank"] = "T" in spec[1]
+            unit["backline"] = "B" in spec[1]
+            defs.append(unit)
+        boards += 1
+        generated = combat.legal_assignments(sb, [hitter], defs)
+        for candidate in _every_assignment(defs, shape["might"]):
+            accepted = not combat.validate_assignment(sb, [hitter], defs, candidate)
+            expected = tuple(sorted(candidate.items())) in generated
+            if accepted != expected:
+                disagreed.append("%s: %r %s" % (shape["name"], candidate,
+                                                "accepted" if accepted else "refused"))
+    check("the validator accepts exactly the assignments the option list "
+          "generates (465.2.c)",
+          not disagreed,
+          "; ".join(disagreed[:2]) if disagreed
+          else "%d board(s), every assignment of the pool brute-forced" % boards)
 
     g5, a5, g1, g2u = _two_on_two(seed=119)
     g5.s.choosing = {"what": "assign_damage", "bf": 0, "attacker": 1, "by": 1,
@@ -1737,9 +1869,19 @@ def engine_keywords(check):
     check("once the Tank has its lethal the plain units become legal (815.1.c.2)",
           [u["id"] for u in combat.eligible_targets(s2, order, {tank["id"]: 2})]
           == [plain["id"]])
-    check("and Backline is legal only once nothing else can take damage (826.4.b)",
+    # Backline, with no Tank in the picture. Asking it of a board where the Tank
+    # has just been finished proves nothing about Backline: `pending` is down to
+    # one unit by then, so deleting the Backline rule altogether still answers
+    # [back]. Two units, one of them Backline, is the smallest board where the
+    # rule is the only thing that decides the answer.
+    check("a Backline unit is not a legal assignment while another unit can "
+          "take damage (826.4.b)",
+          [u["id"] for u in combat.eligible_targets(s2, [plain, back], {})]
+          == [plain["id"]],
+          "%r" % [u["id"] for u in combat.eligible_targets(s2, [plain, back], {})])
+    check("and it becomes one once nothing else can (826.4.b)",
           [u["id"] for u in combat.eligible_targets(
-              s2, order, {tank["id"]: 2, plain["id"]: 2})] == [back["id"]])
+              s2, [plain, back], {plain["id"]: 2})] == [back["id"]])
     check("so the whole assignment runs Tank, then plain, then Backline (465.2.c.6)",
           combat.assign_damage(s2, [hitter], order)
           == {tank["id"]: 2, plain["id"]: 2, back["id"]: 2})
@@ -1878,36 +2020,40 @@ def engine_combat_steps(check):
           and s5.trash[0].count(mine["name"]) + s5.trash[1].count(theirs["name"]) >= 2,
           "neither survived to establish control")
 
-    # 466.5.d: taking the battlefield is a Conquer. Driven through the whole
-    # loop rather than through `_fight`, because when the ATTACKER is the side
-    # left standing 466.5 does not fire: the battlefield is still Contested by a
-    # player who still has units there, so the Combat Cleanup has re-staged a
-    # Showdown (323.8) and 466.5's "if no Showdown or Combat is staged" is
-    # false. That Showdown opens on the next cleanup and 348.2.a settles it.
-    # Written down in docs/engine/spec.md; the point and the control are the
-    # same either way, and which rule granted them is not.
-    g6 = at_main(seed=149)
+    # 466.5.d: taking the battlefield is a Conquer, and it happens INSIDE the
+    # Resolution Step — for the attacker who won it as much as for the defender
+    # who held. The engine used to stand down here whenever the winner was the
+    # attacker, because 466.1's Cleanup had re-marked a Showdown staged (323.8)
+    # at a battlefield that is still Contested by a player with units on it. The
+    # point arrived a cleanup later through a Showdown the rules never open.
+    g6 = at_main(seed=149, auto_trivial=False)
     s6 = g6.s
     winner = put(g6, 1, a_unit(), loc_bf(0))
     winner["might"] = 6
     loser = put(g6, 0, a_unit(), loc_bf(0))
     loser["might"] = 1
     s6.battlefields[0]["ctrl"] = 0
-    s6.battlefields[0]["contested"] = True
-    s6.battlefields[0]["contested_by"] = 1
     before = s6.points[1]
-    refresh(g6).need_cleanup()
-    for _ in range(400):
-        decision = g6.step()
-        if decision.terminal or (decision.kind == "main" and s6.showdown is None
-                                 and not s6.battlefields[0]["contested"]):
-            break
-        g6.answer(decision.options[0])
+    refresh(g6)
+    _open_combat(g6, 0, 1)
+    _fight(g6)
     check("winning a combat establishes control and Conquers (466.5.d)",
           s6.battlefields[0]["ctrl"] == 1 and s6.points[1] == before + 1
           and not s6.battlefields[0]["contested"],
           "seat 1 holds %r on %d point(s)"
           % (s6.battlefields[0]["ctrl"], s6.points[1]))
+    # 466.5.a cleared Contested, so the Cleanup 466.7 queues finds nothing to
+    # stage (323.8) and no second Showdown opens over a battlefield that is
+    # already settled. That is the whole point of doing 466.5 in the step.
+    turn.run_cleanup(g6)
+    check("and the battlefield is left with nothing staged, so no second "
+          "Showdown opens over it (466.5.a, 323.8)",
+          not s6.battlefields[0]["sd_staged"]
+          and not s6.battlefields[0]["cb_staged"]
+          and s6.showdown is None,
+          "staged %r/%r, showdown %r" % (s6.battlefields[0]["sd_staged"],
+                                         s6.battlefields[0]["cb_staged"],
+                                         s6.showdown))
 
     # 703 + 142.4.b: Might decides who dies, and it is read at the Damage Step.
     g7 = at_main(seed=151, auto_trivial=False)
@@ -2317,13 +2463,43 @@ def engine_victory(check):
           g3.step().terminal and g3.s.phase == "over")
 
 
+#: How many combats the parity scenarios reach. Both sides of each one assign
+#: damage, so the harness must make twice this many comparisons; keying the
+#: comparison on "is this the first assign_damage decision of the combat" made
+#: it exactly this many, all of them the Attacker's.
+_COMBATS_IN_SCENARIOS = 7
+
+#: A floor on how many STATE comparisons the scenarios make, well under the 159
+#: they make today and well over the 3 a harness that only compared final
+#: positions would. The number that used to be reported was the answer count,
+#: which is four times larger and measures something else.
+_STATE_COMPARISON_FLOOR = 100
+
+
 def engine_parity(check):
     """The table, played alongside the engine, one scripted decision at a time."""
-    problems, compared = parity.run_all()
+    problems, counts = parity.run_all()
     check("the engine and the table agree on the shared subset, step for step",
           not problems, problems[0] if problems
-          else "%d scripted decision(s) across %d scenario(s)"
-               % (compared, len(parity.SCENARIOS)))
+          else "%d scripted answer(s) across %d scenario(s), %d state comparison(s), "
+               "%d damage assignment(s) compared"
+               % (counts["answers"], len(parity.SCENARIOS), counts["states"],
+                  counts["assignments"]))
+    # Three different numbers, because they measure three different things and
+    # the answer count is the one that flatters. The harness reported it alone
+    # and read as four times the coverage it has.
+    check("and it compares a state at every Main Phase decision, not only at the "
+          "end",
+          counts["states"] >= _STATE_COMPARISON_FLOOR
+          and counts["states"] < counts["answers"],
+          "%d of %d answers are at a Main Phase decision or the end; the rest are "
+          "Chain, Focus and combat-step positions the table cannot be in"
+          % (counts["states"], counts["answers"]))
+    check("and it compares BOTH sides' damage assignments, not just the "
+          "Attacker's (465.2.c)",
+          counts["assignments"] >= 2 * _COMBATS_IN_SCENARIOS,
+          "%d comparison(s) over %d combat(s) — one per side"
+          % (counts["assignments"], _COMBATS_IN_SCENARIOS))
 
     # The harness, audited: shown a difference, it must name one.
     spec = parity.SCENARIOS[0]

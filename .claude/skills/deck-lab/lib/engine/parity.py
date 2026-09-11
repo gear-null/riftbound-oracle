@@ -125,33 +125,63 @@ def run(spec, keys=None):
     mirror.counter = game.s.next_id
     problems = []
     at = 0
+    compared = 0
     for _ in range(len(keys) + 2):
         decision = game.step()
         if decision.kind == "main" or decision.terminal:
             mirror.sync_turn(game)
+        if comparable(decision):
+            compared += 1
             problems.extend("%s: %s" % (spec["name"], p) for p in mirror.problems)
             mirror.problems = []
             problems.extend(_diff(spec["name"], at, game, top, decision.terminal))
             if problems:
-                return problems
+                return problems, _counts(at, compared, mirror)
         if decision.terminal:
-            return problems
+            return problems, _counts(at, compared, mirror)
         if at >= len(keys):
-            return ["%s: the engine asked decision %d and the script has %d answers"
-                    % (spec["name"], at, len(keys))]
+            return (["%s: the engine asked decision %d and the script has %d answers"
+                     % (spec["name"], at, len(keys))], _counts(at, compared, mirror))
         key = tuple(keys[at])
         option = decision.find(key)
         if option is None:
-            return ["%s: decision %d answers %r, which the engine did not offer: %s"
-                    % (spec["name"], at, key, [o.key for o in decision.options])]
+            return (["%s: decision %d answers %r, which the engine did not offer: %s"
+                     % (spec["name"], at, key, [o.key for o in decision.options])],
+                    _counts(at, compared, mirror))
         at += 1
         mirror.before(game, decision, key)
         game.answer(option)
         mirror.after(game, decision, key)
         resync(top, game.s)
         mirror.counter = game.s.next_id
-    return ["%s: the scenario did not finish in %d decisions"
-            % (spec["name"], len(keys))]
+    return (["%s: the scenario did not finish in %d decisions"
+             % (spec["name"], len(keys))], _counts(at, compared, mirror))
+
+
+def comparable(decision):
+    """Is this a moment both tools can be standing in?
+
+    A Main Phase decision, or the end of the game. The table has no Chain, no
+    Focus and no Steps of Combat, so between "play this card" and "it is on the
+    board" the engine passes through positions the table has no way to hold, and
+    a diff there compares the engine against a tool that does not model the
+    thing being compared. Kept as a function so the count below measures what
+    this says rather than what the loop happens to do.
+    """
+    return decision.kind == "main" or decision.terminal
+
+
+def _counts(answers, compared, mirror):
+    """What the run actually covered. Three different numbers, reported as three.
+
+    Answering a decision is not comparing a state: the engine passes through
+    Chain, Focus and combat-step positions the table has no way to hold, so the
+    two are compared where both can be — at every Main Phase decision and at the
+    end. Reporting the answer count as if it were the comparison count would
+    claim four times the coverage the harness has.
+    """
+    return {"answers": answers, "states": compared,
+            "assignments": mirror.assignments}
 
 
 # -- keeping the two games on the same deal ------------------------------
@@ -254,6 +284,13 @@ class _Mirror:
         #: Disagreements the diff cannot see, because they are about a choice
         #: rather than about a state. Collected here and reported alongside it.
         self.problems = []
+        #: (battlefield, assigning seat) pairs already compared, so each side of
+        #: each combat is compared exactly once.
+        self.compared = set()
+        #: How many assignments were compared, for the report. A harness that
+        #: says what it covers without saying how often is a harness that can
+        #: quietly stop covering it.
+        self.assignments = 0
 
     def sync_turn(self, game):
         """Bring the table up to the turn the engine has just started.
@@ -270,7 +307,13 @@ class _Mirror:
         """What must be read from the engine BEFORE the answer changes it."""
         if decision.kind == "assign_damage":
             c = game.s.choosing
-            if self.assigning is None:
+            # Once per SIDE, not once per combat. Keying this on `self.assigning`
+            # meant the defender's assignment was never compared — the swap
+            # branch below was dead, and 465.2.c was only ever checked for the
+            # attacker.
+            side = (c["bf"], c["by"])
+            if side not in self.compared:
+                self.compared.add(side)
                 self._compare_assignment(game, c)
             self.assigning = {"bf": c["bf"], "attacker": c["attacker"]}
 
@@ -293,6 +336,7 @@ class _Mirror:
                   self.t.units_at(location, 1 - c["by"]))
         engine_says = combat_rules.assign_damage(s, mine[0], mine[1])
         table_says = self.t.assign_damage(theirs[0], theirs[1])
+        self.assignments += 1
         if engine_says != table_says:
             self.problems.append(
                 "seat %d's lethal-first assignment at %s differs — 465.2.c\n"
@@ -376,6 +420,7 @@ class _Mirror:
         if c is not None and c.get("what") == "assign_damage":
             return                                   # more targets to come
         self.assigning = None
+        self.compared = set()
         if state is None:
             return
         attacker, index = state["attacker"], state["bf"]
@@ -457,10 +502,12 @@ def _diff(name, at, game, top, final):
 
 
 def run_all():
-    """Every scenario. Returns the problems, and how many steps were compared."""
-    problems, compared = [], 0
+    """Every scenario. Returns the problems and what was actually covered."""
+    problems = []
+    totals = {"answers": 0, "states": 0, "assignments": 0}
     for spec in SCENARIOS:
-        keys = script(spec)
-        compared += len(keys)
-        problems.extend(run(spec, keys))
-    return problems, compared
+        found, counts = run(spec, script(spec))
+        problems.extend(found)
+        for key in totals:
+            totals[key] += counts[key]
+    return problems, totals
