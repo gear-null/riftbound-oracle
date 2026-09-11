@@ -1346,6 +1346,27 @@ def render(gaunt, full, meta, markdown=False, top=None):
     block(bucket_rows(gaunt, full, None, "selectors"),
           ["selector atom", "gauntlet", "all 954", ""])
 
+    head(2, "5b. Modifier durations")
+    w("How long a modifier lasts is the other half of `give_might(n, until)`. "
+      "One duration per clause, the most specific that matched.")
+    w("")
+    dg = collections.Counter(c.duration for c in gaunt.clauses if c.duration)
+    da = collections.Counter(c.duration for c in full.clauses if c.duration)
+    block([(k, dg.get(k, 0), da.get(k, 0))
+           for k in sorted(set(dg) | set(da), key=lambda k: (-dg.get(k, 0), k))],
+          ["duration", "gauntlet", "all 954"])
+    w("")
+    w("- `for each N` (a count-scaled modifier): **%d** gauntlet clauses, %d "
+      "across all 954"
+      % (sum(1 for c in gaunt.clauses if c.for_each),
+         sum(1 for c in full.clauses if c.for_each)))
+    w("- clauses gated by a keyword (`[Empowered]{>}`, `[Level 6]{>}`, "
+      "`[Legion] —`): **%d** gauntlet, %d across all 954, over %d distinct "
+      "gating keywords"
+      % (sum(1 for c in gaunt.clauses if c.gate),
+         sum(1 for c in full.clauses if c.gate),
+         len({c.gate.split()[0] for c in full.clauses if c.gate})))
+
     head(2, "6. Condition atoms")
     block(bucket_rows(gaunt, full, "condition"),
           ["condition atom", "gauntlet", "all 954", "example card"])
@@ -1461,6 +1482,26 @@ def render(gaunt, full, meta, markdown=False, top=None):
     w("- **replacement kinds**: %d distinct — %s"
       % (len(rg), ", ".join("`%s`(%d)" % (n, k) for n, k in
                             sorted(rg.items(), key=lambda kv: -kv[1]))))
+    dg = collections.Counter(c.duration for c in gaunt.clauses if c.duration)
+    w("- **modifier durations**: %d distinct — %s"
+      % (len(dg), ", ".join("`%s`(%d)" % (n, k) for n, k in
+                            sorted(dg.items(), key=lambda kv: -kv[1]))))
+    w("- **keywords**: all **25** of CR 805-829 appear; %d of them take a "
+      "numeric parameter"
+      % len({n.split(":")[0] for n in gaunt.annotation("keywords") if ":" in n}))
+    w("- **token specs**: %d distinct in the gauntlet, %d across all 954"
+      % (len([k for k, v in gaunt.token_specs.items() if v]),
+         len(full.token_specs)))
+    w("")
+    w("Totals, counting every atom the whole 954-card pool uses rather than "
+      "only the 95%% cut: **%d** effect primitives, **%d** trigger events, "
+      "**%d** selector atoms, **%d** condition atoms, **%d** choice forms, "
+      "**%d** cost forms, **%d** replacement kinds, **%d** durations."
+      % (len(full.buckets("effect")), len(full.buckets("trigger")),
+         len(full.annotation("selectors")), len(full.buckets("condition")),
+         len(full.annotation("choices")), len(full.annotation("costs")),
+         len(full.replacements()),
+         len({c.duration for c in full.clauses if c.duration})))
 
     head(2, "15. Unclassified")
     for c in (gaunt, full):
