@@ -18,7 +18,8 @@ manifests/        → Prescriptive source config + processing state (sources.yam
 src/              → TypeScript pipeline
   ├── cli.ts              Main CLI entrypoint (clack-based)
   ├── riftcodex.ts        Riftcodex API client + card→markdown
-  ├── decks.ts            Pulls competitive decklists from rift-atlas
+  ├── decks.ts            Pulls competitive decklists (rift-atlas + riftools)
+  ├── riftools.ts         riftools.app: sitemap index, decklist pages, selection
   ├── manifest.ts         Read/write sources.yaml
   ├── normalize.ts        Common markdown cleanup + entity decoding
   ├── print.ts            Downloads card images for proxy printing
@@ -90,6 +91,7 @@ Type-specific fields:
 5. `npm run oracle extract` — turns downloaded rulebook PDFs into markdown in `output/`
 6. `npm run oracle skill-data` — rebuilds every skill's vendored card data (needs network)
 7. `npm run oracle decks pull` — pulls current tournament decklists into `output/decks/`
+   and the deck-lab gauntlet; `--site=`, `--limit=`, `--events=`, `--per-event=` narrow it
 8. `npm run oracle vault-sync` — optional; mirrors `output/` into an Obsidian wiki's `raw/`
 9. Answer questions via the `rules-report` skill (see `.claude/skills/rules-report/SKILL.md`).
    It writes two documents: a **ruling** (a disputed situation) and a **primer**

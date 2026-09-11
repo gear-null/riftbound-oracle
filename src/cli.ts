@@ -18,7 +18,7 @@ import {
 } from "./manifest.js";
 import { fetchSets, fetchCardsBySet, cardsToMarkdown, fetchSetLabel } from "./riftcodex.js";
 import { buildSkillData, SKILL_DATA_DIR } from "./skill-data.js";
-import { pullMetaDecks } from "./decks.js";
+import { DECK_SITES, pullMetaDecks, type DeckSite } from "./decks.js";
 import { normalize } from "./normalize.js";
 import { downloadPrintCards } from "./print.js";
 import { syncToVault, resolveVaultDir } from "./vault.js";
@@ -84,6 +84,10 @@ ${color.bold("Commands:")}
   ${color.cyan("extract")}            Extract downloaded rulebook PDFs to markdown
   ${color.cyan("skill-data")}         Rebuild the skill's vendored card data (needs network)
   ${color.cyan("decks pull")}         Pull competitive decklists into the deck-lab gauntlet (needs network)
+  ${color.cyan("  --site=X,Y")}       Pull from these sites only (${DECK_SITES.join(", ")})
+  ${color.cyan("  --limit=N")}        At most N deck pages per site
+  ${color.cyan("  --events=N")}       riftools.app: draw from the N most recent events
+  ${color.cyan("  --per-event=N")}    riftools.app: take the top N placings from each event
   ${color.cyan("gear-gaps")}          Collect artwork + a YAML stub for cards the API can't supply
   ${color.cyan("package")}            Build every skill's release archive into dist/
   ${color.cyan("package --skill=X")}  Build just that skill's archive
@@ -475,7 +479,9 @@ async function handlePackage() {
         m.rules_version ? `rules ${m.rules_version}` : null,
         m.rules ? `${m.rules} rules` : null,
         `${m.cards} cards`,
+        m.gauntlet_version ? m.gauntlet_version : null,
         m.gauntlet_decks !== undefined ? `${m.gauntlet_decks} gauntlet decks` : null,
+        m.gauntlet_cards !== undefined ? `${m.gauntlet_cards} distinct cards` : null,
         m.gauntlet_pulled ? `pulled ${m.gauntlet_pulled}` : null,
       ].filter(Boolean);
       p.log.info(`  ${facts.join(" · ")}`);
@@ -571,22 +577,46 @@ async function handleDecks() {
     p.log.error(`Unknown decks subcommand: ${process.argv[3]}`);
     return;
   }
-  const limitArg = process.argv.find((a) => a.startsWith("--limit="))?.split("=")[1];
+  const flag = (name: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split("=")[1];
+  const int = (name: string) => {
+    const raw = flag(name);
+    return raw ? Number.parseInt(raw, 10) : undefined;
+  };
+  const sitesArg = flag("site");
+  const sites = sitesArg ? (sitesArg.split(",").map((s) => s.trim()) as DeckSite[]) : undefined;
+  const unknownSite = sites?.find((s) => !DECK_SITES.includes(s));
+  if (unknownSite) {
+    p.log.error(`Unknown --site=${unknownSite}. Known sites: ${DECK_SITES.join(", ")}`);
+    return;
+  }
   const s = p.spinner();
   s.start("Pulling competitive decklists");
   try {
     const result = await pullMetaDecks({
-      limit: limitArg ? Number.parseInt(limitArg, 10) : undefined,
+      sites,
+      limit: int("limit"),
+      events: int("events"),
+      perEvent: int("per-event"),
       onProgress: (m) => s.message(m),
     });
     s.stop(`${result.decks.length} deck(s) → ${result.written.length} file(s)`);
+    p.log.info(
+      Object.entries(result.bySite)
+        .map(([site, n]) => `${site}: ${n}`)
+        .join(" · ")
+    );
     // A quarantined deck is a hole in the gauntlet with a name on it, which is
-    // the point — the alternative is a half-parsed list overwriting a good one.
+    // the point — the alternative is a half-parsed list overwriting a good one,
+    // or a gauntlet opponent naming cards no game can resolve.
     if (result.quarantined.length) {
-      p.log.error(`${result.quarantined.length} deck(s) NOT written — the page did not parse cleanly:`);
+      p.log.error(`${result.quarantined.length} deck(s) NOT written — unusable as pulled:`);
       for (const q of result.quarantined) {
         p.log.message(`${q.name}\n  ${q.reasons.join("\n  ")}`);
       }
+    }
+    // Not a failure: two events publishing the same 40 cards is one opponent.
+    if (result.duplicates.length) {
+      p.log.info(`${result.duplicates.length} list(s) skipped as duplicates of another list in this pull`);
     }
     const meta = result.decks.filter((d) => d.source?.meta).length;
     p.log.info(`${meta} flagged as tournament/meta lists by the source`);

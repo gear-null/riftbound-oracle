@@ -209,6 +209,61 @@ function isTreatment(rarity: string | null): boolean {
 export type CardIndex = Record<string, SkillCard>;
 
 /**
+ * The card's own name, so two spellings of one card collapse to one key.
+ *
+ * This is `deckfile.canonical` in TypeScript, and it has to stay that way: the
+ * gauntlet's distinct-card count — the scripting frontier the engine plan is
+ * measured against — is computed on both sides of the language boundary, and
+ * two different notions of "the same card" would report two different
+ * frontiers.
+ *
+ * Sources disagree on one character: Riftcodex writes `Master Yi - Wuju
+ * Bladesman`, the decklist sites write `Master Yi, Wuju Bladesman`. Both
+ * separators are tried and nothing looser, and an alias the index flags as
+ * ambiguous is refused — `Ahri` is a key carrying one of six Ahri cards plus
+ * the list of all six, and counting it as that one card would merge two
+ * different cards into one name.
+ */
+export function canonicalCardName(cards: CardIndex, name: string): string {
+  const base = name.replace(/\s*\(.*?\)\s*$/, "").trim().toLowerCase();
+  for (const key of [base, base.replace(/, /g, " - "), base.replace(/ - /g, ", ")]) {
+    const entry = cards[key];
+    if (entry && !entry.ambiguous) return entry.name;
+  }
+  return base;
+}
+
+/** Structurally what `distinctCards` needs from a deck, however it was loaded. */
+export interface DeckComposition {
+  legend: string;
+  chosenChampion?: string | null;
+  chosen_champion?: string | null;
+  main: { name: string }[];
+  runes: { name: string }[];
+  battlefields: { name: string }[];
+}
+
+/**
+ * Every distinct card a set of decks names — the scripting frontier.
+ *
+ * How many cards something that wants to PLAY these games has to implement.
+ * The legend and the Chosen Champion count: neither is ever shuffled, and both
+ * are executed in every game they appear in.
+ */
+export function distinctCards(decks: DeckComposition[], cards: CardIndex): Set<string> {
+  const out = new Set<string>();
+  for (const deck of decks) {
+    for (const name of [deck.legend, deck.chosenChampion ?? deck.chosen_champion]) {
+      if (name) out.add(canonicalCardName(cards, name));
+    }
+    for (const card of [...deck.main, ...deck.runes, ...deck.battlefields]) {
+      out.add(canonicalCardName(cards, card.name));
+    }
+  }
+  return out;
+}
+
+/**
  * Every name a card should answer to.
  *
  * Cards print as "Viktor - Machine Herald", but people ask about "Viktor". Both

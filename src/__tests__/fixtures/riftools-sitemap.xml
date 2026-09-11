@@ -1,0 +1,7 @@
+<!-- Fixture: https://www.riftools.app/sitemap.xml verbatim, 2026-09-11. -->
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>https://www.riftools.app/sitemaps/core.xml</loc></sitemap>
+  <sitemap><loc>https://www.riftools.app/sitemaps/decklists-set3.xml</loc></sitemap>
+  <sitemap><loc>https://www.riftools.app/sitemaps/decklists-set4.xml</loc></sitemap>
+</sitemapindex>

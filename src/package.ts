@@ -33,6 +33,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { distinctCards, type CardIndex, type DeckComposition } from "./skill-data.js";
 
 export const SKILL_SRC = ".claude/skills/rules-report";
 export const DECK_LAB_SRC = ".claude/skills/deck-lab";
@@ -106,6 +107,14 @@ export interface SkillManifest {
   /** deck-lab only — a gauntlet of tournament lists goes stale on its own clock. */
   gauntlet_decks?: number;
   gauntlet_pulled?: string;
+  /**
+   * The gauntlet's release name, e.g. `gauntlet-2026-09`. A deck's strength is
+   * a number against a particular field; naming the field is what lets two such
+   * numbers be compared, or known not to be comparable.
+   */
+  gauntlet_version?: string;
+  /** Distinct cards the gauntlet uses — the scripting frontier. */
+  gauntlet_cards?: number;
 }
 
 /**
@@ -163,11 +172,21 @@ function describeDeckLab(skillDir: string, version: string): SkillManifest {
     ? readdirSync(gauntletDir).filter((f) => f.endsWith(".json"))
     : [];
   let pulled = "unknown";
+  const compositions: DeckComposition[] = [];
   for (const file of decks) {
     const deck = JSON.parse(readFileSync(join(gauntletDir, file), "utf-8"));
+    compositions.push(deck as DeckComposition);
     const fetched = deck?.source?.fetched;
     if (typeof fetched === "string" && (pulled === "unknown" || fetched > pulled)) pulled = fetched;
   }
+
+  // Committed beside the gauntlet rather than derived from the pull date: two
+  // pulls a week apart are still the same named field if nobody cut a new one,
+  // and a date cannot say that.
+  const versionFile = join(skillDir, "GAUNTLET-VERSION");
+  const gauntletVersion = existsSync(versionFile)
+    ? readFileSync(versionFile, "utf-8").trim() || "unversioned"
+    : "unversioned";
 
   return {
     name: "deck-lab",
@@ -177,6 +196,8 @@ function describeDeckLab(skillDir: string, version: string): SkillManifest {
     cards: names.size,
     gauntlet_decks: decks.length,
     gauntlet_pulled: pulled,
+    gauntlet_version: gauntletVersion,
+    gauntlet_cards: distinctCards(compositions, cards as CardIndex).size,
   };
 }
 
