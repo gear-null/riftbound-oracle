@@ -40,7 +40,7 @@ entries:
     output: output/cards-pr.md
     processed: 2026-08-06
   - type: rules-hub
-    url: https://riftbound.leagueoflegends.com/en-us/rules-hub/
+    url: https://playriftbound.com/en-us/rules-hub/
     category: rules
     output: output/rules.md
     processed: 2026-08-09
@@ -48,4 +48,4 @@ entries:
       - output/core-rules.pdf
       - output/tournament-rules.pdf
     extra_articles:
-      - https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/unleashed-rules-faq-and-clarifications/
+      - https://playriftbound.com/en-us/news/rules-and-releases/unleashed-rules-faq-and-clarifications/

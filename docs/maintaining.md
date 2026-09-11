@@ -187,6 +187,16 @@ Riot's Rules Hub sits behind Cloudflare and will reset connections if hit repeat
 Run updates **on demand, never on a schedule**. On `ECONNRESET`, wait or change network
 rather than retrying into it.
 
+## The Rules Hub moved host
+
+Riot finished migrating the hub off `riftbound.leagueoflegends.com`: every path there now
+answers `301` to the same path on `playriftbound.com`, the landing page included. The
+manifest names the new host directly rather than relying on the redirect, because a
+redirect is a courtesy Riot can withdraw and a crawl that depends on one fails at the
+worst moment — the next rules update. `output/rules.md` still quotes the old URLs; it is
+a record of where that text was fetched from at the time, and rewriting it would be
+falsifying provenance, not fixing a link.
+
 ## What must stay true
 
 The selftest enforces most of this, but when changing the skill, keep in mind:
