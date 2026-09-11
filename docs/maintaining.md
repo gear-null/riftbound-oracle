@@ -339,6 +339,17 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   table means adding a check to `selftest.py` AND a mutant to `mutants.py` that has been
   seen to make that check fail. The first run of the battery found five checks that
   passed while the behaviour they named was deleted.
+- **A check name must not contain " — ".** That separator introduces a check's DETAIL,
+  and the battery strips everything after it when it records what it watched go red. A
+  name containing one is recorded truncated, never matches on the way back, and quietly
+  loses its credit for good. Use a colon.
+- **The kernel may not execute a rule the spec table does not claim.**
+  `docs/engine/spec.md` is the honest list — implemented, simplified, out of scope — and
+  the failure this whole project is trying to avoid is silent partial coverage, where a
+  rule looks handled because nothing crashed. Move a row before you move the code.
+- **An engine golden changes only because a rule did.** `engine perft` and
+  `engine golden` compare; `--write` refreezes. Read the diff, and ship the regenerated
+  file in the commit that moved it — CI fails if a run leaves one dirty.
 - **A second guard makes the system safer and the suite blinder.** Redundant guards are
   good; only their safety is visible. Delete either half of a masking pair and nothing goes
   red, so a one-at-a-time mutant battery reports both as covered while neither is pinned.
@@ -409,6 +420,9 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
 .claude/skills/deck-lab/       <- THE OTHER PRODUCT. Same deal: copy the folder.
   SKILL.md                     the procedure for building and testing a deck
   lib/                         deck_cli.py — table, deck legality, shuffle math
+    engine/                    the rules kernel: code plays the game (ADR 0009)
+      goldens/                 perft counts, golden playthroughs, the vendored
+                               chain/showdown transitions — committed
   data/cards.json              vendored + committed, written by `oracle skill-data`
   gauntlet/                    tournament decklists, committed
   decks/                       decks under construction

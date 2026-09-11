@@ -239,10 +239,24 @@ of the field chose for that legend it fills the field in and writes the count in
 Where it cannot, the deck fails `check` until someone picks by hand — pick one, and say
 in the report which one you picked and why.
 
+## The rules kernel, which is not yet how you play a game
+
+`lib/engine/` is a second thing in this folder: code that plays the game rather than
+holding it, through a decision-request API. It models what the table below says it does
+not — the Chain and its FEPR process, Showdowns as a real window, priority and focus —
+but it executes **no card text at all** yet, so a game it plays is a game of vanilla
+bodies. It is not a substitute for `new` and `do`, and nothing in this procedure uses it.
+
+What it is for today is its own correctness: `selftest` runs its checks with the table's,
+and `engine perft`, `engine golden`, `engine soak` and `engine bench` are the instruments
+that keep it honest. `docs/engine/spec.md` in the source repo says which rules it
+implements, simplifies, or does not touch.
+
 ## Known limits — say these out loud rather than around
 
-- **The Chain is not modelled.** Reactions, counters and the FEPR process are yours to
-  narrate; `note` them. The table tracks no priority.
+- **The Chain is not modelled by the table.** Reactions, counters and the FEPR process
+  are yours to narrate; `note` them. The table tracks no priority. (The kernel does
+  model it — see above — but it plays no card text, so it cannot play your deck.)
 - **Showdowns are not modelled as a window.** A non-combat showdown resolves at the next
   cleanup, where whoever is alone at a contested battlefield takes it. The point lands
   either way; what is missing is the chance to act in between.

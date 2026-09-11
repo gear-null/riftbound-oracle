@@ -104,6 +104,32 @@ jobs:
         working-directory: .claude/skills/deck-lab/lib
         run: python3 deck_cli.py selftest
 
+      # The rules kernel's instruments. The suite above runs the fast half of
+      # them on every Python version; these are the ones too slow for that — the
+      # deeper perft depths, the recorded playthroughs, and a thousand games of
+      # random self-play that must each end by a rule the log names. A kernel
+      # that passes its unit checks and cannot finish a thousand games is not a
+      # kernel anyone can compute a deck verdict from.
+      - name: The rules kernel's perft, goldens and soak
+        if: matrix.python == '3.13'
+        working-directory: .claude/skills/deck-lab/lib
+        run: |
+          python3 deck_cli.py engine perft
+          python3 deck_cli.py engine golden
+          python3 deck_cli.py engine soak --games 1000
+          python3 deck_cli.py engine bench
+
+      - name: The committed goldens are the ones the engine produces
+        if: matrix.python == '3.13'
+        run: |
+          # The step above only READS the goldens. This is the other half:
+          # nothing in it may have rewritten one, and a regenerated golden has
+          # to arrive in the commit that moved it with its diff read by a person.
+          git diff --exit-code -- .claude/skills/deck-lab/lib/engine/goldens/ || {
+            echo "::error::an engine golden changed during the run — regenerate it deliberately and commit it"
+            exit 1
+          }
+
       # Copying the folder has to be the whole install (ADR 0004), so this runs
       # the skill with the repo out of reach. `rules-report` has an equivalent
       # gate; deck-lab had none, and an import reaching into the repo would have
@@ -115,6 +141,11 @@ jobs:
           python3 deck_cli.py selftest
           python3 deck_cli.py decks
           python3 deck_cli.py card "Stellacorn Herder"
+          # The kernel ships inside the folder, so it is part of the detached
+          # run too: an engine module reaching back into the repo for a primer
+          # or a golden would pass every other job in this file.
+          python3 deck_cli.py engine perft --depth 3
+          python3 deck_cli.py engine soak --games 25
           DECK=$(python3 -c "import deckfile,os; print(os.path.splitext(os.path.basename(sorted(deckfile.available())[0]))[0])")
           python3 deck_cli.py analyze "$DECK" --trials 2000
           python3 deck_cli.py report "$DECK" --trials 2000 --out /tmp/r.html

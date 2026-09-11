@@ -29,6 +29,8 @@ single fetch so they cannot disagree about what a card says.
 |---|---|
 | [How to read a report](report-anatomy.md) | Basis, weakest link, crux, citations, the symbol legend |
 | [The deck lab](../.claude/skills/deck-lab/SKILL.md) | Building a deck, playing it out, and reporting results honestly |
+| [The rules kernel](engine/spec.md) | Which Core Rules the engine implements, simplifies, or does not touch |
+| [Testing the kernel](engine/testing.md) | perft, golden playthroughs, conservation invariants, the perfect-symmetry test |
 | [Content and licensing](content-and-licensing.md) | What is committed, artwork policy, crawling etiquette |
 
 ## Decision records
