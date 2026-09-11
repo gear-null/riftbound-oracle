@@ -186,16 +186,36 @@ Played games are expensive, so samples are small, and small samples lie confiden
 
     gauntlet --against <your deck>
 
-It reports the gauntlet by domain identity and names the pairings missing. A
-gauntlet with no deck in your own pairing cannot tell you anything about your
-mirror, and that gap is otherwise invisible until an analysis is already running.
+Its first line is the gauntlet's identity: `gauntlet-2026-09 — 96 list(s), 398
+distinct cards`. Then it reports the gauntlet by source and by domain identity,
+and names the pairings missing. A gauntlet with no deck in your own pairing
+cannot tell you anything about your mirror, and that gap is otherwise invisible
+until an analysis is already running.
 
-Two ways to fill it. Scraping covers one site:
+**Quote the version with every result.** "56% against the meta" is not a fact
+about a deck, it is a fact about a deck *and a field*. Re-pull the gauntlet and
+the same sentence silently starts meaning something else, with nothing to tell
+two such numbers apart afterwards. Two rates carrying different gauntlet
+versions are known not to be comparable, which is the whole point of naming it.
 
-    npm run oracle decks pull        # from the repo root; needs network
+The distinct-card count is the **scripting frontier**: how many different cards
+anything that wants to play these games has to know. It comes from the meta
+rather than from the 954-card pool, which is why it is a tenth of the size.
 
-**Most decklist sites refuse scripted requests** — four of six measured return a
-403 or reset the connection. So the main route is text:
+Two ways to fill the gauntlet. Scraping covers two sites — `rift-atlas.com` for
+curated meta decks and `riftools.app` for tournament placements:
+
+    npm run oracle decks pull                     # from the repo root; needs network
+    npm run oracle decks pull -- --site=riftools.app --events=16 --per-event=5
+
+`--events` and `--per-event` decide how much of Riftools' 14,700-list archive to
+draw on: the most recent events, top placings first. A list whose page did not
+parse cleanly, or that names a card the pool cannot resolve, is reported by name
+and **not** written.
+
+**Several decklist sites refuse scripted requests** — Piltover Archive resets
+the connection and riftdecks.com refuses it. Neither is worked around. For those,
+the route is text:
 
     import <file|-> --name "Deck" --source <url>
 
@@ -211,8 +231,11 @@ dropped one card gets caught before it becomes a gauntlet opponent.
 
 Some pulled decks have no `chosen_champion`, because the list legally runs two champion
 units of the legend's tag and only the pilot knows which one sat in the Champion Zone.
-Those decks fail `check` until the field is filled in by hand. Pick one, and say in the
-report which one you picked.
+Riftools records the choice; rift-atlas does not. Where the puller can see what the rest
+of the field chose for that legend it fills the field in and writes the count into
+`chosen_champion_note`, so the decision is visible and arguable rather than assumed.
+Where it cannot, the deck fails `check` until someone picks by hand — pick one, and say
+in the report which one you picked and why.
 
 ## Known limits — say these out loud rather than around
 

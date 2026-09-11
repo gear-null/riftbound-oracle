@@ -1606,6 +1606,131 @@ def _proven_line_without_record():
         builtins.open = real
 
 
+def gauntlet_identity():
+    """The gauntlet is a measuring instrument, so it has to say which one it is.
+
+    A deck's strength is a number against a particular field. Re-pull the
+    gauntlet and "56% against the meta" silently starts meaning something else,
+    with nothing in the result to tell two such numbers apart. The version names
+    the field; the distinct-card count says how much of the card pool that field
+    actually uses, which is the only estimate of the scripting work that comes
+    from the meta rather than from all 954 cards.
+
+    Every check here is on the OUTPUT of `gauntlet`, not on the helpers behind
+    it: a number computed and never printed is a number nobody has.
+    """
+    import collections
+    import io, contextlib
+    import deck_cli
+
+    gauntlet = [deckfile.load(p) for p in deckfile.gauntlet_paths()]
+    version = deckfile.gauntlet_version()
+    frontier = deckfile.distinct_cards(gauntlet)
+
+    class Args:
+        against = None
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        deck_cli.cmd_gauntlet(Args())
+    out = buf.getvalue()
+
+    check("the gauntlet is versioned, not merely dated",
+          re.match(r"^gauntlet-\d{4}-\d{2}$", version) is not None,
+          version)
+    check("`gauntlet` prints the version it is measuring against",
+          version in out, out.splitlines()[0] if out else "(no output)")
+    # The two numbers are checked against a recomputation rather than against
+    # constants: pinning "96" would go stale the next time the gauntlet grows,
+    # and pinning nothing would let the line print a number it did not compute.
+    check("`gauntlet` prints how many lists the field holds",
+          f"{len(gauntlet)} list(s)" in out, f"{len(gauntlet)} lists")
+    check("`gauntlet` prints the distinct-card count, the scripting frontier",
+          f"{len(frontier)} distinct cards" in out, f"{len(frontier)} cards")
+
+    # The frontier is the reason to have the number at all, so it has to be the
+    # number of CARDS rather than of names or of deck entries. Decklist sites
+    # write `Master Yi, Wuju Bladesman`; the pool writes `Master Yi - Wuju
+    # Bladesman`. Respell one deck's cards and the count must not move.
+    #
+    # Only names the pool itself knows as ONE card are respelled. Riftcodex
+    # carries a few cards twice under both spellings — `Sona, Harmonious` and
+    # `Sona - Harmonious` are two records — and for those the two names really
+    # are two entries, which is a fact about the upstream data rather than
+    # something `canonical` gets to decide.
+    def collapses(name):
+        other = name.replace(" - ", ", ") if " - " in name else name.replace(", ", " - ")
+        return other != name and cards.find(other) and cards.find(name) is cards.find(other)
+
+    respelled = copy.deepcopy(gauntlet[0])
+    respelled.main = [
+        ((n.replace(" - ", ", ") if " - " in n else n.replace(", ", " - ")) if collapses(n) else n, q)
+        for n, q in respelled.main
+    ]
+    moved = [n for (n, _), (m, _) in zip(gauntlet[0].main, respelled.main) if n != m]
+    check("two spellings of one card count once (the frontier is cards, not names)",
+          moved and deckfile.distinct_cards([respelled]) == deckfile.distinct_cards([gauntlet[0]]),
+          f"respelled {len(moved)} name(s)" if moved else "nothing was respelled — check is vacuous")
+
+    # The same property over the committed field rather than a constructed one:
+    # if a source ever spells a card in a way the pool records separately, the
+    # frontier silently counts one card as two and overstates the work.
+    by_shape = collections.defaultdict(list)
+    for name in frontier:
+        by_shape[re.sub(r"\s*[-,]\s*", " ", name).lower()].append(name)
+    twins = {k: v for k, v in by_shape.items() if len(v) > 1}
+    check("no card is counted twice in the frontier under two spellings",
+          not twins,
+          f"{len(frontier)} names" if not twins else "; ".join(", ".join(v) for v in twins.values()))
+
+    one = gauntlet[0]
+    named = deckfile.distinct_cards([one])
+    check("the legend and the Chosen Champion are inside the frontier",
+          deckfile.canonical(one.legend) in named
+          and deckfile.canonical(one.chosen_champion) in named,
+          "neither is ever shuffled, and both are executed in every game")
+
+    # `decks/` holds whatever you are building right now. Counting it would make
+    # the named field change shape depending on who was mid-analysis.
+    check("the gauntlet is only gauntlet/, never the decks you are building",
+          all(os.sep + "gauntlet" + os.sep in p for p in deckfile.gauntlet_paths())
+          and len(deckfile.gauntlet_paths()) < len(deckfile.available()) + 1,
+          f"{len(deckfile.gauntlet_paths())} of {len(deckfile.available())} decks")
+
+    check("a copy with no version file reports one rather than crashing",
+          _gauntlet_version_without_file() == "unversioned")
+
+    # Provenance is what makes a list auditable a year from now. A deck with no
+    # URL and no date cannot be re-checked against its source at all.
+    undated = [d.name for d in gauntlet if not d.source.get("fetched")]
+    check("every list in the field records where and when it came from",
+          not undated,
+          f"{len(gauntlet)} lists" if not undated else f"{len(undated)} without a date")
+
+
+def _gauntlet_version_without_file():
+    """gauntlet_version() with the file out of reach, to pin the failure path."""
+    import builtins
+    real = builtins.open
+
+    def fake(path, *a, **k):
+        if str(path).endswith("GAUNTLET-VERSION"):
+            raise OSError("gone")
+        return real(path, *a, **k)
+
+    builtins.open = fake
+    try:
+        return deckfile.gauntlet_version()
+    except Exception as err:
+        # Returned rather than propagated: the check above is about an
+        # unreadable version file being REPORTED, and letting the exception out
+        # here would take the whole suite down instead of failing the one check
+        # that exists to notice it.
+        return f"raised {type(err).__name__}"
+    finally:
+        builtins.open = real
+
+
 def documentation():
     """SKILL.md is the procedure an agent follows. Its examples have to run.
 
@@ -1750,7 +1875,7 @@ def main():
         card_lookup, card_text_display, deck_legality, setup_rules, turn_structure, resources,
         paying, movement, combat, scoring, burn_out, persistence, rendering,
         privacy, journalling, atomicity, importing, minted_identifiers, guards,
-        documentation, action_scripts, proven_ratio,
+        gauntlet_identity, documentation, action_scripts, proven_ratio,
     ):
         print(f"{section.__name__}:")
         section()
