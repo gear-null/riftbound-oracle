@@ -13,6 +13,38 @@ an explicit experiment in front of them.
 
 ---
 
+## 0. What this is for
+
+**The product is a deck-building tool.** Propose a deck, play it against the current
+tournament meta, learn which cards carried it and which failed, change one thing,
+repeat. Everything else in this plan exists to make those games cheap and their verdicts
+trustworthy.
+
+- **Playing well is the means; the evidence standard is the end.** "Rules enforcement"
+  is not a goal. The kernel is not a judge and not a client, and it never chases corner
+  cases for their own sake. Its fidelity target is: *the meta's cards correct, unknown
+  cards refused, corner cases only when a puzzle or a ruling shows they change results.*
+  The correctness instruments (symmetry, perft, golden games) exist to protect deck
+  verdicts from engine bugs, not to referee anyone.
+- **The opponent set is the current tournament meta**, i.e. the versioned gauntlet. It is
+  the scripting frontier, the evaluation set and the pool the tool proposes decks from.
+  Decks nobody has built yet are out of scope until the meta pool is done.
+- **Pilot quality is part of every verdict.** The engine plays both seats, so a deck
+  score is really *deck × pilot*. Board decks are easier to pilot than combo or control
+  decks, and a weak pilot rates them unfairly. Every report carries pilot diagnostics,
+  and a **meta-respect test** (known tournament lists must beat known casual lists in
+  self-play) gates the tool's own credibility.
+- **Two learned models, plus one statistic that needs no learning.** A *position*
+  evaluator makes search deeper and cheaper; a *deck and matchup* surrogate predicts
+  P(A beats B) from composition so thousands of candidate decks can be screened before
+  games are spent on the promising ones; and *card-contribution statistics* (drawn vs.
+  not drawn, played vs. held win-rate deltas, in the style of 17Lands) are the first
+  deck-building signal the engine can give, available the day it plays its first game.
+- **The deck loop is the spine and it arrives early**: `matchup` with intervals and card
+  statistics right after the first fully automated game with a greedy pilot. Search and
+  learned evaluation are strength multipliers layered on afterwards, each one measured
+  by whether deck verdicts change and whether the meta-respect test improves.
+
 ## 1. Why: the current simulator is expensive and weak for the same reason
 
 deck-lab is a table, not a player (ADR 0007). That split was right for the problem it
@@ -331,6 +363,13 @@ are the same object. Root-parallelism over seeded worlds fits 14 cores with no G
   search is spent at analysis time, where it is free.
 - **Iterate**: eval v0 → self-play → eval v1 → … Each version must beat the previous on
   the ladder and not regress the puzzle suite.
+- **The deck and matchup surrogate.** A second, separate model: from two deck
+  compositions (card multiset, legend, champion, battlefields, runes) to P(A beats B),
+  trained on the self-play store's game outcomes with learned card embeddings; reported
+  with calibration on held-out pairings and on held-out *decks*, because a surrogate
+  trained on 48 lists will interpolate well and extrapolate badly. Its job is screening:
+  rank thousands of mutations cheaply, then confirm the top few with paired games. Its
+  embeddings double as an interpretable "what does this card do for this deck" signal.
 
 ### 4.6 The agentic layer — where tokens are spent
 
@@ -347,6 +386,7 @@ evaluator sat far above it (§5.2). So the LLM is **banned from the per-decision
 | propose evaluator features / heuristic code (selected by self-play, held-out reported) | Opus 5 | during stage A | small |
 | adjudicate a flagged node (unscripted card, disputed interaction, search disagreement) | Fable via `rules-report` | rare, cached as a ruling *and* a test | ~50k per ruling |
 | explain a result in SQP form; propose deck changes | Fable/Opus | per analysis | ~10–30k |
+| propose deck mutations worth screening; read the loop's report | Fable/Opus | per exploration round | ~10–30k |
 | play a game | nobody | — | 0 |
 
 Escalation is gated on cheap disagreement (top-2 value gap, shallow-vs-deep flip), the
@@ -522,6 +562,11 @@ hand-written scripts; compiler pipeline; **first fully automated game between tw
 tournament decks** and the G4 throughput measurement; four parallel scaling batches;
 script mutation battery.
 
+**Phase 2¾ — the deck loop, v0.** With a greedy pilot: `matchup` against the versioned
+gauntlet with paired games and intervals; card-contribution statistics; pilot
+diagnostics and the meta-respect test. This is the first moment the tool answers a
+deck-building question better than the table did.
+
 **Phase 2½ — measure the game.** PIMC properties, branching, draw rate, seed
 determination. Decides the search design.
 
@@ -531,8 +576,9 @@ determination. Decides the search design.
 **Phase 4 — evaluation.** φ(S) + regression + calibration; self-play data pipeline
 (no search in the loop); small network; puzzle suite.
 
-**Phase 5 — product.** `matchup`/`sim` with intervals; `bestline --explain` in SQP form;
-engine as opponent; rulings bridge; token accounting.
+**Phase 5 — the deck loop, v1.** Deck exploration (mutate, screen, confirm, with a
+held-out gauntlet split); the deck and matchup surrogate; `bestline --explain` in SQP
+form; engine as opponent; token accounting. The rulings bridge is a nice-to-have.
 
 **Phase 6 — scale and harden.** PyPy/Rust gate; long-tail scripting; standing
 exploiter; wider decklist scrape.
@@ -553,6 +599,10 @@ exploiter; wider decklist scrape.
 - **G5 — evaluator lift.** Stage B ships only if it beats stage A by > 50 Elo at equal
   budget, does not regress the puzzle suite, and does not lose more than it gains to the
   exploiter.
+- **G-pilot — meta respect.** Before any deck verdict is published, the engine's own
+  self-play must rank known tournament lists above known casual lists, and the
+  going-first advantage must be measured and stable. A tool that cannot reproduce the
+  meta's coarse ordering has no standing to propose changes to it.
 - **G-search — determinization regime.** If the measured properties put Riftbound in
   PIMC's weak regime (low leaf correlation or mid-range disambiguation), the Layer-3
   ablations are promoted from optional to required before Phase 4.
@@ -575,6 +625,9 @@ exploiter; wider decklist scrape.
 - **Distribution.** Riot's API terms prohibit exactly this class of tool for key
   holders. We hold no key, ship a research artifact, and frame self-play output as
   simulation. The owner decides the posture in ADR 0009.
+- **Deck × pilot confound.** The tool's verdicts are only as good as the engine's
+  piloting of *both* decks. Mitigations: pilot diagnostics per archetype, the
+  meta-respect gate, exploiter probes, and stating the pilot version on every report.
 - **The engine cannot generate a line it does not know.** At sampled positions an LLM
   proposes candidate plans the beam missed; if they win on the ladder they become search
   heuristics. This is the one place LLM *play* still earns tokens, and it is offline.

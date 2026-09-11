@@ -55,3 +55,4 @@ chosen.
 | [0006](adr/0006-derive-the-symbol-legend.md) | Derive the symbol legend from the rules |
 | [0007](adr/0007-the-table-not-the-player.md) | Simulate the table, not the player |
 | [0008](adr/0008-two-document-kinds.md) | Two document kinds (ruling, primer), one verification core |
+| [0009](adr/0009-the-engine-plays.md) | The engine plays; card text is executed from verified scripts (proposed) |

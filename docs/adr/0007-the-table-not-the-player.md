@@ -1,6 +1,6 @@
 # ADR 0007 — Simulate the table, not the player
 
-**Status:** accepted · **Date:** 2026-08
+**Status:** accepted; the second half (card text is never executed) is superseded by [ADR 0009](0009-the-engine-plays.md) · **Date:** 2026-08
 
 ## Context
 
