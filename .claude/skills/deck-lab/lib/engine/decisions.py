@@ -48,8 +48,11 @@ against this shape:
 #: check on `EMITTED` plays a vanilla game and a second check plays one with
 #: `engine/demo.py`'s abilities attached:
 #:   optional          a "you may" as the first part of a Triggered Ability's
-#:                     effect, decided during finalization (383.3.a, 402.1), and
-#:                     a "may apply" on a Replacement Effect (371.2)
+#:                     effect, decided during finalization (383.3.a, 402.1).
+#:                     NOT 371.2's "may apply" on a Replacement Effect: that one
+#:                     is a declared gap, because a replacement is applied inside
+#:                     a mandatory operation the decision API cannot suspend.
+#:                     See docs/engine/spec.md
 #:   order             which of several simultaneously triggered abilities goes
 #:                     on the Chain next (383.3.d), asked one at a time; across
 #:                     seats the order is Turn Order and not a choice (383.3.d.1,

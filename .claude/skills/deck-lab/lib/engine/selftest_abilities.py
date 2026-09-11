@@ -145,11 +145,21 @@ def kernel_modules():
 
 
 def a_spell(deck):
+    """A spell with something in BOTH components, so a cost check can see them.
+
+    The first spell in the list costs 1 Energy, and "1 Energy minus a discount
+    of 1" is 0 — which is also what "no cost at all" looks like, and what every
+    wrong answer a cost mutant can produce looks like. A 2+ Energy spell with a
+    Power symbol makes the discount and the component it did NOT touch both
+    visible.
+    """
     import cards
-    for name in sorted(set(deck.main_cards())):
-        if cards.card_type(name) == cards.SPELL:
-            return name
-    raise AssertionError("no spell in the fixture deck")
+    names = sorted(set(deck.main_cards()))
+    rich = [n for n in names if cards.card_type(n) == cards.SPELL
+            and (cards.energy_cost(n) or 0) >= 2 and (cards.power_cost(n) or 0) >= 1]
+    if rich:
+        return rich[0]
+    raise AssertionError("no spell in the fixture deck costs 2+ Energy and a Power")
 
 
 # =======================================================================
@@ -281,6 +291,15 @@ def _gates(check):
     layers.recompute(g)
     check("and its own play does not satisfy it — 812.1.c wants a DIFFERENT card",
           g.s.might_of(unit) == printed)
+    # ONE card, and a different one. This is the case the count alone cannot
+    # answer: `len(played) > 1` says no and 812.1.c says yes, so it is the only
+    # shape that pins the comparison rather than the tally.
+    g.s.played[0] = [CRAB]
+    layers.recompute(g)
+    check("one DIFFERENT card finalized this turn is enough, which is what "
+          "makes [Legion] a comparison and not a count (812.1.c)",
+          g.s.might_of(unit) == printed + 2,
+          "Might %d after playing one %s" % (g.s.might_of(unit), CRAB))
     g.s.played[0] = [TIDE, CRAB]
     layers.recompute(g)
     check("a second card finalized this turn satisfies [Legion] (812.1.c)",
@@ -479,12 +498,15 @@ def _triggered(check):
     # paying 1 XP out of 0 raises — which would take the suite down with it.
     g, (unit,) = board([(0, PYKE, loc_base(0))])
     actions.to_trash(g, unit["id"])
-    stood = survives(lambda: drive(g))
+    g.auto_trivial = False
+    asked = set()
+    stood = survives(lambda: asked.update(_kinds_asked(g)))
     check("a Triggered Ability whose cost is impossible leaves the Chain "
           "without being asked about (403, 404.2, 203.3)",
-          stood and g.s.xp[0] == 0 and not g.s.chain,
+          stood and g.s.xp[0] == 0 and not g.s.chain and "cost" not in asked,
           "the kernel tried to pay a cost it had already been told was "
-          "impossible" if not stood else "")
+          "impossible" if not stood else "asked: %s" % (", ".join(sorted(asked))
+                                                        or "nothing"))
 
     # 383.2.c.1 / 808: the object that died is not on the Board any more.
     abilities.clear()
@@ -513,6 +535,20 @@ def _triggered(check):
     mine["exh"] = True
     actions.ready(g, mine["id"])
     check("and fires for its own (383.4.a.1, 383.4.c.1)", len(g.s.trigs) == 1)
+
+    # 315.1.b is the one moment of the turn that readies anything, so a
+    # `readied` trigger that does not fire there is a trigger that does not fire.
+    abilities.clear()
+    abilities.register(TIDE, Ability(
+        "triggered", text="when I am readied, gain 1 XP",
+        trigger=Trigger(("readied",), who="me"), effect=xp_effect()))
+    g, (unit,) = board([(0, TIDE, loc_base(0))])
+    unit["exh"] = True
+    turn.run_task(g, "awaken", None)
+    check("the Awaken Phase readies through the Ready action, so a readied "
+          "trigger fires at 315.1.b (315.1.b, 415, 383)",
+          len(g.s.trigs) == 1 and not g.s.unit(unit["id"])["exh"],
+          "%d queued" % len(g.s.trigs))
 
     abilities.clear()
     abilities.register(TIDE, Ability(
@@ -543,6 +579,27 @@ def _triggered(check):
           "has been performed (383.3.e.1)",
           first == 1 and queued == 0 and g.s.xp[0] == 1,
           "XP %r, %d queued the second time" % (g.s.xp, queued))
+
+    # And the harder half of the same rule. Two conditions met before EITHER
+    # instance has been performed both trigger — at trigger time neither had
+    # been — so the second has to find the allowance spent when it reaches the
+    # front of the Chain. A cap counted only at resolution performs both.
+    g, (unit,) = board([(0, TIDE, loc_base(0))])
+    unit["exh"] = True
+    actions.ready(g, unit["id"])
+    unit["exh"] = True
+    actions.ready(g, unit["id"])
+    both = len(g.s.trigs)
+    settle(g)
+    check("and two conditions met before either instance is performed still "
+          "perform it once — the cap is on performances (383.3.e.1)",
+          both == 2 and g.s.xp[0] == 1,
+          "%d queued, XP %r" % (both, g.s.xp))
+    check("and the count never runs past the cap it is counting against "
+          "(383.3.e.1)",
+          all(v <= 1 for k, v in g.s.used.items() if k.endswith("|turn")),
+          "%r" % (sorted((k, v) for k, v in g.s.used.items()
+                         if k.endswith("|turn")),))
 
     abilities.clear()
     abilities.register(TIDE, Ability(
@@ -596,10 +653,28 @@ def _ordering(check):
           pending is not None and pending["kind"] == "order"
           and len(pending["options"]) == 2,
           "%r" % (pending and pending["kind"],))
-    chosen = pending["options"][1][0]
-    g.answer(chosen)
-    check("the one they chose goes on the Chain first (383.3.d)",
-          g.s.chain and g.s.chain[0]["src_id"] in (one["id"], two["id"]))
+
+    # BOTH answers, and the whole resulting order. "the winner is one of the
+    # two" is true of every ordering there is, including the one the controller
+    # did not choose.
+    got = []
+    for pick in (0, 1):
+        g, (one, two, spare) = board(
+            [(0, TIDE, loc_base(0)), (0, TIDE, loc_base(0)), (0, CRAB, loc_base(0))])
+        spare["exh"] = True
+        actions.ready(g, spare["id"])
+        run_triggers(g)
+        options = g.s.pending["options"]
+        source_of = dict((t["id"], t["src_id"]) for t in g.s.trigs)
+        wanted = source_of[options[pick][0][1]]
+        other = next(v for k, v in source_of.items() if v != wanted)
+        g.answer(options[pick][0])
+        run_triggers(g)
+        got.append(([c["src_id"] for c in g.s.chain], [wanted, other]))
+    check("the one they chose goes on the Chain first and the other second, "
+          "whichever they choose (383.3.d)",
+          all(chain == want for chain, want in got),
+          "; ".join("%r wanted %r" % (c, w) for c, w in got))
 
     # 383.3.d.1 / 303.2.a: across seats the order is Turn Order, not a choice.
     abilities.clear()
@@ -657,18 +732,50 @@ def _created(check):
     abilities.emit(g, "end_of_turn", seat=0, turn=g.s.turn)
     check("and fires when its time comes even though its source has left the "
           "Board (392)", len(g.s.trigs) == 1, "%d queued" % len(g.s.trigs))
-    check("and is gone once it has fired — it was "
-          "\"the next\", not \"every\" (390.3, 391)", not g.s.delayed)
+
+    # 391 vs 390.3, which are two different windows and were one. A window that
+    # lasts the turn stays open until 317.2.d closes it; only "the next time" is
+    # spent by firing.
+    abilities.clear()
+    abilities.register(BROKER, Ability(
+        "triggered", text="(unused)", trigger=Trigger(("conquer",), who="you"),
+        effect=xp_effect()),
+        Ability("delayed", text="when a unit is readied this turn, gain 1 XP",
+                trigger=Trigger(("readied",), who="any"), effect=xp_effect()))
+    g, (unit, spare) = board([(0, BROKER, loc_base(0)), (0, CRAB, loc_base(0))])
+    abilities.delay(g, 0, (BROKER, 1), "readied", window="this_turn",
+                    src_id=unit["id"])
+    spare["exh"] = True
+    actions.ready(g, spare["id"])
+    once = len(g.s.trigs)
+    spare["exh"] = True
+    actions.ready(g, spare["id"])
+    check("a Delayed Ability whose window is THIS TURN fires every time its "
+          "condition is met inside that window (391)",
+          once == 1 and len(g.s.trigs) == 2 and len(g.s.delayed) == 1,
+          "%d then %d queued, %d still waiting"
+          % (once, len(g.s.trigs), len(g.s.delayed)))
+
+    g, (unit, spare) = board([(0, BROKER, loc_base(0)), (0, CRAB, loc_base(0))])
+    abilities.delay(g, 0, (BROKER, 1), "readied", window="next",
+                    src_id=unit["id"])
+    spare["exh"] = True
+    actions.ready(g, spare["id"])
+    spare["exh"] = True
+    actions.ready(g, spare["id"])
+    check("and a \"the next time\" window is spent by firing once (390.3)",
+          len(g.s.trigs) == 1 and not g.s.delayed,
+          "%d queued, %d still waiting" % (len(g.s.trigs), len(g.s.delayed)))
 
     g, (unit,) = board([(0, BROKER, loc_base(0))])
-    abilities.delay(g, 0, (BROKER, 1), "end_of_turn", window="this_turn",
+    abilities.delay(g, 0, (BROKER, 1), "readied", window="this_turn",
                     src_id=unit["id"])
     check("a Delayed Ability whose window was this turn is retired at the "
           "Expiration Step (317.2.d, 391)",
           abilities.retire_delayed(g, "this_turn") and not g.s.delayed)
     check("a window the framework does not carry is refused rather than "
           "silently never firing (390.2)",
-          _h().raises(lambda: abilities.delay(g, 0, (BROKER, 1), "end_of_turn",
+          _h().raises(lambda: abilities.delay(g, 0, (BROKER, 1), "readied",
                                               window="next_week"), "not a window"))
     check("and so is a Delayed Ability keyed to something that is not an event "
           "(383, 390.2)",
@@ -1020,6 +1127,56 @@ def _replacement_rules(check):
           closed["n"] == 3 and opened["n"] == 2,
           "%d then %d" % (closed["n"], opened["n"]))
 
+    # 372 -> 480.3: two Replacement Effects, one controller, and an order that
+    # changes the answer. The controller's choice is a declared gap (see
+    # spec.md), so what decides is the Timestamp — and a replacement only HAS a
+    # Timestamp because `abilities.refresh_stamps` gives every active ability
+    # one. It used to give them only to passives with a layer contribution, so
+    # every replacement scored 0 and the walk order decided.
+    #
+    # The one that is on the board FIRST is the one whose ability is Inactive,
+    # so the Timestamp order is the opposite of the order the walk finds them
+    # in (480.2: text that is Inactive holds no Timestamp, and establishes a new
+    # one when it ceases to be). Without that opposition the check passes on an
+    # engine that has no Timestamps at all and simply applies them in walk
+    # order, which is what it did.
+    def doubles(ev):
+        return dict(ev, n=ev["n"] * 2, seen=ev.get("seen", "") + "D")
+
+    def lessens(ev):
+        return dict(ev, n=ev["n"] - 1, seen=ev.get("seen", "") + "M")
+
+    outcomes = []
+    for gated_card in (AKALI, TIDE):
+        other = TIDE if gated_card == AKALI else AKALI
+        work = {AKALI: doubles, TIDE: lessens}
+        mark = {AKALI: "D", TIDE: "M"}
+        abilities.clear()
+        for name in (AKALI, TIDE):
+            abilities.register(name, Ability(
+                "would", text="%s's replacement" % name,
+                gate=Gate("Level", 1) if name == gated_card else None,
+                applies=(lambda m: lambda g, ev, src: (
+                    ev["ev"] == "damage" and m not in ev.get("seen", "")))(mark[name]),
+                replace=(lambda f: lambda g, ev, src: f(ev))(work[name])))
+        g, _ = board([])
+        # Gated first: on the board, and holding no Timestamp yet.
+        first = _h().put(g, 0, gated_card, loc_base(0))
+        _h().refresh(g)
+        layers.recompute(g)
+        _h().put(g, 0, other, loc_base(0))
+        _h().refresh(g)
+        layers.recompute(g)
+        actions.gain_xp(g, 0, 1)            # 824.1.c: the gate opens now
+        event = replacements.apply(g, {"ev": "damage", "oid": first["id"], "n": 3,
+                                       "seat": 0, "name": gated_card})
+        outcomes.append((gated_card, event["seen"], event["n"]))
+    check("two Replacement Effects with one controller apply in Timestamp "
+          "order and not in the order they are found, and the order changes "
+          "the answer (372, 480.2, 480.3)",
+          outcomes[0][1:] == ("MD", 4) and outcomes[1][1:] == ("DM", 5),
+          "; ".join("%s gated -> %s = %d" % o for o in outcomes))
+
     # 370.1.a: the replaceable set is closed, and a name outside it is refused.
     check("an event outside the replaceable vocabulary is refused rather than "
           "silently unreplaceable (370.1.a)",
@@ -1041,20 +1198,42 @@ def _replacement_rules(check):
           % (", ".join(sorted(set(replacements.EVENTS) - built)) or "none",
              ", ".join(sorted(built - set(replacements.EVENTS))) or "none"))
 
-    # Combat damage really does go through the pipeline.
+    # Combat damage really does go through the pipeline — run a real combat.
+    # Calling `replacements.apply` by hand and then reading `dmg` proved only
+    # that no combat had happened: nothing ever marks damage from an event
+    # nobody dealt.
+    st = _h()
     abilities.clear()
     abilities.register(AKALI, Ability(
         "would", text="damage dealt to me is reduced to 0",
         applies=lambda g, ev, src: (ev["ev"] == "damage"
                                     and ev["oid"] == src["oid"] and ev["n"] > 0),
         replace=lambda g, ev, src: dict(ev, n=0)))
-    g, (mine,) = board([(0, AKALI, loc_base(0))])
-    event = replacements.apply(g, {"ev": "damage", "oid": mine["id"], "n": 9,
-                                   "seat": 0, "name": AKALI})
-    marked = mine["dmg"]
-    check("combat damage is a replaceable event and the replacement decides "
+    g, _ = board([])
+    mine = st.put(g, 0, AKALI, loc_bf(0))
+    theirs = st.put(g, 1, HERDER, loc_bf(0))
+    st.refresh(g)
+    layers.recompute(g)
+    st._open_combat(g, 0, attacker=1)
+    st._run_damage(g, 0)
+    check("combat damage is a replaceable event, and the replacement decides "
           "how much is marked (370.1.c, 465.2.d)",
-          event["n"] == 0 and marked == 0)
+          mine["dmg"] == 0 and theirs["dmg"] == g.s.might_of(mine),
+          "the defender took %d of %d Might, the attacker %d"
+          % (mine["dmg"], g.s.might_of(theirs), theirs["dmg"]))
+
+    abilities.clear()
+    g, _ = board([])
+    plain = st.put(g, 0, AKALI, loc_bf(0))
+    other = st.put(g, 1, HERDER, loc_bf(0))
+    st.refresh(g)
+    layers.recompute(g)
+    st._open_combat(g, 0, attacker=1)
+    st._run_damage(g, 0)
+    check("and with no replacement attached the same combat marks it in full, "
+          "so the check above is comparing something (465.2.d)",
+          plain["dmg"] == g.s.might_of(other),
+          "took %d of %d" % (plain["dmg"], g.s.might_of(other)))
     abilities.clear()
 
 
@@ -1202,12 +1381,17 @@ def _durations(check):
     # 466.7 / census 5b: `this_combat`.
     abilities.clear()
     g, (unit,) = board([(0, TIDE, loc_base(0))])
+    # A permanent +1 underneath, so what is left after the combat one expires is
+    # NOT the printed Might. Without it, "the effect ended" and "Might is never
+    # modified at all" are the same number.
+    actions.give_might(g, [unit["id"]], 1, until="permanent")
     actions.give_might(g, [unit["id"]], 2, until="this_combat")
     live = g.s.might_of(unit)
     layers.expire(g, "this_combat")
-    check("a `this_combat` effect ends with the combat and not with the turn "
-          "(477, 466.7)",
-          live == unit["might"] + 2 and g.s.might_of(unit) == unit["might"])
+    check("a `this_combat` effect ends with the combat and not with the turn, "
+          "and leaves the rest standing (477, 466.7)",
+          live == unit["might"] + 3 and g.s.might_of(unit) == unit["might"] + 1,
+          "%d -> %d, printed %d" % (live, g.s.might_of(unit), unit["might"]))
 
     # `until_event`.
     abilities.clear()
@@ -1223,12 +1407,17 @@ def _durations(check):
     abilities.clear()
     from . import combat
     g, (unit,) = board([(0, TIDE, loc_base(0))])
+    # +2, so "its full Might" and "the Might printed on it" are different
+    # numbers and the check can tell which one 423.1.c means.
+    actions.give_might(g, [unit["id"]], 2, until="permanent")
     actions.stun(g, unit["id"])
     check("a Stunned Unit contributes no Might to the Damage Step (423.1.b)",
           combat.damage_pool(g.s, [unit]) == 0,
           "pool %d" % combat.damage_pool(g.s, [unit]))
-    check("and still needs its FULL Might in damage to die (423.1.c)",
-          combat.minimum_lethal(g.s, unit) == unit["might"])
+    check("and still needs its full CURRENT Might in damage to die (423.1.c)",
+          combat.minimum_lethal(g.s, unit) == unit["might"] + 2,
+          "lethal at %d, printed %d"
+          % (combat.minimum_lethal(g.s, unit), unit["might"]))
     check("Stunning an already Stunned Unit is not a second event (423.1.a.1)",
           not actions.stun(g, unit["id"]))
     abilities.clear()

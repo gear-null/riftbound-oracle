@@ -150,6 +150,10 @@ def recompute(g):
     """
     from . import abilities
     s = g.s
+    # 480.1, before anything is reset: a granted ability's Timestamp is read off
+    # the `kw` the LAST recomputation produced, and resetting first would prune
+    # and re-establish it on every pass.
+    abilities.refresh_stamps(g)
     _reset(s)
     if not s.effects and not abilities.REGISTRY:
         # Nothing can contribute, so the printed traits are the answer and one

@@ -115,8 +115,14 @@ def _qualifying(g, event, applied):
 
 
 def _stamp(g, src):
-    key = "%s#%s#%d" % (src["oid"], src["key"][0], src["key"][1])
-    return g.s.stamps.get(key, 0)
+    """480.3's tie-break, for two replacements with the same controller (372).
+
+    `abilities.refresh_stamps` is what makes this a real number. It used to read
+    a dict only the passives with a layer contribution were ever written into,
+    so every replacement scored 0 and the order was the incidental order of the
+    walk that found them.
+    """
+    return g.s.stamps.get(abilities.stamp_key(src), 0)
 
 
 def _freq_key(src):

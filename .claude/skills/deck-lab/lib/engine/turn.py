@@ -100,8 +100,11 @@ def enter_phase(g, phase):
         queued = [("empty_pools", None)]
     elif phase == ENDING:
         # 317.1 Ending Step, then 317.2 Expiration Step, which invokes an Ending
-        # Special Cleanup with three inserted steps.
-        queued = [("cleanup", "ending")]
+        # Special Cleanup with three inserted steps. The Ending Step is a Task of
+        # its own because 383.1's "at the end of this turn" fires in it — and it
+        # has to fire BEFORE 317.2.d retires the window that created it, which is
+        # what raising the event inside the Expiration Cleanup got backwards.
+        queued = [("ending_step", None), ("cleanup", "ending")]
 
     # 319.2: a Cleanup becomes an Outstanding Task after the game transitions
     # between phases. It goes after the phase's own Tasks: the transition is
@@ -171,6 +174,10 @@ def run_task(g, name, arg):
     elif name == "begin_game":
         # 118: begin play with the First Player taking their turn.
         begin_turn(g)
+    elif name == "ending_step":
+        # 317.1 / 383.1: the point in the turn sequence an "at the end of this
+        # turn" ability names.
+        abilities.emit(g, "end_of_turn", seat=seat, turn=s.turn)
     elif name == "beginning_step":
         # 315.2.a / 383.1: the point in the turn sequence an "at the beginning
         # of" ability names. `who` on the trigger is what tells a "your turn"
@@ -179,8 +186,13 @@ def run_task(g, name, arg):
     elif name == "awaken":
         # 315.1.b: the Turn Player readies all Game Objects they control.
         readied = [o for o in (s.units + s.runes) if o["ctrl"] == seat and o["exh"]]
+        # Through `actions.ready`, quietly. 315.1.b readies them as a group and
+        # one summary line is the right log, but each one is still a Ready
+        # action (415) — and setting `exh` here directly meant the `readied`
+        # event was never raised, so "when I am readied" could not fire at the
+        # one moment of the turn that readies anything.
         for obj in readied:
-            obj["exh"] = False
+            actions.ready(g, obj["id"], quiet=True)
         g.note("awaken: seat %d readies %d object(s) (315.1.b)" % (seat, len(readied)),
                seat=seat)
         if readied:
@@ -493,10 +505,6 @@ def _ending_inserts(g):
     if stunned:
         g.note("end of turn: %d unit(s) stop being Stunned (423.1.a.2)" % len(stunned))
         changed = True
-    # 383.1: "at the end of this turn" is a point in the turn sequence, and this
-    # is it — after the expirations, so an ability that looks at the board sees
-    # the board the next turn will start from.
-    abilities.emit(g, "end_of_turn", seat=s.turn_player, turn=s.turn)
     for seat in s.turn_order():                            # 3e
         if s.energy[seat] or s.power[seat]:
             actions.empty_pool(g, seat)

@@ -1542,12 +1542,11 @@ MUTANTS = [
                 u["id"] == record["src_id"] for u in s.units):
             continue""",
          expect="even though its source has left the Board"),
-    dict(name="fire a \"the next time\" delayed ability every time",
+    dict(name="never spend a \"the next time\" delayed ability",
          file="engine/abilities.py",
-         find="""        s.delayed.remove(record)
-        _queue(g, src, event, "delayed")""",
-         repl='        _queue(g, src, event, "delayed")',
-         expect="was \"the next\", not \"every\""),
+         find="            s.delayed.remove(record)",
+         repl="            pass",
+         expect="window is spent by firing once"),
     dict(name="let a linked ability touch anything on the board",
          file="engine/abilities.py",
          find='    return g.s.links.get(key, ())',
@@ -1674,6 +1673,69 @@ MUTANTS = [
          repl="""    for name in []:
         abilities.REGISTRY.pop(name, None)""",
          expect="detaches again"),
+
+    # ---- what the review of #24 found (383.3.e.1, 315.1.b, 480.3, 391) ----
+    dict(name="count a \"once each turn\" ability only when it resolves",
+         file="engine/abilities.py",
+         find="""    _count_performed(g, item["src_id"], ability)
+    item["step"] = 6""",
+         repl="    item[\"step\"] = 6",
+         expect="does not trigger again once it has been performed"),
+    dict(name="let a second instance past a spent once-each-turn allowance",
+         file="engine/abilities.py",
+         find='    if not limit_ok(g, item["src_id"], ability):',
+         repl="    if False:",
+         expect="the cap is on performances"),
+    dict(name="ready everything at Awaken without performing a Ready action",
+         file="engine/turn.py",
+         find="""        for obj in readied:
+            actions.ready(g, obj["id"], quiet=True)""",
+         repl="""        for obj in readied:
+            obj["exh"] = False""",
+         expect="readies through the Ready action"),
+    dict(name="give a Timestamp only to the passives that alter a trait",
+         file="engine/abilities.py",
+         find="""    live = set()
+    for src in sources(g):
+        if not active(g, src):""",
+         repl="""    live = set()
+    for src in sources(g, kinds=("passive",)):
+        if not active(g, src):""",
+         expect="Timestamp order and not in the order they are found"),
+    dict(name="spend every delayed window on its first firing",
+         file="engine/abilities.py",
+         find='        if record["window"] == "next":',
+         repl="        if True:",
+         expect="fires every time its condition is met inside that window"),
+    dict(name="put simultaneous triggers on the chain in the order they triggered",
+         file="engine/abilities.py",
+         find='    record = next(t for t in s.trigs if t["id"] == trig_id)',
+         repl="    record = s.trigs[0]",
+         expect="goes on the Chain first and the other second"),
+    dict(name="deal combat damage without offering it to replacement effects",
+         file="engine/combat.py",
+         find="""        event = replacements.apply(g, {"ev": "damage", "oid": oid, "n": amount,
+                                       "seat": unit["ctrl"], "name": unit["name"]})""",
+         repl="""        event = {"ev": "damage", "oid": oid, "n": amount,
+                 "seat": unit["ctrl"], "name": unit["name"]}""",
+         expect="combat damage is a replaceable event"),
+    dict(name="satisfy [Legion] by counting plays instead of comparing them",
+         file="engine/abilities.py",
+         find='            return len(played) > 1 or (len(played) == 1 and played[0] != src["name"])',
+         repl="            return len(played) > 1",
+         expect="a comparison and not a count"),
+    dict(name="expire every continuous effect when one duration ends",
+         file="engine/layers.py",
+         find="""    gone = [e for e in s.effects
+            if e["until"] == duration""",
+         repl="""    gone = [e for e in s.effects
+            if True""",
+         expect="leaves the rest standing"),
+    dict(name="read lethal damage off a unit's printed Might (423.1.c)",
+         file="engine/combat.py",
+         find="    might = s.might_of(unit)",
+         repl='    might = unit["might"]',
+         expect="needs its full CURRENT Might"),
 
 ]
 

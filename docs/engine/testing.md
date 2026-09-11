@@ -132,9 +132,14 @@ with them on.
 
 The sharpest instrument here, and the cheapest. Same deck on both seats,
 mirrored shuffle streams, first player swapped, and **the same deterministic
-policy stream per seat**. The two games must be exact mirrors: the same events
-in the same order with the seats relabelled, and therefore a paired result of
-exactly 50.00%.
+policy stream per seat**. The property is that the two games are **exact
+mirrors** — the same events in the same order with the seats relabelled — and
+the suite compares the logs entry by entry.
+
+The paired score is a consequence, not the measurement, and it is worth saying
+plainly: it reads **2-2 over 4 mirrored pairs**. "Exactly 50.00%" over n=4 would
+be true of a coin, which is why the log comparison is the check and the
+percentage is the headline.
 
 Anything that is not symmetric breaks it, and most asymmetries are real bugs
 rather than noise — a loop over `range(2)` instead of turn order, a rule keyed to
@@ -362,12 +367,18 @@ laptop, at the kernel's first slice:
 
 | | |
 |---|---|
-| clones/second | ~175,000-240,000 (noisy across runs) |
-| decisions/second | ~10,300 |
-| games/second (random self-play) | ~150 |
-| games/second (with a state hash per log entry) | ~42 |
-| decisions per game | ~67 |
-| games/second (random self-play, abilities attached) | ~36 |
+Measured **interleaved** — base and branch alternating on the same machine,
+seven rounds, medians — because a number from one process and a number from
+another an hour later measure the laptop as much as the engine:
+
+| | base (#23) | with the ability framework | |
+|---|---|---|---|
+| clones/second | 202,700 | 241,700 | noisy; the state grew, so treat any gain as measurement spread |
+| decisions/second | 11,999 | 10,505 | **-12.5%** |
+| games/second (random self-play) | 178.1 | 155.9 | **-12.5%** |
+| games/second (auditable: a hash per log entry) | 49.2 | 43.7 | -11.2% |
+| decisions per game | 67.4 | 67.4 | unchanged |
+| games/second, abilities attached | — | ~30 | the cost of asking the layers a real question |
 
 Measured on the fixture pair, not on whatever sorts first in the gauntlet, so
 the number does not move when someone adds a decklist. Rigorous combat (issue
@@ -376,24 +387,24 @@ the number does not move when someone adds a decklist. Rigorous combat (issue
 the state hash grew by the designation and the six keyword fields per unit,
 which is where the auditable rate moved.
 
-The ability framework cost about 19% of the vanilla throughput (186 -> 150
-games/s, 12k -> 10.1k decisions/s) and it is all in one place: 476's
-recomputation now runs at every 319 board change, because a keyword gate has to
-close in the step it stops holding rather than at the next Cleanup. A vanilla
-game takes the fast path — no stored effects and no registered abilities means
-the printed traits are the answer and one sequence reaches it — which is why the
-number moved by a fifth and not by a half.
+**The ability framework costs 12.5% of the vanilla throughput**, and it is all in
+one place: 476's recomputation now runs at every 319 board change, because a
+keyword gate has to close in the step it stops holding rather than at the next
+Cleanup. A vanilla game takes the fast path — no stored effects and no registered
+abilities means the printed traits are the answer and one sequence reaches it —
+which is why the number moved by an eighth and not by a half.
 
-**A game WITH abilities attached runs at ~36 games/s**, four times slower, and
+**A game WITH abilities attached runs at ~30 games/s**, five times slower, and
 that is the honest cost of asking the layers a real question: every board change
-walks every registered passive, re-derives what it contributes, and recurs the
-sequence until nothing more applies. It is the number to watch when the
-interpreter lands, because a real deck will have abilities on most of its cards
-rather than on eight of them, and a search that needs thousands of positions per
-decision cannot pay it. Two obvious levers are untouched on purpose: the
-recomputation is not incremental (476 is written as a full re-derivation and
-making it incremental before anything measures it is optimising a guess), and
-`passive_effects` re-walks every zone rather than keeping an index.
+walks every ability, re-derives what each active passive contributes, refreshes
+the Timestamps (480.1), and recurs the sequence until nothing more applies. It is
+the number to watch when the interpreter lands, because a real deck will have
+abilities on most of its cards rather than on eight of them, and a search that
+needs thousands of positions per decision cannot pay it. Two obvious levers are
+untouched on purpose: the recomputation is not incremental (476 is written as a
+full re-derivation and making it incremental before anything measures it is
+optimising a guess), and `refresh_stamps` and `passive_effects` each re-walk
+every zone rather than sharing an index.
 
 For comparison, the table measures ~9,000 snapshot+restore/s, ~890 deepcopies/s
 and ~70 turn cycles/s. The clone rate is the one that matters for search, and it

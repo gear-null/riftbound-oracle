@@ -467,6 +467,42 @@ def active(g, src):
     return gate is None or gate.met(g, src)
 
 
+def stamp_key(src):
+    """The key one ability on one object keeps its Timestamp under."""
+    return "%s#%s#%d" % (src["oid"], src["key"][0], src["key"][1])
+
+
+def refresh_stamps(g):
+    """480.1/480.2: a Timestamp for every ability that is currently applying.
+
+    EVERY ability, not only the passives that contribute to the layers. 480.1
+    says a Timestamp is established "when an effect begins applying", and 372's
+    tie-break between two Replacement Effects with the same controller falls
+    through to 480.3 — so a replacement with no Timestamp is a replacement whose
+    order is whatever the walk that found it happened to be. That is what this
+    used to be, and two same-seat replacements then applied in registration
+    order rather than in the order they arrived.
+
+    480.2 is the other half: text that becomes Inactive loses its Timestamp, and
+    a new one is established when it ceases to be. So entries LEAVE this dict.
+    """
+    s = g.s
+    if not REGISTRY:
+        s.stamps.clear()
+        return
+    live = set()
+    for src in sources(g):
+        if not active(g, src):
+            continue
+        key = stamp_key(src)
+        live.add(key)
+        if key not in s.stamps:
+            s.stamp += 1
+            s.stamps[key] = s.stamp
+    for gone in [k for k in s.stamps if k not in live]:
+        del s.stamps[gone]
+
+
 def passive_effects(g):
     """What every active Passive Ability contributes to the layers (473-480).
 
@@ -474,39 +510,28 @@ def passive_effects(g):
     gate continuous: the turn `[Level 6]` stops holding, the passive is simply
     not in this list and its +Might is gone with it.
 
-    480.1/480.2 are honoured through `s.stamps`: a contribution keeps the
-    Timestamp it was first given, and loses it the moment the ability goes
-    Inactive so that coming back gives it a new one.
+    The Timestamps are `refresh_stamps`'s, taken once per recomputation before
+    the traits are reset — this runs several times inside one and must not
+    invent a new one each pass.
     """
     if not REGISTRY:
         return []
     s = g.s
     out = []
-    live = set()
     for src in sources(g, kinds=("passive",)):
-        if src["ab"].modifier is None:
+        if src["ab"].modifier is None or not active(g, src):
             continue
-        stamp_key = "%s#%s#%d" % (src["oid"], src["key"][0], src["key"][1])
-        if not active(g, src):
-            continue
-        live.add(stamp_key)
-        if stamp_key not in s.stamps:
-            s.stamp += 1
-            s.stamps[stamp_key] = s.stamp
-        ts = s.stamps[stamp_key]
+        key = stamp_key(src)
+        ts = s.stamps.get(key, 0)
         from . import layers
         for i, partial in enumerate(src["ab"].modifier(g, src) or ()):
-            effect = {"id": "%s/%d" % (stamp_key, i), "ts": ts,
+            effect = {"id": "%s/%d" % (key, i), "ts": ts,
                       "layer": layers.LAYER_OF[partial["op"]],
                       "n": 0, "kw": "", "src": src["oid"], "ctrl": src["seat"],
                       "targets": (), "until": "permanent", "ev": ""}
             effect.update(partial)
             effect["targets"] = tuple(effect["targets"])
             out.append(effect)
-    for gone in [k for k in s.stamps if k not in live]:
-        # 480.2: when Rules Text becomes Inactive for any reason it loses its
-        # Timestamp; a new one is established when it ceases to be Inactive.
-        del s.stamps[gone]
     return out
 
 
@@ -607,15 +632,15 @@ def _fire_triggers(g, event, leaving=None):
         g.need_triggers()
 
 
-def frequency_key(src):
+def frequency_key(oid, ability):
     """Where the "each turn" counter for one ability on one object lives.
 
     Keyed by the OBJECT as well as the ability, because 371.1 and 383.3.e.1 both
     cap an ability rather than a card: two copies of the same unit each get
     their own once-each-turn.
     """
-    return "%s|%s|%d|%s" % (src["oid"], src["key"][0], src["key"][1],
-                            src["ab"].frequency[2])
+    return "%s|%s|%d|%s" % (oid, ability.owner, ability.index,
+                            ability.frequency[2])
 
 
 def _frequency_ok(g, src):
@@ -623,18 +648,34 @@ def _frequency_ok(g, src):
     if src["ab"].frequency is None:
         return True
     kind, n, _per = src["ab"].frequency
-    key = frequency_key(src)
+    key = frequency_key(src["oid"], src["ab"])
     seen = g.s.used.get(key, 0)
     if kind == "limit":
         # 383.3.e.1: if it has already been performed that many times, it does
-        # not trigger. The counter is incremented when the ability is FINALIZED,
-        # because that is what "performed" means here — a "you may" declined at
-        # 383.3.e.2.b never happened.
+        # not trigger. "Performed" is counted at FINALIZATION (`limit_ok` and
+        # `_count_performed` below), so this refuses a condition met after the
+        # cap is spent — and `finalize` refuses one met BEFORE it was spent but
+        # finalized after, which is the case this test alone cannot see.
         return seen < n
     # 383.1.b: "the Nth time". The count moves every time the condition is met,
     # and only the Nth one triggers.
     g.s.used[key] = seen + 1
     return seen + 1 == n
+
+
+def limit_ok(g, oid, ability):
+    """383.3.e.1 again, asked at the moment the ability would be performed.
+
+    The trigger-time check is not enough on its own and the rule says why: the
+    cap is on how many times the ability is PERFORMED, and two conditions can be
+    met before the first instance has been. Both queue — at trigger time neither
+    has been performed — and the second has to find the allowance spent when it
+    reaches the front of the Chain.
+    """
+    if ability.frequency is None or ability.frequency[0] != "limit":
+        return True
+    _kind, n, _per = ability.frequency
+    return g.s.used.get(frequency_key(oid, ability), 0) < n
 
 
 def _queue(g, src, event, sub):
@@ -819,6 +860,13 @@ def finalize(g, item):
     # countered.
     if ability.applies is not None and not ability.applies(g, {"ev": ""}, src):
         return _abandon(g, item, "it has no legal choices left (402.4)")
+    if not limit_ok(g, item["src_id"], ability):
+        # 383.3.e.1: another instance of this same ability has already been
+        # performed the permitted number of times this turn, which it had not
+        # been when this one triggered.
+        return _abandon(g, item, "its \"once each turn\" has already been "
+                                 "performed this turn (383.3.e.1)")
+    _count_performed(g, item["src_id"], ability)
     item["step"] = 6
     return True
 
@@ -865,7 +913,6 @@ def resolve(g, item):
     src = _src_of(g, item)
     ctx = {"seat": item["ctrl"], "src": src, "item": dict(item),
            "ev": event_of(item), "paid": None}
-    _count_performed(g, src, ability)
     if ability.unless is not None:
         seat, cost, why = ability.unless
         target = item["ctrl"] if seat == "you" else 1 - item["ctrl"]
@@ -904,14 +951,17 @@ def finish_unless(g, choice, key):
                        "ev": dict(choice["ev"] or ()), "paid": paid})
 
 
-def _count_performed(g, src, ability):
-    """383.3.e.1's "performed", counted at the moment it actually is."""
-    if ability.frequency is None:
+def _count_performed(g, oid, ability):
+    """383.3.e.1's "performed", counted at the moment it actually is.
+
+    Which is finalization (406.1), not resolution: 404.2 lets a controller
+    decline to pay and 383.3.a.2 lets them decline a "you may", and an ability
+    that left the Chain either way was never performed. Everything past
+    finalization happens.
+    """
+    if ability.frequency is None or ability.frequency[0] != "limit":
         return
-    kind, _n, per = ability.frequency
-    if kind != "limit":
-        return
-    key = "%s|%s|%d|%s" % (src["oid"], ability.owner, ability.index, per)
+    key = frequency_key(oid, ability)
     g.s.used[key] = g.s.used.get(key, 0) + 1
 
 
@@ -1025,7 +1075,11 @@ def _fire_delayed(g, event):
         trigger = src["ab"].trigger
         if not trigger.matches(g, src, event):
             continue
-        s.delayed.remove(record)
+        if record["window"] == "next":
+            # 390.3's "the next time": spent by firing. A window that lasts a
+            # turn is not — 391 keeps a Delayed Ability active "during the
+            # specified time", and 317.2.d is what closes it.
+            s.delayed.remove(record)
         _queue(g, src, event, "delayed")
         g.need_triggers()
 

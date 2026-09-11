@@ -524,12 +524,19 @@ def exhaust(g, oid):
     g.note("%s [%s] exhausts" % (obj["name"], oid), seat=obj["ctrl"])
 
 
-def ready(g, oid):
-    """415."""
+def ready(g, oid, quiet=False):
+    """415.
+
+    `quiet` suppresses the per-object log line and nothing else. 315.1.b readies
+    everything a player controls at once and logs one summary, and the day that
+    path stopped coming through here was the day "when I am readied" stopped
+    firing at Awaken — so the option is a log setting, never a rules one.
+    """
     obj = _object(g.s, oid)
     was = obj["exh"]
     obj["exh"] = False
-    g.note("%s [%s] readies" % (obj["name"], oid), seat=obj["ctrl"])
+    if not quiet:
+        g.note("%s [%s] readies" % (obj["name"], oid), seat=obj["ctrl"])
     if was:
         # Only a READY that changes something is an event. 415 readies an object
         # that is already ready with no effect, and a trigger on "when I ready"
