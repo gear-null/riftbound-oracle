@@ -1071,11 +1071,12 @@ def readiness(check):
           == "irelia-fervent",
           f'{library.slug("Irelia - Fervent")} / {library.slug("Irelia, Fervent")}')
     unreachable = []
+    scripted = library.by_card()          # once: the corpus has 1,037 lookup keys
     for key, entry in cards.pool().items():
         if entry.get("ambiguous"):
             continue
         name = entry.get("name")
-        if name in library.by_card() and library.slug(key) != library.slug(name):
+        if name in scripted and library.slug(key) != library.slug(name):
             unreachable.append("%s -> %s" % (key, name))
     check("every name the corpus knows a scripted card by reaches its script",
           not unreachable, "; ".join(unreachable[:4]))
