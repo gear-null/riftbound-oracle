@@ -50,7 +50,11 @@ def score(g, seat, index, method="Conquer"):
         g.note("seat %d SCORES %s by %s -> %d point(s)"
                % (seat, bf["name"], method, s.points[seat]), seat=seat)
 
-    actions.check_victory(g, "472")
+    # No victory check here. 472 says a player wins "when a cleanup occurs" —
+    # and one always follows, because a Score changes the board. Deciding it
+    # inside the Score instead made 315.2.b.2 unfinishable: a Turn Player on 7
+    # controlling both battlefields would win on the first Hold and never take
+    # the second, which is a Score the rules say happens.
     return s.points[seat]
 
 
@@ -84,8 +88,8 @@ def hold_all(g, seat):
     for bf in list(g.s.battlefields):
         if bf["ctrl"] == seat and seat not in bf["scored"]:
             score(g, seat, bf["i"], method="Hold")
-            if g.s.winner is not None:
-                # 196: when a player wins the game ends; it does not finish the
-                # step. Scoring the second battlefield after the first one won
-                # leaves a final state that never legally existed.
-                return
+    # ALL of them, with no early exit. 472 decides the win at the cleanup that
+    # follows this step, not partway through it, so a player who passes the
+    # Victory Score on the first Hold still takes the second — and may finish on
+    # more points than the Victory Score, which is a state the rules allow and
+    # `invariants._points` now expects.

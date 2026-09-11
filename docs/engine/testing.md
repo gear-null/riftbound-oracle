@@ -129,9 +129,31 @@ the final-point rule, iterating players by seat number instead of turn order,
 letting a unit enter ready, closing a Showdown on one pass, and determinizing
 without redealing the opponent's hand.
 
+A mutant that is caught **by a different check from the one it names** is not
+caught. Something went red, but the check whose coverage the mutant claims to
+prove is still one nobody has watched fail, and recording it as proven is the
+stale credit the whole battery exists to prevent. The battery reports those as
+`[MISNAMED]` and exits non-zero: point `expect` at the check that actually
+reddens, or tighten the mutant until the named one does.
+
 `mutants.py` writes `proven-checks.json`, which `selftest` reads to print how
 much of itself has been tested. **Commit the record in the same commit as the
 check and the mutant** — CI fails if a battery run leaves the tree dirty.
+
+**Where that guard sits in CI is the guard.** It compares the committed records
+against what a run produces, so it has to come *after everything that writes
+one*. It has been in the wrong place twice: first in the `package` job, which
+runs no battery at all (the file could not change, so the guard could not fire),
+and then between the two batteries, where it could see rules-report's record and
+not deck-lab's — which is to say it could not fail for the skill this kernel
+lives in. It now runs once, after both.
+
+The record is keyed by check NAME, and the battery reads those names out of the
+suite's own output. `check()` introduces a check's detail with two spaces, an em
+dash and a space; the battery anchors on exactly that, and `proven_ratio`
+asserts no check name contains the sequence. A looser anchor (it used to be
+`\s+—`) silently truncated any name with an em dash inside it, so the name never
+matched on the way back and the check lost its credit for good.
 
 ## Regenerating a golden
 
@@ -161,9 +183,9 @@ laptop, at the kernel's first slice:
 
 | | |
 |---|---|
-| clones/second | ~290,000 |
+| clones/second | ~200,000 (noisy: 185k-290k across runs) |
 | decisions/second | ~12,000 |
-| games/second (random self-play) | ~182 |
+| games/second (random self-play) | ~186 |
 | games/second (with a state hash per log entry) | ~53 |
 | decisions per game | ~66 |
 

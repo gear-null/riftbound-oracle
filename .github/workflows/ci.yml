@@ -49,23 +49,12 @@ jobs:
           cd .claude/skills/rules-report/lib
           python3 mutants.py
 
-      - name: The record of what has been seen to fail is committed
-        if: matrix.python == '3.13'
-        run: |
-          # The battery immediately above writes proven-checks.json, which is
-          # committed. A run that changes which checks have been WATCHED to
-          # fail therefore dirties the tree, and left unguarded the recorded
-          # ratio drifts from reality with nothing saying so — the
-          # SKILL-VERSION.json trap, in the file whose whole job is honesty.
-          #
-          # This lived in the `package` job at first, which never runs the
-          # battery: the file could not change there, so the guard could not
-          # fire. It has to sit beside the thing that writes it.
-          git diff --exit-code -- .claude/skills/*/lib/proven-checks.json || {
-            echo "::error::proven-checks.json changed — the set of checks observed to fail moved."
-            echo "Run the battery locally and commit the record."
-            exit 1
-          }
+      # The record guard used to sit here, between the two batteries, and so
+      # could only ever see the rules-report one — deck-lab's battery runs
+      # further down and writes its own record AFTER this point, so a stale
+      # deck-lab record could not fail CI at all. It now runs once, after BOTH
+      # batteries have written, which is the only position from which it can see
+      # either of them. See docs/engine/testing.md.
 
       # The release gate. Not "did the suite pass" but "is every promise in
       # docs/invariants.md still held up by a check that has been SEEN to fail".
@@ -97,6 +86,27 @@ jobs:
         if: matrix.python == '3.13'
         working-directory: .claude/skills/deck-lab/lib
         run: python3 mutants.py
+
+      - name: The record of what has been seen to fail is committed
+        if: matrix.python == '3.13'
+        run: |
+          # Both batteries have now run and both have written their
+          # proven-checks.json, which is committed. A run that changes which
+          # checks have been WATCHED to fail therefore dirties the tree, and
+          # left unguarded the recorded ratio drifts from reality with nothing
+          # saying so — the SKILL-VERSION.json trap, in the file whose whole job
+          # is honesty.
+          #
+          # Position is the whole guard. It started in the `package` job, which
+          # never runs a battery: the file could not change there, so the guard
+          # could not fire. It then sat after the first battery and before the
+          # second, where it could not see deck-lab's record at all. It has to
+          # come after everything that writes one.
+          git diff --exit-code -- .claude/skills/*/lib/proven-checks.json || {
+            echo "::error::proven-checks.json changed — the set of checks observed to fail moved."
+            echo "Run the battery locally and commit the record."
+            exit 1
+          }
 
       # The deck-lab table, on the same Python floor. It ships in the same
       # repo and installs the same way, so it is guarded the same way.

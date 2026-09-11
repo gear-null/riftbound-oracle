@@ -362,17 +362,26 @@ def cleanup_once(g, special=""):
 
     # 323.12 (9) and 323.13 (10). A Showdown or a Combat opens, at a battlefield
     # the Turn Player chooses, and only from a Neutral Open State.
+    #
+    # NINE BEFORE TEN, and the numbering is doing real work. Both steps require a
+    # Neutral Open State, and opening either one leaves it — so with a Showdown
+    # staged at one battlefield and a Combat at another, 323.12 takes the
+    # Showdown and 323.13 does not run at all this cleanup. Taking the Combat
+    # first (which reads as the more urgent thing, and is what this engine did)
+    # opens the wrong fight and leaves the other staged for a later cleanup.
+    #
+    # 323.12's own "without a Combat staged" is what keeps the two disjoint: a
+    # battlefield with both staged belongs to 323.13, and 461.3/464.1 open it as
+    # a Combat Showdown.
     if not s.is_closed() and not s.is_showdown():
-        combats = [b["i"] for b in s.battlefields if b["cb_staged"]]
         showdowns = [b["i"] for b in s.battlefields
                      if b["sd_staged"] and not b["cb_staged"]]
-        # 461.3 / 464.1: where both are staged the Showdown opens AS a Combat
-        # Showdown, so the Combat list is taken first and 323.12 excludes it.
-        if combats:
-            _open_at(g, combats, combat=True)
-            return True
+        combats = [b["i"] for b in s.battlefields if b["cb_staged"]]
         if showdowns:
             _open_at(g, showdowns, combat=False)
+            return True
+        if combats:
+            _open_at(g, combats, combat=True)
             return True
 
     # 323.14 (10a). A Combat staged where a Non-Combat Showdown is ongoing turns

@@ -246,7 +246,7 @@ MUTANTS = [
          file="table.py",
          find="            bf.contested_by = perm.controller",
          repl="            bf.contested_by = None",
-         expect="applied Contested"),
+         expect="equal Might trades both units simultaneously (465.2.c.1.a)"),
     dict(name="let gear apply Contested",
          file="table.py",
          find="        if not perm.is_unit:\n            return",
@@ -313,7 +313,7 @@ MUTANTS = [
          file="selftest.py",
          find="    names = set(NAMES)\n    proven = proven_among(names, record)",
          repl="    proven = proven_among(set(NAMES), record)\n    names = proven",
-         expect="LOWERS the proven ratio rather than raising"),
+         expect="and it is counted, so the two numbers disagree visibly"),
     dict(name="tie-break a two-directory name collision instead of refusing",
          file="deckfile.py",
          find="    if len(exact) > 1:",
@@ -502,7 +502,7 @@ MUTANTS = [
          file="table.py",
          find="                private_to=seat,\n                detail=\", \".join(drawn),",
          repl='                detail=", ".join(drawn),',
-         expect="does not name the cards"),
+         expect="the log still shows that a draw happened"),
     dict(name="show every seat's private detail to everyone",
          file="view.py",
          find="            if full or owner == seat:",
@@ -561,12 +561,12 @@ MUTANTS = [
          file="importer.py",
          find="    line = _CODE.sub(\"\", line)",
          repl="    pass",
-         expect="set code after the name"),
+         expect="a well-formed pasted list imports at all"),
     dict(name="treat a bare section heading as a one-of card",
          file="importer.py",
          find="        if _SECTION.match(raw):\n            continue",
          repl="        if False:\n            continue",
-         expect="headings and comments are not read as cards"),
+         expect="a well-formed pasted list imports at all"),
     dict(name="import a list with no legend at all",
          file="importer.py",
          find="    if not found_legend:",
@@ -618,6 +618,116 @@ MUTANTS = [
     # failure mode is worse than the table's: a mis-implemented rule produces a
     # plausible finished game and a plausible win rate, with nothing to read
     # afterwards. Every kernel check below has been watched to go red.
+    # One per engine module that has logic. Ten of sixteen carried none, which
+    # is the same blind spot the battery exists to find: `combat.py` computed
+    # every damage assignment in the game and `invariants.py` watched every
+    # transition, and either could have been gutted with the suite still green.
+    dict(name="assign combat damage evenly instead of lethal-first (465.2.c.3)",
+         file="engine/combat.py",
+         find="        need = 0 if already_lethal else max(might - target[\"dmg\"], 1)",
+         repl="        need = 1",
+         expect="lethal-first"),
+    dict(name="call zero damage lethal for a 0-Might unit (142.4.b)",
+         file="engine/combat.py",
+         find="        already_lethal = target[\"dmg\"] > 0 and target[\"dmg\"] >= might",
+         repl="        already_lethal = target[\"dmg\"] >= might",
+         expect="0-Might unit needs a non-zero assignment"),
+    dict(name="stop asserting that cards are conserved",
+         file="engine/invariants.py",
+         find="        if found != expected:",
+         repl="        if False:",
+         expect="appeared from nowhere"),
+    dict(name="stop asserting that the Chain is LIFO",
+         file="engine/invariants.py",
+         find="        elif seen_pending:",
+         repl="        elif False:",
+         expect="finalized item sitting above a pending one"),
+    dict(name="stop asserting that a won game gets noticed (472)",
+         file="engine/invariants.py",
+         find="        if not any(task[0] == \"cleanup\" for task in s.tasks):",
+         repl="        if False:",
+         expect="won game nothing is about to notice"),
+    dict(name="let the golden comparison forgive a changed answer",
+         file="engine/goldens.py",
+         find="        if got != expected:\n            out.append(\"%s: decision %d differs",
+         repl="        if False:\n            out.append(\"%s: decision %d differs",
+         expect="names the decision whose ANSWER moved"),
+    dict(name="let the golden comparison forgive a changed state",
+         file="engine/goldens.py",
+         find="            out.append(\"%s: the state diverges at decision %d (%s, golden %s) — a rule \"",
+         repl="            pass\n            _unused = (\"%s: the state diverges at decision %d (%s, golden %s) — a rule \"",
+         expect="a moved state hash means a rule changed"),
+    dict(name="shuffle nothing, and call it a shuffle",
+         file="engine/rng.py",
+         find="    for i in range(len(items) - 1, 0, -1):",
+         repl="    for i in range(0):",
+         expect="a shuffle is a permutation"),
+    dict(name="derive a seat's stream from the seed alone, not the seat",
+         file="engine/rng.py",
+         find='    return seed_from("%s/seat%d" % (seed, seat))',
+         repl='    return seed_from("%s/seat" % (seed,))',
+         expect="two seats draw from different streams"),
+    dict(name="let an Option compare equal to anything",
+         file="engine/decisions.py",
+         find="        return self.key == getattr(other, \"key\", other)",
+         repl="        return True",
+         expect="answer refuses an option"),
+    dict(name="make the content policy depend on how many questions came before",
+         file="engine/policies.py",
+         find="        key = repr((decision.seat, decision.kind, [o.key for o in decision.options]))",
+         repl="        key = repr(id(decision))",
+         expect="surfacing trivial decisions"),
+    dict(name="move a canonical perft board somewhere else",
+         file="engine/perft.py",
+         find='"seed": 11, "first": 1, "advance": 24, "policy": 202,',
+         repl='"seed": 11, "first": 1, "advance": 25, "policy": 202,',
+         expect="perft matches the golden count from the midgame board"),
+    dict(name="count a perft leaf twice at the depth bound",
+         file="engine/perft.py",
+         find="    decision = game.step()\n    if decision.terminal or depth <= 0:\n        return 1",
+         repl="    decision = game.step()\n    if decision.terminal or depth <= 0:\n        return 2",
+         expect="independent enumeration"),
+    dict(name="hand the terminal decision a seat's hand (108.7.c)",
+         file="engine/game.py",
+         find="                return terminal(public_view(s))",
+         repl="                return terminal(view(s, 0))",
+         expect="the terminal decision carries no hand"),
+    dict(name="open a staged Combat before a staged Showdown (323.12, 323.13)",
+         file="engine/turn.py",
+         find="        if showdowns:\n            _open_at(g, showdowns, combat=False)\n            return True\n        if combats:\n            _open_at(g, combats, combat=True)\n            return True",
+         repl="        if combats:\n            _open_at(g, combats, combat=True)\n            return True\n        if showdowns:\n            _open_at(g, showdowns, combat=False)\n            return True",
+         expect="before a staged Combat elsewhere"),
+    dict(name="stop Holding once the Victory Score is passed (315.2.b.2)",
+         file="engine/scoring.py",
+         find="        if bf[\"ctrl\"] == seat and seat not in bf[\"scored\"]:\n            score(g, seat, bf[\"i\"], method=\"Hold\")",
+         repl="        if bf[\"ctrl\"] == seat and seat not in bf[\"scored\"]:\n            if g.s.points[seat] >= g.s.victory_target:\n                return\n            score(g, seat, bf[\"i\"], method=\"Hold\")",
+         expect="Holds EVERY battlefield"),
+    dict(name="decide the win inside the Score instead of at the cleanup (472)",
+         file="engine/scoring.py",
+         find="    # No victory check here.",
+         repl="    actions.check_victory(g, \"472\")\n    # No victory check here.",
+         expect="the final point lands"),
+    dict(name="shallow-copy the pending decision, so a clone shares its options",
+         file="engine/state.py",
+         find="    copy = dict(p)\n    copy[\"options\"] = list(p[\"options\"])\n    return copy",
+         repl="    return dict(p)",
+         expect="does not add an option to the original"),
+    dict(name="shallow-copy the half-made choice, so a clone shares its list",
+         file="engine/state.py",
+         find="    for key, value in copy.items():\n        if isinstance(value, list):\n            copy[key] = value[:]",
+         repl="    for key, value in copy.items():\n        if False:\n            copy[key] = value[:]",
+         expect="shares no zone, object, chain item, task or log"),
+    dict(name="determinize into the world the position is already holding",
+         file="engine/game.py",
+         find="        g = self.clone()\n        s = g.s\n        stream = rng.seed_from",
+         repl="        g = self\n        s = g.s\n        stream = rng.seed_from",
+         expect="shares no zone with the game it came from"),
+    dict(name="credit a golden game that was never played",
+         file="engine/goldens.py",
+         find="        if not any(g[\"name\"] == name for g in fresh[\"games\"]):",
+         repl="        if False:",
+         expect="stopped being played"),
+
     dict(name="point an engine fixture at a deck the gauntlet no longer has",
          file="engine/fixtures.py",
          find='IRELIA = "irelia-core-meta"',
@@ -665,7 +775,7 @@ MUTANTS = [
          file="engine/chain.py",
          find='    if sd["passes"] >= 2:',
          repl='    if sd["passes"] >= 1:',
-         expect="one pass does not close a Showdown"),
+         expect="one pass is not a sequence of passes"),
     dict(name="resolve a Chain item on the first pass (339.1)",
          file="engine/chain.py",
          find="    if s.passes >= 2:",
@@ -818,7 +928,12 @@ def run_one(m):
 
         r = subprocess.run([sys.executable, os.path.join(lib, "selftest.py")],
                            capture_output=True, text=True, cwd=lib)
-        failed = re.findall(r"^\s*\[FAIL\]\s*(.+?)(?:\s+—.*)?$", r.stdout, re.M)
+        # The separator is exactly the one `check()` prints — two spaces, an em
+        # dash, a space — and nothing looser. `\s+—` also matched a single
+        # space before an em dash INSIDE a name, so any check whose name
+        # contained one was recorded truncated, never matched on the way back,
+        # and silently lost its credit for good.
+        failed = re.findall(r"^\s*\[FAIL\]\s*(.+?)(?:  — .*)?$", r.stdout, re.M)
         if failed:
             return failed, None
         if r.returncode != 0:
@@ -892,7 +1007,7 @@ def main():
     print("mutation battery — reintroducing defects the suite claims to catch\n")
     if not preflight():
         return 1
-    survived, stale, crashed_only = [], [], []
+    survived, stale, crashed_only, misnamed = [], [], [], []
     caught = 0
     reddened = set()   # checks OBSERVED to fail, not merely claimed
     for i, m in enumerate(MUTANTS, 1):
@@ -911,9 +1026,15 @@ def main():
             caught += 1
             print(f"  [caught]   {i:2}. {m['name']}\n              → {hit[0]}")
         elif named:
-            caught += 1
-            print(f"  [caught*]  {i:2}. {m['name']}\n              → {named[0]}"
-                  f"   (expected a check naming {m['expect']!r})")
+            # NOT caught. Something went red, but not the check this mutant
+            # claims to prove — so that check is still one nobody has watched
+            # fail, and recording it as proven is exactly the stale credit this
+            # battery exists to prevent. A mutant either names what it proves or
+            # it is not evidence.
+            misnamed.append((m["name"], m["expect"], named[0]))
+            print(f"  [MISNAMED] {i:2}. {m['name']}\n              → {named[0]}"
+                  f"\n              but it claims to prove a check naming "
+                  f"{m['expect']!r}, which stayed green")
         elif crashes:
             crashed_only.append((m["name"], crashes[0]))
             print(f"  [CRASH]    {i:2}. {m['name']}\n              {crashes[0]}")
@@ -929,6 +1050,12 @@ def main():
               "failing a named check:")
         for name, why in crashed_only:
             print(f"  - {name}\n      {why}")
+    if misnamed:
+        print(f"\n{len(misnamed)} mutant(s) caught by a check OTHER than the one they "
+              "name. Point `expect` at\nthe check that actually reddens, or tighten the "
+              "mutant until the named one does:")
+        for name, expect, got in misnamed:
+            print(f"  - {name}\n      claims {expect!r}\n      got    {got!r}")
     if stale:
         print(f"\n{len(stale)} STALE anchor(s) — the mutant no longer matches the source:")
         for name, why in stale:
@@ -938,7 +1065,7 @@ def main():
         for m in survived:
             print(f"  - {m['name']}  ({m['file']}, expected {m['expect']!r})")
         return 1
-    return 1 if (stale or crashed_only) else 0
+    return 1 if (stale or crashed_only or misnamed) else 0
 
 
 if __name__ == "__main__":

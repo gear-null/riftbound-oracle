@@ -118,7 +118,11 @@ class Decision:
         if isinstance(answer, list):
             answer = tuple(answer)
         for option in self.options:
-            if option.key == answer:
+            # Through `Option.__eq__`, which compares by key and accepts a bare
+            # key on the right. Comparing `option.key == answer` here worked and
+            # left the operator dead — defined, never called, and impossible to
+            # watch fail.
+            if option == answer:
                 return option
         return None
 

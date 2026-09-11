@@ -1527,6 +1527,16 @@ def guards():
 
 def proven_ratio():
     """The suite reports how much of itself has been tested. Pin that too."""
+    # A name containing the separator `check()` uses for its DETAIL is a name the
+    # battery records truncated, which never matches on the way back — so the
+    # check loses its credit permanently and the ratio quietly understates
+    # itself. The battery now anchors on the exact separator; this is the other
+    # half, keeping a name from containing one in the first place.
+    collides = [n for n in NAMES if "  — " in n]
+    check("no check name contains the separator that introduces a detail",
+          not collides, "; ".join(collides)[:100] if collides
+          else f"{len(NAMES)} name(s) checked")
+
     line = proven_line()
     check("the ratio line says what it means",
           "have been observed to fail" in line and "%" in line, line)

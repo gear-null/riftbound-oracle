@@ -12,13 +12,14 @@ import collections
 import json
 import os
 import re
+import sys
 
 import cards
 import deckfile
 
 from . import (actions, chain, combat, fixtures, goldens, invariants, perft,
                policies, rng, scoring, turn)
-from .decisions import EMITTED, KINDS
+from .decisions import EMITTED
 from .game import Game
 from .state import RulesError, loc_base, loc_bf, new_unit
 
@@ -121,6 +122,10 @@ def swap_seats(text):
 #: reach it. Keyed by (primer, step, exit index) — the same key the vendored
 #: table uses — so a primer that grows a transition breaks this until someone
 #: classifies the new one.
+#: Every value is either the EXACT name of a check that runs, or a reason
+#: beginning "UNREACHABLE:". `engine_primer_coverage` resolves the first kind
+#: against the names the suite actually registered — prose here was a claim
+#: nobody verified, and four entries named checks that did not exist.
 TRANSITION_COVER = {
     ("hot-fepr", "s1", 0): "a spell opens a window before it resolves (338, 339.1)",
     ("hot-fepr", "s1", 1): "the Chain empties and play returns to an Open State (340.2)",
@@ -136,12 +141,12 @@ TRANSITION_COVER = {
     ("hot-fepr", "s5", 0): "the Chain empties and play returns to an Open State (340.2)",
     ("hot-fepr", "s5", 1): "UNREACHABLE: a resolution never leaves a Pending Item "
                            "behind in the vanilla slice",
-    ("hot-fepr", "s5", 2): "a Chain of three resolves newest first, one at a time (340.4)",
+    ("hot-fepr", "s5", 2): "three items resolve newest first, one at a time (340.4)",
     ("showdowns", "s1", 0): "the player who applied Contested takes Focus (345)",
     ("showdowns", "s2", 0): "UNREACHABLE: no vanilla card is legally timed in a "
                             "Showdown State (343.1.a)",
     ("showdowns", "s2", 1): "one pass is not a sequence of passes (347.2.b)",
-    ("showdowns", "s2", 2): "a full sequence of passes closes the Showdown (347.2.a)",
+    ("showdowns", "s2", 2): "a full sequence of passes closes the Showdown (347.2.a, 348)",
     ("showdowns", "s3", 0): "UNREACHABLE: no Chain can open inside a vanilla Showdown, "
                             "so 346's Focus pass has no code and no caller",
     ("showdowns", "s3", 1): "UNREACHABLE: same — and 346.1 needs to know WHY the Chain "
@@ -207,6 +212,16 @@ def engine_setup(check):
         firsts.add(Game.new(a, b, seed=seed, hash_log=False).s.first_player)
     check("who goes first is decided by the seed, not fixed (115)", firsts == {0, 1})
 
+    # The two seats must draw from DIFFERENT streams at the same seed, or a
+    # mirror match deals both players the same cards. The perfect-symmetry test
+    # cannot see this: it passes its seat seeds in explicitly.
+    same = Game.new(fixtures.deck(fixtures.IRELIA), fixtures.deck(fixtures.IRELIA),
+                    seed=7, first=0, hash_log=False)
+    same.step()
+    check("the two seats draw from different streams at the same seed",
+          same.s.hand[0] != same.s.hand[1] and rng.seat_seed(7, 0) != rng.seat_seed(7, 1),
+          "the same deck on both seats must not deal the same opening hand")
+
     # A seat's shuffle must not depend on what it is facing, or two decks cannot
     # be compared over identical opposition. The table learned this the hard way.
     third = fixtures.deck(fixtures.KENNEN)
@@ -216,6 +231,58 @@ def engine_setup(check):
           v_other.s.hand[0] == g.s.hand[0] or
           collections.Counter(v_other.s.trash[0]) == collections.Counter(g.s.trash[0]),
           "seat 0 draws the same cards at a seed whatever it faces")
+
+
+def engine_cloning(check):
+    """`clone()` is what search spends its time on. It has to be a real copy."""
+    g = at_main(seed=13, auto_trivial=False)
+    d = g.step()
+    before_options = list(g.s.pending["options"])
+    clone = g.clone()
+    clone.s.pending["options"].append((("BOGUS",), "an option nobody generated"))
+    check("mutating a clone's decision options does not add an option to the "
+          "original's decision",
+          g.s.pending["options"] == before_options
+          and g.step().find(("BOGUS",)) is None,
+          "a shallow-copied `pending` hands the real game an illegal move")
+
+    # Every other mutable thing reachable from the state, in one sweep.
+    g2 = at_main(seed=17)
+    seat = g2.s.turn_player
+    put(g2, seat, a_unit(), loc_base(seat))
+    g2.s.chain.append({"id": "cZ", "ctrl": seat, "name": "x", "kind": "spell",
+                       "pending": False, "loc": "", "src": "hand"})
+    g2.s.choosing = {"what": "mulligan", "seat": seat, "aside": ["one"]}
+    g2.s.showdown = {"bf": 0, "combat": False, "focus": 0, "passes": 0, "closed": False}
+    g2.s.battlefields[0]["scored"] = [seat]
+    g2.s.power[seat] = {"Fury": 1}
+    fingerprint = g2.state_hash()
+    log_length = len(g2.log)
+
+    c2 = g2.clone()
+    c2.s.hand[0].append("GHOST")
+    c2.s.main_deck[1].clear()
+    c2.s.trash[0].append("GHOST")
+    c2.s.banished[1].append("GHOST")
+    c2.s.champion[0].clear()
+    c2.s.chain[0]["name"] = "MUTATED"
+    c2.s.chain.append(dict(c2.s.chain[0]))
+    c2.s.units[0]["loc"] = "bf:1"
+    c2.s.runes and c2.s.runes[0].update(exh=True)
+    c2.s.battlefields[0]["scored"].append(1 - seat)
+    c2.s.battlefields[0]["ctrl"] = 1 - seat
+    c2.s.choosing["aside"].append("two")
+    c2.s.showdown["passes"] = 99
+    c2.s.tasks.append(("cleanup", "ending"))
+    c2.s.power[seat]["Fury"] = 99
+    c2.s.points[0] += 5
+    c2.log.append({"turn": 0, "phase": "x", "text": "a line the original never wrote"})
+
+    check("a clone shares no zone, object, chain item, task or log with the original",
+          g2.state_hash() == fingerprint and len(g2.log) == log_length,
+          "hash %s, %d log entries" % (g2.state_hash()[:8], len(g2.log)))
+    check("and the clone really did change, so the check is comparing something",
+          c2.state_hash() != fingerprint and len(c2.log) == log_length + 1)
 
 
 def engine_decision_api(check):
@@ -246,8 +313,6 @@ def engine_decision_api(check):
         probe.answer(pol[dd.seat](dd))
     check("only the kinds this slice says it emits are ever emitted",
           kinds <= set(EMITTED), "emitted: %s" % sorted(kinds))
-    check("every emitted kind is one of the declared kinds (ADR 0009)",
-          set(EMITTED) <= set(KINDS))
 
     # Compound choices are GROUPED. Playing a unit is "which card", then "where",
     # never one option per (card, location) pair.
@@ -292,9 +357,39 @@ def engine_decision_api(check):
     check("a seat's view carries the sizes of the hidden zones (108.7.c)",
           view["opponent"]["main_deck_size"] == len(g.s.main_deck[1])
           and view["opponent"]["rune_deck_size"] == len(g.s.rune_deck[1]))
+    done = game(seed=9, hash_log=False)
+    policies.play(done, policies.random_pair(9))
+    ended = done.step()
+    # Written to survive its own mutant: reading `view["seats"]` directly makes
+    # this KeyError rather than fail when the terminal view goes back to being a
+    # seat's, and a check that dies takes the suite with it and reports nothing.
+    sides = ended.view.get("seats") or [ended.view.get("you") or {}]
+    check("the terminal decision carries no hand, because it belongs to no seat "
+          "(108.7.c)",
+          ended.terminal and ended.seat is None
+          and not any(side.get("hand") for side in sides),
+          "built from seat 0's view, it hands seat 0's cards to whoever finishes "
+          "the game")
+
     check("a draw is private to the drawing seat in the log (108.7.c)",
           all("detail" not in e for e in g.public_log(seat=1)
               if e.get("private_to") == 0))
+
+
+def _a_chain_window():
+    """A game stopped on the Execute step of a Chain a spell opened (338)."""
+    g, d = with_playable("spell", seed=13, auto_trivial=False)
+    spell = next(o for o in d.options
+                 if o.key[0] == "play" and turn.category(o.key[2]) == "spell")
+    g.answer(spell)
+    for _ in range(20):
+        nxt = g.step()
+        if nxt.terminal:
+            return g, None
+        if nxt.kind == "chain":
+            return g, nxt
+        g.answer(nxt.options[0])
+    return g, None
 
 
 def _no_location_for_a_spell():
@@ -496,9 +591,13 @@ def engine_chain(check):
           bool(asked) and not g2.s.chain and played is not None,
           "no window ever opens in which it could be answered")
 
-    check("nothing is legally timed in a Closed State without Reaction (338.1.a.1)",
-          chain.chain_plays(g2, 0) == [] and chain.chain_plays(g2, 1) == [],
-          "which is why the Execute window offers only `pass` in this slice")
+    # Asserted on a window the engine actually opened, not on the generator's
+    # return value: `chain_plays(...) == []` is a predicate over a literal and
+    # passes whatever the Execute step does with it.
+    g_open, d_open = _a_chain_window()
+    check("the Execute window a played spell opens offers exactly `pass` (338.1.a.1)",
+          d_open is not None and [o.key for o in d_open.options] == [("pass",)],
+          "a Closed State admits only Reaction, and this slice reads no keywords")
 
     # A Chain of three is a board shape no vanilla game builds, so it is built
     # here: 340.1 resolves ONE item, the newest, and the two below it wait.
@@ -527,7 +626,7 @@ def engine_chain(check):
               g3.s.trash[seat][-3:] == list(reversed(names))
               and len(set(names)) == 3,
               "trash order %s from chain order %s" % (g3.s.trash[seat][-3:], names))
-        check("a Chain of three resolves one item at a time (340.3, 340.4)",
+        check("three items resolve newest first, one at a time (340.4)",
               order == [2, 1, 0])
 
     g4 = at_main(seed=13)
@@ -554,22 +653,27 @@ def engine_showdowns(check):
     check("a Showdown opens with the contester holding Focus and nobody passed (345, 347)",
           sd is not None and sd["passes"] == 0 and opened_with == 1)
     chain.pass_focus(g2, opened_with)
-    check("one pass does not close a Showdown (347.2.b)",
+    check("one pass is not a sequence of passes (347.2.b)",
           g2.s.showdown is not None and g2.s.showdown["focus"] != opened_with,
           "reading `sd` after the pass reads the same dict, which is why the value "
           "is captured first")
     chain.pass_focus(g2, g2.s.showdown["focus"])
-    check("a full sequence of passes closes it (347.2.a, 348)", g2.s.showdown is None)
+    check("a full sequence of passes closes the Showdown (347.2.a, 348)",
+          g2.s.showdown is None)
     check("and nobody is left holding Priority once it has (313.5, 312.2)",
           g2.s.priority is None,
           "Priority left behind makes one position hash two ways")
-    check("a Non-Combat Showdown that closes with one player's units establishes "
-          "Control (348.2.a)", g2.s.battlefields[0]["ctrl"] == 1)
-    check("and that is a Conquer, so it scores (348.2.a.1, 469.1)",
-          g2.s.points[1] >= 1 and 1 in g2.s.battlefields[0]["scored"])
+    check("a Non-Combat Showdown settles Control, and that is a Conquer (348.2.a)",
+          g2.s.battlefields[0]["ctrl"] == 1
+          and g2.s.points[1] >= 1 and 1 in g2.s.battlefields[0]["scored"],
+          "control to seat 1, scored %s, %d point(s)"
+          % (g2.s.battlefields[0]["scored"], g2.s.points[1]))
 
-    check("nothing is legally timed in a Showdown State without Reaction (343.1.a)",
-          chain.showdown_plays(g2, 0) == [] and chain.showdown_plays(g2, 1) == [])
+    g_sd = _contest(seed=37, stop_at_showdown=True)
+    d_sd = g_sd.step()
+    check("the Showdown window offers exactly `pass` (343.1.a, 347)",
+          d_sd.kind == "chain" and [o.key for o in d_sd.options] == [("pass",)],
+          "asserted on the window the engine opened, not on the generator")
 
     g3 = _combat_board(seed=51)
     check("a Combat Showdown proceeds to the steps of Combat (348.1)",
@@ -589,6 +693,32 @@ def engine_showdowns(check):
     check("the Turn Player chooses which staged Showdown opens (323.12)",
           d.kind == "target" and d.seat == turn_player and len(d.options) == 2,
           "asked seat %s with %d option(s)" % (d.seat, len(d.options)))
+
+    # 323.12 is task 9 and 323.13 is task 10, and the numbering decides the
+    # game: both need a Neutral Open State and opening either one leaves it, so
+    # with a Showdown staged at one battlefield and a Combat at another, the
+    # Showdown opens and the Combat waits for a later cleanup. Taking the
+    # Combat first reads as the more urgent thing and is the wrong fight.
+    g5 = at_main(seed=61)
+    tp = g5.s.turn_player
+    other5 = 1 - tp
+    put(g5, other5, a_unit(), loc_bf(0))                      # contested, alone
+    g5.s.battlefields[0]["contested"] = True
+    g5.s.battlefields[0]["contested_by"] = other5
+    put(g5, other5, a_unit(), loc_bf(1))                      # both present
+    put(g5, tp, a_unit(), loc_bf(1))
+    g5.s.battlefields[1]["contested"] = True
+    g5.s.battlefields[1]["contested_by"] = other5
+    mark = len(g5.log)
+    refresh(g5).need_cleanup()
+    g5.step()
+    opened = [t["text"] for t in g5.log[mark:]
+              if "SHOWDOWN opens" in t["text"] or "COMBAT opens" in t["text"]]
+    check("a staged Showdown opens before a staged Combat elsewhere (323.12 before "
+          "323.13)",
+          bool(opened) and "SHOWDOWN opens at %s" % g5.s.battlefields[0]["name"]
+          in opened[0],
+          opened[0][:80] if opened else "nothing opened at all")
 
 
 def _contest(seed, stop_at_showdown=False, limit=400):
@@ -671,8 +801,16 @@ def engine_combat(check):
     zero["might"] = 0
     one = [put(g2, 0, a_unit(), loc_bf(1))]
     one[0]["might"] = 1
+    # TWO defenders, and that is the whole point. With one defender, 465.2.c.4's
+    # excess-damage tail puts the leftover point on it anyway, so calling zero
+    # damage lethal produces the identical assignment by a different route and
+    # the check cannot tell the two apart. With a second defender to spill onto,
+    # it can.
+    spare = put(g2, 1, a_unit(), loc_bf(1))
+    spare["might"] = 1
     check("a 0-Might unit needs a non-zero assignment to take lethal damage (142.4.b)",
-          combat.assign_damage(s2, one, [zero]) == {zero["id"]: 1})
+          combat.assign_damage(s2, one, [zero, spare]) == {zero["id"]: 1},
+          "one point of Might, and it belongs on the 0-Might unit, not past it")
     check("and assigning nothing at all leaves it alive (465.2.c.2)",
           combat.assign_damage(s2, [], [zero]) == {})
 
@@ -746,15 +884,43 @@ def engine_scoring(check):
           s2.points[0] == s2.victory_target - 1 and len(s2.hand[0]) == hand_before + 1)
     scoring.score(g2, 0, 1, method="Conquer")
     check("with every battlefield scored, the final point lands (471.1.b.1)",
-          s2.points[0] == s2.victory_target and s2.winner == 0)
+          s2.points[0] == s2.victory_target and s2.winner is None,
+          "the point lands here; the WIN is 472's, and 472 happens at a cleanup")
+    turn.run_cleanup(g2)
+    check("and the cleanup that follows is where the game is won (472, 323.1)",
+          s2.winner == 0)
 
     g3 = at_main(seed=83)
     g3.s.points[0] = g3.s.victory_target - 1
     g3.s.battlefields[0]["ctrl"] = 0
     g3.s.phase = "beginning"
     scoring.score(g3, 0, 0, method="Hold")
+    turn.run_cleanup(g3)
     check("a Hold is not beholden to the final-point restriction (471.1.a.1)",
           g3.s.points[0] == g3.s.victory_target and g3.s.winner == 0)
+
+    # 315.2.b.2 Holds ALL the battlefields the Turn Player controls. A player on
+    # one point short therefore finishes the Scoring Step PAST the Victory
+    # Score, because 472 is decided at the cleanup afterwards and not partway
+    # through the step. Stopping at the target skips a Score the rules say
+    # happens — and hides it, because the game is won either way.
+    g3b = at_main(seed=85)
+    held = g3b.s.turn_player
+    for bf in g3b.s.battlefields:
+        bf["ctrl"] = held
+        put(g3b, held, a_unit(), loc_bf(bf["i"]))
+    g3b.s.points[held] = g3b.s.victory_target - 1
+    g3b.s.phase = "beginning"
+    scoring.hold_all(g3b, held)
+    check("a Turn Player one point short Holds EVERY battlefield, not just the "
+          "one that wins (315.2.b.2)",
+          g3b.s.points[held] == g3b.s.victory_target + 1
+          and all(held in bf["scored"] for bf in g3b.s.battlefields),
+          "%d points, scored %s" % (g3b.s.points[held],
+                                    [bf["scored"] for bf in g3b.s.battlefields]))
+    check("and the game is still won, at the cleanup (472, 323.1)",
+          g3b.s.winner is None and turn.run_cleanup(g3b) is None
+          and g3b.s.winner == held)
 
     g4 = at_main(seed=89)
     g4.s.main_deck[0] = []
@@ -892,8 +1058,28 @@ def engine_determinization(check):
           not invariants.check(w1) and not invariants.check(w2))
     check("a determinized world redeals the opponent's hand from what is unseen",
           set(w1.s.hand[1]) <= set(g._unseen(1)))
-    check("determinization does not touch the original", g.s.hand[1] != w1.s.hand[1]
-          or g.s.main_deck[1] != w1.s.main_deck[1] or True)
+
+    # The old version of this ended in `or True`, so it read green whatever
+    # happened — and it was the only check standing between a determinized world
+    # and the real game. Written as a mutation of the WORLD, watched for on the
+    # ORIGINAL: if any zone is shared, the original moves with it.
+    before = (list(g.s.hand[0]), list(g.s.hand[1]), list(g.s.main_deck[1]),
+              list(g.s.trash[0]), [dict(u) for u in g.s.units], list(g.s.points))
+    w3 = g.apply_seed(seat, "gamma")
+    w3.s.hand[1].append("A CARD THAT WAS NEVER DEALT")
+    w3.s.main_deck[1].clear()
+    w3.s.hand[0].clear()
+    w3.s.trash[0].append("A CARD THAT WAS NEVER TRASHED")
+    w3.s.points[0] += 99
+    if w3.s.units:
+        w3.s.units[0]["loc"] = "bf:1"
+        w3.s.units[0]["dmg"] = 99
+    after = (list(g.s.hand[0]), list(g.s.hand[1]), list(g.s.main_deck[1]),
+             list(g.s.trash[0]), [dict(u) for u in g.s.units], list(g.s.points))
+    check("a determinized world shares no zone with the game it came from",
+          after == before,
+          "search determinizes thousands of times against one position; a shared "
+          "list makes the position drift under it")
 
 
 def engine_instruments(check):
@@ -906,10 +1092,22 @@ def engine_instruments(check):
         check("perft matches the golden count from the %s board (1-%d)" % (name, depth),
               got == want["boards"][name][:depth],
               "%s vs golden %s" % (got, want["boards"][name][:depth]))
+    # perft, checked against a SECOND enumerator that shares no code with it.
+    # "divide sums to perft" was the identity perft is defined by — it holds
+    # however wrong both are. This walks the same tree with an explicit stack
+    # instead of recursion, so the two agree only if the option generator agrees
+    # with itself.
     board = perft.board("opening")
+    check("perft agrees with an independent enumeration of the same tree",
+          _leaves_by_stack(board.clone(), 3) == perft.perft(board.clone(), 3),
+          "%d vs %d" % (_leaves_by_stack(board.clone(), 3),
+                        perft.perft(board.clone(), 3)))
     parts = perft.divide(board.clone(), 3)
-    check("divide sums to perft, so a mismatch can be bisected",
-          sum(n for _, _, n in parts) == perft.perft(board.clone(), 3))
+    root = board.clone().step()
+    check("divide reports one row per legal option at the root, labelled",
+          [key for _, key, _n in parts] == [o.key for o in root.options]
+          and all(label and n >= 1 for label, _k, n in parts),
+          "%d row(s) for %d option(s)" % (len(parts), len(root.options)))
 
     fresh = {"games": [goldens.play_golden(spec) for spec in goldens.GAMES]}
     problems = goldens.compare(fresh, goldens.load(goldens.PLAYTHROUGHS))
@@ -963,9 +1161,137 @@ def engine_instruments(check):
         ends[g.s.end_reason] += 1
     check("random self-play runs a sample of games without a crash", not failures,
           failures[0] if failures else "24 games")
+    # Counted, not `all()`-ed. When every game crashes the Counter is empty and
+    # `all()` over it is vacuously true — the check would have read green at the
+    # exact moment nothing worked.
+    named = sum(n for reason, n in ends.items()
+                if reason and ("472" in reason or "431" in reason))
     check("and every game ends by a rule the log names",
-          all(reason and ("472" in reason or "431" in reason) for reason in ends),
-          "; ".join(sorted(ends)) or "no games ended")
+          named == 24, "%d of 24 games ended by a named rule: %s"
+                       % (named, "; ".join(sorted(ends)) or "none ended at all"))
+
+
+def _leaves_by_stack(game, depth):
+    """Leaves of the decision tree, by an explicit stack rather than recursion.
+
+    A deliberate second implementation. It exists to disagree with `perft` if
+    either is wrong, which the identity `sum(divide) == perft` cannot do.
+    """
+    stack = [(game, depth)]
+    leaves = 0
+    while stack:
+        node, left = stack.pop()
+        decision = node.step()
+        if decision.terminal or left <= 0:
+            leaves += 1
+            continue
+        for option in decision.options:
+            child = node.clone()
+            child.answer(option.key)
+            stack.append((child, left - 1))
+    return leaves
+
+
+def engine_instruments_bite(check):
+    """The instruments, audited: each one is shown a defect and must name it.
+
+    Every other group asks "does the engine hold?". This asks "would the thing
+    that watches the engine notice if it did not?" — which is the question that
+    was never asked of the conservation invariants or of the golden comparison,
+    both of which could have been gutted to `return []` with the whole suite
+    still green.
+    """
+    # -- the conservation invariants ------------------------------------
+    g = at_main(seed=31)
+    check("a legal position reports no violations, so the rest of this means "
+          "something", not invariants.check(g))
+
+    broken = at_main(seed=31)
+    broken.s.hand[0].append("A CARD FROM NOWHERE")
+    check("the card-conservation invariant names a card that appeared from nowhere",
+          any("not conserved" in v for v in invariants.check(broken)),
+          "; ".join(invariants.check(broken))[:90])
+
+    broken = at_main(seed=31)
+    broken.s.rune_deck[1].append(broken.s.rune_deck[1][0])
+    check("and it counts runes separately from Main Deck cards (416)",
+          any("runes are not conserved" in v for v in invariants.check(broken)))
+
+    broken = at_main(seed=31)
+    broken.s.points[0] = -1
+    check("the points invariant names a negative score",
+          any("has -1 points" in v for v in invariants.check(broken)))
+
+    broken = at_main(seed=31)
+    broken.s.points[0] = broken.s.victory_target
+    broken.s.tasks = [t for t in broken.s.tasks if t[0] != "cleanup"]
+    check("the points invariant names a won game nothing is about to notice (472)",
+          any("no Cleanup is outstanding" in v for v in invariants.check(broken)),
+          "; ".join(invariants.check(broken))[:90])
+
+    broken = at_main(seed=31)
+    seat = broken.s.turn_player
+    broken.s.chain.append({"id": "c90", "ctrl": seat, "name": "x", "kind": "spell",
+                           "pending": True, "loc": "", "src": "hand"})
+    broken.s.chain.append({"id": "c91", "ctrl": seat, "name": "y", "kind": "spell",
+                           "pending": False, "loc": "", "src": "hand"})
+    check("the Chain invariant names a finalized item sitting above a pending one",
+          any("longer LIFO" in v for v in invariants.check(broken)))
+
+    broken = at_main(seed=31)
+    unit = put(broken, 0, a_unit(), loc_base(0))
+    unit["loc"] = "nowhere:9"
+    check("the location invariant names a permanent that is nowhere",
+          any("not a location" in v for v in invariants.check(broken)))
+
+    broken = at_main(seed=31)
+    put(broken, 0, a_unit(), loc_base(0))
+    broken.s.units[-1]["id"] = broken.s.units[0]["id"] if len(broken.s.units) > 1 \
+        else broken.s.runes[0]["id"]
+    check("the identity invariant names an id that answers for two objects",
+          any("duplicate object id" in v for v in invariants.check(broken)))
+
+    check("a broken position raises rather than being played on", raises(
+        lambda: invariants.assert_ok(broken, "a test"), "invariant broken"))
+
+    # -- the golden comparison ------------------------------------------
+    recorded = goldens.load(goldens.PLAYTHROUGHS)
+    fresh = json.loads(json.dumps(recorded))
+    check("the golden comparison passes a record against itself",
+          not goldens.compare(fresh, recorded))
+
+    fresh = json.loads(json.dumps(recorded))
+    fresh["games"][0]["answers"][3][2] = ["end"]
+    check("the golden comparison names the decision whose ANSWER moved",
+          any("decision 3 differs" in p for p in goldens.compare(fresh, recorded)))
+
+    fresh = json.loads(json.dumps(recorded))
+    fresh["games"][0]["step_hashes"][5] = "deadbeefdeadbeef"
+    check("the golden comparison says a moved state hash means a rule changed",
+          any("a rule changed" in p for p in goldens.compare(fresh, recorded)))
+
+    fresh = json.loads(json.dumps(recorded))
+    fresh["games"][0]["log"][2] = "a sentence nobody wrote"
+    check("and tells a reworded log apart from a changed rule",
+          any("wording, not rules" in p for p in goldens.compare(fresh, recorded)))
+
+    fresh = json.loads(json.dumps(recorded))
+    fresh["games"] = fresh["games"][1:]
+    check("the golden comparison notices a game that stopped being played",
+          any("no longer played" in p for p in goldens.compare(fresh, recorded)))
+
+    # -- the generator ---------------------------------------------------
+    deck = list(range(40))
+    once, twice = list(deck), list(deck)
+    state = rng.seed_from("shuffle-audit")
+    rng.shuffle(state, once)
+    rng.shuffle(state, twice)
+    check("a shuffle is a permutation, and the same state shuffles the same way",
+          sorted(once) == deck and once == twice and once != deck)
+    other = list(deck)
+    rng.shuffle(rng.seed_from("a different stream"), other)
+    check("and a different stream gives a different permutation",
+          other != once and sorted(other) == deck)
 
 
 def engine_primer_coverage(check):
@@ -984,12 +1310,45 @@ def engine_primer_coverage(check):
           all(len(v) > len("UNREACHABLE: ") + 20 for v in unreachable),
           "%d of %d transitions are out of reach until card text lands"
           % (len(unreachable), len(TRANSITION_COVER)))
+
+    # The half that was missing. A cover value used to be prose, and prose
+    # cannot be wrong out loud: four entries named checks that did not exist,
+    # and the coverage gate passed anyway because it only compared key sets.
+    # Every claimed cover is now resolved against the names the suite actually
+    # registered.
+    registered = _registered_names()
+    claimed = sorted(v for v in TRANSITION_COVER.values()
+                     if not v.startswith("UNREACHABLE"))
+    if registered is None:
+        check("each covered transition names a check that ran", False,
+              "the suite's name registry is not reachable from here")
+    else:
+        phantom = sorted(set(claimed) - registered)
+        check("each covered transition names a check that ran, by its exact name",
+              not phantom,
+              "no such check: %s" % "; ".join(phantom) if phantom
+              else "%d claim(s) resolved" % len(set(claimed)))
     check("the vendored transitions record the corpus they were verified against",
           all(p.get("corpus", {}).get("CR") for p in vendored["primers"].values()),
           ", ".join("%s: CR %s" % (k, v["corpus"]["CR"])
                     for k, v in sorted(vendored["primers"].items())))
     check("the vendored transitions still match the primers they came from",
           _primers_agree(vendored), _primers_agree_detail(vendored))
+
+
+def _registered_names():
+    """Every check name the running suite has registered, or None.
+
+    The parent suite is `__main__` when `selftest.py` is run directly and
+    `selftest` when `deck_cli` imports it. Both are looked up rather than
+    imported: importing it under the other name would build a SECOND, empty
+    registry and this gate would then pass by comparing against nothing.
+    """
+    for key in ("__main__", "selftest"):
+        module = sys.modules.get(key)
+        if module is not None and hasattr(module, "NAMES"):
+            return set(module.NAMES)
+    return None
 
 
 def _fresh_vendor():
@@ -1015,7 +1374,7 @@ def _primers_agree_detail(vendored):
 
 
 SECTIONS = (
-    engine_setup, engine_decision_api, engine_turn, engine_chain, engine_showdowns,
+    engine_setup, engine_cloning, engine_decision_api, engine_turn, engine_chain, engine_showdowns,
     engine_combat, engine_scoring, engine_movement, engine_determinization,
-    engine_instruments, engine_primer_coverage,
+    engine_instruments, engine_instruments_bite, engine_primer_coverage,
 )

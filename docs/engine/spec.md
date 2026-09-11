@@ -35,7 +35,9 @@ and legends have no abilities. Everything about *structure* is meant to be right
 | 307-310 the four states | `state.turn_state` | `engine_chain`, `invariants` | implemented — neutral/showdown x open/closed |
 | 311-313 priority and focus | `chain`, `state` | `engine_chain`, `engine_showdowns` | implemented for the transitions the vanilla game reaches. Priority in the Main Phase is implicit (the Turn Player is asked), not stored |
 | 314-317 the phases | `turn.enter_phase`, `turn.run_task` | `engine_turn` | implemented — Awaken, Beginning (Scoring Step), Channel, Draw, Main, Ending (Ending + Expiration Steps) |
-| 318-324 cleanups | `turn.cleanup_once`, `turn.run_cleanup` | every group | implemented — all ten numbered tasks in order, repeated until the state settles (322), with the Special Cleanup inserts of 466.1.a and 317.2 (324) |
+| 317.2.f return to the start of the Expiration Step | — | — | **declared gap**. Nothing in the vanilla slice can put an item on the Chain during the Expiration Step — a card would have to be played, and 331.1 closes the state to that — so the loop has no way to run once. Written down rather than written: speculative machinery for a path nothing reaches is machinery nobody can watch fail |
+| 315.2.b.2 the Scoring Step Holds ALL | `scoring.hold_all` | `engine_scoring` | implemented, and it does not stop early. 472 decides the win "when a cleanup occurs", so a Turn Player one point short who controls both battlefields Holds both and finishes the step PAST the Victory Score. Deciding the win inside the Score instead made the second Hold unreachable — a Score the rules say happens, skipped, and invisible because the game is won either way |
+| 318-324 cleanups | `turn.cleanup_once`, `turn.run_cleanup` | every group | implemented — all ten numbered tasks **in the order 323 numbers them**, repeated until the state settles (322), with the Special Cleanup inserts of 466.1.a and 317.2 (324). Task 9 before task 10 is load-bearing: both need a Neutral Open State and opening either leaves it, so a Showdown staged at one battlefield opens *instead of* a Combat staged at another, which waits for a later cleanup |
 | 323.2 Attacker/Defender designations per unit | — | — | **out of scope** — nothing reads a per-unit designation without card text. The battlefield-level designation combat needs is `contested_by` (464.2.c.1). Issue #23 |
 | 323.4 Deathknell triggers | — | — | out of scope — triggered abilities are card text |
 
@@ -112,3 +114,9 @@ So they are one list rather than scattered through the table above:
   permissive on purpose.
 - 331/343's "by default" is read as "always" in this slice: nothing is legally
   timed in a Closed or Showdown State, because Reaction is card text.
+- 317.2.f's "return to the start of the Expiration Step" has no code: nothing
+  vanilla reaches the Chain during that step.
+- Points are **not** capped at the Victory Score. 315.2.b.2 Holds every
+  battlefield and 472 decides the win at the following cleanup, so a game can
+  finish 9-4. `invariants._points` asserts the property that actually matters —
+  a position meeting 472 always has a Cleanup outstanding to notice it.

@@ -103,8 +103,13 @@ def check_victory(g, rule="472"):
     best = max(eligible, key=lambda seat: s.points[seat])
     if all(s.points[best] > s.points[o] for o in (0, 1) if o != best):
         s.winner = best
-        s.end_reason = "seat %d reached the Victory Score (%s)" % (best, rule)
-        g.note("seat %d WINS with %d points (%s)" % (best, s.points[best], rule), seat=best)
+        # Both rules, always: 472 is the rule that wins the game and `rule` is
+        # the moment it was noticed. A reason naming only the moment reads, in a
+        # thousand-game soak, as if the game ended for a different reason each
+        # time.
+        s.end_reason = "seat %d reached the Victory Score (472, noticed at %s)" % (best, rule)
+        g.note("seat %d WINS with %d points (472, at %s)" % (best, s.points[best], rule),
+               seat=best)
     return s.winner
 
 

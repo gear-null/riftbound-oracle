@@ -25,7 +25,7 @@ import deckfile
 from . import actions, chain, rng, turn
 from .decisions import Decision, Option, terminal
 from .state import (ENDING, MAIN, OVER, SETUP, RulesError, State, loc_base,
-                    loc_bf, view)
+                    loc_bf, public_view, view)
 
 
 def _id_number(oid):
@@ -203,7 +203,11 @@ class Game:
                 if s.phase != OVER:
                     s.phase = OVER
                     self.note("game over: %s" % s.end_reason)
-                return terminal(view(s, 0))
+                # 108.7.c: a hand is Private Information, and the terminal
+                # decision is handed to whoever is holding the game rather than
+                # to a seat. Built from the public view, so finishing a game
+                # cannot be the moment a hand leaks.
+                return terminal(public_view(s))
             if s.pending is not None:
                 if self.auto_trivial and len(s.pending["options"]) == 1:
                     self._apply(s.pending["options"][0][0])

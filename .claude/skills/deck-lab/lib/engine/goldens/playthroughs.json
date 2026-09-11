@@ -653,14 +653,14 @@
     "first_player": 0,
     "turns": 17,
     "winner": 0,
-    "end_reason": "seat 0 reached the Victory Score (472)",
+    "end_reason": "seat 0 reached the Victory Score (472, noticed at 323.1)",
     "points": [
      8,
      4
     ],
     "decisions": 69,
     "log_entries": 470,
-    "state_hash": "8b07894c230152d0"
+    "state_hash": "7fd1827d4c8438ab"
    },
    "log": [
     "seat 0 draws 4 (opening hand)",
@@ -1131,8 +1131,8 @@
     "awaken: seat 0 readies 4 object(s) (315.1.b)",
     "— turn 17, seat 0 — beginning phase",
     "seat 0 SCORES Treasure Hoard by Hold -> 8 point(s)",
-    "seat 0 WINS with 8 points (472)",
-    "game over: seat 0 reached the Victory Score (472)"
+    "seat 0 WINS with 8 points (472, at 323.1)",
+    "game over: seat 0 reached the Victory Score (472, noticed at 323.1)"
    ]
   },
   {
@@ -2094,14 +2094,14 @@
     "first_player": 1,
     "turns": 26,
     "winner": 0,
-    "end_reason": "seat 0 reached the Victory Score (472)",
+    "end_reason": "seat 0 reached the Victory Score (472, noticed at 323.1)",
     "points": [
      8,
      7
     ],
     "decisions": 103,
     "log_entries": 697,
-    "state_hash": "edae8bdb220fe95e"
+    "state_hash": "470308fa19354cf5"
    },
    "log": [
     "seat 1 draws 4 (opening hand)",
@@ -2799,8 +2799,8 @@
     "the Showdown at Forbidding Waste closes (348)",
     "seat 0 establishes control of Forbidding Waste",
     "seat 0 takes the FINAL POINT at Forbidding Waste -> 8 (471.1.b.1)",
-    "seat 0 WINS with 8 points (472)",
-    "game over: seat 0 reached the Victory Score (472)"
+    "seat 0 WINS with 8 points (472, at 323.1)",
+    "game over: seat 0 reached the Victory Score (472, noticed at 323.1)"
    ]
   },
   {
@@ -3676,14 +3676,14 @@
     "first_player": 0,
     "turns": 27,
     "winner": 0,
-    "end_reason": "seat 0 reached the Victory Score (472)",
+    "end_reason": "seat 0 reached the Victory Score (472, noticed at 323.1)",
     "points": [
      8,
      7
     ],
     "decisions": 93,
     "log_entries": 673,
-    "state_hash": "a299aa1ba6285ce5"
+    "state_hash": "d2f8d33ec66e1df5"
    },
    "log": [
     "seat 0 draws 4 (opening hand)",
@@ -4357,8 +4357,8 @@
     "awaken: seat 0 readies 12 object(s) (315.1.b)",
     "— turn 27, seat 0 — beginning phase",
     "seat 0 SCORES Treasure Hoard by Hold -> 8 point(s)",
-    "seat 0 WINS with 8 points (472)",
-    "game over: seat 0 reached the Victory Score (472)"
+    "seat 0 WINS with 8 points (472, at 323.1)",
+    "game over: seat 0 reached the Victory Score (472, noticed at 323.1)"
    ]
   }
  ]

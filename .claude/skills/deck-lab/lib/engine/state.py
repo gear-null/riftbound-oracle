@@ -197,8 +197,13 @@ class State:
         s.resolve_now = self.resolve_now
         s.combat_recalled = self.combat_recalled
         s.tasks = self.tasks[:]
-        s.choosing = dict(self.choosing) if self.choosing else None
-        s.pending = dict(self.pending) if self.pending else None
+        # Both of these carry a LIST, and `dict(x)` copies neither. A shallow
+        # copy here meant `clone().s.pending["options"].append(...)` added an
+        # option to the original's decision — a search node handing the real
+        # game an illegal move, silently. Anything reachable from the state is
+        # copied; nothing shared is mutable.
+        s.choosing = _copy_choice(self.choosing)
+        s.pending = _copy_pending(self.pending)
         s.next_id = self.next_id
         s.cleanups = self.cleanups
         return s
@@ -339,6 +344,39 @@ def _copy_bf(b):
     return c
 
 
+def _copy_pending(p):
+    """A pending decision that shares nothing mutable with the one it came from.
+
+    `options` is a list of (key, label) pairs. The pairs are tuples of
+    primitives and cannot be mutated; the LIST can, so it is the one thing that
+    has to be copied.
+    """
+    if p is None:
+        return None
+    copy = dict(p)
+    copy["options"] = list(p["options"])
+    return copy
+
+
+def _copy_choice(c):
+    """The half-made choice, with any list in it copied.
+
+    Written over the values rather than over a list of known keys: `choosing`
+    grows a field every time a new grouped decision is added, and a copy that
+    knows the field names is a copy that silently stops being deep the next time
+    one appears.
+    """
+    if c is None:
+        return None
+    copy = dict(c)
+    for key, value in copy.items():
+        if isinstance(value, list):
+            copy[key] = value[:]
+        elif isinstance(value, dict):
+            copy[key] = dict(value)
+    return copy
+
+
 # -- locations -----------------------------------------------------------
 
 def loc_base(seat):
@@ -366,6 +404,21 @@ def where(state, location):
 
 
 # -- the information set -------------------------------------------------
+
+def public_view(state):
+    """What anyone may see: both seats' public zones, and no hand at all.
+
+    The terminal decision goes to whoever is holding the game, which is not a
+    seat — building it from `view(state, 0)` handed seat 0's hand to seat 1's
+    policy at the one moment nobody checks the contents.
+    """
+    out = view(state, 0)
+    del out["seat"]
+    mine = out.pop("you")
+    mine.pop("hand", None)
+    out["seats"] = [mine, out.pop("opponent")]
+    return out
+
 
 def view(state, seat):
     """What `seat` may see: its own hand, every public zone, sizes of the rest.

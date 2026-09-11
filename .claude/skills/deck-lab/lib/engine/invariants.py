@@ -74,22 +74,32 @@ def _cards_conserved(game, bad):
 
 
 def _points(game, bad):
-    """Points only ever go up, and never past the Victory Score.
+    """A player who meets 472 never goes unnoticed.
 
-    The cap holds because 303.2 forbids simultaneous actions: every gain is
-    checked against 472 before the next one happens, so the first player to
-    reach the target has strictly more than the other and wins there. A score of
-    9, or a tie at 8, means something gained a point without the check running.
+    NOT "points never exceed the Victory Score" — they can, and the rules say
+    so. 472 decides the win "when a cleanup occurs", and 315.2.b.2 Holds ALL the
+    battlefields a Turn Player controls, so a player on 7 controlling both
+    finishes the Scoring Step on 9. The old cap was really asserting that the
+    win was decided inside the Score, which is what made the second Hold
+    impossible.
+
+    What must hold instead is that the position is never *quietly* won: if
+    somebody meets 472's condition and no winner has been declared, a Cleanup
+    has to be outstanding to declare it.
     """
     s = game.s
     for seat in (0, 1):
         if s.points[seat] < 0:
             bad.append("seat %d has %d points" % (seat, s.points[seat]))
-        if s.points[seat] > s.victory_target:
-            bad.append("seat %d is past the Victory Score at %d points without the game "
-                       "having ended (472)" % (seat, s.points[seat]))
-    if s.winner is None and min(s.points) >= s.victory_target:
-        bad.append("both seats are at the Victory Score and nobody has won (472)")
+    if s.winner is not None:
+        return
+    leader = 0 if s.points[0] >= s.points[1] else 1
+    other = 1 - leader
+    if s.points[leader] >= s.victory_target and s.points[leader] > s.points[other]:
+        if not any(task[0] == "cleanup" for task in s.tasks):
+            bad.append("seat %d meets the Victory Score at %d-%d and no Cleanup is "
+                       "outstanding to notice it (472, 323.1)"
+                       % (leader, s.points[leader], s.points[other]))
 
 
 def _one_zone(game, bad):
