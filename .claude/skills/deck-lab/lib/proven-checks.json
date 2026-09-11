@@ -1,5 +1,5 @@
 {
- "mutants": 127,
+ "mutants": 128,
  "observed_to_fail": [
   "--verbose brings the text back",
   "Awaken readies everything the turn player controls (315.1.b)",
@@ -78,6 +78,7 @@
   "an unpayable cost raises rather than going through",
   "and begins normally once the previous one ended",
   "and it is counted, so the two numbers disagree visibly",
+  "and nobody is left holding Priority once it has (313.5, 312.2)",
   "and still not the opponent's",
   "answer refuses an option the decision did not offer",
   "arriving at an uncontrolled battlefield contests it (190.3.a.1)",

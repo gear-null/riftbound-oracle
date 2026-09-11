@@ -153,5 +153,8 @@ def resolution_step(g, index):
     # from all units and players, which here is the Showdown record going away.
     g.note("combat at %s ends (466.7)" % bf["name"])
     s.showdown = None
+    # 313.5: the turn is back in a Neutral State, so nobody holds Focus, and the
+    # Priority that came with it goes too.
+    s.priority = None
     s.combat_recalled = False
     g.status_changed()

@@ -539,6 +539,9 @@ def engine_showdowns(check):
           "is captured first")
     chain.pass_focus(g2, g2.s.showdown["focus"])
     check("a full sequence of passes closes it (347.2.a, 348)", g2.s.showdown is None)
+    check("and nobody is left holding Priority once it has (313.5, 312.2)",
+          g2.s.priority is None,
+          "Priority left behind makes one position hash two ways")
     check("a Non-Combat Showdown that closes with one player's units establishes "
           "Control (348.2.a)", g2.s.battlefields[0]["ctrl"] == 1)
     check("and that is a Conquer, so it scores (348.2.a.1, 469.1)",

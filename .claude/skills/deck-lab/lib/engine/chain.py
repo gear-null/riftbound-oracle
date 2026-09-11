@@ -268,6 +268,11 @@ def close_showdown(g):
     # 348.2: a Non-Combat Showdown settles Control.
     seats = set(u["ctrl"] for u in s.units_at(loc_bf(sd["bf"])))
     s.showdown = None
+    # 313.5 / 312.2.b: Focus only exists in a Showdown State, and the Priority
+    # that came with it goes with it. Left behind, the same position hashes two
+    # ways depending on which Showdown last closed there, which is exactly the
+    # kind of phantom difference a transposition table would trip over.
+    s.priority = None
     if len(seats) == 1:
         seat = next(iter(seats))
         if bf["ctrl"] != seat:

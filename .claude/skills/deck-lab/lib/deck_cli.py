@@ -515,8 +515,7 @@ def cmd_engine(args):
     too slow to run on every commit: the deeper perft depths, a thousand games
     of random self-play, and the throughput measurement gate G4 reads.
     """
-    from engine import goldens, perft, policies
-    from engine.game import Game
+    from engine import goldens, perft
     what = args.what or "bench"
 
     if what == "perft":
@@ -553,7 +552,10 @@ def cmd_engine(args):
         problems = goldens.compare(fresh, goldens.load(goldens.PLAYTHROUGHS))
         for problem in problems:
             print(f"  DIFF {problem}")
-        print(f"  {len(fresh['games']) - len(problems)}/{len(fresh['games'])} "
+        # Counted by GAME, not by problem: one divergence reports several lines,
+        # and subtracting them from the game count printed a negative number.
+        moved = {p.split(":", 1)[0] for p in problems}
+        print(f"  {len(fresh['games']) - len(moved)}/{len(fresh['games'])} "
               "golden playthrough(s) replay exactly")
         return 1 if problems else 0
 
@@ -570,9 +572,9 @@ def cmd_engine(args):
 def _engine_soak(games, check_invariants=False):
     """Random vs random across gauntlet pairs. Every game must end by a rule."""
     import collections
+    import time
     from engine import policies
     from engine.game import Game
-    import time
     paths = deckfile.available()
     total = games or 1000
     ends = collections.Counter()
@@ -609,6 +611,7 @@ def _engine_bench(games):
     import time
     from engine import perft, policies
     from engine.game import Game
+
 
     board = perft.board("midgame")
     n = 4000

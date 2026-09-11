@@ -120,6 +120,13 @@ def _chain_order(game, bad):
             bad.append("the Chain has a finalized item above a pending one — it is no "
                        "longer LIFO (337.1, 340.1)")
             break
+    # 312.2 lists the four moments a player receives Priority, and all of them
+    # are inside a Chain or a Showdown. (The Main Phase's Priority is implicit:
+    # the Turn Player is simply asked.) Priority left lying around after a window
+    # closes makes one position hash two ways.
+    if not s.chain and s.showdown is None and s.priority is not None:
+        bad.append("seat %s still holds Priority with no Chain and no Showdown "
+                   "(312.2, 313.5)" % s.priority)
 
 
 def _locations(game, bad):
