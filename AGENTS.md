@@ -44,6 +44,9 @@ scripts/
   ├── gauntlet/           Tournament decklists to test against (committed)
   ├── decks/              Decks under construction
   └── lib/                deck_cli.py — the table, deck legality, shuffle math
+      └── engine/         The rules kernel: code PLAYS the game, through a
+                          decision-request API (ADR 0009). Vanilla so far — no
+                          card text is executed. See docs/engine/
 ```
 
 ## Tech Stack

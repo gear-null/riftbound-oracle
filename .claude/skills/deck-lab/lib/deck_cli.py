@@ -507,6 +507,147 @@ def cmd_gauntlet(args):
     return 0
 
 
+def cmd_engine(args):
+    """The rules kernel: its instruments, and the numbers they produce.
+
+    The kernel's regression checks run inside `selftest`, with the table's, so
+    there is one suite and one record. What lives here is everything that is
+    too slow to run on every commit: the deeper perft depths, a thousand games
+    of random self-play, and the throughput measurement gate G4 reads.
+    """
+    from engine import goldens, perft
+    what = args.what or "bench"
+
+    if what == "perft":
+        want = goldens.load(goldens.PERFT)
+        depth = args.depth or want["depth"]
+        names = [args.board] if args.board else sorted(perft.BOARDS)
+        bad = 0
+        for name in names:
+            if args.divide:
+                for label, key, n in perft.divide(perft.board(name), depth):
+                    print(f"  {n:>9}  {key}   {label}")
+                continue
+            got = perft.counts(name, depth)
+            expected = want["boards"].get(name, [])[:depth]
+            ok = got == expected
+            bad += 0 if ok else 1
+            print(f"  {'ok  ' if ok else 'DIFF'} {name:<12} {got}"
+                  + ("" if ok else f"   golden {expected}"))
+        if args.write:
+            goldens.write(goldens.PERFT, goldens.record_perft(depth))
+            print(f"  wrote {goldens.PERFT}")
+            return 0
+        if bad:
+            print(f"\n  {bad} board(s) differ. `--divide` bisects one; `--write` freezes\n"
+                  "  the new numbers, which is only right if a rule deliberately changed.")
+        return 1 if bad else 0
+
+    if what == "golden":
+        if args.write:
+            goldens.write(goldens.PLAYTHROUGHS, goldens.record_all())
+            print(f"  wrote {goldens.PLAYTHROUGHS}")
+            return 0
+        fresh = {"games": [goldens.play_golden(spec) for spec in goldens.GAMES]}
+        problems = goldens.compare(fresh, goldens.load(goldens.PLAYTHROUGHS))
+        for problem in problems:
+            print(f"  DIFF {problem}")
+        # Counted by GAME, not by problem: one divergence reports several lines,
+        # and subtracting them from the game count printed a negative number.
+        moved = {p.split(":", 1)[0] for p in problems}
+        print(f"  {len(fresh['games']) - len(moved)}/{len(fresh['games'])} "
+              "golden playthrough(s) replay exactly")
+        return 1 if problems else 0
+
+    if what == "soak":
+        return _engine_soak(args.games, args.check)
+
+    if what == "bench":
+        return _engine_bench(args.games or 200)
+
+    print(f"error: no engine subcommand {what!r} — try perft, golden, soak or bench")
+    return 1
+
+
+def _engine_soak(games, check_invariants=False):
+    """Random vs random across gauntlet pairs. Every game must end by a rule."""
+    import collections
+    import time
+    from engine import policies
+    from engine.game import Game
+    paths = deckfile.available()
+    total = games or 1000
+    ends = collections.Counter()
+    failures = []
+    turns = 0
+    start = time.time()
+    for i in range(total):
+        a = deckfile.load(paths[i % len(paths)])
+        b = deckfile.load(paths[(i * 7 + 3) % len(paths)])
+        game = Game.new(a, b, seed=i, hash_log=False, invariants=check_invariants)
+        try:
+            policies.play(game, policies.random_pair(i))
+        except Exception as err:                       # noqa: BLE001 — reported
+            failures.append(f"seed {i}: {a.name} vs {b.name}: {err}")
+            continue
+        turns += game.s.turn
+        ends[game.s.end_reason] += 1
+    elapsed = time.time() - start
+    unnamed = [r for r in ends if not r]
+    print(f"  {sum(ends.values())}/{total} games finished in {elapsed:.1f}s "
+          f"({sum(ends.values()) / max(elapsed, 1e-9):.0f} games/s, "
+          f"{turns / max(sum(ends.values()), 1):.1f} turns each)")
+    for reason, n in ends.most_common():
+        print(f"    {n:>5}  {reason or '<the log names no rule>'}")
+    for failure in failures[:5]:
+        print(f"  CRASH {failure}")
+    if len(failures) > 5:
+        print(f"  ... and {len(failures) - 5} more")
+    return 1 if (failures or unnamed) else 0
+
+
+def _engine_bench(games):
+    """Clones, decisions and games per second — the numbers gate G4 reads."""
+    import time
+    from engine import fixtures, perft, policies
+    from engine.game import Game
+
+    board = perft.board("midgame")
+    n = 4000
+    start = time.time()
+    for _ in range(n):
+        board.clone()
+    clones = n / (time.time() - start)
+
+    # The fixture pair, not "the first two decks in the gauntlet": a throughput
+    # number that moves when someone adds a decklist is not comparable to the
+    # one in docs/engine/testing.md.
+    a, b = fixtures.pair()
+    decisions = played = 0
+    start = time.time()
+    for i in range(games):
+        game = Game.new(a, b, seed=i, hash_log=False)
+        policies.play(game, policies.random_pair(i))
+        decisions += game.decisions
+        played += 1
+    elapsed = time.time() - start
+
+    start = time.time()
+    for i in range(games):
+        game = Game.new(a, b, seed=i, hash_log=True)
+        policies.play(game, policies.random_pair(i))
+    audited = games / (time.time() - start)
+
+    print(f"  {clones:>10,.0f} clones/second")
+    print(f"  {decisions / elapsed:>10,.0f} decisions/second")
+    print(f"  {played / elapsed:>10,.1f} games/second   (no per-step hash)")
+    print(f"  {audited:>10,.1f} games/second   (auditable: a state hash per log entry)")
+    print(f"  {decisions / played:>10,.1f} decisions per game")
+    print("\n  the table, for comparison: ~9k snapshot+restore/s, ~890 deepcopies/s,\n"
+          "  ~70 turn cycles/s")
+    return 0
+
+
 def cmd_selftest(args):
     import selftest
     return selftest.main()
@@ -539,7 +680,14 @@ def cmd_help(args):
   games                        saved games; * marks the current one
   record [--note "..."]        log the current game's result to the journal
   journal                      every recorded result
-  selftest                     regression harness
+  engine <what>                the rules kernel's instruments, which are too slow
+                               for every commit: perft (legal-action counts against
+                               frozen goldens, --divide to bisect, --board, --depth),
+                               golden (replay the recorded playthroughs), soak
+                               (--games of random self-play, --check for invariants),
+                               bench (clones, decisions and games per second).
+                               --write refreezes a golden — only after a rule changed
+  selftest                     regression harness, table and engine
   mutants                      reintroduce each defect the selftest claims to
                                catch, and prove the right check goes red
 
@@ -607,6 +755,10 @@ def main(argv=None):
     p = sub.add_parser("record")
     p.add_argument("--game"); p.add_argument("--note"); p.add_argument("--force", action="store_true")
     sub.add_parser("journal")
+    p = sub.add_parser("engine"); p.add_argument("what", nargs="?")
+    p.add_argument("--depth", type=int); p.add_argument("--board")
+    p.add_argument("--games", type=int); p.add_argument("--divide", action="store_true")
+    p.add_argument("--write", action="store_true"); p.add_argument("--check", action="store_true")
     sub.add_parser("selftest")
     sub.add_parser("mutants")
     sub.add_parser("help")
@@ -616,7 +768,7 @@ def main(argv=None):
         "decks": cmd_decks, "check": cmd_check, "card": cmd_card, "analyze": cmd_analyze,
         "report": cmd_report, "new": cmd_new, "state": cmd_state, "log": cmd_log,
         "do": cmd_do, "games": cmd_games, "record": cmd_record, "journal": cmd_journal,
-        "import": cmd_import, "gauntlet": cmd_gauntlet,
+        "import": cmd_import, "gauntlet": cmd_gauntlet, "engine": cmd_engine,
         "selftest": cmd_selftest, "mutants": cmd_mutants, "help": cmd_help,
     }.get(args.command, cmd_help)
     try:

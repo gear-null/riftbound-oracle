@@ -339,6 +339,27 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
   table means adding a check to `selftest.py` AND a mutant to `mutants.py` that has been
   seen to make that check fail. The first run of the battery found five checks that
   passed while the behaviour they named was deleted.
+- **A mutant names the check it proves, or it is not evidence.** A mutant caught by a
+  DIFFERENT check leaves the one it names still unwatched, and recording it as proven is
+  the stale credit the battery exists to prevent. The battery reports those as
+  `[MISNAMED]` and exits non-zero.
+- **A check name must not contain "  — "** (two spaces, em dash, space). That is the
+  exact sequence `check()` uses to introduce a DETAIL, and the battery anchors on it to
+  read names back out of the suite's output. `proven_ratio` asserts it. A single space
+  before an em dash inside a name is fine now; it was not before the anchor was
+  tightened, and every such name silently lost its credit.
+- **The kernel may not execute a rule the spec table does not claim.**
+  `docs/engine/spec.md` is the honest list — implemented, simplified, out of scope — and
+  the failure this whole project is trying to avoid is silent partial coverage, where a
+  rule looks handled because nothing crashed. Move a row before you move the code.
+- **An engine golden changes only because a rule did.** `engine perft` and
+  `engine golden` compare; `--write` refreezes. Read the diff, and ship the regenerated
+  file in the commit that moved it — CI fails if a run leaves one dirty.
+- **An engine fixture never names a tournament list.** The gauntlet is refreshed on its
+  own cadence and lists get deleted; a fixture that names one is a test that breaks for
+  a reason unrelated to the engine. They are named once, in `engine/fixtures.py`, and
+  they are the `*-core-meta` lists, which exist to be stable. Changing one means
+  regenerating both goldens.
 - **A second guard makes the system safer and the suite blinder.** Redundant guards are
   good; only their safety is visible. Delete either half of a masking pair and nothing goes
   red, so a one-at-a-time mutant battery reports both as covered while neither is pinned.
@@ -409,6 +430,9 @@ The selftest enforces most of this, but when changing the skill, keep in mind:
 .claude/skills/deck-lab/       <- THE OTHER PRODUCT. Same deal: copy the folder.
   SKILL.md                     the procedure for building and testing a deck
   lib/                         deck_cli.py — table, deck legality, shuffle math
+    engine/                    the rules kernel: code plays the game (ADR 0009)
+      goldens/                 perft counts, golden playthroughs, the vendored
+                               chain/showdown transitions — committed
   data/cards.json              vendored + committed, written by `oracle skill-data`
   gauntlet/                    tournament decklists, committed
   decks/                       decks under construction

@@ -1,0 +1,245 @@
+{
+ "note": "vendored from rules-report's verified primers by engine/vendor_primers.py — do not hand-edit",
+ "primers": {
+  "hot-fepr": {
+   "topic": "HOT FEPR",
+   "corpus": {
+    "CR": "2026-07-16",
+    "TR": "2026-07-16",
+    "generated": "2026-08-26"
+   }
+  },
+  "showdowns": {
+   "topic": "Showdowns",
+   "corpus": {
+    "CR": "2026-07-16",
+    "TR": "2026-07-16",
+    "generated": "2026-08-26"
+   }
+  }
+ },
+ "transitions": [
+  {
+   "primer": "hot-fepr",
+   "from": "s1",
+   "heading": "H — Handle Outstanding Tasks",
+   "exit": 0,
+   "when": "every outstanding Task is complete and one or more Chain Items are pending",
+   "goto": "s2",
+   "cites": [
+    "CR:336"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s1",
+   "heading": "H — Handle Outstanding Tasks",
+   "exit": 1,
+   "when": "every outstanding Task is complete and nothing is pending on the Chain — there is no Chain to work, so the loop does not run",
+   "goto": null,
+   "cites": [
+    "CR:335"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s2",
+   "heading": "F — Finalize",
+   "exit": 0,
+   "when": "the item just finalized is a Unit, Gear, or an ability that Adds resources — it never waits on the Chain to be answered",
+   "goto": "s5",
+   "cites": [
+    "CR:337.2"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s2",
+   "heading": "F — Finalize",
+   "exit": 1,
+   "when": "there are still Pending Chain Items after finalizing that one",
+   "goto": "s2",
+   "cites": [
+    "CR:337.3"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s2",
+   "heading": "F — Finalize",
+   "exit": 2,
+   "when": "nothing is left on the Chain to finalize",
+   "goto": "s3",
+   "cites": [
+    "CR:337.4"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s3",
+   "heading": "E — Execute",
+   "exit": 0,
+   "when": "the player with Priority plays a card or activates an ability, which puts new Pending Items on the Chain",
+   "goto": "s2",
+   "cites": [
+    "CR:338.1.a.7"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s3",
+   "heading": "E — Execute",
+   "exit": 1,
+   "when": "the player with Priority passes instead",
+   "goto": "s4",
+   "cites": [
+    "CR:338.1.b.1"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s4",
+   "heading": "P — Pass",
+   "exit": 0,
+   "when": "every player has passed in sequence with nothing added to the Chain",
+   "goto": "s5",
+   "cites": [
+    "CR:339.1"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s4",
+   "heading": "P — Pass",
+   "exit": 1,
+   "when": "the sequence of passes is not complete, so Priority moves on to the next player",
+   "goto": "s3",
+   "cites": [
+    "CR:339.2"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s5",
+   "heading": "R — Resolve",
+   "exit": 0,
+   "when": "the Chain is now empty",
+   "goto": null,
+   "cites": [
+    "CR:340.2"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s5",
+   "heading": "R — Resolve",
+   "exit": 1,
+   "when": "the Chain is not empty and one or more items on it are still pending",
+   "goto": "s2",
+   "cites": [
+    "CR:340.3"
+   ]
+  },
+  {
+   "primer": "hot-fepr",
+   "from": "s5",
+   "heading": "R — Resolve",
+   "exit": 2,
+   "when": "the Chain is not empty but nothing on it is pending",
+   "goto": "s3",
+   "cites": [
+    "CR:340.4"
+   ]
+  },
+  {
+   "primer": "showdowns",
+   "from": "s1",
+   "heading": "Open — the Battlefield is contested",
+   "exit": 0,
+   "when": "the Showdown has opened and the contester holds Focus",
+   "goto": "s2",
+   "cites": [
+    "CR:345"
+   ]
+  },
+  {
+   "primer": "showdowns",
+   "from": "s2",
+   "heading": "Act — the player with Focus chooses",
+   "exit": 0,
+   "when": "the player with Focus plays a card or activated ability",
+   "goto": "s3",
+   "cites": [
+    "CR:347.1",
+    "CR:347.1.a"
+   ]
+  },
+  {
+   "primer": "showdowns",
+   "from": "s2",
+   "heading": "Act — the player with Focus chooses",
+   "exit": 1,
+   "when": "the player with Focus passes, and not every player has passed yet — Focus simply moves along",
+   "goto": "s2",
+   "cites": [
+    "CR:347.2.b"
+   ]
+  },
+  {
+   "primer": "showdowns",
+   "from": "s2",
+   "heading": "Act — the player with Focus chooses",
+   "exit": 2,
+   "when": "the player with Focus passes and that completes a full sequence of passes",
+   "goto": "s4",
+   "cites": [
+    "CR:347.2.a"
+   ]
+  },
+  {
+   "primer": "showdowns",
+   "from": "s3",
+   "heading": "Resolve — the Chain runs",
+   "exit": 0,
+   "when": "the Chain closes in the ordinary way — Focus passes to the next player in turn order",
+   "goto": "s2",
+   "cites": [
+    "CR:347.1.b"
+   ]
+  },
+  {
+   "primer": "showdowns",
+   "from": "s3",
+   "heading": "Resolve — the Chain runs",
+   "exit": 1,
+   "when": "the Chain opened because a triggered ability or an Add ability went on it — Focus does not pass, and the same player acts again",
+   "goto": "s2",
+   "cites": [
+    "CR:346.1"
+   ]
+  },
+  {
+   "primer": "showdowns",
+   "from": "s4",
+   "heading": "Close — everyone has passed",
+   "exit": 0,
+   "when": "it was a Combat Showdown — the remaining steps of Combat now resolve the phase",
+   "goto": null,
+   "cites": [
+    "CR:348.1"
+   ]
+  },
+  {
+   "primer": "showdowns",
+   "from": "s4",
+   "heading": "Close — everyone has passed",
+   "exit": 1,
+   "when": "it was a Non-Combat Showdown — Control of the Battlefield is settled, and that may be a Conquer",
+   "goto": null,
+   "cites": [
+    "CR:348.2",
+    "CR:348.2.a"
+   ]
+  }
+ ]
+}
