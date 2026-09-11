@@ -16,6 +16,7 @@ left behind in the file that no longer runs.
 """
 import cards
 
+from . import abilities, replacements
 from .state import (BASE, RulesError, bf_index, is_bf, loc_base, new_rune,
                     new_unit, where)
 
@@ -164,10 +165,43 @@ def cost_of(name):
             "exact": power == 0 or len(domains) <= 1}
 
 
-def can_pay(g, seat, name):
-    """Is the printed cost payable from the pool plus the runes on the board?"""
-    s = g.s
+def total_cost(g, seat, name):
+    """356: the base cost, after Replacement Effects have had it.
+
+    In the order 356 gives, because the order changes the answer: 356.1.b zeroes
+    a base cost that is being ignored FIRST, then 356.3's increases and 356.4's
+    discounts are arithmetic on what is left, and 356.6 refuses to take either
+    component below zero. A discount applied before "ignoring its Energy cost"
+    would be a discount that vanishes instead of one that stacks.
+
+    206 is why `cost_of` is still a separate function: anything that needs to
+    KNOW a card's cost uses the printed one, whatever this returns.
+    """
     cost = cost_of(name)
+    ignore_energy, ignore_power, d_energy, d_power = replacements.cost_modifiers(
+        g, seat, name)
+    if ignore_energy:
+        cost["energy"] = 0
+    if ignore_power:
+        cost["power"] = 0
+    cost["energy"] = max(cost["energy"] + d_energy, 0)
+    cost["power"] = max(cost["power"] + d_power, 0)
+    return cost
+
+
+def can_pay(g, seat, name):
+    """Is this card's total cost payable from the pool plus the board?"""
+    return can_pay_cost(g, seat, total_cost(g, seat, name))
+
+
+def can_pay_cost(g, seat, cost):
+    """Is one cost dict payable from the pool plus the runes on the board?
+
+    Takes the cost rather than the card, because 204.1.b gives an Activated
+    Ability a Base Cost of its own with no card behind it, and a second copy of
+    this arithmetic for abilities is a second copy that drifts.
+    """
+    s = g.s
     mine = [r for r in s.runes if r["ctrl"] == seat]
     readied = [r for r in mine if not r["exh"]]
     usable_power = sum(
@@ -197,12 +231,16 @@ def can_pay(g, seat, name):
 
 
 def pay(g, seat, name):
-    """Pay a card's printed cost, exhausting and recycling runes to do it (357)."""
+    """Pay a card's total cost, exhausting and recycling runes to do it (357)."""
+    pay_cost(g, seat, total_cost(g, seat, name), name)
+
+
+def pay_cost(g, seat, cost, label):
+    """Pay one cost dict (357). The card and the ability both come through here."""
     s = g.s
-    ok, why = can_pay(g, seat, name)
+    ok, why = can_pay_cost(g, seat, cost)
     if not ok:
-        raise RulesError("seat %d cannot pay for %s: %s" % (seat, name, why))
-    cost = cost_of(name)
+        raise RulesError("seat %d cannot pay for %s: %s" % (seat, label, why))
 
     for _ in range(cost["power"]):
         wanted = list(cost["domains"])
@@ -238,7 +276,7 @@ def pay(g, seat, name):
     s.energy[seat] -= cost["energy"]
     g.note("seat %d pays %dE%s for %s%s"
            % (seat, cost["energy"], " + %dP" % cost["power"] if cost["power"] else "",
-              name, "" if cost["exact"] else "  [power domain split not in the card data]"),
+              label, "" if cost["exact"] else "  [power domain split not in the card data]"),
            seat=seat)
 
 
@@ -286,25 +324,56 @@ def put_into_play(g, seat, name, location, exhausted, from_zone):
         if zone is None or name not in zone[seat]:
             raise RulesError("%s is not in seat %d's %s" % (name, seat, from_zone))
         zone[seat].remove(name)
-    unit = new_unit(s.mint("u"), name, seat, location, exhausted)
+    # 369.3: a Replacement Effect that applies to a unit AS IT ENTERS is
+    # identified by describing how it enters, so the entry is asked about before
+    # the object exists — `enters_modified` moves the fields of this event and
+    # `as_enters` adds a Game Action beside it (370.1.b.1).
+    event = replacements.apply(g, {"ev": "enter", "name": name, "seat": seat,
+                                   "loc": location, "exh": bool(exhausted),
+                                   "buffs": 0, "from": from_zone})
+    if event is None:
+        g.note("%s does not enter the Board — the event was replaced (369)" % name,
+               seat=seat)
+        return None
+    unit = new_unit(s.mint("u"), name, seat, event["loc"], event["exh"])
+    unit["buffs"] = event["buffs"]
     s.units.append(unit)
     g.note("seat %d puts %s [%s] into play %s at %s"
-           % (seat, name, unit["id"], "exhausted" if exhausted else "ready",
-              where(s, location)), seat=seat)
-    if is_bf(location):
+           % (seat, name, unit["id"], "exhausted" if unit["exh"] else "ready",
+              where(s, unit["loc"])), seat=seat)
+    if is_bf(unit["loc"]):
         apply_contested(g, unit)
     g.board_changed()
     return unit
 
 
 def to_trash(g, oid, reason="killed"):
-    """Move a permanent from the Board to its owner's trash (428)."""
+    """Move a permanent from the Board to its owner's trash (428).
+
+    Two ability rules meet here. 370.1.c makes the death a replaceable event,
+    asked BEFORE the unit has gone — a "would die ... instead" that fired
+    afterwards would be returning a card from the trash, which is a different
+    game action. And 383.2.c.1 makes the `die` trigger evaluate from an object
+    that is by definition no longer on the Board, so the dying unit's own
+    abilities are handed to `emit` rather than looked up from a board it has
+    left (808's Deathknell is the whole reason that path exists).
+    """
     s = g.s
     unit = s.unit(oid)
+    event = replacements.apply(g, {"ev": "die", "oid": oid, "seat": unit["ctrl"],
+                                   "name": unit["name"], "loc": unit["loc"],
+                                   "reason": reason})
+    if event is None:
+        g.note("%s [%s] does not go to the trash — the event was replaced (369)"
+               % (unit["name"], oid), seat=unit["ctrl"])
+        return
+    gone = dict(unit)
     s.units.remove(unit)
     s.trash[unit["owner"]].append(unit["name"])
     g.note("%s [%s] -> trash (%s)" % (unit["name"], oid, reason), seat=unit["ctrl"])
     g.board_changed()
+    abilities.emit(g, "die", leaving=gone, oid=oid, seat=gone["ctrl"],
+                   name=gone["name"], loc=gone["loc"])
 
 
 def banish(g, oid):
@@ -325,6 +394,125 @@ def discard(g, seat, name):
     s.hand[seat].remove(name)
     s.trash[seat].append(name)
     g.note("seat %d discards %s" % (seat, name), seat=seat)
+    abilities.emit(g, "discard_trigger", seat=seat, name=name)
+
+
+# -- states and counters (423, 426, 441, 424, 729-733) -------------------
+
+def buff(g, oid):
+    """426: place a Buff counter on a Unit, if it does not have one already.
+
+    702.3.a and 426.1.b.1 say the same thing twice and both are easy to skip:
+    a second Buff is NOT placed, and the unit is still a legal choice for the
+    action (426.1.c). Returning False rather than raising is what lets a script
+    say "Buff a unit" over a board where some already are.
+    """
+    unit = g.s.unit(oid)
+    if not unit["unit"]:
+        raise RulesError("Buffs are counters placed on UNITS (702)")
+    if unit["buffs"]:
+        g.note("%s [%s] already has a Buff, so another is not placed (702.3.a)"
+               % (unit["name"], oid), seat=unit["ctrl"])
+        return False
+    unit["buffs"] += 1
+    g.note("%s [%s] is Buffed -> Might %d (426, 703)"
+           % (unit["name"], oid, g.s.might_of(unit)), seat=unit["ctrl"])
+    g.status_changed()
+    return True
+
+
+def spend_buff(g, oid):
+    """702.2.b: remove a single Buff counter from a Unit you control."""
+    unit = g.s.unit(oid)
+    if not unit["buffs"]:
+        raise RulesError("a Buff cannot be spent from a Unit that does not have one "
+                         "(702.2.b.1)")
+    unit["buffs"] -= 1
+    g.note("%s [%s] spends a Buff (702.2.b)" % (unit["name"], oid), seat=unit["ctrl"])
+    g.status_changed()
+
+
+def stun(g, oid):
+    """423: render a Unit Stunned. A binary state (423.1.a)."""
+    unit = g.s.unit(oid)
+    if unit["stunned"]:
+        # 423.1.a.1: a Stunned Unit cannot be Stunned again. Not an error — the
+        # instruction is simply already satisfied — but not an event either.
+        return False
+    unit["stunned"] = True
+    g.note("%s [%s] is STUNNED (423)" % (unit["name"], oid), seat=unit["ctrl"])
+    g.status_changed()
+    abilities.emit(g, "stunned", oid=oid, seat=unit["ctrl"], name=unit["name"])
+    abilities.emit(g, "become_state", oid=oid, seat=unit["ctrl"],
+                   name=unit["name"], state="stunned")
+    return True
+
+
+def empower(g, oid):
+    """441: render a Game Object Empowered. Also a binary state (441.1.a)."""
+    unit = g.s.unit(oid)
+    if unit["empowered"]:
+        return False                                       # 441.1.b, 441.1.c
+    unit["empowered"] = True
+    g.note("%s [%s] becomes EMPOWERED (441)" % (unit["name"], oid), seat=unit["ctrl"])
+    g.status_changed()
+    # 441.2.a: becoming Empowered is an event other abilities can reference, and
+    # 828.1.c makes it the moment an [Empowered] gate opens — which is why the
+    # recomputation below is not optional.
+    abilities.emit(g, "become_state", oid=oid, seat=unit["ctrl"],
+                   name=unit["name"], state="empowered")
+    return True
+
+
+def reveal(g, seat, names, zone="hand"):
+    """424: present cards from a zone others cannot see."""
+    pile = getattr(g.s, zone)
+    for name in names:
+        if name not in pile[seat]:
+            raise RulesError("%s is not in seat %d's %s (424.1.a.2)" % (name, seat, zone))
+    g.note("seat %d reveals %s from their %s (424)"
+           % (seat, ", ".join(names), zone), seat=seat)
+    for name in names:
+        abilities.emit(g, "reveal_trigger", seat=seat, name=name, zone=zone)
+
+
+def gain_xp(g, seat, n=1):
+    """730.1: increase the XP marked on a player."""
+    g.s.xp[seat] += n
+    g.note("seat %d gains %d XP -> %d (730.1)" % (seat, n, g.s.xp[seat]), seat=seat)
+    # 824.1.c: a [Level N] gate opens the moment the XP total passes N, so the
+    # layers are recomputed here rather than at the next cleanup.
+    _relayer(g)
+
+
+def spend_xp(g, seat, n=1):
+    """730.2: reduce the XP marked on a player."""
+    if g.s.xp[seat] < n:
+        raise RulesError("seat %d has %d XP and cannot spend %d (730.2)"
+                         % (seat, g.s.xp[seat], n))
+    g.s.xp[seat] -= n
+    g.note("seat %d spends %d XP -> %d (730.2)" % (seat, n, g.s.xp[seat]), seat=seat)
+    # 824.1.d: the Dependent Ability is Inactive as soon as the controller has
+    # less than N XP. Recomputed here, so "less than N" is true immediately and
+    # not one cleanup later.
+    _relayer(g)
+
+
+def give_might(g, oids, amount, until="this_turn", src="", ctrl=None):
+    """477.3: a continuous effect in the arithmetic layer, with a duration.
+
+    NOT a Buff. 703 gives a buff +1 Might and 705 takes it away when the unit
+    leaves play; this is a Game Effect with a window (477, census 5b), it stacks
+    without limit, and 317.2.d retires the "this turn" ones.
+    """
+    from . import layers
+    return layers.new_effect(g, "give_might", n=amount, targets=tuple(oids),
+                             until=until, src=src, ctrl=ctrl)
+
+
+def _relayer(g):
+    from . import layers
+    layers.recompute(g)
 
 
 def exhaust(g, oid):
@@ -339,8 +527,14 @@ def exhaust(g, oid):
 def ready(g, oid):
     """415."""
     obj = _object(g.s, oid)
+    was = obj["exh"]
     obj["exh"] = False
     g.note("%s [%s] readies" % (obj["name"], oid), seat=obj["ctrl"])
+    if was:
+        # Only a READY that changes something is an event. 415 readies an object
+        # that is already ready with no effect, and a trigger on "when I ready"
+        # that fired for it would fire every Awaken Phase for every object.
+        abilities.emit(g, "readied", oid=oid, seat=obj["ctrl"], name=obj["name"])
 
 
 def _object(s, oid):
@@ -378,6 +572,8 @@ def move(g, oid, destination):
         apply_contested(g, unit)
     # 453: when a Move action is complete, perform a Cleanup.
     g.need_cleanup()
+    abilities.emit(g, "move", oid=oid, seat=unit["ctrl"], name=unit["name"],
+                   loc=destination, origin=origin)
     return unit
 
 

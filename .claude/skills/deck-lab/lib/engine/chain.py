@@ -19,7 +19,7 @@ The shapes that matter:
   closes only when every player has passed once in sequence (347.2.a), and a
   single pass never closes it.
 """
-from . import actions, scoring, turn
+from . import abilities, actions, scoring, turn
 from .decisions import Option
 from .state import RulesError, loc_base, loc_bf
 
@@ -46,6 +46,13 @@ def play_card(g, seat, name, from_zone):
            seat=seat)
     # 319.3: a Cleanup becomes outstanding after a Pending Item is added.
     g.need_cleanup()
+    # 355.1: choices an effect specifies "As I am played" are made now - step 2
+    # of the play process, before the location. The event is raised here and not
+    # at resolution because 355.1.a puts the Optional Additional Cost decision in
+    # this step too, and a cost decided after the card has resolved is not a cost.
+    abilities.emit(g, "as_played", oid=item["id"], seat=seat, name=name,
+                   kind=item["kind"])
+
     # 355.2: for a UNIT, choose the Location it will enter. Asked now, while the
     # item is pending, which is where step 2 of the play process sits.
     #
@@ -132,22 +139,51 @@ def finalize_one(g):
     item = next(c for c in s.chain if c["pending"])
     seat = item["ctrl"]
 
-    # 356/357: determine and pay the cost. 358: check legality. A cost that
-    # cannot be paid now would mean the option list was generated against a
-    # different board, which is a kernel bug rather than a legal outcome.
-    actions.pay(g, seat, item["name"])
-    if item["kind"] == "unit" and item["loc"] not in turn.play_locations(s, seat, item["name"]):
-        raise RulesError("%s would enter at %s, which is no longer a valid location "
-                         "(358.1)" % (item["name"], item["loc"]))
+    if item["kind"] == "ability":
+        # 398-406: an Ability follows the same steps, and two of them ask its
+        # controller a question (402.1's "you may", 404.2's decline to pay). A
+        # False here means the kernel is waiting for one of those answers, or
+        # the item has already left the Chain.
+        if not abilities.finalize(g, item):
+            return
+    else:
+        # 356/357: determine and pay the cost. 358: check legality. A cost that
+        # cannot be paid now would mean the option list was generated against a
+        # different board, which is a kernel bug rather than a legal outcome.
+        actions.pay(g, seat, item["name"])
+        if item["kind"] == "unit" and item["loc"] not in turn.play_locations(s, seat, item["name"]):
+            raise RulesError("%s would enter at %s, which is no longer a valid location "
+                             "(358.1)" % (item["name"], item["loc"]))
 
     item["pending"] = False                               # 359.1
     g.note("  %s [%s] is finalized (359)" % (item["name"], item["id"]), seat=seat)
     # 319.4: a Cleanup becomes outstanding after a Pending Item is finalized.
     g.need_cleanup()
+    if item["kind"] != "ability":
+        # 812.1.c: [Legion] asks whether you have FINALIZED another card this
+        # turn, so the record moves here and not when the card was played. An
+        # ability is not a card (401.1) and does not count.
+        s.played[seat].append(item["name"])
+        # 383.4.a.4: an ability that triggers when ANOTHER object is played is
+        # not a Play Effect, so it fires here — when the card was played — and
+        # not at 383.4.a.2's "after the permanent enters the board". A spell
+        # never enters anything, and this is the only moment it was played.
+        abilities.emit(g, "play_other", oid="", seat=seat, name=item["name"],
+                       kind=item["kind"])
+        # 812.1.c: the Legion gate reads that record, and 727.1.b.2 makes the
+        # Dependent Ability Active "exactly as written while the Condition is
+        # true" — which is now, not at the cleanup after this FEPR step.
+        g.status_changed()
 
     if item["kind"] in ("unit", "gear"):
         # 337.2: a Unit or Gear resolves immediately — it never waits on the
         # Chain to be answered.
+        s.resolve_now = True
+        return
+    if item["kind"] == "ability" and abilities.by_key(item["abil"]).adds:
+        # 400.2 / 429.2: an Ability with the Add action resolves as soon as it
+        # is finalized, like a Unit or Gear, and 429.2.a keeps Priority where it
+        # is while that happens.
         s.resolve_now = True
         return
 
@@ -171,24 +207,58 @@ def resolve_newest(g):
     item = s.chain.pop(index)
     seat = item["ctrl"]
 
-    if item["kind"] == "unit":
+    if item["kind"] == "ability":
+        # 406.5: execute the Ability just like a Spell, then clear it from the
+        # Chain — which the pop above has already done.
+        abilities.resolve(g, item)
+    elif item["kind"] == "unit":
         # 359.2.c: a Unit enters the Board EXHAUSTED at the Location chosen.
-        actions.put_into_play(g, seat, item["name"], item["loc"], True, "chain")
+        unit = actions.put_into_play(g, seat, item["name"], item["loc"], True, "chain")
+        _played(g, seat, item, unit)
     elif item["kind"] == "gear":
         # 359.2.d: a non-Unit Gear enters the Board Ready at the player's Base.
-        actions.put_into_play(g, seat, item["name"], item["loc"], False, "chain")
+        unit = actions.put_into_play(g, seat, item["name"], item["loc"], False, "chain")
+        _played(g, seat, item, unit)
     else:
         # 351.2: a Spell's game effects are executed and the card is then placed
         # in the trash. This slice executes no card text, so the effect is
         # nothing and the log says as much — an unexecuted spell that looked
         # executed would be the worst possible silent failure.
         s.trash[seat].append(item["name"])
-        g.note("  %s [%s] resolves — vanilla kernel, its text is not executed (340.1)"
+        g.note("  %s [%s] resolves — no script is attached to it (340.1)"
                % (item["name"], item["id"]), seat=seat)
 
     # 319.5: a Cleanup becomes outstanding after an item leaves the Chain.
     g.need_cleanup()
+    after_leaving(g)
 
+
+def _played(g, seat, item, unit):
+    """383.4.a.2: a Play Effect goes on the Chain AFTER the permanent enters.
+
+    "These Triggered Abilities are put on the Chain as Pending Items AFTER the
+    Permanent these effects correspond to is finalized and enters the board" —
+    so the unit exists, its id is in the event, and a "when you play me, kill a
+    unit here" can already see where "here" is. Firing at finalization instead
+    puts the trigger on the Chain above an item that has not resolved.
+
+    A unit whose entry was replaced away (369) never entered, so it never
+    played: no `play_self` for something that is not on the board.
+    """
+    if unit is None:
+        return
+    abilities.emit(g, "play_self", oid=unit["id"], seat=seat,
+                   name=item["name"], kind=item["kind"], loc=unit["loc"])
+
+
+def after_leaving(g):
+    """Who holds Priority once something has left the Chain (340.2-340.4).
+
+    Shared with 402.4/404.2, where a Pending Ability leaves without ever
+    resolving: the Chain is in the same shape either way, and two copies of this
+    would drift the first time one of them was corrected.
+    """
+    s = g.s
     if not s.chain:
         s.priority = None                                 # 340.2: an Open State
         s.passes = 0

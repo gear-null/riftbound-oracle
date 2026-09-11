@@ -10,7 +10,7 @@ ported from the table with the reasoning that put them there:
   this turn; otherwise they draw a card and the game goes on. Skipping it ends
   games one point early, which is invisible in a log and fatal to a win rate.
 """
-from . import actions
+from . import abilities, actions
 from .state import RulesError
 
 
@@ -41,14 +41,18 @@ def score(g, seat, index, method="Conquer"):
                    "— draws a card instead of the final point (471.1.b.1)"
                    % (seat, bf["name"]), seat=seat)
             actions.draw(g, seat, 1, reason="final point denied")
-            # 471.2: the Score happened, so the battlefield's Score abilities
-            # would trigger — only the point was withheld. Vanilla battlefields
-            # have no abilities in this slice (see docs/engine/spec.md).
+            # 471.2 and 383.4.c.2.c: the Score happened, so the Score
+            # abilities trigger — only the point was withheld. "If the act of
+            # gaining one point from Conquering is negated or replaced in any
+            # way, the Conquer Effect will still trigger."
+            _score_triggers(g, seat, index, method)
             return s.points[seat]
     else:
         s.points[seat] += 1
         g.note("seat %d SCORES %s by %s -> %d point(s)"
                % (seat, bf["name"], method, s.points[seat]), seat=seat)
+
+    _score_triggers(g, seat, index, method)
 
     # No victory check here. 472 says a player wins "when a cleanup occurs" —
     # and one always follows, because a Score changes the board. Deciding it
@@ -56,6 +60,28 @@ def score(g, seat, index, method="Conquer"):
     # controlling both battlefields would win on the first Hold and never take
     # the second, which is a Score the rules say happens.
     return s.points[seat]
+
+
+def _score_triggers(g, seat, index, method):
+    """471.2: trigger Score abilities AT THE BATTLEFIELD that Scored.
+
+    383.4.c.2 and 383.4.d.2 each split the same event two ways: the abilities of
+    UNITS that were present when the battlefield was scored, and the abilities
+    of anything that references the PLAYER who scored. One event carries both —
+    `loc` is what a unit's `where` matches on, `seat` is what a "when you
+    conquer" listens for — so the listener decides, not the emitter.
+    """
+    from .state import loc_bf
+    bf = g.s.battlefield(index)
+    # Two literal emits, for the reason `combat._designation_trigger` gives: an
+    # event name built at runtime cannot be found by the check that asserts
+    # every declared trigger event has somewhere that raises it.
+    if method == "Conquer":
+        abilities.emit(g, "conquer", seat=seat, loc=loc_bf(index), bf=index,
+                       name=bf["name"])
+    else:
+        abilities.emit(g, "hold", seat=seat, loc=loc_bf(index), bf=index,
+                       name=bf["name"])
 
 
 def establish_control(g, seat, index):
