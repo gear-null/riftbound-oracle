@@ -1,0 +1,126 @@
+{
+ "name": "LD.顶尖玩家.PPX — #4 — S4 Beijing City Challenge 2026-08-15",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosenChampion": "Kennen, Storm of Shuriken",
+ "domains": [
+  "Order",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Shadow Order Disciple",
+   "qty": 3
+  },
+  {
+   "name": "Treasure Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Tail-Cloaked Matriarch",
+   "qty": 2
+  },
+  {
+   "name": "Baron Nashor",
+   "qty": 1
+  },
+  {
+   "name": "Atakhan",
+   "qty": 1
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 3
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Heedless Resurrection",
+   "qty": 1
+  },
+  {
+   "name": "Hard Bargain",
+   "qty": 1
+  },
+  {
+   "name": "Salvage",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 3
+  },
+  {
+   "name": "Invert Timelines",
+   "qty": 1
+  },
+  {
+   "name": "Dragon Form",
+   "qty": 2
+  },
+  {
+   "name": "Shadows of the Past",
+   "qty": 1
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Up from the Deep",
+   "qty": 3
+  },
+  {
+   "name": "Seal of Discord",
+   "qty": 3
+  },
+  {
+   "name": "Kennen, Storm of Shuriken",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 8
+  },
+  {
+   "name": "Order Rune",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "Mystic Vortex",
+   "qty": 1
+  },
+  {
+   "name": "Shadow Temple",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-beijing-city-challenge-2026-08-15/4-ld-ppx-kennen",
+  "author": "LD.顶尖玩家.PPX",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Beijing City Challenge 2026-08-15",
+  "placement": 4,
+  "event_date": "2026-08-15",
+  "event_size": "Premier event"
+ }
+}

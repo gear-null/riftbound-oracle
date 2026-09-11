@@ -4,6 +4,9 @@
   "built_from": "https://github.com/gear-null/riftbound-oracle",
   "verify": "python3 deck_cli.py selftest",
   "cards": 954,
-  "gauntlet_decks": 28,
-  "gauntlet_pulled": "2026-08-24"
+  "gauntlet_decks": 95,
+  "gauntlet_pulled": "2026-09-11",
+  "gauntlet_version": "gauntlet-2026-09",
+  "gauntlet_digest": "591cd98a6510",
+  "gauntlet_cards": 396
 }

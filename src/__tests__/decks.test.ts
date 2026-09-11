@@ -1,15 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
   deckSlug,
+  fillChosenChampionByConsensus,
+  loadCardIndex,
   lookupCard,
   parseDeckIndex,
   parseDeckPage,
+  parseDeckPullFlags,
   pullMetaDecks,
   resolveChosenChampion,
   type Deck,
 } from "../decks.js";
 import type { CardIndex } from "../skill-data.js";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 /** A page whose two champions both carry the legend's tag, so it stays unresolved. */
@@ -46,12 +49,21 @@ function page(overrides: { sections?: string; meta?: boolean } = {}): string {
   }<h1 class="deck-title">Irelia Tempo</h1><div class="deck-author">by <!-- -->Dezmu</div><div class="deck-meta-row">Legend: <strong>Irelia, Blade Dancer</strong></div><div class="deck-colors"><span class="deck-color-chip">Calm</span><span class="deck-color-chip">Chaos</span></div></div></div><div>${sections}</div></body></html>`;
 }
 
+// Every card the fixture pages name is in here, because the puller quarantines
+// a list whose cards the pool cannot resolve — a deck naming cards nobody has
+// is one no game can be played with, whatever the page looked like.
 const CARDS: CardIndex = {
   "irelia, blade dancer": stub("Irelia, Blade Dancer", "Legend", null, ["Irelia"]),
   "irelia, fervent": stub("Irelia, Fervent", "Unit", "Champion", ["Irelia", "Ionia"]),
   "irelia, graceful": stub("Irelia, Graceful", "Unit", "Champion", ["Irelia", "Ionia"]),
   "draven, audacious": stub("Draven, Audacious", "Unit", "Champion", ["Draven", "Noxus"]),
   "stellacorn herder": stub("Stellacorn Herder", "Unit", null, []),
+  "called shot": stub("Called Shot", "Spell", null, []),
+  "calm rune": stub("Calm Rune", "Rune", null, []),
+  "chaos rune": stub("Chaos Rune", "Rune", null, []),
+  "aspirant's climb": stub("Aspirant's Climb", "Battlefield", null, []),
+  "ravenbloom conservatory": stub("Ravenbloom Conservatory", "Battlefield", null, []),
+  "the dreaming tree": stub("The Dreaming Tree", "Battlefield", null, []),
 };
 
 function stub(name: string, type: string, supertype: string | null, tags: string[]) {
@@ -298,6 +310,7 @@ describe("pullMetaDecks", () => {
     const fetched: string[] = [];
     const result = await pullMetaDecks({
       delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
       cards: CARDS,
       outputDir: `${tmp}/output`,
       gauntletDir: `${tmp}/gauntlet`,
@@ -320,6 +333,7 @@ describe("pullMetaDecks", () => {
     const tmp = `/tmp/decks-test-${process.pid}-q`;
     const result = await pullMetaDecks({
       delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
       cards: CARDS,
       outputDir: `${tmp}/output`,
       gauntletDir: `${tmp}/gauntlet`,
@@ -340,6 +354,7 @@ describe("pullMetaDecks", () => {
     const tmp = `/tmp/decks-test-${process.pid}-keep`;
     const opts = {
       delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
       cards: CARDS,
       outputDir: `${tmp}/output`,
       gauntletDir: `${tmp}/gauntlet`,
@@ -369,6 +384,7 @@ describe("pullMetaDecks", () => {
     // written, which is worse than a gauntlet with a known hole in it.
     const result = await pullMetaDecks({
       delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
       cards: CARDS,
       outputDir: `/tmp/decks-test-${process.pid}-b/output`,
       gauntletDir: `/tmp/decks-test-${process.pid}-b/gauntlet`,
@@ -380,5 +396,283 @@ describe("pullMetaDecks", () => {
     });
     expect(result.decks).toHaveLength(1);
     expect(result.warnings.some((w) => w.includes("/meta/bad") && w.includes("no legend"))).toBe(true);
+  });
+});
+
+describe("pulling from two sites at once", () => {
+  const FIXTURES = join(import.meta.dirname, "fixtures");
+  const fixture = (name: string) => readFileSync(join(FIXTURES, name), "utf-8");
+
+  /** Routes each URL a two-site pull asks for to the right fixture. */
+  function serve(overrides: Record<string, string> = {}) {
+    return async (url: string) => {
+      for (const [match, body] of Object.entries(overrides)) {
+        if (url.includes(match)) return body;
+      }
+      if (url.endsWith("rift-atlas.com/decks")) return `<a href="/meta/aaa"></a>`;
+      if (url.includes("rift-atlas.com/meta/")) return page();
+      if (url.endsWith("/sitemap.xml")) return fixture("riftools-sitemap.xml");
+      if (url.includes("/sitemaps/decklists")) return fixture("riftools-decklists.xml");
+      return fixture("riftools-deck.html");
+    };
+  }
+
+  it("reads both sites in one run and reports which decks came from where", async () => {
+    // The real card pool, not a stub: the point of this test is that a real
+    // Riftools page produces a deck the rest of the pipeline accepts, and a
+    // five-card fixture index would quarantine every list for the wrong reason.
+    const tmp = `/tmp/decks-test-${process.pid}-two`;
+    const result = await pullMetaDecks({
+      delayMs: 0,
+      limit: 1,
+      cards: loadCardIndex(),
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+      now: () => "2026-09-11",
+      fetchText: serve(),
+    });
+    expect(result.bySite).toEqual({ "rift-atlas.com": 1, "riftools.app": 1 });
+    expect(result.quarantined).toEqual([]);
+    const riftools = result.decks.find((d) => d.source?.site === "riftools.app")!;
+    expect(riftools.legend).toBe("Ornn, Fire Below the Mountain");
+    // rift-atlas prints domain chips and Riftools does not; it prints the
+    // deck's RUNE domains, which is a different fact — a deck can run a rune it
+    // never spends. Rule 103.1.b takes the identity from the legend, so that is
+    // where it is read from for a page with no chips.
+    expect([...riftools.domains].sort()).toEqual(["Calm", "Mind"]);
+  });
+
+  it("refuses a list naming cards the pool cannot resolve, and names them", async () => {
+    // Riftools indexes sets this repo's card data may not carry yet. Such a
+    // list is not a bad parse — it is a deck no game can be played with, and
+    // shipping it would break the skill's promise that every gauntlet deck is
+    // legal.
+    const tmp = `/tmp/decks-test-${process.pid}-pool`;
+    const result = await pullMetaDecks({
+      delayMs: 0,
+      limit: 1,
+      sites: ["riftools.app"] as const,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+      fetchText: serve(),
+    });
+    expect(result.decks).toHaveLength(0);
+    expect(result.quarantined[0].reasons.join(" ")).toMatch(/card pool cannot resolve: .*Scuttle Crab/);
+  });
+
+  it("counts two lists with the same cards as one opponent", async () => {
+    // Events overlap and winning decks get copied. Writing both inflates the
+    // deck count while testing nothing new.
+    const tmp = `/tmp/decks-test-${process.pid}-dup`;
+    const result = await pullMetaDecks({
+      delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+      fetchText: serve({ "rift-atlas.com/decks": `<a href="/meta/aaa"></a><a href="/meta/bbb"></a>` }),
+    });
+    expect(result.decks).toHaveLength(1);
+    expect(result.duplicates).toHaveLength(1);
+    expect(result.written).toHaveLength(2);
+  });
+
+  it("keeps one site's decks when the other site's index is unreadable", async () => {
+    // A restructured sitemap must not cost the gauntlet the decks the other
+    // site served perfectly well.
+    const tmp = `/tmp/decks-test-${process.pid}-half`;
+    const result = await pullMetaDecks({
+      delayMs: 0,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+      fetchText: serve({ "/sitemap.xml": "<html>not a sitemap</html>" }),
+    });
+    expect(result.bySite).toEqual({ "rift-atlas.com": 1, "riftools.app": 0 });
+    expect(result.warnings.join(" ")).toMatch(/riftools\.app: index unreadable/);
+  });
+});
+
+describe("fillChosenChampionByConsensus", () => {
+  /** A deck whose champion the source did not record. */
+  const unresolved = (legend: string, candidates: string[]): Deck => ({
+    name: `${legend} list`,
+    legend,
+    chosenChampion: null,
+    championCandidates: candidates,
+    domains: [],
+    main: candidates.map((name) => ({ name, qty: 1 })),
+    runes: [],
+    battlefields: [],
+  });
+
+  const resolved = (legend: string, champion: string): Deck => ({
+    name: `${champion} list`,
+    legend,
+    chosenChampion: champion,
+    domains: [],
+    main: [{ name: champion, qty: 1 }],
+    runes: [],
+    battlefields: [],
+  });
+
+  it("fills a list's champion from what the rest of the field chose, and says so", () => {
+    // Not a guess: the pulled tournament data states which champion the field
+    // played for that legend, and the count goes into the file so a reader can
+    // disagree with it.
+    const decks = [
+      resolved("Irelia, Blade Dancer", "Irelia, Fervent"),
+      resolved("Irelia, Blade Dancer", "Irelia, Fervent"),
+      resolved("Irelia, Blade Dancer", "Irelia, Graceful"),
+      unresolved("Irelia, Blade Dancer", ["Irelia, Fervent", "Irelia, Graceful"]),
+    ];
+    const notes = fillChosenChampionByConsensus(decks);
+    expect(decks[3].chosen_champion).toBe("Irelia, Fervent");
+    expect(decks[3].chosen_champion_note).toMatch(/2 of 3 lists/);
+    expect(notes).toHaveLength(1);
+  });
+
+  it("leaves the field null when the field itself is split", () => {
+    // A tie is not a consensus. Writing one of them in would be exactly the
+    // guess the whole champion path refuses to make.
+    const decks = [
+      resolved("Teemo, Swift Scout", "Teemo, Scout"),
+      resolved("Teemo, Swift Scout", "Teemo, Strategist"),
+      unresolved("Teemo, Swift Scout", ["Teemo, Scout", "Teemo, Strategist"]),
+    ];
+    fillChosenChampionByConsensus(decks);
+    expect(decks[2].chosen_champion).toBeUndefined();
+  });
+
+  it("never picks a champion the list does not actually run", () => {
+    const decks = [
+      resolved("Ahri, Nine-Tailed Fox", "Ahri, Alluring"),
+      unresolved("Ahri, Nine-Tailed Fox", ["Ahri, Inquisitive", "Ahri, Graceful"]),
+    ];
+    fillChosenChampionByConsensus(decks);
+    expect(decks[1].chosen_champion).toBeUndefined();
+  });
+});
+
+describe("a re-pull overwrites rather than accumulates", () => {
+  /** The same rift-atlas page, under a new title. */
+  const renamedPage = () => page().replace("Irelia Tempo", "New Irelia Testing");
+
+  function serveAtlas(body: () => string) {
+    return async (url: string) =>
+      url.endsWith("rift-atlas.com/decks") ? `<a href="/meta/aaa"></a>` : body();
+  }
+
+  it("replaces the file a renamed page left behind, and says which", async () => {
+    // The filename is `<deck name>-<digest of the source URL>`, so a site that
+    // renames a list mints a NEW filename for the SAME page. rift-atlas renamed
+    // "Darius 29 - 5 tournament stats" to "New darius testing" between two
+    // pulls, and the gauntlet ended up holding that deck twice: an opponent
+    // counted twice in every distribution, one copy carrying a `fetched` date
+    // that was a lie.
+    const tmp = `/tmp/decks-test-${process.pid}-rename`;
+    const opts = {
+      delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+    };
+    const first = await pullMetaDecks({ ...opts, fetchText: serveAtlas(page) });
+    const oldSlug = deckSlug(first.decks[0]);
+    expect(existsSync(join(`${tmp}/gauntlet`, `${oldSlug}.json`))).toBe(true);
+
+    const second = await pullMetaDecks({ ...opts, fetchText: serveAtlas(renamedPage) });
+    const newSlug = deckSlug(second.decks[0]);
+    expect(newSlug).not.toBe(oldSlug);
+    expect(second.replaced).toEqual([
+      { from: oldSlug, to: newSlug, url: "https://rift-atlas.com/meta/aaa" },
+    ]);
+    // Both folders, not just the gauntlet: the corpus copy would otherwise keep
+    // the orphan and `vault-sync` would keep publishing it.
+    for (const dir of [`${tmp}/gauntlet`, `${tmp}/output`]) {
+      expect(existsSync(join(dir, `${oldSlug}.json`)), `${dir} still holds the orphan`).toBe(false);
+      expect(existsSync(join(dir, `${newSlug}.json`))).toBe(true);
+    }
+    expect(second.warnings.join(" ")).toMatch(/the page was renamed — replaced/);
+  });
+
+  it("carries a hand-set Chosen Champion across a rename", async () => {
+    // The champion was looked up by filename, which a rename changes — so the
+    // rename silently returned the deck to unplayable. The source URL is the
+    // identity that survives.
+    const tmp = `/tmp/decks-test-${process.pid}-rename-cc`;
+    const opts = {
+      delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+    };
+    const ambiguous = () => ambiguousPage();
+    const first = await pullMetaDecks({ ...opts, fetchText: serveAtlas(ambiguous) });
+    const file = join(`${tmp}/gauntlet`, `${deckSlug(first.decks[0])}.json`);
+    const saved = JSON.parse(readFileSync(file, "utf-8"));
+    saved.chosen_champion = "Irelia, Fervent";
+    saved.chosen_champion_note = "picked by hand";
+    writeFileSync(file, JSON.stringify(saved, null, 1));
+
+    const renamedAmbiguous = () => ambiguousPage().replace("Irelia Tempo", "Irelia Rebuilt");
+    const second = await pullMetaDecks({ ...opts, fetchText: serveAtlas(renamedAmbiguous) });
+    const after = JSON.parse(
+      readFileSync(join(`${tmp}/gauntlet`, `${deckSlug(second.decks[0])}.json`), "utf-8")
+    );
+    expect(after.chosen_champion).toBe("Irelia, Fervent");
+    expect(after.chosen_champion_note).toBe("picked by hand");
+  });
+
+  it("deletes nothing when the page is unchanged", async () => {
+    const tmp = `/tmp/decks-test-${process.pid}-norename`;
+    const opts = {
+      delayMs: 0,
+      sites: ["rift-atlas.com"] as const,
+      cards: CARDS,
+      outputDir: `${tmp}/output`,
+      gauntletDir: `${tmp}/gauntlet`,
+      fetchText: serveAtlas(page),
+    };
+    await pullMetaDecks(opts);
+    const second = await pullMetaDecks(opts);
+    expect(second.replaced).toEqual([]);
+    expect(readdirSync(`${tmp}/gauntlet`)).toHaveLength(1);
+  });
+});
+
+describe("parseDeckPullFlags", () => {
+  it("reads the flags a pull understands", () => {
+    const parsed = parseDeckPullFlags([
+      "node", "cli.js", "decks", "pull",
+      "--site=riftools.app", "--limit=5", "--events=3", "--per-event=2",
+    ]);
+    expect(parsed).toEqual({
+      options: { sites: ["riftools.app"], limit: 5, events: 3, perEvent: 2 },
+    });
+  });
+
+  it("refuses a count that is not a whole number, rather than pulling nothing", () => {
+    // `--events=all` went through parseInt to NaN, NaN reached `.slice(0, NaN)`,
+    // and the pull reported "0 deck(s) listed" and exited 0. Asking for the
+    // whole archive and being told successfully that it is empty is the worst
+    // answer available: it reads as a fact about the site.
+    for (const bad of ["--events=all", "--events=0", "--limit=-3", "--per-event=2.5", "--limit="]) {
+      const parsed = parseDeckPullFlags(["node", "cli.js", "decks", "pull", bad]);
+      expect(parsed, bad).toHaveProperty("error");
+      expect((parsed as { error: string }).error).toMatch(/whole number of at least 1/);
+    }
+  });
+
+  it("refuses a site it cannot pull from", () => {
+    const parsed = parseDeckPullFlags(["node", "cli.js", "decks", "pull", "--site=riftdecks.com"]);
+    expect((parsed as { error: string }).error).toMatch(/Unknown --site=riftdecks\.com/);
+  });
+
+  it("defaults to every site and no caps when nothing is passed", () => {
+    expect(parseDeckPullFlags(["node", "cli.js", "decks", "pull"])).toEqual({ options: {} });
   });
 });

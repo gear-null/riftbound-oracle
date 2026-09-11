@@ -1,0 +1,114 @@
+{
+ "name": "LineKa·黑天使 — #3 — S4 Wuhan Regional Open 2026-08-29",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosenChampion": "Kennen, Storm of Shuriken",
+ "domains": [
+  "Order",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Tideturner",
+   "qty": 1
+  },
+  {
+   "name": "Traveling Merchant",
+   "qty": 3
+  },
+  {
+   "name": "Treasure Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Pyke, Returned",
+   "qty": 2
+  },
+  {
+   "name": "Nocturne, Horrifying",
+   "qty": 3
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 3
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Gust",
+   "qty": 2
+  },
+  {
+   "name": "Switcheroo",
+   "qty": 2
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 3
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Up from the Deep",
+   "qty": 2
+  },
+  {
+   "name": "Seal of Discord",
+   "qty": 3
+  },
+  {
+   "name": "Last Rites",
+   "qty": 2
+  },
+  {
+   "name": "Kennen, Storm of Shuriken",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 9
+  },
+  {
+   "name": "Order Rune",
+   "qty": 3
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "Sandswept Tomb",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-wuhan-regional-open-2026-08-29/3-lineka-kennen",
+  "author": "LineKa·黑天使",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Wuhan Regional Open 2026-08-29",
+  "placement": 3,
+  "event_date": "2026-08-29",
+  "event_size": "Premier event"
+ }
+}

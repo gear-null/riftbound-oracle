@@ -1,0 +1,106 @@
+{
+ "name": "小橘派派 — #1 — S4 Nanjing City Challenge 2026-08-15",
+ "legend": "Fiora, Grand Duelist",
+ "chosenChampion": "Fiora, Victorious",
+ "domains": [
+  "Body",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Cithria of Cloudfield",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 3
+  },
+  {
+   "name": "Sea Monkey",
+   "qty": 3
+  },
+  {
+   "name": "Kayle, Justified",
+   "qty": 3
+  },
+  {
+   "name": "Kennen, Keeper of Balance",
+   "qty": 2
+  },
+  {
+   "name": "First Mate",
+   "qty": 3
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Vi, Peacekeeper",
+   "qty": 2
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Riposte",
+   "qty": 3
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 2
+  },
+  {
+   "name": "Rampage",
+   "qty": 3
+  },
+  {
+   "name": "Call to Glory",
+   "qty": 3
+  },
+  {
+   "name": "B.F. Sword",
+   "qty": 3
+  },
+  {
+   "name": "Fiora, Victorious",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Monastery of Hirana",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-nanjing-city-challenge-2026-08-15/1-player-28c63a8a-fiora",
+  "author": "小橘派派",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Nanjing City Challenge 2026-08-15",
+  "placement": 1,
+  "event_date": "2026-08-15",
+  "event_size": "Premier event"
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "name": "lаmbyseries — #5 — Riftbound Regional Qualifier - Singapore",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosenChampion": "Kennen, Storm of Shuriken",
+ "domains": [
+  "Order",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Traveling Merchant",
+   "qty": 3
+  },
+  {
+   "name": "Shadow Order Disciple",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Nocturne, Horrifying",
+   "qty": 3
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 3
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Existential Dread",
+   "qty": 1
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Gust",
+   "qty": 1
+  },
+  {
+   "name": "Switcheroo",
+   "qty": 2
+  },
+  {
+   "name": "Abandon",
+   "qty": 1
+  },
+  {
+   "name": "Rebuke",
+   "qty": 2
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 3
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Up from the Deep",
+   "qty": 2
+  },
+  {
+   "name": "Seal of Discord",
+   "qty": 3
+  },
+  {
+   "name": "Last Rites",
+   "qty": 2
+  },
+  {
+   "name": "Kennen, Storm of Shuriken",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 9
+  },
+  {
+   "name": "Order Rune",
+   "qty": 3
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "The Candlelit Sanctum",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/riftbound-regional-qualifier-singapore/5-lambyseries-kennen",
+  "author": "lаmbyseries",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "Riftbound Regional Qualifier - Singapore",
+  "placement": 5,
+  "event_date": "2026-09-05",
+  "event_size": "Premier event"
+ }
+}

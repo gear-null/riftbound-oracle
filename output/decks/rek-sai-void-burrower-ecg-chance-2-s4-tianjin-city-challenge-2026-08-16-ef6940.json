@@ -1,0 +1,118 @@
+{
+ "name": "灵花祭.ECG.Chance — #2 — S4 Tianjin City Challenge 2026-08-16",
+ "legend": "Rek'Sai, Void Burrower",
+ "chosenChampion": "Rek'Sai, Breacher",
+ "domains": [
+  "Fury",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Carrion Dredger",
+   "qty": 3
+  },
+  {
+   "name": "Honest Broker",
+   "qty": 3
+  },
+  {
+   "name": "Inferna",
+   "qty": 3
+  },
+  {
+   "name": "Faithful Manufactor",
+   "qty": 3
+  },
+  {
+   "name": "Sharkling",
+   "qty": 2
+  },
+  {
+   "name": "Zed, From the Shadows",
+   "qty": 2
+  },
+  {
+   "name": "Noxus Hopeful",
+   "qty": 3
+  },
+  {
+   "name": "Vi, Peacekeeper",
+   "qty": 1
+  },
+  {
+   "name": "Ferrous Forerunner",
+   "qty": 1
+  },
+  {
+   "name": "Undertitan",
+   "qty": 2
+  },
+  {
+   "name": "Blood Rush",
+   "qty": 3
+  },
+  {
+   "name": "Cleave",
+   "qty": 2
+  },
+  {
+   "name": "Void Rush",
+   "qty": 3
+  },
+  {
+   "name": "Falling Star",
+   "qty": 3
+  },
+  {
+   "name": "Salvage",
+   "qty": 1
+  },
+  {
+   "name": "Cull the Weak",
+   "qty": 3
+  },
+  {
+   "name": "Lacerate",
+   "qty": 1
+  },
+  {
+   "name": "Rek'Sai, Breacher",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Fury Rune",
+   "qty": 7
+  },
+  {
+   "name": "Order Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forbidding Waste",
+   "qty": 1
+  },
+  {
+   "name": "The Candlelit Sanctum",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-tianjin-city-challenge-2026-08-16/2-ecg-chance-rek-sai",
+  "author": "灵花祭.ECG.Chance",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Tianjin City Challenge 2026-08-16",
+  "placement": 2,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "name": "Michal Jozefek — #4 — RiftAtlas Convergence #2",
+ "legend": "Master Yi, Wuju Bladesman",
+ "chosenChampion": "Master Yi, Tempered",
+ "domains": [
+  "Calm",
+  "Body"
+ ],
+ "main": [
+  {
+   "name": "Steel Paws",
+   "qty": 2
+  },
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 2
+  },
+  {
+   "name": "Lonely Poro",
+   "qty": 3
+  },
+  {
+   "name": "First Mate",
+   "qty": 2
+  },
+  {
+   "name": "Akali, Silent",
+   "qty": 2
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Ruin Runner",
+   "qty": 1
+  },
+  {
+   "name": "Sabotage",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 2
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Rampage",
+   "qty": 2
+  },
+  {
+   "name": "Onslaught",
+   "qty": 1
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 2
+  },
+  {
+   "name": "Master Yi, Tempered",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 7
+  },
+  {
+   "name": "Calm Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Emperor's Dais",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Star Spring",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/riftatlas-convergence-2/4-michal-jozefek-master-yi",
+  "author": "Michal Jozefek",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "RiftAtlas Convergence #2",
+  "placement": 4,
+  "event_date": "2026-08-15",
+  "event_size": "Premier event"
+ }
+}

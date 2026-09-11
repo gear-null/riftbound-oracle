@@ -1,0 +1,118 @@
+{
+ "name": "MICE TheManLand — #1 — Riftbound Regional Qualifier - Barcelona",
+ "legend": "Ornn, Fire Below the Mountain",
+ "chosenChampion": "Ornn, Blacksmith",
+ "domains": [
+  "Calm",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Clockwork Keeper",
+   "qty": 3
+  },
+  {
+   "name": "Patched Porobot",
+   "qty": 3
+  },
+  {
+   "name": "Aspiring Engineer",
+   "qty": 2
+  },
+  {
+   "name": "Lecturing Yordle",
+   "qty": 1
+  },
+  {
+   "name": "Pit Crew",
+   "qty": 3
+  },
+  {
+   "name": "Charm",
+   "qty": 2
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "Seal of Focus",
+   "qty": 3
+  },
+  {
+   "name": "Poro Snax",
+   "qty": 3
+  },
+  {
+   "name": "Cloth Armor",
+   "qty": 1
+  },
+  {
+   "name": "Guardian Angel",
+   "qty": 1
+  },
+  {
+   "name": "Brutalizer",
+   "qty": 3
+  },
+  {
+   "name": "Mask of Foresight",
+   "qty": 1
+  },
+  {
+   "name": "Sprite Fountain",
+   "qty": 3
+  },
+  {
+   "name": "Sterak's Gage",
+   "qty": 3
+  },
+  {
+   "name": "Helm of Suppression",
+   "qty": 1
+  },
+  {
+   "name": "Ornn, Blacksmith",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 8
+  },
+  {
+   "name": "Mind Rune",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Ornn's Forge",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Veiled Temple",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/riftbound-regional-qualifier-barcelona/1-mice-themanland-ornn",
+  "author": "MICE TheManLand",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "Riftbound Regional Qualifier - Barcelona",
+  "placement": 1,
+  "event_date": "2026-08-22",
+  "event_size": "Premier event"
+ }
+}

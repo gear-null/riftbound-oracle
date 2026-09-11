@@ -1,0 +1,126 @@
+{
+ "name": "苏 — #2 — S4 Qingdao City Challenge 2026-08-16",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosenChampion": "Kennen, Storm of Shuriken",
+ "domains": [
+  "Order",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Gust Monk",
+   "qty": 1
+  },
+  {
+   "name": "Traveling Merchant",
+   "qty": 1
+  },
+  {
+   "name": "Carrion Dredger",
+   "qty": 3
+  },
+  {
+   "name": "Shadow Order Disciple",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Xin Zhao, Vigilant",
+   "qty": 2
+  },
+  {
+   "name": "Faithful Manufactor",
+   "qty": 2
+  },
+  {
+   "name": "Pyke, Returned",
+   "qty": 2
+  },
+  {
+   "name": "Tail-Cloaked Matriarch",
+   "qty": 3
+  },
+  {
+   "name": "Vi, Peacekeeper",
+   "qty": 1
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 2
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Shadow's Call",
+   "qty": 1
+  },
+  {
+   "name": "Cull the Weak",
+   "qty": 3
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 1
+  },
+  {
+   "name": "Dragon Form",
+   "qty": 2
+  },
+  {
+   "name": "Wind and Ghosts",
+   "qty": 3
+  },
+  {
+   "name": "Up from the Deep",
+   "qty": 3
+  },
+  {
+   "name": "Kennen, Storm of Shuriken",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 6
+  },
+  {
+   "name": "Order Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forbidding Waste",
+   "qty": 1
+  },
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "Mystic Vortex",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-qingdao-city-challenge-2026-08-16/2-player-7eb8b388-kennen",
+  "author": "苏",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Qingdao City Challenge 2026-08-16",
+  "placement": 2,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

@@ -453,19 +453,35 @@ def cmd_gauntlet(args):
 
     A gauntlet with no deck in your own domain pair tells you nothing about your
     own mirror, and that gap is invisible until an analysis is already running.
+
+    The three numbers on the first line are one fact each. The VERSION names the
+    field a result was measured against, so two results can be told apart. The
+    COUNT is the sample the field is made of. The DISTINCT CARD count is the
+    scripting frontier: how many different cards anything that wants to play
+    these games has to know, which is the only estimate of that work that comes
+    from the meta rather than from the whole card pool.
     """
     import collections
-    decks = [deckfile.load(p) for p in deckfile.available()]
-    gauntlet = [d for d in decks if os.sep + "gauntlet" + os.sep in (d.path or "")]
+    gauntlet = [deckfile.load(p) for p in deckfile.gauntlet_paths()]
     by_pair = collections.Counter()
+    by_site = collections.Counter()
     illegal = []
     for d in gauntlet:
         by_pair["/".join(sorted(d.domain_identity())) or "—"] += 1
+        by_site[d.source.get("site") or "unrecorded"] += 1
         if not deckfile.check(d).legal:
             illegal.append(d.name)
 
-    print(f"{len(gauntlet)} deck(s) in the gauntlet\n")
-    print("  by domain identity:")
+    # The digest is beside the name because the name alone is a promise someone
+    # remembered to keep. Two results quoting the same version and different
+    # digests were not measured against the same field.
+    print(f"{deckfile.gauntlet_version()} ({deckfile.gauntlet_digest()}) — "
+          f"{len(gauntlet)} list(s), "
+          f"{len(deckfile.distinct_cards(gauntlet))} distinct cards\n")
+    print("  by source:")
+    for site, n in sorted(by_site.items(), key=lambda x: (-x[1], x[0])):
+        print(f"    {n:>3}  {site}")
+    print("\n  by domain identity:")
     for pair, n in sorted(by_pair.items(), key=lambda x: (-x[1], x[0])):
         print(f"    {n:>3}  {pair}")
 

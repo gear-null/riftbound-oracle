@@ -1,0 +1,114 @@
+{
+ "name": "东东菠菠的卡牌妙妙屋 — #5 — S4 Wuhan Regional Open 2026-08-29",
+ "legend": "Akali, Rogue Assassin",
+ "chosenChampion": "Akali, Deadly Weapon",
+ "domains": [
+  "Fury",
+  "Calm"
+ ],
+ "main": [
+  {
+   "name": "Scuttle Crab",
+   "qty": 3
+  },
+  {
+   "name": "Mischievous Marai",
+   "qty": 2
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "qty": 3
+  },
+  {
+   "name": "Adaptatron",
+   "qty": 1
+  },
+  {
+   "name": "Stellacorn Herder",
+   "qty": 3
+  },
+  {
+   "name": "Ferrous Forerunner",
+   "qty": 1
+  },
+  {
+   "name": "Astral Heron",
+   "qty": 3
+  },
+  {
+   "name": "Shuriken Flip",
+   "qty": 3
+  },
+  {
+   "name": "Charm",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 1
+  },
+  {
+   "name": "Falling Star",
+   "qty": 3
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Back Off",
+   "qty": 2
+  },
+  {
+   "name": "Long Sword",
+   "qty": 2
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 3
+  },
+  {
+   "name": "Akali, Deadly Weapon",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  },
+  {
+   "name": "Fury Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forgotten Monument",
+   "qty": 1
+  },
+  {
+   "name": "Targon's Peak",
+   "qty": 1
+  },
+  {
+   "name": "Void Gate",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-wuhan-regional-open-2026-08-29/5-player-e108c683-akali",
+  "author": "东东菠菠的卡牌妙妙屋",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Wuhan Regional Open 2026-08-29",
+  "placement": 5,
+  "event_date": "2026-08-29",
+  "event_size": "Premier event"
+ }
+}

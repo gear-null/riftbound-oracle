@@ -58,22 +58,39 @@ The Rules Hub processor, the decklist puller and (historically) the community cr
 pace their requests and send an identifying User-Agent. Riot's Rules Hub sits behind
 Cloudflare and will reset connections if hit repeatedly.
 
-`oracle decks pull` reads `rift-atlas.com`, one deck page at a time with a 1.2s gap —
-about 30 seconds for the whole meta index. It was chosen over the alternatives because it
-server-renders complete decklists as plain semantic HTML: no deck API exists anywhere,
-and Piltover Archive resets scripted connections outright, which is a clear enough signal
-not to work around. Decklists are card names and counts — facts about a tournament
-result, not Riot's copyrighted text — and each pulled deck records the URL and date it
-came from.
+`oracle decks pull` reads two sites, one page at a time with a 1.2s gap between requests.
+Decklists are card names and counts — facts about a tournament result, not Riot's
+copyrighted text — and each pulled deck records the URL and date it came from.
 
-Four gauntlet decks did not come through that path at all. Most sites publishing
-competitive lists refuse scripted requests, so the importer also accepts decklist text
-**pasted by hand** — no request is made and nothing is crawled. Those four record
-`hextechanalytics.com` and the date they were entered, the same fields the puller writes,
-so `source.url` remains the answer to "where did this list come from" for every committed
-deck. Recorded here because this file is the authoritative account of committed content:
-a reader checking provenance should not have to infer a second source, or a second way in,
-from the deck files themselves.
+**`rift-atlas.com`** — the curated meta index, about 30 seconds for the whole thing. Its
+`robots.txt` allows everything except `/admin`, `/api/` and `/auth/`; this reads deck
+pages, never the API.
+
+**`riftools.app`** — one page per tournament placement, roughly 14,700 of them across 83
+events. Its `robots.txt` is `Allow: /` for every agent with no crawl-delay and no
+disallowed path. Three things keep the crawl small and honest:
+
+- **The site's own sitemap is the index.** `/tournaments` is client-rendered from
+  Supabase and has nothing in its HTML to parse; the decklist pages are fully
+  server-rendered and `sitemap.xml` lists every one. So the crawl reads the index Riftools
+  publishes for crawlers, and never the data API behind the page.
+- **It takes the top placings at the most recent events, not the census.** Fourteen
+  thousand lists is not a gauntlet, and fetching them would be useless as well as rude.
+  A default pull is ~78 pages, about two minutes.
+- **Nothing is inferred past the page.** One name — the Kennen legend — is spelled
+  differently there than in this repo's card pool, and it is bridged by a one-line alias
+  table rather than by a looser match. A list naming a card the pool cannot resolve is
+  reported by name and left out.
+
+Four gauntlet decks did not come through either path. Some sites publishing competitive
+lists refuse scripted requests — Piltover Archive resets scripted connections outright and
+`riftdecks.com` refuses them, both clear enough signals not to work around — so the
+importer also accepts decklist text **pasted by hand**: no request is made and nothing is
+crawled. Those four record `hextechanalytics.com` and the date they were entered, the same
+fields the puller writes, so `source.url` remains the answer to "where did this list come
+from" for every committed deck. Recorded here because this file is the authoritative
+account of committed content: a reader checking provenance should not have to infer a
+second source, or a second way in, from the deck files themselves.
 
 The distinction that matters for etiquette is that a paste is a person reading a page in
 their own browser. It has no rate to limit and no User-Agent to identify, so nothing here
@@ -83,6 +100,14 @@ need the same treatment as `rift-atlas.com` if it were.
 A deck whose page does not parse cleanly is **not written**. Overwriting a good committed
 list with a half-rendered one loses data that was correct, so those are reported by name
 and left out; a named hole in the gauntlet is recoverable and silent corruption is not.
+
+The pull creates and updates, and deletes in exactly one case: **a page that was renamed
+upstream**. A deck's filename is `<name>-<digest of its source URL>`, so a renamed list
+mints a new filename and would otherwise sit beside its own older copy — one deck in the
+field twice, counted twice in every distribution taken from it, one of them carrying a
+`fetched` date that is a lie. The pull matches committed decks by `source.url`, which
+survives a rename, and replaces rather than accumulates. It reports the replacement by
+name, and it deletes only a file it has just rewritten under a different name.
 
 **Run updates on demand, never on a schedule.** On `ECONNRESET`, wait or change network
 — do not retry into it. This matches Riot's own release cadence, so human-triggered

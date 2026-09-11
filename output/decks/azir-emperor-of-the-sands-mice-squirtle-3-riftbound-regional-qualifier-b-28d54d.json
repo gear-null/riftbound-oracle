@@ -1,0 +1,110 @@
+{
+ "name": "MICE Squirtle — #3 — Riftbound Regional Qualifier - Barcelona",
+ "legend": "Azir, Emperor of the Sands",
+ "chosenChampion": "Azir, Sovereign",
+ "domains": [
+  "Calm",
+  "Order"
+ ],
+ "main": [
+  {
+   "name": "Kennen, Keeper of Balance",
+   "qty": 1
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "En Garde",
+   "qty": 2
+  },
+  {
+   "name": "Deathgrip",
+   "qty": 2
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Hidden Blade",
+   "qty": 3
+  },
+  {
+   "name": "Back Off",
+   "qty": 3
+  },
+  {
+   "name": "Guards!",
+   "qty": 3
+  },
+  {
+   "name": "Arise!",
+   "qty": 3
+  },
+  {
+   "name": "Doran's Shield",
+   "qty": 3
+  },
+  {
+   "name": "Eye of the Herald",
+   "qty": 3
+  },
+  {
+   "name": "Soul Sword",
+   "qty": 3
+  },
+  {
+   "name": "Brutalizer",
+   "qty": 3
+  },
+  {
+   "name": "Hand Hammer",
+   "qty": 1
+  },
+  {
+   "name": "B.F. Sword",
+   "qty": 3
+  },
+  {
+   "name": "Azir, Sovereign",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 7
+  },
+  {
+   "name": "Order Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Hall of Legends",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Trifarian War Camp",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/riftbound-regional-qualifier-barcelona/3-mice-squirtle-azir",
+  "author": "MICE Squirtle",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "Riftbound Regional Qualifier - Barcelona",
+  "placement": 3,
+  "event_date": "2026-08-22",
+  "event_size": "Premier event"
+ }
+}

@@ -9,8 +9,8 @@ Place tournament rules and guidelines here for processing.
 
 ## Known sources
 
-- [Tournament Rules](https://riftbound.leagueoflegends.com/en-us/news/organizedplay/riftbound-tournament-rules/)
-- [Tournament Rules January 2026 Update](https://riftbound.leagueoflegends.com/en-us/news/announcements/tournament-rules-january-update/)
+- [Tournament Rules](https://playriftbound.com/en-us/news/organizedplay/riftbound-tournament-rules/)
+- [Tournament Rules January 2026 Update](https://playriftbound.com/en-us/news/announcements/tournament-rules-january-update/)
 
 ## Notes
 

@@ -1,0 +1,126 @@
+{
+ "name": "BKM-Vita — #3 — S4 Nanjing City Challenge 2026-08-15",
+ "legend": "Kai'Sa, Daughter of the Void",
+ "chosenChampion": "Kai'Sa, Survivor",
+ "domains": [
+  "Fury",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Ravenbloom Student",
+   "qty": 1
+  },
+  {
+   "name": "Watchful Sentry",
+   "qty": 3
+  },
+  {
+   "name": "Plundering Poro",
+   "qty": 2
+  },
+  {
+   "name": "Pouty Poro",
+   "qty": 2
+  },
+  {
+   "name": "Lecturing Yordle",
+   "qty": 3
+  },
+  {
+   "name": "Noxus Hopeful",
+   "qty": 2
+  },
+  {
+   "name": "Brynhir Thundersong",
+   "qty": 2
+  },
+  {
+   "name": "Ferrous Forerunner",
+   "qty": 2
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "qty": 3
+  },
+  {
+   "name": "Bellows Breath",
+   "qty": 1
+  },
+  {
+   "name": "Retreat",
+   "qty": 1
+  },
+  {
+   "name": "Hextech Ray",
+   "qty": 3
+  },
+  {
+   "name": "Stupefy",
+   "qty": 3
+  },
+  {
+   "name": "Falling Star",
+   "qty": 3
+  },
+  {
+   "name": "Temporal Breach",
+   "qty": 3
+  },
+  {
+   "name": "Brittle Steel",
+   "qty": 1
+  },
+  {
+   "name": "Progress Day",
+   "qty": 1
+  },
+  {
+   "name": "Singularity",
+   "qty": 1
+  },
+  {
+   "name": "Time Warp",
+   "qty": 2
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Fury Rune",
+   "qty": 7
+  },
+  {
+   "name": "Mind Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Frozen Fortress",
+   "qty": 1
+  },
+  {
+   "name": "Rockfall Path",
+   "qty": 1
+  },
+  {
+   "name": "Void Gate",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-nanjing-city-challenge-2026-08-15/3-bkm-vita-kai-sa",
+  "author": "BKM-Vita",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Nanjing City Challenge 2026-08-15",
+  "placement": 3,
+  "event_date": "2026-08-15",
+  "event_size": "Premier event"
+ }
+}

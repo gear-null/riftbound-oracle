@@ -1,0 +1,130 @@
+{
+ "name": "收容所218·一凡家老王 — #2 — S4 Wuhan Regional Open 2026-08-29",
+ "legend": "Yordle, Kennen - Heart of the Tempest",
+ "chosenChampion": "Kennen, Storm of Shuriken",
+ "domains": [
+  "Order",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Traveling Merchant",
+   "qty": 3
+  },
+  {
+   "name": "Carrion Dredger",
+   "qty": 2
+  },
+  {
+   "name": "Treasure Hunter",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Nocturne, Horrifying",
+   "qty": 3
+  },
+  {
+   "name": "Rhasa the Sunderer",
+   "qty": 3
+  },
+  {
+   "name": "Lightning Rush",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Gust",
+   "qty": 1
+  },
+  {
+   "name": "Switcheroo",
+   "qty": 1
+  },
+  {
+   "name": "Abandon",
+   "qty": 1
+  },
+  {
+   "name": "Deathgrip",
+   "qty": 1
+  },
+  {
+   "name": "Salvage",
+   "qty": 1
+  },
+  {
+   "name": "Flash",
+   "qty": 1
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 3
+  },
+  {
+   "name": "Invert Timelines",
+   "qty": 1
+  },
+  {
+   "name": "Shadows of the Past",
+   "qty": 1
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 1
+  },
+  {
+   "name": "Seal of Discord",
+   "qty": 3
+  },
+  {
+   "name": "Last Rites",
+   "qty": 2
+  },
+  {
+   "name": "Kennen, Storm of Shuriken",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 8
+  },
+  {
+   "name": "Order Rune",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forbidding Waste",
+   "qty": 1
+  },
+  {
+   "name": "Minefield",
+   "qty": 1
+  },
+  {
+   "name": "Zaun Warrens",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-wuhan-regional-open-2026-08-29/2-218-kennen",
+  "author": "收容所218·一凡家老王",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Wuhan Regional Open 2026-08-29",
+  "placement": 2,
+  "event_date": "2026-08-29",
+  "event_size": "Premier event"
+ }
+}

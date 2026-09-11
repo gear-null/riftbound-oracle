@@ -19,6 +19,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.dirname(HERE)
 GAUNTLET_DIR = os.path.join(SKILL, "gauntlet")
 DECKS_DIR = os.path.join(SKILL, "decks")
+#: The gauntlet's release name. Inside the skill folder, so a copied install
+#: carries it (ADR 0004) and nothing here reaches into the repo at import time.
+GAUNTLET_VERSION_FILE = os.path.join(SKILL, "GAUNTLET-VERSION")
 
 #: 1v1 Duel (485) — the only sanctioned mode this table implements.
 MODE = {
@@ -322,6 +325,95 @@ def available():
     return sorted(
         glob.glob(os.path.join(GAUNTLET_DIR, "*.json")) + glob.glob(os.path.join(DECKS_DIR, "*.json"))
     )
+
+
+def gauntlet_paths():
+    """Only the gauntlet — tournament lists, not the decks you are building."""
+    return sorted(glob.glob(os.path.join(GAUNTLET_DIR, "*.json")))
+
+
+def gauntlet_version():
+    """The gauntlet's release name, e.g. `gauntlet-2026-09`.
+
+    A deck's strength is a number against a particular field. Re-pull the
+    gauntlet and "56% against the meta" silently starts meaning something else,
+    with no way to tell two such numbers apart after the fact. Naming the field
+    makes the comparison checkable: quote the version beside the rate, and two
+    rates carrying different versions are known not to be comparable.
+
+    Returns "unversioned" rather than raising: an older copy of the skill has no
+    such file, and a missing name is a thing to report, not a crash.
+    """
+    try:
+        with open(GAUNTLET_VERSION_FILE, encoding="utf-8") as fh:
+            return fh.read().strip() or "unversioned"
+    except OSError:
+        return "unversioned"
+
+
+def composition_key(deck):
+    """What a deck IS, as a string: its legend, champion and every card in it.
+
+    Canonical names and sorted sections, so the key describes the deck rather
+    than the order a site happened to render it in or the spelling it happened
+    to use.
+    """
+    def section(entries):
+        return "|".join(sorted(f"{q}x{canonical(n)}" for n, q in entries))
+
+    return "::".join([
+        canonical(deck.legend),
+        canonical(deck.chosen_champion) if deck.chosen_champion else "",
+        section(deck.main),
+        section(deck.runes),
+        section(deck.battlefields),
+    ])
+
+
+def gauntlet_digest(paths=None):
+    """A fingerprint of the field: which lists are in it and what they hold.
+
+    The version NAME is a promise a human makes, and a promise is exactly the
+    thing that goes quietly wrong — someone re-pulls, the folder changes, the
+    name does not, and two results carrying `gauntlet-2026-09` now describe
+    different fields with nothing able to say so. The digest is the same claim
+    made by the contents instead, so a stale name is detectable rather than
+    merely regrettable.
+
+    Over slug AND composition: a renamed file with identical cards is still a
+    different field to anyone matching results by filename, and a file whose
+    cards changed under the same name is the drift this exists to catch.
+    """
+    import hashlib
+
+    entries = []
+    for path in (paths if paths is not None else gauntlet_paths()):
+        deck = load(path)
+        slug = os.path.splitext(os.path.basename(path))[0]
+        entries.append(f"{slug}::{composition_key(deck)}")
+    payload = "\n".join(sorted(entries))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:12]
+
+
+def distinct_cards(decks):
+    """Every distinct card the given decks name — the scripting frontier.
+
+    Counted by CANONICAL name, so two spellings of one card are one card. That
+    is the point of the number: it is how many cards an engine has to implement
+    before it can play this gauntlet, and counting spellings would overstate the
+    work while hiding which cards it actually is.
+
+    The Chosen Champion and the legend are in here. Neither is shuffled, and
+    both are executed every game.
+    """
+    names = set()
+    for deck in decks:
+        for name in [deck.legend, deck.chosen_champion]:
+            if name:
+                names.add(canonical(name))
+        for name, _ in deck.main + deck.runes + deck.battlefields:
+            names.add(canonical(name))
+    return names
 
 
 def save(deck, path):

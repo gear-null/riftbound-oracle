@@ -122,10 +122,12 @@
   "url": "https://rift-atlas.com/meta/52cb589b-9892-4d96-9232-65c39702bfe5",
   "author": "Pentestag TCG",
   "meta": true,
-  "fetched": "2026-08-24"
+  "fetched": "2026-09-11"
  },
  "championCandidates": [
   "Teemo, Scout",
   "Teemo, Strategist"
- ]
+ ],
+ "chosen_champion": "Teemo, Strategist",
+ "chosen_champion_note": "chosen by the maintainer, not by the source: the list legally runs 3x Teemo, Strategist and 1x Teemo, Scout, and only the pilot knows which sat in the Champion Zone. Picked the one with the most copies (ties to the cheaper). Change it if you know better."
 }

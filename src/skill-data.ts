@@ -13,6 +13,7 @@
  * artwork placeholder.
  */
 import { writeFileSync, mkdirSync, readFileSync, renameSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { normaliseCardName, loadErrata, sameWording, type Erratum } from "./errata.js";
@@ -207,6 +208,107 @@ function isTreatment(rarity: string | null): boolean {
 
 /** Keyed by lowercased lookup name; see `keysFor`. */
 export type CardIndex = Record<string, SkillCard>;
+
+/**
+ * The card's own name, so two spellings of one card collapse to one key.
+ *
+ * This is `deckfile.canonical` in TypeScript, and it has to stay that way: the
+ * gauntlet's distinct-card count — the scripting frontier the engine plan is
+ * measured against — is computed on both sides of the language boundary, and
+ * two different notions of "the same card" would report two different
+ * frontiers.
+ *
+ * Sources disagree on one character: Riftcodex writes `Master Yi - Wuju
+ * Bladesman`, the decklist sites write `Master Yi, Wuju Bladesman`. Both
+ * separators are tried and nothing looser, and an alias the index flags as
+ * ambiguous is refused — `Ahri` is a key carrying one of six Ahri cards plus
+ * the list of all six, and counting it as that one card would merge two
+ * different cards into one name.
+ */
+export function canonicalCardName(cards: CardIndex, name: string): string {
+  const base = name.replace(/\s*\(.*?\)\s*$/, "").trim().toLowerCase();
+  for (const key of [base, base.replace(/, /g, " - "), base.replace(/ - /g, ", ")]) {
+    const entry = cards[key];
+    if (entry && !entry.ambiguous) return entry.name;
+  }
+  return base;
+}
+
+/** Structurally what the two counters below need, however a deck was loaded. */
+export interface DeckComposition {
+  legend: string;
+  chosenChampion?: string | null;
+  chosen_champion?: string | null;
+  main: { name: string; qty: number }[];
+  runes: { name: string; qty: number }[];
+  battlefields: { name: string; qty: number }[];
+}
+
+/**
+ * What a deck IS, as a string: its legend, champion and every card in it.
+ *
+ * Canonical names and sorted sections, so the key describes the deck rather
+ * than the order a site happened to render it in or the spelling it used. This
+ * is `deckfile.composition_key` in TypeScript and must stay byte-identical to
+ * it — `gauntletDigest` hashes these on both sides of the language boundary.
+ */
+export function compositionKeyOf(deck: DeckComposition, cards: CardIndex): string {
+  const section = (rows: { name: string; qty: number }[]) =>
+    rows.map((c) => `${c.qty}x${canonicalCardName(cards, c.name)}`).sort().join("|");
+  const champion = deck.chosenChampion ?? deck.chosen_champion;
+  return [
+    canonicalCardName(cards, deck.legend),
+    champion ? canonicalCardName(cards, champion) : "",
+    section(deck.main),
+    section(deck.runes),
+    section(deck.battlefields),
+  ].join("::");
+}
+
+/**
+ * A fingerprint of the field: which lists are in it and what they hold.
+ *
+ * The version NAME is a promise a human makes, and a promise is exactly the
+ * thing that goes quietly wrong — someone re-pulls, the folder changes, the
+ * name does not, and two results carrying `gauntlet-2026-09` now describe
+ * different fields with nothing able to say so. The digest is the same claim
+ * made by the contents instead.
+ *
+ * Slugs are ASCII by construction (`deckSlug` strips everything else) and card
+ * names are ASCII in the pool, so this sort agrees with Python's. It is not
+ * left to agree by luck: `deck-lab.test.ts` compares this digest against the
+ * one `deck_cli.py gauntlet` prints, and any divergence fails there.
+ */
+export function gauntletDigest(
+  decks: { slug: string; deck: DeckComposition }[],
+  cards: CardIndex
+): string {
+  const payload = decks
+    .map(({ slug, deck }) => `${slug}::${compositionKeyOf(deck, cards)}`)
+    .sort()
+    .join("\n");
+  return createHash("sha256").update(payload, "utf-8").digest("hex").slice(0, 12);
+}
+
+/**
+ * Every distinct card a set of decks names — the scripting frontier.
+ *
+ * How many cards something that wants to PLAY these games has to implement.
+ * The legend and the Chosen Champion count: neither is ever shuffled, and both
+ * are executed in every game they appear in.
+ */
+export function distinctCards(decks: DeckComposition[], cards: CardIndex): Set<string> {
+  const out = new Set<string>();
+  for (const deck of decks) {
+    for (const name of [deck.legend, deck.chosenChampion ?? deck.chosen_champion]) {
+      if (name) out.add(canonicalCardName(cards, name));
+    }
+    for (const card of [...deck.main, ...deck.runes, ...deck.battlefields]) {
+      out.add(canonicalCardName(cards, card.name));
+    }
+  }
+  return out;
+}
 
 /**
  * Every name a card should answer to.

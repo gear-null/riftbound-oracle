@@ -1,0 +1,114 @@
+{
+ "name": "祖安男孩 — #4 — S4 Shanghai City Challenge 2026-08-16",
+ "legend": "Diana, Scorn of the Moon",
+ "chosenChampion": "Diana, Lunari",
+ "domains": [
+  "Mind",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Tideturner",
+   "qty": 2
+  },
+  {
+   "name": "Ravenbloom Student",
+   "qty": 3
+  },
+  {
+   "name": "Patched Porobot",
+   "qty": 3
+  },
+  {
+   "name": "Fizz, Trickster",
+   "qty": 2
+  },
+  {
+   "name": "Hwei, Brooding Painter",
+   "qty": 3
+  },
+  {
+   "name": "Swain, Visionary",
+   "qty": 3
+  },
+  {
+   "name": "Stacked Deck",
+   "qty": 3
+  },
+  {
+   "name": "Gust",
+   "qty": 2
+  },
+  {
+   "name": "Stupefy",
+   "qty": 3
+  },
+  {
+   "name": "Temporal Breach",
+   "qty": 3
+  },
+  {
+   "name": "Abandon",
+   "qty": 1
+  },
+  {
+   "name": "Flash",
+   "qty": 1
+  },
+  {
+   "name": "Morbid Return",
+   "qty": 2
+  },
+  {
+   "name": "Ride the Wind",
+   "qty": 3
+  },
+  {
+   "name": "Moonfall",
+   "qty": 3
+  },
+  {
+   "name": "Star-Crossed",
+   "qty": 2
+  },
+  {
+   "name": "Diana, Lunari",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Chaos Rune",
+   "qty": 7
+  },
+  {
+   "name": "Mind Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Abandoned Hall",
+   "qty": 1
+  },
+  {
+   "name": "Rockfall Path",
+   "qty": 1
+  },
+  {
+   "name": "Veiled Temple",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-shanghai-city-challenge-2026-08-16/4-player-519117f9-diana",
+  "author": "祖安男孩",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Shanghai City Challenge 2026-08-16",
+  "placement": 4,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

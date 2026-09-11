@@ -1,0 +1,122 @@
+{
+ "name": "solo｜蓝白 — #5 — S4 Qingdao City Challenge 2026-08-16",
+ "legend": "Ornn, Fire Below the Mountain",
+ "chosenChampion": "Ornn, Forge God",
+ "domains": [
+  "Calm",
+  "Mind"
+ ],
+ "main": [
+  {
+   "name": "Scuttle Crab",
+   "qty": 1
+  },
+  {
+   "name": "Patched Porobot",
+   "qty": 3
+  },
+  {
+   "name": "Legion Quartermaster",
+   "qty": 3
+  },
+  {
+   "name": "Akali, Silent",
+   "qty": 3
+  },
+  {
+   "name": "Ornn, Forge God",
+   "qty": 2
+  },
+  {
+   "name": "Thousand-Tailed Watcher",
+   "qty": 2
+  },
+  {
+   "name": "Charm",
+   "qty": 2
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "Temporal Breach",
+   "qty": 1
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Emperor's Divide",
+   "qty": 1
+  },
+  {
+   "name": "Wages of Pain",
+   "qty": 1
+  },
+  {
+   "name": "Time Warp",
+   "qty": 1
+  },
+  {
+   "name": "Seal of Focus",
+   "qty": 3
+  },
+  {
+   "name": "Poro Snax",
+   "qty": 3
+  },
+  {
+   "name": "Cloth Armor",
+   "qty": 1
+  },
+  {
+   "name": "Brutalizer",
+   "qty": 3
+  },
+  {
+   "name": "Sprite Fountain",
+   "qty": 3
+  },
+  {
+   "name": "Shurelya's Requiem",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  },
+  {
+   "name": "Mind Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Altar of Blood",
+   "qty": 1
+  },
+  {
+   "name": "Ornn's Forge",
+   "qty": 1
+  },
+  {
+   "name": "Treasure Hoard",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/s4-qingdao-city-challenge-2026-08-16/5-solo-ornn",
+  "author": "solo｜蓝白",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "S4 Qingdao City Challenge 2026-08-16",
+  "placement": 5,
+  "event_date": "2026-08-16",
+  "event_size": "Premier event"
+ }
+}

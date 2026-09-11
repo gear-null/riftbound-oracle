@@ -1,0 +1,122 @@
+{
+ "name": "Gorica — #1 — Riftbound Regional Qualifier - Singapore",
+ "legend": "Akali, Rogue Assassin",
+ "chosenChampion": "Akali, Deadly Weapon",
+ "domains": [
+  "Fury",
+  "Calm"
+ ],
+ "main": [
+  {
+   "name": "Mischievous Marai",
+   "qty": 2
+  },
+  {
+   "name": "Mournful Witness",
+   "qty": 3
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "qty": 3
+  },
+  {
+   "name": "Stellacorn Herder",
+   "qty": 3
+  },
+  {
+   "name": "Noxus Hopeful",
+   "qty": 1
+  },
+  {
+   "name": "Blitzcrank, Impassive",
+   "qty": 2
+  },
+  {
+   "name": "Darius, Trifarian",
+   "qty": 1
+  },
+  {
+   "name": "Astral Heron",
+   "qty": 3
+  },
+  {
+   "name": "Shuriken Flip",
+   "qty": 3
+  },
+  {
+   "name": "Defy",
+   "qty": 3
+  },
+  {
+   "name": "Falling Star",
+   "qty": 2
+  },
+  {
+   "name": "Block",
+   "qty": 1
+  },
+  {
+   "name": "Discipline",
+   "qty": 3
+  },
+  {
+   "name": "Not So Fast",
+   "qty": 1
+  },
+  {
+   "name": "Back Off",
+   "qty": 2
+  },
+  {
+   "name": "Long Sword",
+   "qty": 2
+  },
+  {
+   "name": "Zhonya's Hourglass",
+   "qty": 3
+  },
+  {
+   "name": "Sterak's Gage",
+   "qty": 1
+  },
+  {
+   "name": "Akali, Deadly Weapon",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Calm Rune",
+   "qty": 6
+  },
+  {
+   "name": "Fury Rune",
+   "qty": 6
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forgotten Monument",
+   "qty": 1
+  },
+  {
+   "name": "Sigil of the Storm",
+   "qty": 1
+  },
+  {
+   "name": "Void Gate",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/riftbound-regional-qualifier-singapore/1-gorica-akali",
+  "author": "Gorica",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "Riftbound Regional Qualifier - Singapore",
+  "placement": 1,
+  "event_date": "2026-09-05",
+  "event_size": "Premier event"
+ }
+}

@@ -1,5 +1,5 @@
 {
- "name": "Darius 29 - 5 tournament stats",
+ "name": "New darius testing",
  "legend": "Darius, Hand of Noxus",
  "chosenChampion": "Darius, Trifarian",
  "domains": [
@@ -10,12 +10,7 @@
   {
    "name": "Darius, Trifarian",
    "code": "OGN-027",
-   "qty": 3
-  },
-  {
-   "name": "Draven, Showboat",
-   "code": "OGN-028",
-   "qty": 3
+   "qty": 1
   },
   {
    "name": "Kai'Sa, Survivor",
@@ -23,19 +18,29 @@
    "qty": 2
   },
   {
-   "name": "Vayne, Hunter",
-   "code": "OGN-035",
-   "qty": 1
+   "name": "Xin Zhao, Vigilant",
+   "code": "SFD-176",
+   "qty": 2
   },
   {
-   "name": "Daring Poro",
-   "code": "UNL-225",
-   "qty": 1
+   "name": "Escaped Grayback",
+   "code": "VEN-124",
+   "qty": 2
   },
   {
-   "name": "Faithful Manufactor",
-   "code": "OGN-211",
-   "qty": 3
+   "name": "Ferrous Forerunner",
+   "code": "SFD-021",
+   "qty": 2
+  },
+  {
+   "name": "Honest Broker",
+   "code": "SFD-155",
+   "qty": 2
+  },
+  {
+   "name": "Inferna",
+   "code": "UNL-002",
+   "qty": 2
   },
   {
    "name": "Noxus Hopeful",
@@ -43,9 +48,9 @@
    "qty": 2
   },
   {
-   "name": "Pouty Poro",
-   "code": "UNL-220",
-   "qty": 3
+   "name": "Safety Inspector",
+   "code": "UNL-164",
+   "qty": 2
   },
   {
    "name": "Spectral Matron",
@@ -58,29 +63,39 @@
    "qty": 3
   },
   {
+   "name": "Trusty Ramhound",
+   "code": "SFD-159",
+   "qty": 1
+  },
+  {
    "name": "Vanguard Captain",
    "code": "OGN-218",
    "qty": 3
   },
   {
-   "name": "Cleave",
-   "code": "OGN-004",
-   "qty": 1
-  },
-  {
-   "name": "Cull the Weak",
-   "code": "OGN-209",
+   "name": "Blood Rush",
+   "code": "SFD-003",
    "qty": 1
   },
   {
    "name": "Falling Star",
    "code": "OGN-029",
-   "qty": 2
+   "qty": 1
   },
   {
    "name": "Hidden Blade",
    "code": "OGN-213",
-   "qty": 3
+   "qty": 2
+  },
+  {
+   "name": "Shadow's Call",
+   "code": "UNL-165",
+   "qty": 1
+  },
+  {
+   "name": "B.F. Sword",
+   "code": "SFD-161",
+   "qty": 2
   },
   {
    "name": "Baited Hook",
@@ -97,18 +112,18 @@
   {
    "name": "Fury Rune",
    "code": "furyrune",
-   "qty": 6
+   "qty": 4
   },
   {
    "name": "Order Rune",
    "code": "orderrune",
-   "qty": 6
+   "qty": 8
   }
  ],
  "battlefields": [
   {
-   "name": "The Arena's Greatest",
-   "code": "OGN-290",
+   "name": "Seat of Power",
+   "code": "SFD-217",
    "qty": 1
   },
   {
@@ -127,6 +142,6 @@
   "url": "https://rift-atlas.com/meta/d3cf2fce-e174-41ec-80ad-404735027918",
   "author": "Batsu",
   "meta": true,
-  "fetched": "2026-08-24"
+  "fetched": "2026-09-11"
  }
 }

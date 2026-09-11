@@ -18,7 +18,7 @@ import {
 } from "./manifest.js";
 import { fetchSets, fetchCardsBySet, cardsToMarkdown, fetchSetLabel } from "./riftcodex.js";
 import { buildSkillData, SKILL_DATA_DIR } from "./skill-data.js";
-import { pullMetaDecks } from "./decks.js";
+import { DECK_SITES, parseDeckPullFlags, pullMetaDecks } from "./decks.js";
 import { normalize } from "./normalize.js";
 import { downloadPrintCards } from "./print.js";
 import { syncToVault, resolveVaultDir } from "./vault.js";
@@ -84,6 +84,10 @@ ${color.bold("Commands:")}
   ${color.cyan("extract")}            Extract downloaded rulebook PDFs to markdown
   ${color.cyan("skill-data")}         Rebuild the skill's vendored card data (needs network)
   ${color.cyan("decks pull")}         Pull competitive decklists into the deck-lab gauntlet (needs network)
+  ${color.cyan("  --site=X,Y")}       Pull from these sites only (${DECK_SITES.join(", ")})
+  ${color.cyan("  --limit=N")}        At most N deck pages per site
+  ${color.cyan("  --events=N")}       riftools.app: draw from the N most recent events
+  ${color.cyan("  --per-event=N")}    riftools.app: take the top N placings from each event
   ${color.cyan("gear-gaps")}          Collect artwork + a YAML stub for cards the API can't supply
   ${color.cyan("package")}            Build every skill's release archive into dist/
   ${color.cyan("package --skill=X")}  Build just that skill's archive
@@ -475,7 +479,11 @@ async function handlePackage() {
         m.rules_version ? `rules ${m.rules_version}` : null,
         m.rules ? `${m.rules} rules` : null,
         `${m.cards} cards`,
+        m.gauntlet_version
+          ? m.gauntlet_version + (m.gauntlet_digest ? ` (${m.gauntlet_digest})` : "")
+          : null,
         m.gauntlet_decks !== undefined ? `${m.gauntlet_decks} gauntlet decks` : null,
+        m.gauntlet_cards !== undefined ? `${m.gauntlet_cards} distinct cards` : null,
         m.gauntlet_pulled ? `pulled ${m.gauntlet_pulled}` : null,
       ].filter(Boolean);
       p.log.info(`  ${facts.join(" · ")}`);
@@ -571,21 +579,49 @@ async function handleDecks() {
     p.log.error(`Unknown decks subcommand: ${process.argv[3]}`);
     return;
   }
-  const limitArg = process.argv.find((a) => a.startsWith("--limit="))?.split("=")[1];
+  const flags = parseDeckPullFlags(process.argv);
+  if ("error" in flags) {
+    p.log.error(flags.error);
+    process.exitCode = 1;
+    return;
+  }
   const s = p.spinner();
   s.start("Pulling competitive decklists");
   try {
     const result = await pullMetaDecks({
-      limit: limitArg ? Number.parseInt(limitArg, 10) : undefined,
+      ...flags.options,
       onProgress: (m) => s.message(m),
     });
     s.stop(`${result.decks.length} deck(s) → ${result.written.length} file(s)`);
+    p.log.info(
+      Object.entries(result.bySite)
+        .map(([site, n]) => `${site}: ${n}`)
+        .join(" · ")
+    );
     // A quarantined deck is a hole in the gauntlet with a name on it, which is
-    // the point — the alternative is a half-parsed list overwriting a good one.
+    // the point — the alternative is a half-parsed list overwriting a good one,
+    // or a gauntlet opponent naming cards no game can resolve.
     if (result.quarantined.length) {
-      p.log.error(`${result.quarantined.length} deck(s) NOT written — the page did not parse cleanly:`);
+      p.log.error(`${result.quarantined.length} deck(s) NOT written — unusable as pulled:`);
       for (const q of result.quarantined) {
         p.log.message(`${q.name}\n  ${q.reasons.join("\n  ")}`);
+      }
+    }
+    // Not a failure: two events publishing the same 40 cards is one opponent.
+    // Named, though — "3 skipped" gives the reader nothing to check, and which
+    // list won the slot decides which event and placement the gauntlet records.
+    if (result.duplicates.length) {
+      p.log.info(`${result.duplicates.length} list(s) skipped as duplicates of another list in this pull:`);
+      for (const d of result.duplicates) {
+        p.log.message(`${d.name}\n  same cards as ${d.sameAs}`);
+      }
+    }
+    // The one deletion a pull makes: the page was renamed upstream, so its old
+    // filename is a second copy of a deck that has just been rewritten.
+    if (result.replaced.length) {
+      p.log.info(`${result.replaced.length} renamed page(s) replaced rather than duplicated:`);
+      for (const r of result.replaced) {
+        p.log.message(`${r.from}.json → ${r.to}.json\n  ${r.url}`);
       }
     }
     const meta = result.decks.filter((d) => d.source?.meta).length;

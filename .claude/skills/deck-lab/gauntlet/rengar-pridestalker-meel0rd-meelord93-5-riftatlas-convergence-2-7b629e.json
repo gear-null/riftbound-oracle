@@ -1,0 +1,118 @@
+{
+ "name": "MeeL0rd | meelord93 — #5 — RiftAtlas Convergence #2",
+ "legend": "Rengar, Pridestalker",
+ "chosenChampion": "Rengar, Trophy Hunter",
+ "domains": [
+  "Fury",
+  "Body"
+ ],
+ "main": [
+  {
+   "name": "Irresistible Faefolk",
+   "qty": 3
+  },
+  {
+   "name": "Inferna",
+   "qty": 3
+  },
+  {
+   "name": "Pit Rookie",
+   "qty": 3
+  },
+  {
+   "name": "Grim Apothecary",
+   "qty": 3
+  },
+  {
+   "name": "Nidalee, Cat Form",
+   "qty": 2
+  },
+  {
+   "name": "First Mate",
+   "qty": 2
+  },
+  {
+   "name": "Kinkou Initiate",
+   "qty": 3
+  },
+  {
+   "name": "Pakaa Cub",
+   "qty": 1
+  },
+  {
+   "name": "Pyke, Dockside Butcher",
+   "qty": 1
+  },
+  {
+   "name": "Kai'Sa, Survivor",
+   "qty": 3
+  },
+  {
+   "name": "Noxus Hopeful",
+   "qty": 3
+  },
+  {
+   "name": "Darius, Trifarian",
+   "qty": 1
+  },
+  {
+   "name": "Ferrous Forerunner",
+   "qty": 1
+  },
+  {
+   "name": "Sabotage",
+   "qty": 2
+  },
+  {
+   "name": "Punch First",
+   "qty": 3
+  },
+  {
+   "name": "Thrill of the Hunt",
+   "qty": 3
+  },
+  {
+   "name": "Rampage",
+   "qty": 2
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "qty": 1
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "qty": 7
+  },
+  {
+   "name": "Fury Rune",
+   "qty": 5
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Emperor's Dais",
+   "qty": 1
+  },
+  {
+   "name": "Seat of Power",
+   "qty": 1
+  },
+  {
+   "name": "Star Spring",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "riftools.app",
+  "url": "https://www.riftools.app/decklists/riftatlas-convergence-2/5-meel0rd-meelord93-rengar",
+  "author": "MeeL0rd | meelord93",
+  "meta": true,
+  "fetched": "2026-09-11",
+  "event": "RiftAtlas Convergence #2",
+  "placement": 5,
+  "event_date": "2026-08-15",
+  "event_size": "Premier event"
+ }
+}

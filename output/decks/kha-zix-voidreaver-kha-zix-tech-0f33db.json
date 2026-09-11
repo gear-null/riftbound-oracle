@@ -1,0 +1,132 @@
+{
+ "name": "Kha'Zix Tech",
+ "legend": "Kha'Zix, Voidreaver",
+ "chosenChampion": "Kha'Zix, Evolving Hunter",
+ "domains": [
+  "Body",
+  "Chaos"
+ ],
+ "main": [
+  {
+   "name": "Jax, Unrelenting",
+   "code": "SFD-119",
+   "qty": 2
+  },
+  {
+   "name": "Kha'Zix, Evolving Hunter",
+   "code": "UNL-119",
+   "qty": 1
+  },
+  {
+   "name": "Lucian, Merciless",
+   "code": "SFD-113",
+   "qty": 3
+  },
+  {
+   "name": "Miss Fortune, Buccaneer",
+   "code": "OGN-193a",
+   "qty": 2
+  },
+  {
+   "name": "Rengar, Trophy Hunter",
+   "code": "UNL-120",
+   "qty": 2
+  },
+  {
+   "name": "Yone, Blademaster",
+   "code": "SFD-116",
+   "qty": 2
+  },
+  {
+   "name": "Arachnoid Horror",
+   "code": "UNL-117",
+   "qty": 3
+  },
+  {
+   "name": "Grim Resolve",
+   "code": "UNL-095",
+   "qty": 3
+  },
+  {
+   "name": "Hard Bargain",
+   "code": "SFD-136",
+   "qty": 2
+  },
+  {
+   "name": "Punch First",
+   "code": "SFD-097",
+   "qty": 1
+  },
+  {
+   "name": "Stacked Deck",
+   "code": "OGN-183",
+   "qty": 3
+  },
+  {
+   "name": "Void Assault",
+   "code": "UNL-202",
+   "qty": 3
+  },
+  {
+   "name": "Boots of Swiftness",
+   "code": "SFD-133",
+   "qty": 3
+  },
+  {
+   "name": "Hunter's Machete",
+   "code": "UNL-096",
+   "qty": 2
+  },
+  {
+   "name": "Seal of Strength",
+   "code": "SFD-231",
+   "qty": 3
+  },
+  {
+   "name": "Spirit Wheel",
+   "code": "SFD-144",
+   "qty": 3
+  },
+  {
+   "name": "Trinity Force",
+   "code": "SFD-115",
+   "qty": 2
+  }
+ ],
+ "runes": [
+  {
+   "name": "Body Rune",
+   "code": "bodyrune",
+   "qty": 8
+  },
+  {
+   "name": "Chaos Rune",
+   "code": "chaosrunes",
+   "qty": 4
+  }
+ ],
+ "battlefields": [
+  {
+   "name": "Forge of the Fluft",
+   "code": "SFD-208",
+   "qty": 1
+  },
+  {
+   "name": "Sandswept Tomb",
+   "code": "VEN-164",
+   "qty": 1
+  },
+  {
+   "name": "Sunken Temple",
+   "code": "SFD-218",
+   "qty": 1
+  }
+ ],
+ "source": {
+  "site": "rift-atlas.com",
+  "url": "https://rift-atlas.com/meta/4a6c821e-54c2-4e91-a248-ce4ad6f4ecb7",
+  "author": "Dan McClure",
+  "meta": true,
+  "fetched": "2026-09-11"
+ }
+}
