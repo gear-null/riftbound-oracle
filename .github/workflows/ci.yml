@@ -4,6 +4,23 @@ name: CI
 # live distribution channel rather than a staging area. Everything below is
 # deterministic — no model, no API key, no secrets — which is exactly why it
 # can guard every push instead of relying on someone remembering to run it.
+#
+# WHAT RUNS WHEN
+#
+# Not all of it runs on every push. The two mutation batteries — rules-report's,
+# ~32 minutes, and deck-lab's, ~7 — run only when the skill they mutate moved,
+# or when an input that changes what that skill ships moved. A push touching
+# both skills runs both. The `changes` job works that out from the diff against
+# the PR's base commit (or the previous commit, for a push to main), and
+# `scripts/battery-triggers.py` holds the rule with its own tests beside it;
+# docs/maintaining.md explains it in prose.
+#
+# Everything else runs on every push: both selftests, the invariant gate, the
+# proven-checks drift guard, typecheck, vitest, the site build and package
+# reproducibility. And every job keeps its name and reports whether or not a
+# battery ran inside it, so a skipped battery never leaves branch protection
+# waiting on a check that did not arrive — which is why the decision is made
+# inside the jobs rather than with a workflow-level `paths:` filter.
 on:
   push:
     branches: [main]
@@ -19,11 +36,65 @@ permissions:
   contents: read
 
 jobs:
+  # What this push could have broken. Cheap — a checkout and two Python runs —
+  # and the slowest steps in the workflow are gated on its answer.
+  changes:
+    name: what changed
+    runs-on: ubuntu-latest
+    outputs:
+      rules_report: ${{ steps.detect.outputs.rules_report }}
+      deck_lab: ${{ steps.detect.outputs.deck_lab }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The base commit has to be IN the clone to diff against it, and the
+          # default shallow fetch has only the tip. The history is small enough
+          # that a full fetch costs a couple of seconds.
+          fetch-depth: 0
+
+      - name: The rule that skips work has been seen to fail
+        run: |
+          # This project's own standard, applied to its CI: a rule that decides
+          # a battery can be skipped is a check on the checks, and an untested
+          # one fails invisibly — CI stays green because the step that would
+          # have gone red never ran.
+          python3 scripts/battery-triggers-test.py
+
+      - name: Which batteries this push has to re-prove
+        id: detect
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          # No usable base — a force-push that dropped the old tip, a first
+          # push, an event shape not anticipated here — means no diff, and no
+          # diff means no evidence. Run everything: being wrong in this
+          # direction costs 40 minutes, and in the other it ships a defect
+          # past a green tick.
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            echo "::notice::no base commit to diff against ($BASE_SHA) — running every battery"
+            printf 'rules_report=true\ndeck_lab=true\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Three dots: what this branch changed since it forked, not every
+          # change on main since then. Other people's merges must not make a
+          # PR look like it edited a skill it never touched.
+          git diff --name-only "$BASE_SHA...HEAD" > "$RUNNER_TEMP/changed.txt"
+          echo "::group::changed files"
+          cat "$RUNNER_TEMP/changed.txt"
+          echo "::endgroup::"
+          # stdout is the decision, stderr is which rule fired and why.
+          DECISION=$(python3 scripts/battery-triggers.py < "$RUNNER_TEMP/changed.txt")
+          echo "$DECISION"
+          echo "$DECISION" >> "$GITHUB_OUTPUT"
+          echo "::notice::batteries to run — $(echo "$DECISION" | tr '\n' ' ')"
+
   # The skill as a registry install actually receives it: the committed folder,
   # no build step, no dependencies. This is the job that matters most — it is
   # the only one testing what users get.
   skill:
     name: skill on python ${{ matrix.python }}
+    needs: changes
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -42,9 +113,11 @@ jobs:
       # checks that stayed green while the exact defect they were named for was
       # live, so the check count is only evidence if the checks have been seen
       # to go red. Runs on one Python version — it is about the checks, not the
-      # interpreter — and only when the skill changes.
+      # interpreter — and only when the skill changes, which is now what the
+      # condition says and not merely what this comment claimed: for months it
+      # ran on every push, ~32 minutes of re-proving a skill nothing touched.
       - name: The selftest can fail
-        if: matrix.python == '3.13'
+        if: matrix.python == '3.13' && needs.changes.outputs.rules_report == 'true'
         run: |
           cd .claude/skills/rules-report/lib
           python3 mutants.py
@@ -81,9 +154,10 @@ jobs:
       # shipping past a green 71/71, because the checks tested the
       # implementation rather than the rules — deleting the 466.1.a.2 recall or
       # the 316.3 pool emptying left the suite green. Same reasoning as the
-      # rules-report battery above, same gate.
+      # rules-report battery above, same gate, same trigger rule: it runs when
+      # deck-lab moved, and a push touching both skills runs both batteries.
       - name: The deck-lab selftest can fail
-        if: matrix.python == '3.13'
+        if: matrix.python == '3.13' && needs.changes.outputs.deck_lab == 'true'
         working-directory: .claude/skills/deck-lab/lib
         run: python3 mutants.py
 
@@ -102,6 +176,12 @@ jobs:
           # could not fire. It then sat after the first battery and before the
           # second, where it could not see deck-lab's record at all. It has to
           # come after everything that writes one.
+          #
+          # It stays unconditional now that the batteries are conditional. With
+          # neither battery run nothing wrote the file and this passes in a
+          # millisecond; with either one run it is downstream of it regardless.
+          # A guard that skipped alongside the battery would be one more thing
+          # to get wrong, for no time saved.
           git diff --exit-code -- .claude/skills/*/lib/proven-checks.json || {
             echo "::error::proven-checks.json changed — the set of checks observed to fail moved."
             echo "Run the battery locally and commit the record."
