@@ -204,10 +204,6 @@ def _active(table):
     return tuple(sorted(n for n, a in table.items() if a.active))
 
 
-def _reserved(table):
-    return tuple(sorted(n for n, a in table.items() if not a.active))
-
-
 #: Effect primitives — census §4. `cite` is the CR game action where the rules
 #: name one; the six without a CR action are the ones a DSL has to invent, and
 #: they cite the rule that governs what they do instead.

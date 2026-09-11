@@ -19,7 +19,6 @@ A code no broken script can produce is a code that does not exist.
 a synthetic library with known marks, so "124 of 137" cannot quietly become
 "124 of 124" by dropping the clauses nobody implemented.
 """
-import copy
 import json
 import os
 
@@ -338,9 +337,6 @@ def validator_errors(check):
           doc is None and err is not None and err["code"] == "unreadable",
           json.dumps(err))
 
-    produced = set()
-    for mutation in (lambda d: d.__setitem__("schema", "x"),):
-        produced.update(e["code"] for e in _broken(mutation))
     check("a valid script produces no errors at all", not schema.validate(_good()),
           json.dumps(schema.validate(_good()))[:120])
 
