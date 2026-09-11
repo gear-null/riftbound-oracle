@@ -293,7 +293,9 @@ it once, and so does the script.
 
 ## Effect nodes
 
-One node per active primitive, `op` plus its arguments plus `cites`. All 33:
+One node per active primitive, `op` plus its arguments plus `cites`. Thirty-two
+of the 33 are `op` nodes; `create_token` rides inside a selector and `choose` is
+reached through the choice forms. All 33:
 
 | node | shape |
 |---|---|

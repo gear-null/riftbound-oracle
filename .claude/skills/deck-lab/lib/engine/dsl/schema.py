@@ -1657,8 +1657,11 @@ def _clauses(doc, card, w):
                   "an %s clause says why, or the mark is a shrug" % status,
                   expected=("reason",))
         node = clause.get("node")
-        if node and node not in w.node_paths and not any(
-                p.startswith(node) for p in w.node_paths):
+        # Exact, not a prefix. A prefix match would accept `abilities` for
+        # `abilities[0].effect[1]` and quietly let a clause point at the general
+        # area of its implementation — which is the shape of claim this whole
+        # instrument exists to refuse.
+        if node and node not in w.node_paths:
             w.add("bad_clause_ref", "%s.node" % path,
                   "no node at this path — a clause cannot be implemented by "
                   "something that is not there", token=node,

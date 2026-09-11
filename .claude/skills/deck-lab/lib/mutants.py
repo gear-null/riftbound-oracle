@@ -1227,6 +1227,11 @@ MUTANTS = [
          repl='    allowed = set(spec["req"]) | set(spec["opt"]) | {"kind", "cites", "note", "id",\n'
               '                                                     "gate", "when"} | set(node)',
          expect="a field the schema does not define is refused"),
+    dict(name="let a clause point at a node that is not there",
+         file="engine/dsl/schema.py",
+         find='        if node and node not in w.node_paths:',
+         repl="        if False:",
+         expect="a clause cannot be implemented by a node that is not there"),
     dict(name="accept a script with one scenario test",
          file="engine/dsl/schema.py",
          find="    if not 2 <= len(tests) <= 4:",
