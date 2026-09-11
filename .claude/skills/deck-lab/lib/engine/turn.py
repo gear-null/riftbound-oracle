@@ -191,10 +191,19 @@ def run_task(g, name, arg):
             actions.empty_pool(g, who)
     elif name == "combat_damage":
         from . import combat
-        combat.damage_step(g, arg)
+        combat.damage_step(g, arg)                        # 465
+    elif name == "combat_fepr":
+        from . import combat
+        combat.fepr_window(g, arg)                        # 466.2, 466.4, 466.6
     elif name == "combat_result":
         from . import combat
-        combat.resolution_step(g, arg)
+        combat.result_step(g, arg)                        # 466.3
+    elif name == "combat_control":
+        from . import combat
+        combat.control_step(g, arg)                       # 466.5
+    elif name == "combat_end":
+        from . import combat
+        combat.end_step(g, arg)                           # 466.7
     else:
         raise RulesError("no such task %r" % (name,))
 
@@ -277,9 +286,14 @@ def cleanup_once(g, special=""):
     if s.winner is not None:
         return False
 
-    # 323.2 (2). Attacker/Defender designations per unit are not modelled in
-    # this slice — nothing reads them without card text. The battlefield-level
-    # designation that combat needs IS modelled, as `contested_by` (464.2.c.1).
+    # 323.2 (2). Assign or remove the Attacker/Defender designation from Units.
+    # This is what 464.2.c.3.a defers to: a unit that becomes present after
+    # combat opened is designated HERE, in the cleanup that follows the action
+    # which brought it, and a unit that leaves loses the designation the same
+    # way (323.2.c).
+    from . import combat as _combat
+    if _combat.apply_designations(g):
+        changed = True
 
     # 323.5 (3b). Every unit with lethal damage marked on it is killed. Nothing
     # else does this, so a unit damaged outside combat would sit there until
@@ -391,6 +405,10 @@ def cleanup_once(g, special=""):
         if bf["cb_staged"]:
             s.showdown["combat"] = True
             g.note("the Showdown at %s becomes a Combat Showdown (323.14)" % bf["name"])
+            # 464.2.c runs for this way in too (464.1's second opening). The one
+            # difference is Focus: 464.2.c.1.b leaves it with whoever already
+            # has it, so nothing here touches `focus`.
+            _combat.designate(g, bf["i"])
             changed = True
 
     return changed
@@ -408,10 +426,11 @@ def _combat_inserts(g):
             changed = True
     index = s.showdown["bf"]
     bf = s.battlefield(index)
-    attacker = combat.attacker_at(s, bf)
-    location = loc_bf(index)
-    attackers = s.units_at(location, attacker)
-    defenders = s.units_at(location, 1 - attacker)
+    # 466.1.a.2 recalls ATTACKERS, which is the designation and not the side of
+    # the table: a unit that arrived mid-combat is an attacker because 323.2.a
+    # made it one two steps ago, in this same cleanup.
+    attackers = combat.attacking_units(s, index)
+    defenders = combat.defending_units(s, index)
     if attackers and defenders:                            # 3d
         for unit in attackers:
             actions.recall(g, unit["id"])
@@ -475,6 +494,11 @@ def open_showdown(g, index, combat):
         g.note("COMBAT opens at %s as a Combat Showdown; seat %d is the Attacker "
                "and takes Focus (464.1, 464.2.c.1, 464.2.d)" % (bf["name"], focus),
                seat=focus)
+        # 464.2.c: establish who is Attacker and who is Defender, and designate
+        # their units here. Step 2 of 464.2.a, before 464.2.d's Focus, which
+        # `focus` above has already taken because 464.2.c.1.a is the same player.
+        from . import combat as _combat
+        _combat.designate(g, index)
     else:
         g.note("a SHOWDOWN opens at %s; seat %d applied Contested and takes Focus "
                "(344, 345)" % (bf["name"], focus), seat=focus)

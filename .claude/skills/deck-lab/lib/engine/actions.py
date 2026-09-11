@@ -444,6 +444,22 @@ def recall(g, oid):
     g.note("%s [%s] is recalled to base" % (unit["name"], oid), seat=unit["ctrl"])
 
 
+def deflect_surcharge(obj, seat):
+    """809.1.c: the extra Power `seat` pays to choose this object with a spell.
+
+    A hook, not yet a cost: nothing in the vanilla slice targets anything, so no
+    play goes through here. It is written because Deflect is a characteristic of
+    the OBJECT (809.3) with a rule about WHO pays — "spells and abilities an
+    opponent controls" — and getting that half backwards is a cost charged to
+    the wrong player, which is the kind of thing that reads as a balance change
+    rather than as a bug. 809.1.c.1's "may always be of any Domain" is why this
+    returns a bare count and not a domain.
+    """
+    if seat == obj["ctrl"]:
+        return 0
+    return obj["deflect"]
+
+
 def apply_contested(g, unit):
     """190.3.a.1 / 450: a UNIT becoming present contests a battlefield."""
     s = g.s

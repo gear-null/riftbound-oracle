@@ -22,7 +22,7 @@ hidden zone SIZES are untouched, and whose hidden cards have been redealt.
 """
 import deckfile
 
-from . import actions, chain, rng, turn
+from . import actions, chain, combat, rng, turn
 from .decisions import Decision, Option, terminal
 from .state import (ENDING, MAIN, OVER, SETUP, RulesError, State, loc_base,
                     loc_bf, public_view, view)
@@ -353,10 +353,14 @@ class Game:
             s.choosing = None
             actions.standard_move(self, oid, key[1])
         elif kind == "target" and what == "open_showdown":
-            combat = s.choosing["combat"]
+            as_combat = s.choosing["combat"]
             s.choosing = None
-            turn.open_showdown(self, key[1], combat)
+            turn.open_showdown(self, key[1], as_combat)
             self.need_cleanup()
+        elif kind == "assign_damage":
+            # 465.2.c, one target at a time. The continuation lives in `combat`
+            # because the state it is half-way through building is combat's.
+            combat.apply_assignment(self, key)
         elif kind == "chain" and pending["window"] == "showdown":
             chain.pass_focus(self, seat)
         elif kind == "chain":

@@ -26,6 +26,7 @@ def check(game):
     _chain_order(game, bad)
     _locations(game, bad)
     _turn_state(game, bad)
+    _designations(game, bad)
     return bad
 
 
@@ -150,6 +151,39 @@ def _locations(game, bad):
             continue
         bad.append("%s [%s] is at %r, which is not a location"
                    % (unit["name"], unit["id"], unit["loc"]))
+
+
+def _designations(game, bad):
+    """323.2: during a Combat every Unit's designation agrees with its controller.
+
+    The whole of combat reads sides by designation and not by who is standing
+    where (465.2.a-b), so a unit that slipped past 323.2 does not crash anything
+    — it silently stops being in the combat, and its Might stops counting. And
+    outside a Combat nothing may carry a designation at all, because 466.7.a
+    removes them and a leftover one would make the next combat's Assault live
+    for a unit that is not attacking.
+    """
+    s = game.s
+    if s.combat_attacker is None:
+        stray = [u["id"] for u in s.units if u["role"] is not None]
+        if stray:
+            bad.append("%s still carry an Attacker/Defender designation with no Combat "
+                       "in progress (466.7.a)" % ", ".join(sorted(stray)))
+        return
+    if s.showdown is None:
+        bad.append("a Combat has an Attacker (seat %s) but no Showdown to be part of "
+                   "(464.2)" % s.combat_attacker)
+        return
+    here = "%s:%d" % ("bf", s.showdown["bf"])
+    for unit in s.units:
+        if not unit["unit"]:
+            continue
+        want = None
+        if unit["loc"] == here:
+            want = "attacker" if unit["ctrl"] == s.combat_attacker else "defender"
+        if unit["role"] != want:
+            bad.append("%s [%s] is designated %r and 323.2 says it should be %r"
+                       % (unit["name"], unit["id"], unit["role"], want))
 
 
 def _turn_state(game, bad):

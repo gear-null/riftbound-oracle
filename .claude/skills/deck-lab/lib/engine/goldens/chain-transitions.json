@@ -16,6 +16,14 @@
     "TR": "2026-07-16",
     "generated": "2026-08-26"
    }
+  },
+  "combat": {
+   "topic": "Combat",
+   "corpus": {
+    "CR": "2026-07-16",
+    "TR": "2026-07-16",
+    "generated": "2026-08-26"
+   }
   }
  },
  "transitions": [
@@ -239,6 +247,86 @@
    "cites": [
     "CR:348.2",
     "CR:348.2.a"
+   ]
+  },
+  {
+   "primer": "combat",
+   "from": "s1",
+   "heading": "Staged — two players' units meet",
+   "exit": 0,
+   "when": "a Cleanup arrives with the Chain empty and nothing ongoing elsewhere — the Steps of Combat begin",
+   "goto": "s2",
+   "cites": [
+    "CR:460"
+   ]
+  },
+  {
+   "primer": "combat",
+   "from": "s1",
+   "heading": "Staged — two players' units meet",
+   "exit": 1,
+   "when": "the Combat stops being Staged first — the units move or die before the steps start, and nothing is resolved at all",
+   "goto": null,
+   "cites": [
+    "CR:461.2"
+   ]
+  },
+  {
+   "primer": "combat",
+   "from": "s2",
+   "heading": "Step 1 — the Combat Showdown",
+   "exit": 0,
+   "when": "the Showdown closes with both Attacking and Defending units still at the Battlefield",
+   "goto": "s3",
+   "cites": [
+    "CR:465.1",
+    "CR:465.2"
+   ]
+  },
+  {
+   "primer": "combat",
+   "from": "s2",
+   "heading": "Step 1 — the Combat Showdown",
+   "exit": 1,
+   "when": "one side no longer has units here when the Showdown closes — there is nothing to resolve damage between, so the Damage Step's tasks never become Outstanding and the Combat goes straight to Resolution",
+   "goto": "s4",
+   "cites": [
+    "CR:465.1"
+   ]
+  },
+  {
+   "primer": "combat",
+   "from": "s3",
+   "heading": "Step 2 — Combat Damage",
+   "exit": 0,
+   "when": "damage has been dealt — the FEPR process is skipped and any outstanding tasks are cancelled",
+   "goto": "s4",
+   "cites": [
+    "CR:465.3"
+   ]
+  },
+  {
+   "primer": "combat",
+   "from": "s4",
+   "heading": "Step 3 — Resolution",
+   "exit": 0,
+   "when": "No Result was reached and both players still have units here — a Showdown and a Combat are staged at this Battlefield all over again",
+   "goto": "s1",
+   "cites": [
+    "CR:466.3.d.1"
+   ]
+  },
+  {
+   "primer": "combat",
+   "from": "s4",
+   "heading": "Step 3 — Resolution",
+   "exit": 1,
+   "when": "the Battlefield is settled — designations are stripped, end-of-combat effects happen, and every \"this combat\" effect expires",
+   "goto": null,
+   "cites": [
+    "CR:466.7",
+    "CR:466.7.a",
+    "CR:466.7.c"
    ]
   }
  ]

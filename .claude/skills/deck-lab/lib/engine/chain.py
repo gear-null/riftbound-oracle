@@ -261,9 +261,20 @@ def close_showdown(g):
         # in place, marked closed, so the turn is still in a Showdown State
         # until combat ends at 466.7.
         sd["closed"] = True
-        s.tasks[0:0] = [("combat_damage", sd["bf"]),
+        # The rest of Combat, as the rules number it: the Damage Step (465), the
+        # Combat Cleanup that opens the Resolution Step (466.1), and then 466.3,
+        # 466.5 and 466.7 as three separate Tasks with the window of 466.2 /
+        # 466.4 / 466.6 between each. One Task for all three would run them with
+        # the Chain still holding whatever the previous one put there.
+        index = sd["bf"]
+        s.tasks[0:0] = [("combat_damage", index),
                         ("cleanup", "combat"),
-                        ("combat_result", sd["bf"])]
+                        ("combat_fepr", index),            # 466.2
+                        ("combat_result", index),          # 466.3
+                        ("combat_fepr", index),            # 466.4
+                        ("combat_control", index),         # 466.5
+                        ("combat_fepr", index),            # 466.6
+                        ("combat_end", index)]             # 466.7
         return
     # 348.2: a Non-Combat Showdown settles Control.
     seats = set(u["ctrl"] for u in s.units_at(loc_bf(sd["bf"])))
