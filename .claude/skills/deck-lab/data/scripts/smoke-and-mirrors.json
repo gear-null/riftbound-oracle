@@ -39,7 +39,11 @@
        "what": {
         "type": "unit",
         "side": "friendly",
-        "another": true
+        "another": true,
+        "at": "location",
+        "not": {
+         "ref": "first"
+        }
        },
        "do": [
         {
@@ -89,15 +93,14 @@
   },
   {
    "text": "Choose a unit you control and another unit you control at a different location.",
-   "status": "approx",
-   "node": "abilities[0].effect[0]",
-   "reason": "`at a different location` needs the `at:location` selector atom (10 gauntlet clauses), declared and outside the active cut — so this script would also let both choices stand in the same place, which the printed card forbids."
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
   },
   {
    "text": "If at least one of them has [Temporary], move each to the other's location.",
    "status": "approx",
    "node": "abilities[0].effect[0].do[0]",
-   "reason": "the condition here reads only the FIRST chosen unit; `at least one of them` needs a disjunction over two bindings, and the condition vocabulary has no combinator (the census found none in the corpus)."
+   "reason": "the condition reads the FIRST chosen unit only. `at least one of them` is a disjunction over two bindings, and the condition vocabulary has no combinator — not because one was left out of the cut, but because the census found none anywhere in the corpus to size one from."
   },
   {
    "text": "Draw 1.",
@@ -167,7 +170,7 @@
    ]
   },
   {
-   "name": "with no Temporary unit only the draw happens",
+   "name": "two units in the same place are not a legal second choice",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -186,12 +189,13 @@
       ],
       "board": [
        {
-        "card": "Kinkou Initiate",
-        "at": "battlefield"
+        "card": "Reflection",
+        "at": "battlefield",
+        "token": true
        },
        {
         "card": "Lecturing Yordle",
-        "at": "base"
+        "at": "battlefield"
        }
       ]
      },
@@ -206,25 +210,24 @@
     "seat": 0
    },
    "choices": [
-    "Kinkou Initiate",
-    "Lecturing Yordle"
+    "Reflection"
    ],
    "then": [
-    {
-     "expect": "board_count",
-     "seat": 0,
-     "card": "Lecturing Yordle",
-     "at": "base",
-     "n": 1
-    },
     {
      "expect": "zone_count",
      "seat": 0,
      "zone": "hand",
      "n": 1
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Lecturing Yordle",
+     "at": "battlefield",
+     "n": 1
     }
    ]
   }
  ],
- "version": "sha256:f771b7ce1a91bf7e"
+ "version": "sha256:c090f9ee5c31b224"
 }

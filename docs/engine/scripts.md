@@ -28,18 +28,80 @@ Every construct below earns its place with a count from
 corpus rather than borrowing Forge's numbers. At the 95% line of 1,224 gauntlet
 clauses: **33 effect primitives, 20 trigger events, 25 selector atoms, 17
 condition atoms, 4 choice forms, 10 cost forms, 6 replacement kinds, 5
-durations**, plus all 25 CR keywords and 10 token specs.
+durations**, plus all 25 CR keywords and 10 token specs. That cut is the floor,
+not the whole of it — see the next section.
 
-Those are the **active** vocabulary. Every atom the census found anywhere in the
-954-card pool is also **declared** — 56 / 39 / 38 / 23 / 8 / 13 / 9 / 6 — and a
-script that reaches for a declared-but-inactive atom gets its own error code,
-that atom's census count, and an instruction to mark the clause `unsupported`
-instead. The same discipline `decisions.py` uses for decision kinds, for the
-same reason: a vocabulary with a known edge beats one with a silent edge.
+Every atom the census found anywhere in the 954-card pool is **declared** —
+56 / 39 / 38 / 23 / 8 / 13 / 9 / 6 — and a script that reaches for a
+declared-but-inactive one gets its own error code, that atom's census count, and
+an instruction to mark the clause `unsupported` instead. The same discipline
+`decisions.py` uses for decision kinds, for the same reason: a vocabulary with a
+known edge beats one with a silent edge.
 
 The closure is the lever, not an aesthetic. LLM generation against a fat
 per-card API (XMage's 2,712 symbols) measured **5.3% exact accuracy**; the DSL
 exists to make the target small enough to hit.
+
+## Closed under composition
+
+The 95% cut is not the active vocabulary on its own, because **the cut is not
+closed**. It was taken per table — the 33 commonest primitives, the 25 commonest
+selectors, each ranked alone — and nothing made those rankings agree with each
+other. So it arrived with holes straddling them: `look_at` made the cut and the
+top of the deck it looks at did not; the `[Empower]` and `[Equip]` keywords made
+it and the game actions they perform did not; `empty` made it and the only card
+in the gauntlet that prints it needs two selectors that did not.
+
+A clause then reads `approx` for a reason that is an artefact of where a line
+was drawn, not of anything a card does — which makes the coverage number a
+measure of the cut rather than of the DSL. So **fourteen atoms are promoted by
+composition**: outside the cut, active anyway, because an atom inside the cut
+cannot say what a gauntlet card says without them.
+
+| promoted atom | gauntlet / pool | needed by |
+|---|---|---|
+| `primitive:empower` | 4 / 16 | `[Empower]` (CR 827, 17 references) performs it |
+| `primitive:attach` | 4 / 14 | `[Equip]` (CR 818, 19) and `[Quick-Draw]` (CR 819, 3) perform it |
+| `primitive:disempower` | 3 / 7 | the `[Empowered]` branch of a clause whose condition is active |
+| `primitive:become_copy` | 2 / 6 | a token an active `play` made is then copied onto |
+| `trigger:score_trigger` | 1 / 2 | the other half of a multi-event trigger with `play_self` |
+| `trigger:become_empowered` | 1 / 3 | the event `[Empower]` causes; `become_state` cannot name it |
+| `trigger:frequency_only` | 1 / 3 | CR 383.3.e's "once each turn", a modifier on an active event |
+| `selector:zone:top_of_deck` | 12 / 19 | where `look_at` (8) and `reveal` (13) look |
+| `selector:at:location` | 10 / 17 | where `move` (29) moves something to |
+| `selector:negated` | 6 / 9 | the "non-token" / "non-Recruit" half of an active trigger |
+| `selector:type:champion` | 2 / 2 | what `return_to` returns, on the only card `empty` appears on |
+| `selector:zone:champion` | 2 / 2 | where it returns to, on that same card |
+| `condition:played_from` | 1 / 1 | which zone an active `play` played from |
+| `condition:zone_of_object` | 0 / 6 | where the subject of an active trigger is standing |
+
+The active vocabulary is therefore **37 primitives, 23 triggers, 30 selectors,
+19 conditions**, plus the cut's 4 choice forms, 10 cost forms, 6 replacement
+kinds and 5 durations. Every promotion names the construct that needed it; a
+promotion with no such reason is a vocabulary growing for its own sake, and the
+selftest refuses one.
+
+Closure is then **checked**, three ways, because there are three ways to leave a
+hole:
+
+1. **Nothing writable is reserved.** Every value a script may put in a `zone`,
+   `at`, `type` or `side` field is an active atom. Values nothing needs —
+   `at:showdown`, `type:ability`, `type:legend`, `zone:board`,
+   `zone:banishment` — are *absent* from those enums rather than
+   reserved-but-writable, so the closure holds without the vocabulary growing to
+   hold them.
+2. **Nothing composed is reserved.** Every atom an active construct reaches
+   through another construct — the `COMPOSED` table, the ability-kind table, the
+   events each keyword triggers on — is active too.
+3. **No shipped clause still blames one.** No `approx` or `unsupported` reason in
+   `data/scripts/` names a reserved atom.
+
+What is left over after that is the honest residue: **two clauses**, neither of
+them an atom problem. Draven - Audacious chooses an opponent and the census found
+no player selector anywhere in the corpus to size one from; Smoke and Mirrors
+asks whether "at least one of them" has a keyword, and the census found no
+condition combinator. Those are constructs the corpus does not contain, not
+constructs a cut left out.
 
 ## The document
 
@@ -293,9 +355,9 @@ it once, and so does the script.
 
 ## Effect nodes
 
-One node per active primitive, `op` plus its arguments plus `cites`. Thirty-two
-of the 33 are `op` nodes; `create_token` rides inside a selector and `choose` is
-reached through the choice forms. All 33:
+One node per active primitive, `op` plus its arguments plus `cites`. Thirty-six
+of the 37 are `op` nodes; `create_token` rides inside a selector and `choose` is
+reached through the choice forms. The 33 from the cut:
 
 | node | shape |
 |---|---|
@@ -346,17 +408,22 @@ than one selector per printed phrase.
 ```
 
 - **side** `friendly` · `enemy` · `any`
-- **type** `unit` · `gear` · `spell` · `rune` · `battlefield` · `token` · `card` (plus `ability`, `legend`, `champion`, declared)
-- **place** `here` · `base` · `battlefield` (plus `location`, `showdown`, declared)
-- **zone** `hand` · `trash` · `deck` (plus `board`, `banishment`, `champion`, declared)
-- **predicate** `state` · `tag` · `cost` (plus `might`, `keyword`, `not`, declared)
+- **type** `unit` · `gear` · `spell` · `rune` · `battlefield` · `token` · `card` · `champion`
+- **place** `here` · `base` · `battlefield` · `location`
+- **zone** `hand` · `trash` · `deck` · `top_of_deck` · `champion`
+- **predicate** `state` · `tag` · `cost` · `power` · `not` (plus `might`, `keyword`, declared)
 - **quantity** `all` · `another` · `count` · `up_to`
 - `bind` names the chosen object; `ref` refers back to one. `rest` is "the rest".
 
-`zone: top_of_deck` is deliberately **absent**: the top of the deck is the deck
-plus a `position`, which is the shape the census's own `put(zone, position)`
-primitive has, and spelling it as a zone would give the vocabulary two ways to
-say one thing.
+`position` is **not** a selector axis. The top of the deck is its own census
+selector atom, so a selector says it as a zone (`zone: "top_of_deck"`);
+`position` belongs to the primitives that look at or put a card at one end of a
+deck. One way to say it in each place.
+
+Inside a `not`, a token spec names a **kind** and creates nothing — `another
+non-Recruit unit` filters by what a Recruit is — so it needs no Might and does
+not credit `create_token`. A filter reporting itself as token creation would be
+the coverage number lying about what a script does.
 
 `targets` answers CR 355.10 for this selector. It is *required* on
 `choose_object`, where the question bites hardest: `Kill a unit at a battlefield`
@@ -616,7 +683,7 @@ Everything not listed maps one-to-one.
 | `create_token` (primitive) | a `token` spec inside a selector | the census counts "play a Gold gear token" in both the `play` and `create_token` tables; one clause, one node, both atoms credited |
 | `choose` (primitive) | the `choose_object` / `up_to` choice forms | the printed word "choose" is counted in the primitive table and the choice table, and it is one construct |
 | `nth_time`, `frequency_only` (triggers) | `trigger.frequency` | CR 383.1.b and 383.3.e modify an event; they are not events, and modelling them as such would be 40 more trigger rows |
-| `zone:top_of_deck` (selector) | `zone: "deck"` + `position: "top"` | the shape `put(zone, position)` already has. Spelling it as a zone would be two ways to say one thing |
+| `zone:top_of_deck` (selector) | `zone: "top_of_deck"` on a selector | a census SELECTOR atom, so a selector says it; `position` stays on the primitives that look at or put a card at one end of a deck |
 | `up_to_n` (selector) | the `up_to` choice form | the quantity and the choice are the same construct |
 | `enters_modified` (replacement) | `play.enters`, or the ability kind | the instruction form ("play a Gold token exhausted") and the continuous form ("Friendly units enter ready this turn") are different things |
 | `ignoring_cost` (replacement) | `play.ignoring`, or the ability kind | same split. Either credits `ignoring_cost`, `ignore` and the `free` cost form, which is how the census counts "ignoring its cost" |
@@ -631,14 +698,13 @@ Everything not listed maps one-to-one.
 ## Atoms no script reaches
 
 `deck_cli.py scripts` prints these, and the selftest names them rather than
-rounding them away. As of this writing there is exactly one:
+rounding them away. As of this writing there are none: **171 of 171**.
 
-- **`condition:empty`** — one occurrence in the whole gauntlet, on Hallowed
-  Tomb, and that card also needs `zone:champion` and `type:champion`, both
-  declared and outside the active cut. **The 95% cut is not closed under
-  composition**: it was taken per table, so an active atom can sit on a card
-  whose other atoms are reserved and become unreachable. Worth knowing before
-  the next cut is drawn.
+It did not start that way. `condition:empty` sat unreachable — one occurrence in
+the whole gauntlet, on Hallowed Tomb, a card that also needed `zone:champion` and
+`type:champion`, both outside the cut. Closing the vocabulary under composition
+is what let that card be written and that atom be reached, which is the clearest
+statement of what the closure buys.
 
 ---
 
@@ -657,10 +723,12 @@ The table was verified against the `rules-report` corpus at authoring time —
 re-check it with `python3 rules_cli.py rule <id>` after a rules update.
 
 **To activate a reserved atom.** Change its `active` flag, add its node shape,
-update the count the selftest pins, and say in the commit message which cards it
-unblocks. The counts are pinned precisely so this cannot happen by accident: a
-vocabulary that drifts from the measurement still validates every script and
-just stops being the thing that was measured.
+add a row to `PROMOTED` naming the active construct that needed it, and add a
+script that exercises it. All four are checked: the counts are pinned as "the
+census cut plus its promotions", every promotion must carry a reason, and every
+active atom must be exercised by some script. A vocabulary that drifts from the
+measurement still validates every script and just stops being the thing that was
+measured, which is why the drift is what goes red rather than the scripts.
 
 **Never** add a construct the census does not show. The size of this vocabulary
 is the whole mechanism.

@@ -26,8 +26,7 @@
      "what": {
       "type": "card",
       "side": "friendly",
-      "zone": "deck",
-      "position": "top",
+      "zone": "top_of_deck",
       "count": 2
      }
     }
@@ -142,5 +141,5 @@
    ]
   }
  ],
- "version": "sha256:39040b9dd98c9c03"
+ "version": "sha256:8202e565a5fba833"
 }

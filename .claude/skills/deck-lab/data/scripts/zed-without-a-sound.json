@@ -73,6 +73,7 @@
      "swap_with": {
       "type": "token",
       "side": "friendly",
+      "at": "location",
       "targets": true
      }
     }
@@ -87,9 +88,8 @@
   },
   {
    "text": "[Action][>] :rb_energy_1::rb_rune_chaos:: Move me and a Shadow Clone you control to each other's locations.",
-   "status": "approx",
-   "node": "abilities[1]",
-   "reason": "the destination is the other object's Location, and `at:location` (10 gauntlet clauses) is declared and outside the active cut. `swap_with` names the object instead, which is right here and would not be right for a card that moved one unit to another's location one-way."
+   "status": "implemented",
+   "node": "abilities[1]"
   }
  ],
  "tests": [
@@ -132,7 +132,7 @@
    ]
   },
   {
-   "name": "the swap puts Zed where the clone stood",
+   "name": "the swap puts Zed where the clone stood, and the clone where Zed was",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -189,5 +189,5 @@
    ]
   }
  ],
- "version": "sha256:5974e975ff7822eb"
+ "version": "sha256:16841eaba58ac748"
 }

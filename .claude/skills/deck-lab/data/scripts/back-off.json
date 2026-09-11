@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Back Off",
  "source": "manual",
+ "notes": "The draw is conditional on the zone it was played FROM, which matters because [Hidden] (CR 811) gives this card a second way to be played: hidden earlier, reacted with later, and then the draw does not happen.",
  "keywords": [
   {
    "keyword": "Hidden",
@@ -33,6 +34,21 @@
       "side": "any",
       "targets": true
      }
+    },
+    {
+     "op": "draw",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ],
+     "when": {
+      "cond": "played_from",
+      "zone": "hand",
+      "what": {
+       "self": true
+      }
+     }
     }
    ]
   }
@@ -51,17 +67,17 @@
   {
    "text": "[Stun] a unit.",
    "status": "implemented",
-   "node": "abilities[0]"
+   "node": "abilities[0].effect[0]"
   },
   {
    "text": "If you played this from your hand, draw 1.",
-   "status": "unsupported",
-   "reason": "the condition is `played_from` (CR 419), 1 gauntlet clause and outside the active cut: this vocabulary cannot ask which zone a card was played from, so the conditional draw is not implemented."
+   "status": "implemented",
+   "node": "abilities[0].effect[1]"
   }
  ],
  "tests": [
   {
-   "name": "a stunned unit is marked stunned",
+   "name": "played from hand, it stuns and draws",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -74,7 +90,10 @@
       "hand": [
        "Back Off"
       ],
-      "energy": 3
+      "energy": 3,
+      "deck": [
+       "Mobilize"
+      ]
      },
      {
       "seat": 1,
@@ -101,6 +120,69 @@
      "card": "Ferrous Forerunner",
      "seat": 1,
      "is": "stunned"
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "played from Hidden, it stuns and does NOT draw",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 0,
+      "deck": [
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Back Off",
+        "at": "base",
+        "state": "hidden"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Back Off",
+    "seat": 0
+   },
+   "choices": [
+    "Ferrous Forerunner"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Ferrous Forerunner",
+     "seat": 1,
+     "is": "stunned"
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
     }
    ]
   },
@@ -148,5 +230,5 @@
    ]
   }
  ],
- "version": "sha256:3e430c6621fa166e"
+ "version": "sha256:f4ef0fbb01723a36"
 }

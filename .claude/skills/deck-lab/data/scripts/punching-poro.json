@@ -3,12 +3,19 @@
  "card": "Punching Poro",
  "source": "manual",
  "notes": "The gated passive takes its `while_state` from the gate rather than repeating it: CR 135.2.e.7.b says a dependent keyword's ability is inactive while its condition is false, so the modifier lasts exactly as long as [Empowered] does.",
- "keywords": [
+ "abilities": [
   {
-   "keyword": "Empower",
+   "kind": "activated",
    "cites": [
+    "CR:376",
     "CR:827"
    ],
+   "keyword": {
+    "keyword": "Empower",
+    "cites": [
+     "CR:827"
+    ]
+   },
    "cost": [
     {
      "cost": "discard_cost",
@@ -17,10 +24,19 @@
       "CR:422"
      ]
     }
+   ],
+   "effect": [
+    {
+     "op": "empower",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:441"
+     ]
+    }
    ]
-  }
- ],
- "abilities": [
+  },
   {
    "kind": "passive",
    "cites": [
@@ -51,12 +67,12 @@
   {
    "text": "[Empower] — Discard 1",
    "status": "implemented",
-   "node": "keywords[0]"
+   "node": "abilities[0]"
   },
   {
    "text": "[Empowered][>] I have +1 :rb_might:.",
    "status": "implemented",
-   "node": "abilities[0]"
+   "node": "abilities[1]"
   }
  ],
  "tests": [
@@ -139,7 +155,39 @@
      "n": 2
     }
    ]
+  },
+  {
+   "name": "with an empty hand the cost cannot be paid",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Punching Poro",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Punching Poro",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "nothing to discard"
+    }
+   ]
   }
  ],
- "version": "sha256:382591426e2f33cb"
+ "version": "sha256:9a0b82b3178bb322"
 }

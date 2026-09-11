@@ -2,19 +2,28 @@
  "schema": "riftbound-card-script/1",
  "card": "Cloth Armor",
  "source": "manual",
- "notes": "Both clauses ARE keywords: CR 818 defines what Equip does and CR 819 what Quick-Draw does, and the card adds only the price. Writing the attachment out as an effect would need `attach` (CR 434, 4 gauntlet clauses), which is declared and outside the active cut — and would put a rule that belongs to every Equipment on one card.",
+ "notes": "[Quick-Draw] stays a bare keyword reference: CR 819 says what it does (this has [Reaction], and attaches on play) and the card adds nothing. [Equip] is an ability because the card adds its price.",
  "keywords": [
   {
    "keyword": "Quick-Draw",
    "cites": [
     "CR:819"
    ]
-  },
+  }
+ ],
+ "abilities": [
   {
-   "keyword": "Equip",
+   "kind": "activated",
    "cites": [
+    "CR:376",
     "CR:818"
    ],
+   "keyword": {
+    "keyword": "Equip",
+    "cites": [
+     "CR:818"
+    ]
+   },
    "cost": [
     {
      "cost": "power_domain",
@@ -24,10 +33,25 @@
       "CR:444"
      ]
     }
+   ],
+   "effect": [
+    {
+     "op": "attach",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:434"
+     ],
+     "to": {
+      "type": "unit",
+      "side": "friendly",
+      "targets": true
+     }
+    }
    ]
   }
  ],
- "abilities": [],
  "clauses": [
   {
    "text": "[Quick-Draw]",
@@ -37,53 +61,12 @@
   {
    "text": "[Equip] :rb_rune_mind:",
    "status": "implemented",
-   "node": "keywords[1]"
+   "node": "abilities[0]"
   }
  ],
  "tests": [
   {
-   "name": "Quick-Draw lets it be played as a Reaction and attaches it",
-   "given": {
-    "turn_player": 1,
-    "phase": "main",
-    "seats": [
-     {
-      "seat": 0,
-      "hand": [
-       "Cloth Armor"
-      ],
-      "energy": 1,
-      "board": [
-       {
-        "card": "Lecturing Yordle",
-        "at": "base"
-       }
-      ]
-     },
-     {
-      "seat": 1
-     }
-    ]
-   },
-   "when": {
-    "do": "play",
-    "card": "Cloth Armor",
-    "seat": 0
-   },
-   "choices": [
-    "Lecturing Yordle"
-   ],
-   "then": [
-    {
-     "expect": "state",
-     "card": "Cloth Armor",
-     "seat": 0,
-     "is": "attached"
-    }
-   ]
-  },
-  {
-   "name": "the Equip ability costs one Mind Power",
+   "name": "the Equip ability costs one Mind Power and attaches it",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -131,7 +114,43 @@
      "is": "attached"
     }
    ]
+  },
+  {
+   "name": "with no Mind Power it cannot be equipped",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Cloth Armor",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Cloth Armor",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no Mind Power"
+    }
+   ]
   }
  ],
- "version": "sha256:c03c0b3feac4218a"
+ "version": "sha256:830a7b692edc0772"
 }

@@ -9,12 +9,21 @@
    "cites": [
     "CR:825"
    ]
-  },
+  }
+ ],
+ "abilities": [
   {
-   "keyword": "Equip",
+   "kind": "activated",
    "cites": [
+    "CR:376",
     "CR:818"
    ],
+   "keyword": {
+    "keyword": "Equip",
+    "cites": [
+     "CR:818"
+    ]
+   },
    "cost": [
     {
      "cost": "power_any",
@@ -23,10 +32,24 @@
       "CR:444"
      ]
     }
+   ],
+   "effect": [
+    {
+     "op": "attach",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:434"
+     ],
+     "to": {
+      "type": "unit",
+      "side": "friendly",
+      "targets": true
+     }
+    }
    ]
-  }
- ],
- "abilities": [
+  },
   {
    "kind": "triggered",
    "cites": [
@@ -63,12 +86,12 @@
   {
    "text": "[Equip] :rb_rune_rainbow:",
    "status": "implemented",
-   "node": "keywords[1]"
+   "node": "abilities[0]"
   },
   {
    "text": "When you play this, ready your units.",
    "status": "implemented",
-   "node": "abilities[0]"
+   "node": "abilities[1]"
   }
  ],
  "tests": [
@@ -141,6 +164,50 @@
    ]
   },
   {
+   "name": "the Equip ability attaches it for one Power of any Domain",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "power": {
+       "Calm": 1
+      },
+      "board": [
+       {
+        "card": "Shurelya's Requiem",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Shurelya's Requiem",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Shurelya's Requiem",
+     "seat": 0,
+     "is": "attached"
+    }
+   ]
+  },
+  {
    "name": "gear is not a unit",
    "given": {
     "turn_player": 0,
@@ -185,5 +252,5 @@
    ]
   }
  ],
- "version": "sha256:1a2a6e26cc768284"
+ "version": "sha256:19aa1187e7987a9a"
 }

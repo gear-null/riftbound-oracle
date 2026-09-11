@@ -35,6 +35,22 @@
      },
      "do": [
       {
+       "op": "disempower",
+       "what": {
+        "ref": "mark"
+       },
+       "cites": [
+        "CR:442"
+       ],
+       "when": {
+        "cond": "state_of_object",
+        "what": {
+         "ref": "mark"
+        },
+        "state": "empowered"
+       }
+      },
+      {
        "op": "kill",
        "what": {
         "ref": "mark"
@@ -64,13 +80,13 @@
   },
   {
    "text": "If it's [Empowered], disempower it.",
-   "status": "unsupported",
-   "reason": "`disempower` (CR 442, 3 gauntlet clauses) is declared and outside the active cut. The Empowered branch does nothing here, so an Empowered enemy gear survives untouched rather than being disempowered."
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[0]"
   },
   {
    "text": "Otherwise, kill it.",
    "status": "implemented",
-   "node": "abilities[0].effect[0].do[0]"
+   "node": "abilities[0].effect[0].do[1]"
   }
  ],
  "tests": [
@@ -126,6 +142,64 @@
    ]
   },
   {
+   "name": "an Empowered gear is disempowered instead of killed",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Tomb-Raider Barbara"
+      ],
+      "energy": 4,
+      "runes": [
+       "Calm Rune",
+       "Calm Rune",
+       "Calm Rune",
+       "Calm Rune",
+       "Calm Rune",
+       "Calm Rune",
+       "Calm Rune"
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base",
+        "state": "empowered"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Tomb-Raider Barbara",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "Arena Bar"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 1,
+     "card": "Arena Bar",
+     "n": 1
+    },
+    {
+     "expect": "state",
+     "card": "Arena Bar",
+     "seat": 1,
+     "is": "ready"
+    }
+   ]
+  },
+  {
    "name": "six runes is not seven",
    "given": {
     "turn_player": 0,
@@ -173,5 +247,5 @@
    ]
   }
  ],
- "version": "sha256:bbdc9ef6b31c4723"
+ "version": "sha256:2005594588b2e7d7"
 }

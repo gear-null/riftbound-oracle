@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Pyke - Returned",
  "source": "manual",
+ "notes": "`frequency.limit` is CR 383.3.e's 'once each turn' and the condition is on PYKE's location, not the dying unit's: an enemy unit dying at a battlefield Pyke is not standing at does nothing.",
  "keywords": [
   {
    "keyword": "Hidden",
@@ -28,10 +29,20 @@
      "die"
     ],
     "who": "enemy",
-    "where": "battlefield",
     "what": {
      "type": "unit",
      "side": "enemy"
+    },
+    "frequency": {
+     "limit": 1,
+     "per": "turn"
+    },
+    "condition": {
+     "cond": "zone_of_object",
+     "what": {
+      "self": true
+     },
+     "at": "battlefield"
     }
    },
    "effect": [
@@ -65,14 +76,13 @@
   },
   {
    "text": "Once each turn, when an enemy unit dies while I'm at a battlefield, play a Gold gear token exhausted.",
-   "status": "approx",
-   "node": "abilities[0]",
-   "reason": "two parts are approximated. `Once each turn` is the `frequency_only` atom (CR 383.3.e, 1 gauntlet clause), declared and outside the active cut, so this script makes a Gold for EVERY enemy unit that dies; and `while I'm at a battlefield` is a condition on this unit's own location, which `where` expresses as the event's location instead."
+   "status": "implemented",
+   "node": "abilities[0]"
   }
  ],
  "tests": [
   {
-   "name": "an enemy unit dying at a battlefield mints a Gold",
+   "name": "an enemy unit dying while he stands out mints a Gold",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -121,7 +131,7 @@
    ]
   },
   {
-   "name": "a friendly unit dying mints nothing",
+   "name": "the second enemy death that turn mints nothing",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -137,20 +147,74 @@
         "at": "battlefield"
        },
        {
-        "card": "Cithria of Cloudfield",
-        "at": "battlefield"
+        "card": "Gold",
+        "at": "base",
+        "token": true
        }
       ]
      },
      {
-      "seat": 1
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       },
+       {
+        "card": "Kinkou Initiate",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Kinkou Initiate",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "with Pyke at his base, nothing triggers at all",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Pyke - Returned",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
      }
     ]
    },
    "when": {
     "do": "kill",
     "card": "Cithria of Cloudfield",
-    "seat": 0
+    "seat": 1
    },
    "then": [
     {
@@ -162,5 +226,5 @@
    ]
   }
  ],
- "version": "sha256:a51fb5a86d6f7e42"
+ "version": "sha256:71af55bc2df95ace"
 }

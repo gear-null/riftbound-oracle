@@ -16,8 +16,8 @@ record is asserted field by field: code, path, offending token, expected set.
 A code no broken script can produce is a code that does not exist.
 
 **Coverage is an instrument, not a score.** Clause arithmetic is checked against
-a synthetic library with known marks, so "124 of 137" cannot quietly become
-"124 of 124" by dropping the clauses nobody implemented.
+a synthetic library with known marks, so "136 of 138" cannot quietly become
+"136 of 136" by dropping the clauses nobody implemented.
 """
 import json
 import os
@@ -82,18 +82,40 @@ def _find(errors, code):
 def vocabulary(check):
     """The atom counts are the measurement. Drift here is silent otherwise."""
     size = schema.vocabulary_size()
-    for label, key, want in (
-            ("effect primitives", "primitives", 33),
-            ("trigger events", "triggers", 20),
-            ("selector atoms", "selectors", 25),
-            ("condition atoms", "conditions", 17),
-            ("choice forms", "choices", 4),
-            ("cost forms", "costs", 10),
-            ("replacement kinds", "replacements", 6),
-            ("modifier durations", "durations", 5),
+    promoted = {}
+    for key in schema.PROMOTED:
+        promoted[key.split(":", 1)[0]] = promoted.get(key.split(":", 1)[0], 0) + 1
+    for label, key, category in (
+            ("effect primitives", "primitives", "primitive"),
+            ("trigger events", "triggers", "trigger"),
+            ("selector atoms", "selectors", "selector"),
+            ("condition atoms", "conditions", "condition"),
+            ("choice forms", "choices", "choice"),
+            ("cost forms", "costs", "cost"),
+            ("replacement kinds", "replacements", "replacement"),
+            ("modifier durations", "durations", "duration"),
     ):
-        check(f"the active vocabulary has the {want} {label} the census measured",
-              size[key] == want, f"schema says {size[key]}")
+        cut = schema.CENSUS_95[category]
+        want = cut + promoted.get(category, 0)
+        check(f"the active {label} are the census's {cut} plus its promotions",
+              size[key] == want,
+              f"schema says {size[key]}, census cut {cut} + "
+              f"{promoted.get(category, 0)} promoted")
+
+    # The promotions are the part a reader has to be able to audit: each one is
+    # an atom outside the measured cut, and the reason is what stops the list
+    # becoming somewhere a vocabulary quietly grows.
+    unreasoned = [k for k, v in schema.PROMOTED.items() if not (v or "").strip()]
+    check("every promoted atom says which active construct needed it",
+          not unreasoned, ", ".join(unreasoned))
+    strays = [k for k in schema.PROMOTED
+              if k.split(":", 1)[1] not in schema.TABLES[k.split(":", 1)[0]]]
+    check("every promoted atom is a real census atom, not an invention",
+          not strays, ", ".join(strays))
+    inactive = [k for k in schema.PROMOTED
+                if not schema.TABLES[k.split(":", 1)[0]][k.split(":", 1)[1]].active]
+    check("every promoted atom is actually active", not inactive,
+          ", ".join(inactive))
     check("all 25 CR keywords are in the table (805-829)", size["keywords"] == 25,
           f"{size['keywords']} keywords")
     check("five keywords take a numeric parameter",
@@ -149,6 +171,82 @@ def vocabulary(check):
           and "mighty" in schema.STATES,
           "the corpus sets it in the keyword font on ten cards")
 
+
+def vocabulary_closure(check):
+    """Is the active vocabulary closed under composition?
+
+    The census took its 95% cut per table — the 33 commonest primitives, the 25
+    commonest selectors — each ranked on its own. Nothing made those lists agree,
+    so the cut arrived with holes: `look_at` made it and the top of the deck it
+    looks at did not; `[Empower]` and `[Equip]` made it and the game actions they
+    perform did not. A clause then reads `approx` for a reason that is an
+    artefact of where the line was drawn rather than of anything a card does,
+    which is a coverage number measuring the wrong thing.
+
+    Closure is checked two ways, because there are two ways to leave a hole.
+
+    1. **Nothing writable is reserved.** Every value a script may put in a `zone`,
+       `at`, `type` or `side` field is an active atom. A reserved one reachable
+       through an enum is a hole a compiler falls into at the moment it tries to
+       say something true.
+    2. **Nothing composed is reserved.** Every atom an active construct reaches
+       through another construct — `COMPOSED`, and the ability-kind table — is
+       active too.
+    """
+    holes = []
+    for field, prefix in (("zone", "zone:"), ("location", "at:"),
+                          ("type", "type:"), ("side", "side:")):
+        for value in schema._ENUMS[field]:
+            name = prefix + str(value)
+            atom = schema.SELECTORS.get(name)
+            if atom is None:
+                holes.append("%s (no such atom)" % name)
+            elif not atom.active:
+                holes.append("%s (reserved)" % name)
+    check("every value a script may write is an active atom", not holes,
+          "; ".join(holes))
+
+    composed = []
+    for key, edges in schema.COMPOSED.items():
+        for category, atom in edges:
+            row = schema.TABLES[category].get(atom)
+            if row is None or not row.active:
+                composed.append("%s -> %s:%s" % (key, category, atom))
+    for kind, edges in schema._ABILITY_ATOMS.items():
+        for category, atom in edges:
+            row = schema.TABLES[category].get(atom)
+            if row is None or not row.active:
+                composed.append("ability %s -> %s:%s" % (kind, category, atom))
+    check("every atom an active construct composes with is active too",
+          not composed, "; ".join(composed))
+
+    # The keyword tables are constructs too: a triggered keyword whose event is
+    # reserved is a keyword the schema accepts and no script can implement.
+    kw = []
+    for name, events in schema.KEYWORD_TRIGGERS.items():
+        for event in events:
+            row = schema.TRIGGERS.get(event)
+            if row is None or not row.active:
+                kw.append("[%s] -> trigger:%s" % (name, event))
+    check("every event a keyword triggers on is active", not kw, "; ".join(kw))
+
+    # And the shipped scripts: no clause may still be blaming a reserved atom.
+    # This is the reading that matters to a reader of the coverage number — the
+    # other two are how the schema stops it happening again.
+    reserved = set()
+    for category, table in schema.TABLES.items():
+        for name, atom in table.items():
+            if not atom.active:
+                reserved.add(name)
+    blamed = []
+    for script in library.load_all():
+        for clause in script.clauses:
+            reason = clause.get("reason") or ""
+            for name in sorted(reserved):
+                if "`%s`" % name in reason:
+                    blamed.append("%s: %s" % (script.card, name))
+    check("no clause is unimplemented for want of a reserved atom", not blamed,
+          "; ".join(blamed[:6]))
 
 # -- the validator refuses, and says why -------------------------------------
 
@@ -421,20 +519,23 @@ def script_library(check):
 def atom_coverage(check):
     """Which measured atoms the hand-written set actually exercises.
 
-    An atom nothing exercises is a construct nobody has ever written down. The
-    one unreached atom is named rather than rounded away: `condition:empty`
-    appears once in the whole gauntlet, on Hallowed Tomb, and that card also
-    needs `zone:champion` and `type:champion`, both reserved. The 95% cut is not
-    closed under composition, and this is where that shows.
+    An atom nothing exercises is a construct nobody has ever written down, so
+    this reads zero-tolerance: every active atom, exercised, by name.
+
+    It did not start that way. `condition:empty` sat unreachable for a while —
+    one occurrence in the whole gauntlet, on Hallowed Tomb, a card that also
+    needs `zone:champion` and `type:champion`, both of which the 95% cut had left
+    outside. An active atom stranded on a card whose other atoms are reserved is
+    what a cut taken per table does, and closing the vocabulary under composition
+    is what let the card be written and the atom be reached.
     """
     cov = library.coverage()
-    unreachable = {"condition:empty"}
-    missing = set(cov["unexercised"]) - unreachable
+    missing = set(cov["unexercised"])
     check("every active census atom is exercised by at least one script",
           not missing, f"unexercised: {', '.join(sorted(missing))}")
-    check("the atoms that cannot be reached are named, not rounded away",
-          set(cov["unexercised"]) == unreachable,
-          f"expected exactly {sorted(unreachable)}, got {cov['unexercised']}")
+    check("the coverage report lists an unexercised atom rather than rounding it away",
+          "unexercised" in cov and isinstance(cov["unexercised"], list),
+          "the list is the instrument; the percentage is the headline")
     check("no script exercises an atom outside the active vocabulary",
           not cov["outside"], ", ".join(cov["outside"]))
     # The headline and the list are two readings of one measurement, and the way
@@ -570,5 +671,6 @@ def clause_text(check):
           not schema.quotes_printed_text("", printed))
 
 
-SECTIONS = (vocabulary, validator_errors, script_library, atom_coverage,
-            clause_coverage, version_hashing, readiness, clause_text)
+SECTIONS = (vocabulary, vocabulary_closure, validator_errors, script_library,
+            atom_coverage, clause_coverage, version_hashing, readiness,
+            clause_text)

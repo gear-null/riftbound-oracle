@@ -646,10 +646,16 @@ Then, each earning its own row: `beginning_phase` (6) · `win_combat` (6) ·
 `as_played` (2) · `become_state` (2) · `nth_time` (2) · `readied` (2) · `reveal_trigger`
 (2) · `stunned` (2), and below the 95% line `become_empowered`, `combat_damage`,
 `combat_ends`, `empower_other`, `equip_trigger`, `frequency_only`, `score_trigger`,
-`showdown_begins`, plus `banish_trigger`, `buffed`, `burn_trigger`, `channel_trigger`,
-`draw_trigger`, `enters`, `gain_control`, `hide_trigger`, `kill_trigger`, `leaves`,
-`lose_combat`, `pay_trigger`, `phase_other`, `recycle_trigger`, `start_of_turn`,
-`use_ability`.
+`showdown_begins`, plus `banish_trigger`, `buffed`, `burn_trigger`, `draw_trigger`,
+`hide_trigger`, `kill_trigger`, `leaves`, `phase_other`, `recycle_trigger`,
+`start_of_turn`, `use_ability`.
+
+That is 39 names, matching §3's table. An earlier version of this paragraph listed
+44, adding `channel_trigger`, `enters`, `gain_control`, `lose_combat` and
+`pay_trigger` — rows that exist in the lexicon and match nothing in either the
+gauntlet or the pool. §3 counts occurrences and so never printed them; this list
+was written by hand from the lexicon rather than from the table, which is how the
+two disagreed. The table is the measurement.
 
 Two of these are not events but **modifiers on an event**, and the DSL should model them
 that way rather than as 40 more events: `nth_time` (CR 383.1.b — "the first time … each

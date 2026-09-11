@@ -11,7 +11,8 @@
    ],
    "trigger": {
     "events": [
-     "play_self"
+     "play_self",
+     "score_trigger"
     ],
     "who": "you"
    },
@@ -63,9 +64,8 @@
  "clauses": [
   {
    "text": "When you play me or when I score, play a :rb_energy_1: :rb_might: Tentacle unit token from Bilgewater.",
-   "status": "approx",
-   "node": "abilities[0]",
-   "reason": "the second half of the trigger is `score_trigger` (CR 467, 1 gauntlet clause), declared and outside the active cut — so this script makes a Tentacle when she is played and not when she scores."
+   "status": "implemented",
+   "node": "abilities[0]"
   },
   {
    "text": "I have +1 :rb_might: for each token unit you control.",
@@ -110,6 +110,48 @@
      "card": "Illaoi, Prophet of the Great Kraken",
      "seat": 0,
      "n": 5
+    }
+   ]
+  },
+  {
+   "name": "scoring makes a second one",
+   "given": {
+    "turn_player": 0,
+    "phase": "beginning",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Illaoi, Prophet of the Great Kraken",
+        "at": "battlefield"
+       },
+       {
+        "card": "Tentacle",
+        "at": "base",
+        "token": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "hold",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Tentacle",
+     "n": 2
     }
    ]
   },
@@ -163,5 +205,5 @@
    ]
   }
  ],
- "version": "sha256:f3175e2b15b5213a"
+ "version": "sha256:1a162dff77ccddde"
 }

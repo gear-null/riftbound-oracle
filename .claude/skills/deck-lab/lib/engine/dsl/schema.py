@@ -204,6 +204,46 @@ def _active(table):
     return tuple(sorted(n for n, a in table.items() if a.active))
 
 
+#: The census's 95% cut, per category, as measured. The active vocabulary is
+#: this plus `PROMOTED` and nothing else — pinned here so the schema cannot
+#: drift away from the measurement without a check going red.
+CENSUS_95 = {
+    "primitive": 33, "trigger": 20, "selector": 25, "condition": 17,
+    "choice": 4, "cost": 10, "replacement": 6, "duration": 5,
+}
+
+#: Atoms **promoted by composition**: outside the 95% cut, and active anyway
+#: because an atom inside the cut cannot say what a gauntlet card says without
+#: them.
+#:
+#: The cut was taken per table — the 33 commonest primitives, the 25 commonest
+#: selectors, and so on, each ranked on its own. Nothing made those lists agree
+#: with each other, so the cut is **not closed under composition**: `look_at`
+#: made the cut and the top of the deck it looks at did not; the `[Empower]` and
+#: `[Equip]` keywords made it and the game actions they perform did not. A
+#: vocabulary with holes like that reports a clause `approx` for a reason that
+#: is an artefact of how the line was drawn, not of anything a card does.
+#:
+#: Each row says which active construct needed it. A promotion with no such
+#: reason is a vocabulary growing for its own sake, which is the thing the
+#: closed vocabulary exists to prevent.
+PROMOTED = {
+    "primitive:empower": "[Empower] (CR 827, 17 gauntlet references) performs it",
+    "primitive:attach": "[Equip] (CR 818, 19) and [Quick-Draw] (CR 819, 3) perform it",
+    "primitive:disempower": "the [Empowered] branch of a clause whose condition is active",
+    "primitive:become_copy": "a token played by an active `play` is then copied onto",
+    "trigger:score_trigger": "half of a multi-event trigger whose other half is `play_self`",
+    "trigger:become_empowered": "the event [Empower] causes; `become_state` cannot name it",
+    "trigger:frequency_only": "CR 383.3.e's 'once each turn', a modifier on an active event",
+    "selector:zone:top_of_deck": "where `look_at` (8) and `reveal` (13) look",
+    "selector:at:location": "where `move` (29) moves something to",
+    "selector:negated": "the 'non-token'/'non-Recruit' half of an active trigger's selector",
+    "selector:type:champion": "what `return_to` returns on the only card `empty` appears on",
+    "selector:zone:champion": "where it returns to, on that same card",
+    "condition:played_from": "which zone an active `play` played from",
+    "condition:zone_of_object": "where the subject of an active trigger is standing",
+}
+
 #: Effect primitives — census §4. `cite` is the CR game action where the rules
 #: name one; the six without a CR action are the ones a DSL has to invent, and
 #: they cite the rule that governs what they do instead.
@@ -248,14 +288,14 @@ PRIMITIVES = _atoms([
     ("create_token", "CR:179", 41,  85, True),
     # declared, not active: the tail. Every one is a real thing a card says.
     ("spend",        "CR:728",  5,  17, False),
-    ("empower",      "CR:441",  4,  16, False),
-    ("attach",       "CR:434",  4,  14, False),
+    ("empower",      "CR:441",  4,  16, True),
+    ("attach",       "CR:434",  4,  14, True),
     ("use",          "CR:377",  3,   9, False),
     ("hide",         "CR:421",  3,   8, False),
     ("predict",      "CR:436",  3,   8, False),
-    ("disempower",   "CR:442",  3,   7, False),
+    ("disempower",   "CR:442",  3,   7, True),
     ("burn",         "CR:440",  2,   7, False),
-    ("become_copy",  "CR:438",  2,   6, False),
+    ("become_copy",  "CR:438",  2,   6, True),
     ("set_stat",     "CR:477",  2,   6, False),
     ("modify_trigger", "CR:383", 2,   4, False),
     ("gain_control", "CR:477",  1,   7, False),
@@ -309,14 +349,14 @@ TRIGGERS = _atoms([
     # "once each turn" modify an event. They are the `frequency` field, and the
     # 20th active atom is `nth_time` reached through it.
     ("nth_time",        "CR:383",  2,   2, True),
-    ("frequency_only",  "CR:383",  1,   3, False),
-    ("become_empowered", "CR:441", 1,   3, False),
+    ("frequency_only",  "CR:383",  1,   3, True),
+    ("become_empowered", "CR:441", 1,   3, True),
     ("combat_damage",   "CR:417",  1,   2, False),
     ("combat_ends",     "CR:466",  1,   2, False),
     ("empower_other",   "CR:441",  1,   4, False),
     ("equip_trigger",   "CR:818",  1,   2, False),
     ("hide_trigger",    "CR:421",  1,   2, False),
-    ("score_trigger",   "CR:467",  1,   2, False),
+    ("score_trigger",   "CR:467",  1,   2, True),
     ("showdown_begins", "CR:341",  1,   2, False),
     ("banish_trigger",  "CR:427",  0,   2, False),
     ("buffed",          "CR:426",  0,   4, False),
@@ -360,17 +400,17 @@ SELECTORS = _atoms([
     ("side:any",         "CR:407",  15,  42, True),
     # declared, not active
     ("type:ability",     "CR:360",  13,  36, False),
-    ("zone:top_of_deck", "CR:108",  12,  19, False),
-    ("at:location",      "CR:198",  10,  17, False),
+    ("zone:top_of_deck", "CR:108",  12,  19, True),
+    ("at:location",      "CR:198",  10,  17, True),
     ("by_keyword",       "CR:800",   9,  25, False),
     ("by_might",         "CR:477",   7,  24, False),
-    ("negated",          "CR:407",   6,   9, False),
+    ("negated",          "CR:407",   6,   9, True),
     ("at:showdown",      "CR:341",   4,   7, False),
     ("any_number",       "CR:355",   3,  13, False),
     ("zone:board",       "CR:108",   3,   4, False),
     ("type:legend",      "CR:407",   2,   6, False),
-    ("type:champion",    "CR:407",   2,   2, False),
-    ("zone:champion",    "CR:108",   2,   2, False),
+    ("type:champion",    "CR:407",   2,   2, True),
+    ("zone:champion",    "CR:108",   2,   2, True),
     ("zone:banishment",  "CR:108",   0,   3, False),
 ])
 
@@ -394,11 +434,11 @@ CONDITIONS = _atoms([
     ("empty",                "CR:364",  1,  1, True),
     ("has_keyword",          "CR:800",  1,  1, True),
     ("phase_check",          "CR:364",  1,  4, False),
-    ("played_from",          "CR:419",  1,  1, False),
+    ("played_from",          "CR:419",  1,  1, True),
     ("spent",                "CR:202",  1,  7, False),
     ("whose_turn",           "CR:364",  1, 10, False),
     ("this_killed_it",       "CR:428",  0,  1, False),
-    ("zone_of_object",       "CR:108",  0,  6, False),
+    ("zone_of_object",       "CR:108",  0,  6, True),
 ])
 
 #: Choice forms — census §7. `choose_mode` is the one most likely to be
@@ -459,6 +499,43 @@ DURATIONS = _atoms([
     ("this_combat", "CR:459",  1,   2, True),
     ("next_turn",   "CR:477",  0,   2, False),
 ])
+
+
+#: Category name -> atom table, so a credit can be checked against the right one.
+TABLES = {
+    "primitive": PRIMITIVES, "trigger": TRIGGERS, "selector": SELECTORS,
+    "condition": CONDITIONS, "choice": CHOICES, "cost": COSTS,
+    "replacement": REPLACEMENTS, "duration": DURATIONS,
+}
+
+#: Atoms an active construct reaches THROUGH another construct — the composition
+#: edges. `play` with an `enters` is also the `enters_modified` replacement;
+#: paying `exhaust_self` is also the `exhaust` game action, because CR 355.10.c.1
+#: says a cost is an instruction in a cost position.
+#:
+#: Kept as a table rather than as credits scattered through the walker for one
+#: reason: `vocabulary_closure` reads it. Every atom on the right-hand side has
+#: to be active, or an active construct is reaching for something a script is
+#: forbidden to write — which is exactly the hole `PROMOTED` exists to fill.
+COMPOSED = {
+    "play.enters": (("replacement", "enters_modified"), ("primitive", "enter")),
+    "play.ignoring": (("replacement", "ignoring_cost"), ("primitive", "ignore"),
+                      ("cost", "free")),
+    "buff": (("duration", "permanent"),),
+    "reveal.until_find": (("duration", "until_event"),),
+    "selector.count": (("selector", "count:two_plus"),),
+    "selector.token": (("primitive", "create_token"),),
+    "choice.choose_object": (("primitive", "choose"),),
+    "choice.up_to": (("primitive", "choose"), ("selector", "up_to_n")),
+    "choice.cost": (("primitive", "pay"),),
+    "cost.exhaust_self": (("primitive", "exhaust"),),
+    "cost.recycle_cost": (("primitive", "recycle"),),
+    "cost.discard_cost": (("primitive", "discard"),),
+    "cost.banish_cost": (("primitive", "banish"),),
+    "cost.sacrifice": (("primitive", "kill"),),
+    "frequency.nth": (("trigger", "nth_time"),),
+    "frequency.limit": (("trigger", "frequency_only"),),
+}
 
 #: The CR keyword glossary, 805-829. All 25 appear in the gauntlet. The kind is
 #: the rules' own classification, and the kind IS the construct: eight passives,
@@ -546,16 +623,18 @@ TOKENS = {
 }
 
 #: Zones a script may name (CR 106-108), and locations on the board (CR 198).
-#: One name per census `zone:` atom and no more: a zone this vocabulary can
-#: write but the census never counted would be vocabulary nobody measured.
-#: `zone:top_of_deck` is deliberately absent — it is the deck plus a `position`,
-#: which is the shape the census's own `put(zone, position)` primitive has, and
-#: spelling it as a zone would give the vocabulary two ways to say one thing.
-ZONES = ("hand", "trash", "deck", "banishment", "champion", "board")
-LOCATIONS = ("base", "here", "battlefield", "location", "showdown")
+#: Every value a script may write, and every one of them an ACTIVE atom. This is
+#: where the vocabulary is closed: a reserved atom left reachable through an enum
+#: is a hole a compiler falls into, and `vocabulary_closure` in the selftest goes
+#: red if one appears. Values the cut did not reach and no shipped script needs —
+#: `at:showdown`, `type:ability`, `type:legend`, `zone:board`, `zone:banishment` —
+#: are absent rather than reserved-but-writable, so the closure holds without the
+#: vocabulary growing to hold them.
+ZONES = ("hand", "trash", "deck", "top_of_deck", "champion")
+LOCATIONS = ("base", "here", "battlefield", "location")
 SIDES = ("friendly", "enemy", "any")
 TYPES = ("unit", "gear", "spell", "rune", "battlefield", "token", "card",
-         "ability", "legend", "champion")
+         "champion")
 SEATS = ("you", "opponent", "each", "controller", "owner", "me")
 COMPARISONS = ("<", "<=", "=", ">=", ">")
 
@@ -653,6 +732,14 @@ class _Walk(object):
         #: rather than repeating it — `[Empowered][>] I have +1 {M}` says the
         #: state once, and so does the script.
         self.gated = 0
+        #: How many negations enclose the node being walked. Inside one, a
+        #: token spec NAMES A KIND rather than something to make — `another
+        #: non-Recruit unit` filters by what a Recruit is and creates
+        #: nothing — so its Might is not required and `create_token` is not
+        #: credited. Crediting it there would have a filter report itself as
+        #: token creation, which is the coverage number lying about what a
+        #: script does.
+        self.negated = 0
 
     def add(self, *a, **kw):
         self.errors.append(error(*a, **kw))
@@ -679,7 +766,8 @@ _EFFECTS = {
     "heal":        dict(req={"what": "selector"}, opt={}),
     "play":        dict(req={"what": "selector"},
                         opt={"n": "value", "to": "location", "from": "zone",
-                             "enters": "state", "cost": "costs", "ignoring": "cost_kind"}),
+                             "enters": "state", "cost": "costs", "ignoring": "cost_kind",
+                             "bind": "name"}),
     "move":        dict(req={"what": "selector"},
                         opt={"to": "location", "swap_with": "selector"}),
     "discard":     dict(req={"n": "value"}, opt={"seat": "seat", "what": "selector"}),
@@ -717,6 +805,10 @@ _EFFECTS = {
     "score":       dict(req={"n": "value"}, opt={"seat": "seat"}),
     "enter":       dict(req={"where": "location"}, opt={"what": "selector", "state": "state"}),
     "recall":      dict(req={"what": "selector"}, opt={}),
+    "empower":     dict(req={"what": "selector"}, opt={}),
+    "disempower":  dict(req={"what": "selector"}, opt={}),
+    "attach":      dict(req={"what": "selector", "to": "selector"}, opt={}),
+    "become_copy": dict(req={"what": "selector", "of": "selector"}, opt={}),
     "ignore":      dict(req={"affects": "cost_kind"}, opt={"of": "selector"}),
     "choose":      dict(req={"what": "selector"}, opt={"n": "value", "bind": "name"}),
 }
@@ -801,17 +893,22 @@ _ABILITY_ATOMS = {
 
 _SELECTOR_FIELDS = {
     "self": "bool", "side": "side", "type": "type", "at": "location",
-    "zone": "zone", "position": "position", "state": "state", "tag": "name",
-    "cost": "bound", "might": "bound", "keyword": "keyword", "token": "token",
+    "zone": "zone", "state": "state", "tag": "name",
+    "cost": "bound", "power": "bound", "might": "bound", "keyword": "keyword",
+    "token": "token",
     "another": "bool", "all": "bool", "count": "int", "up_to": "int",
     "any_number": "bool", "owner": "seat", "not": "selector", "rest": "bool",
     "bind": "name", "ref": "name", "targets": "bool", "n": "int",
 }
+# `position` is NOT a selector axis. The top of the deck is its own census
+# selector atom (`zone:top_of_deck`), so a selector says it as a zone; `position`
+# belongs to the primitives that put or look at a card AT one end of a deck.
 
 #: The selector field that carries each census selector atom.
 _SELECTOR_ATOM_OF = {
     "self": "self", "another": "another", "all": "all", "tag": "by_tag",
-    "cost": "by_cost", "might": "by_might", "keyword": "by_keyword",
+    "cost": "by_cost", "power": "by_cost", "might": "by_might",
+    "keyword": "by_keyword",
     "state": "by_state", "owner": "owner", "not": "negated",
     "any_number": "any_number", "up_to": "up_to_n",
 }
@@ -836,13 +933,17 @@ _CONDITIONS = {
     "has_played":           dict(req={"what": "selector"}, opt={"n": "int", "this_turn": "bool"}),
     "count_threshold":      dict(req={"what": "selector", "op": "comparison", "n": "int"}, opt={}),
     "empty":                dict(req={}, opt={"zone": "zone", "what": "selector", "seat": "seat"}),
+    "played_from":          dict(req={"zone": "zone"}, opt={"what": "selector"}),
+    "zone_of_object":       dict(req={"what": "selector"},
+                                 opt={"zone": "zone", "at": "location",
+                                      "negated": "bool"}),
     "has_keyword":          dict(req={"what": "selector", "keyword": "keyword"}, opt={"value": "int"}),
 }
 
 _TRIGGER_FIELDS = {
     "events": "events", "who": "who", "what": "selector", "where": "location",
     "condition": "condition", "frequency": "frequency", "keyword": "keyword",
-    "seat": "seat", "state": "state",
+    "seat": "seat", "state": "state", "zone": "zone",
 }
 
 #: CR 383.4.d.2 and 383.4.c.2: `When I hold` and `When you hold` are the same
@@ -969,6 +1070,12 @@ def _atom_or_reserved(name, table, category, path, w):
     return True
 
 
+def _compose(key, path, w):
+    """Credit every atom an active construct reaches through `key`."""
+    for category, atom in COMPOSED[key]:
+        _atom_or_reserved(atom, TABLES[category], category, path, w)
+
+
 def _enum_atom(value, table, category, path, w):
     if not isinstance(value, str):
         w.add("wrong_type", path, "expected a %s name" % category, token=repr(value))
@@ -1042,7 +1149,7 @@ def _token(value, path, w):
         if key not in allowed:
             w.add("unexpected_field", "%s.%s" % (path, key), "not a field of a token spec",
                   token=key, expected=allowed)
-    if kind == "unit" and not _is_int(value.get("might")):
+    if kind == "unit" and not _is_int(value.get("might")) and not w.negated:
         w.add("missing_field", "%s.might" % path, "a unit token prints a Might",
               expected=("might",), cite="CR:179")
     for i, kw in enumerate(value.get("keywords") or []):
@@ -1050,7 +1157,8 @@ def _token(value, path, w):
     if "state" in value:
         _enum(value["state"], "state", "%s.state" % path, w)
     w.atom("token", name)
-    w.atom("primitive", "create_token")
+    if not w.negated:
+        _compose("selector.token", path, w)
 
 
 def _keyword(value, path, w):
@@ -1128,7 +1236,7 @@ def _frequency(value, path, w):
     if value.get("per") not in ("turn", "game", "combat"):
         w.add("unknown_atom", "%s.per" % path, "not a frequency window",
               token=value.get("per"), expected=("turn", "game", "combat"))
-    w.atom("trigger", "nth_time" if named[0] == "nth" else "frequency_only")
+    _compose("frequency.%s" % named[0], path, w)
 
 
 def _selector(value, path, w):
@@ -1142,12 +1250,18 @@ def _selector(value, path, w):
             w.add("unexpected_field", "%s.%s" % (path, key),
                   "not a selector axis", token=key, expected=sorted(_SELECTOR_FIELDS))
             continue
-        _field(value[key], checker, "%s.%s" % (path, key), w)
+        if key == "not":
+            w.negated += 1
+        try:
+            _field(value[key], checker, "%s.%s" % (path, key), w)
+        finally:
+            if key == "not":
+                w.negated -= 1
         atom = _SELECTOR_ATOM_OF.get(key)
         if atom is not None:
             _atom_or_reserved(atom, SELECTORS, "selector", "%s.%s" % (path, key), w)
     if value.get("count") is not None and value["count"] >= 2:
-        _atom_or_reserved("count:two_plus", SELECTORS, "selector", "%s.count" % path, w)
+        _compose("selector.count", "%s.count" % path, w)
 
 
 def _condition(value, path, w):
@@ -1198,11 +1312,8 @@ def _cost(value, path, w):
             _field(value[key], checker, "%s.%s" % (path, key), w)
     # Seven of the thirteen cost forms are a game action in a cost position
     # (CR 355.10.c.1), so paying one exercises that action's primitive too.
-    for form, primitive in (("exhaust_self", "exhaust"), ("recycle_cost", "recycle"),
-                            ("discard_cost", "discard"), ("banish_cost", "banish"),
-                            ("sacrifice", "kill")):
-        if name == form:
-            w.atom("primitive", primitive)
+    if ("cost.%s" % name) in COMPOSED:
+        _compose("cost.%s" % name, path, w)
 
 
 def _effects(value, path, w):
@@ -1268,20 +1379,15 @@ def _effect_extras(name, node, path, w):
         # count and an argument in the script's: one clause, one node, both
         # atoms credited. The continuous form ("Friendly units enter ready this
         # turn") is the `enters_modified` ABILITY, which is a different thing.
-        _atom_or_reserved("enters_modified", REPLACEMENTS, "replacement",
-                          "%s.enters" % path, w)
-        _atom_or_reserved("enter", PRIMITIVES, "primitive", "%s.enters" % path, w)
+        _compose("play.enters", "%s.enters" % path, w)
     if name == "play" and "ignoring" in node:
-        _atom_or_reserved("ignoring_cost", REPLACEMENTS, "replacement",
-                          "%s.ignoring" % path, w)
-        _atom_or_reserved("ignore", PRIMITIVES, "primitive", "%s.ignoring" % path, w)
-        _atom_or_reserved("free", COSTS, "cost", "%s.ignoring" % path, w)
+        _compose("play.ignoring", "%s.ignoring" % path, w)
     if name == "buff":
         # CR 701-703: a Buff is a counter on a unit worth +1 Might, and it stays
         # until the unit leaves play. The census reads the word "buff" as the
         # `permanent` duration for exactly this reason, so buffing is how a
         # script says it.
-        _atom_or_reserved("permanent", DURATIONS, "duration", path, w)
+        _compose("buff", path, w)
     if name == "move":
         named = [k for k in ("to", "swap_with") if k in node]
         if len(named) != 1:
@@ -1315,7 +1421,7 @@ def _effect_extras(name, node, path, w):
         # CR 369.1's "until" — the census reads this clause's `until` as the
         # `until_event` duration, and it is the only shape in the gauntlet where
         # the ending event is a card being found rather than a phase arriving.
-        _atom_or_reserved("until_event", DURATIONS, "duration", "%s.until_find" % path, w)
+        _compose("reveal.until_find", "%s.until_find" % path, w)
     for key in ("until",):
         if node.get(key) == "until_event" and "event" not in node:
             w.add("missing_field", "%s.event" % path,
@@ -1338,11 +1444,9 @@ def _choice(node, path, w):
     # `choose_object` and `up_to` are the printed word "choose", which the
     # census counts in BOTH the choice table and the primitive table.
     if name in ("choose_object", "up_to"):
-        w.atom("primitive", "choose")
-    if name == "up_to":
-        _atom_or_reserved("up_to_n", SELECTORS, "selector", path, w)
+        _compose("choice.%s" % name, path, w)
     if "cost" in node:
-        w.atom("primitive", "pay")
+        _compose("choice.cost", "%s.cost" % path, w)
     # CR 355.10 is two pages of exceptions deciding whether a game object named
     # in card text is a TARGET: `Kill a unit at a battlefield` targets the unit,
     # `Kill all units at a battlefield` targets the battlefield. One selector

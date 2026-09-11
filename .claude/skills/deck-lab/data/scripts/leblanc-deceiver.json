@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "LeBlanc - Deceiver",
  "source": "manual",
+ "notes": "CR 477.1.b puts the copy in layer 1: the Reflection's copiable traits are REPLACED, so its printed 0 {M} is gone rather than added to. [Temporary] is granted after, in layer 2, and survives the copy.",
  "abilities": [
   {
    "kind": "triggered",
@@ -39,6 +40,7 @@
        "op": "play",
        "to": "here",
        "enters": "ready",
+       "bind": "clone",
        "cites": [
         "CR:419",
         "CR:179"
@@ -58,6 +60,22 @@
        ],
        "effect": [
         {
+         "op": "become_copy",
+         "cites": [
+          "CR:438"
+         ],
+         "what": {
+          "ref": "clone"
+         },
+         "of": {
+          "type": "unit",
+          "side": "any",
+          "at": "here",
+          "another": true,
+          "targets": true
+         }
+        },
+        {
          "op": "grant_keyword",
          "keyword": "Temporary",
          "until": "permanent",
@@ -66,9 +84,7 @@
           "CR:816"
          ],
          "what": {
-          "type": "token",
-          "side": "friendly",
-          "at": "here"
+          "ref": "clone"
          }
         }
        ]
@@ -86,18 +102,75 @@
   },
   {
    "text": "Then do this: It becomes a copy of another unit there.",
-   "status": "unsupported",
-   "reason": "`become_copy` (CR 438, 2 gauntlet clauses) is declared and outside the active cut, and CR 477.1.b makes copying a layer-1 trait replacement rather than a value assignment — so the Reflection is made, and stays a 0 {M} Reflection."
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[1].effect[0]"
   },
   {
    "text": "Give it [Temporary].",
    "status": "implemented",
-   "node": "abilities[0].effect[0].do[1]"
+   "node": "abilities[0].effect[0].do[1].effect[1]"
   }
  ],
  "tests": [
   {
-   "name": "a conquest buys a Temporary Reflection for a card and a tap",
+   "name": "the Reflection arrives as a copy of an ally standing there",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "choices": [
+    "yes",
+    "Mobilize",
+    "Ferrous Forerunner"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Ferrous Forerunner",
+     "n": 2
+    },
+    {
+     "expect": "keyword",
+     "card": "Ferrous Forerunner",
+     "seat": 0,
+     "keyword": "Temporary"
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "with nothing else there it stays a 0-Might Reflection",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -139,15 +212,9 @@
      "n": 1
     },
     {
-     "expect": "keyword",
+     "expect": "might",
      "card": "Reflection",
      "seat": 0,
-     "keyword": "Temporary"
-    },
-    {
-     "expect": "zone_count",
-     "seat": 0,
-     "zone": "hand",
      "n": 0
     }
    ]
@@ -190,5 +257,5 @@
    ]
   }
  ],
- "version": "sha256:4bf9e6ad5139847e"
+ "version": "sha256:e9caa560dd6bdc51"
 }

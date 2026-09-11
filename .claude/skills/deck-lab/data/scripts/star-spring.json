@@ -17,7 +17,10 @@
     "where": "here",
     "what": {
      "type": "unit",
-     "side": "any"
+     "side": "any",
+     "not": {
+      "type": "token"
+     }
     },
     "frequency": {
      "nth": 1,
@@ -51,14 +54,13 @@
  "clauses": [
   {
    "text": "The first time a player plays a non-token unit here each turn, they may move another unit they control here to its base.",
-   "status": "approx",
-   "node": "abilities[0]",
-   "reason": "`non-token` needs the `negated` selector atom (6 gauntlet clauses), which is declared and outside the active cut — so this script also triggers on a token unit, which the printed card does not."
+   "status": "implemented",
+   "node": "abilities[0]"
   }
  ],
  "tests": [
   {
-   "name": "the first unit here each turn offers a retreat",
+   "name": "the first non-token unit here each turn offers a retreat",
    "given": {
     "turn_player": 0,
     "phase": "main",
@@ -100,6 +102,49 @@
      "seat": 0,
      "card": "Cithria of Cloudfield",
      "at": "base",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "a token unit does not count as the first",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Star Spring"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Sprite Call"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Sprite Call",
+    "seat": 0,
+    "to": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Cithria of Cloudfield",
+     "at": "battlefield",
      "n": 1
     }
    ]
@@ -152,5 +197,5 @@
    ]
   }
  ],
- "version": "sha256:5e772402263b2328"
+ "version": "sha256:63fa4081225bc9cc"
 }

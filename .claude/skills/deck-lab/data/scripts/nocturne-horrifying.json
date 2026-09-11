@@ -2,6 +2,7 @@
  "schema": "riftbound-card-script/1",
  "card": "Nocturne - Horrifying",
  "source": "manual",
+ "notes": "The trigger fires from the top of the deck, which is its own census selector atom rather than the deck plus a position: a trigger has a zone, and `[A]` is CR 135.2.e.5's any-Domain Power.",
  "keywords": [
   {
    "keyword": "Ganking",
@@ -25,7 +26,7 @@
     "what": {
      "self": true
     },
-    "where": "base"
+    "zone": "top_of_deck"
    },
    "effect": [
     {
@@ -79,9 +80,8 @@
   },
   {
    "text": "As you look at or reveal me from the top of your deck, you may banish me.",
-   "status": "approx",
-   "node": "abilities[0]",
-   "reason": "the trigger's location is the top of the deck, and `zone:top_of_deck` is a reserved selector atom — this vocabulary spells that as a zone plus a position, which a TRIGGER has no field for. `where: base` is a stand-in the interpreter must not read literally."
+   "status": "implemented",
+   "node": "abilities[0]"
   },
   {
    "text": "If you do, you may play me for [A].",
@@ -192,5 +192,5 @@
    ]
   }
  ],
- "version": "sha256:831f6418b1befac7"
+ "version": "sha256:4ea9d7892c1ec21c"
 }
