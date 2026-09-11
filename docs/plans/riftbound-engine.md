@@ -220,6 +220,14 @@ is usable at 30% coverage; coverage is a metric, not a prerequisite.
 | 716–765 attachment, inactive, dependent keywords, extra turns, counters, choices, untargetability, naming, ignoring | `misc` | new |
 | 800–829 keywords (25) | `keywords` — DSL expansions citing their section | new |
 
+One constraint turned out to be load-bearing in the first slice and belongs here: **every
+loop over both players, and the placement of battlefields, runs in turn order** (303.2.a),
+never in seat order. Seat-ordered loops are invisible to a reader playing one game and
+fatal to the mirror-symmetry test. The seed fixes the shuffle, so chance is not a branch
+in this engine and there is no "probabilities sum to 1" invariant to check; the
+determinization primitive `apply_seed` is where randomness re-enters, and it is tested
+for consistency with the seat's observations instead.
+
 The primary test artifact is the **golden game**: a deck pair, a seed, a scripted
 answer for every decision request, and an asserted final state — Forge keeps its whole
 card-behaviour suite in essentially this form, and the same artifact serves as the
@@ -228,8 +236,8 @@ report the first mismatch, and *fix the general rule the mismatch exposed, never
 card*) and as the mutation-testing target. Beyond that, borrowed from chess engines
 (§5.7): a **legal-action perft** (reachable-state counts to depth d from canonical seeded boards, frozen as
 golden numbers), **golden playthroughs** (full serialized games from fixed seeds, diffed
-in CI), **conservation invariants** on every transition (card multiset conserved, chance
-probabilities sum to 1, points monotone and capped, chain LIFO), and the
+in CI), **conservation invariants** on every transition (card multiset conserved, no object in
+two zones, points monotone and capped, chain LIFO), and the
 **perfect-symmetry test**: same deck, same deterministic policy, mirrored seeds → the
 paired result must be *exactly* 50.00%. Any deviation is an asymmetry bug, not noise.
 
