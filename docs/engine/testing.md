@@ -367,8 +367,8 @@ unreachable with a reason.
 
 ## Throughput
 
-`engine bench` reports the numbers gate G4 reads. On one core of an M-series
-laptop, at the kernel's first slice:
+`engine bench` reports the numbers gate G4 reads, on one core of an M-series
+laptop.
 
 Measured **interleaved** — base and branch alternating on the same machine,
 nine rounds — because a number from one process and a number from another an
