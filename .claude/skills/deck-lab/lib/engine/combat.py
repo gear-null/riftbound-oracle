@@ -26,7 +26,7 @@ yet reach as well as the ones it can. Three shapes carry the weight:
   them, but the windows are real: `fepr_window` drains the Chain if there is
   anything on it, and `engine_combat` puts something there to watch it happen.
 """
-from . import chain, scoring
+from . import abilities, chain, replacements, scoring
 from .decisions import Option
 from .state import RulesError, loc_bf
 
@@ -102,7 +102,35 @@ def apply_designations(g):
         if unit["role"] != want:
             unit["role"] = want
             changed = True
+            if want is not None:
+                _designation_trigger(g, unit, want)
     return changed
+
+
+def _designation_trigger(g, unit, role):
+    """383.4.e/383.4.f: an Attack or Defend Trigger, checked once per combat.
+
+    383.4.e.2.a is the rule that makes this a record rather than a bare emit:
+    "these triggers will only have their condition checked once per combat,
+    despite a Unit being able to gain and lose the Attacker designation multiple
+    times in the same combat". 323.2 runs in every Cleanup and a unit that walks
+    out and back in gains the designation again, so without the record a single
+    combat fires the trigger as many times as the board wobbles.
+    """
+    s = g.s
+    key = "combat|%s|%s" % (unit["id"], role)
+    if key in s.used:
+        return
+    s.used[key] = 1
+    # Spelled as two literal emits rather than one conditional name, because
+    # `engine_abilities` scans this package for the events it raises and a name
+    # computed at runtime is a trigger event with no findable emitter.
+    if role == "attacker":
+        abilities.emit(g, "attack", oid=unit["id"], seat=unit["ctrl"],
+                       name=unit["name"], loc=unit["loc"])
+    else:
+        abilities.emit(g, "defend", oid=unit["id"], seat=unit["ctrl"],
+                       name=unit["name"], loc=unit["loc"])
 
 
 def strip_designations(g):
@@ -150,8 +178,15 @@ def bonus_damage(units):
 
 
 def damage_pool(s, units):
-    """What a side assigns: its summed Might (465.2.a-b) plus 712's bonus."""
-    return sum(s.might_of(u) for u in units) + bonus_damage(units)
+    """What a side assigns: its summed Might (465.2.a-b) plus 712's bonus.
+
+    423.1.b takes a Stunned Unit out of the SUM and leaves it in the combat: it
+    still holds its designation, still has to be assigned lethal damage, and
+    still needs its full Might to die (423.1.c). Removing it from the side
+    instead would make it untargetable, which is a different card.
+    """
+    return (sum(s.might_of(u) for u in units if not u["stunned"])
+            + bonus_damage(units))
 
 
 def minimum_lethal(s, unit, already=0):
@@ -511,9 +546,20 @@ def _deal(g):
 
     for oid, amount in onto_defenders + onto_attackers:
         unit = s.unit(oid)
-        unit["dmg"] += amount
+        # 370.1.c: the damage is a replaceable event, asked about before it is
+        # marked. 465.2.c.5 is the neighbouring rule and the reason this is the
+        # DEALT amount rather than the assignment: anything that modifies the
+        # resulting damage applies to the assignment, which `bonus_damage`
+        # already did; what is left to replace here is the dealing itself.
+        event = replacements.apply(g, {"ev": "damage", "oid": oid, "n": amount,
+                                       "seat": unit["ctrl"], "name": unit["name"]})
+        if event is None:
+            g.note("  the damage to %s [%s] was replaced (369)" % (unit["name"], oid),
+                   seat=unit["ctrl"])
+            continue
+        unit["dmg"] += event["n"]
         g.note("  %s [%s] takes %d damage (%d/%d)"
-               % (unit["name"], oid, amount, unit["dmg"], s.might_of(unit)),
+               % (unit["name"], oid, event["n"], unit["dmg"], s.might_of(unit)),
                seat=unit["ctrl"])
     # 465.3: skip the FEPR process and cancel any outstanding Tasks; proceed to
     # the Resolution Step. Killing the dead is 323.5, and happens in the Combat
@@ -585,13 +631,22 @@ def result_step(g, index):
     remaining = s.units_at(location)
     seats = set(u["ctrl"] for u in remaining)
 
+    winner = None
     if s.combat_recalled:
         result = "no result — attackers were repelled (466.3.d)"
     elif len(seats) == 1:
-        result = "seat %d wins the combat (466.3.a)" % next(iter(seats))
+        winner = next(iter(seats))
+        result = "seat %d wins the combat (466.3.a)" % winner
     else:
         result = "no result (466.3.d)"
     g.note("combat result at %s: %s" % (bf["name"], result))
+    if winner is not None:
+        # 466.3.a: there is a winner, and this is the moment there is one. The
+        # census's `win_combat` trigger is keyed here rather than at 466.7,
+        # because 466.5 and 466.7 both happen after it and an ability that reads
+        # the board would see a battlefield that has already changed hands.
+        abilities.emit(g, "win_combat", seat=winner, loc=location,
+                       bf=index, name=bf["name"])
 
     # 466.3.d.1: both sides still present after No Result re-stages the fight.
     # Unreachable in the vanilla slice — 3d recalls every attacker when any
@@ -646,6 +701,13 @@ def end_step(g, index):
     g.note("combat at %s ends; the Attacker and Defender designations are removed "
            "(466.7, 466.7.a)" % bf["name"])
     strip_designations(g)                                  # 466.7.a
+    # The two records that are scoped to ONE combat: 383.4.e.2.a's "once per
+    # combat" check and any continuous effect with a `this_combat` duration
+    # (census 5b). Both end here, with the combat that gave them meaning.
+    for key in [k for k in s.used if k.startswith("combat|") or k.endswith("|combat")]:
+        del s.used[key]
+    from . import layers
+    layers.expire(g, "this_combat")
     s.showdown = None
     # 313.5: the turn is back in a Neutral State, so nobody holds Focus, and the
     # Priority that came with it goes too.

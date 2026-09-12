@@ -719,8 +719,16 @@ MUTANTS = [
          expect="does not add an option to the original"),
     dict(name="shallow-copy the half-made choice, so a clone shares its list",
          file="engine/state.py",
-         find="    for key, value in copy.items():\n        if isinstance(value, list):\n            copy[key] = value[:]",
-         repl="    for key, value in copy.items():\n        if False:\n            copy[key] = value[:]",
+         find="""    if c is None:
+        return None
+    copy = dict(c)
+    for key, value in copy.items():
+        if isinstance(value, list):""",
+         repl="""    if c is None:
+        return None
+    copy = dict(c)
+    for key, value in copy.items():
+        if False:""",
          expect="shares no zone, object, chain item, task or log"),
     dict(name="determinize into the world the position is already holding",
          file="engine/game.py",
@@ -773,8 +781,8 @@ MUTANTS = [
          expect="surfacing trivial decisions"),
     dict(name="let a unit enter the board ready (359.2.c)",
          file="engine/chain.py",
-         find='        actions.put_into_play(g, seat, item["name"], item["loc"], True, "chain")',
-         repl='        actions.put_into_play(g, seat, item["name"], item["loc"], False, "chain")',
+         find='        unit = actions.put_into_play(g, seat, item["name"], item["loc"], True, "chain")',
+         repl='        unit = actions.put_into_play(g, seat, item["name"], item["loc"], False, "chain")',
          expect="enters the board exhausted"),
     dict(name="close a Showdown on a single pass (347.2.a)",
          file="engine/chain.py",
@@ -1023,8 +1031,9 @@ MUTANTS = [
          expect="no bonus at all, not a reduction"),
     dict(name="leave Bonus Damage out of what a side assigns (715)",
          file="engine/combat.py",
-         find="    return sum(s.might_of(u) for u in units) + bonus_damage(units)",
-         repl="    return sum(s.might_of(u) for u in units)",
+         find="""    return (sum(s.might_of(u) for u in units if not u["stunned"])
+            + bonus_damage(units))""",
+         repl='    return sum(s.might_of(u) for u in units if not u["stunned"])',
          expect="summed and applied once"),
     dict(name="charge Deflect to the controller of the deflecting unit (809.1.c)",
          file="engine/actions.py",
@@ -1394,6 +1403,351 @@ MUTANTS = [
          find='    ("hide",         "CR:421",  3,   8, False),',
          repl='    ("hide",         "CR:421",  3,   8, True),',
          expect="the active effect primitives are the census's 33 plus its promotions"),
+    # ---- the ability framework: presence, gates, Inactive (360-366, 720-733) ----
+    dict(name="let an ability apply from any zone, ignoring its presence",
+         file="engine/abilities.py",
+         find="""        if zone not in ability.presence and ANY not in ability.presence:
+            return""",
+         repl="""        if False:
+            return""",
+         expect="does not apply from a hand"),
+    dict(name="never let a keyword gate close",
+         file="engine/abilities.py",
+         find="    return gate is None or gate.met(g, src)",
+         repl="    return True",
+         expect="Inactive below N XP"),
+    dict(name="satisfy [Legion] with the card's own play",
+         file="engine/abilities.py",
+         find='            return len(played) > 1 or (len(played) == 1 and played[0] != src["name"])',
+         repl="            return bool(played)",
+         expect="its own play does not satisfy it"),
+    dict(name="read [Level N] as strictly more than N XP",
+         file="engine/abilities.py",
+         find="            return s.xp[seat] >= self.value",
+         repl="            return s.xp[seat] > self.value",
+         expect="the moment the controller reaches N XP"),
+    dict(name="ignore the Empowered status an [Empowered] ability gates on",
+         file="engine/abilities.py",
+         find='        return bool(src["unit"] and src["unit"]["empowered"])',
+         repl="        return False",
+         expect="turns on with the status it names"),
+    dict(name="stop recomputing the layers when XP is spent",
+         file="engine/actions.py",
+         find="""    g.note("seat %d spends %d XP -> %d (730.2)" % (seat, n, g.s.xp[seat]), seat=seat)
+    # 824.1.d: the Dependent Ability is Inactive as soon as the controller has
+    # less than N XP. Recomputed here, so "less than N" is true immediately and
+    # not one cleanup later.
+    _relayer(g)""",
+         repl='    g.note("seat %d spends %d XP -> %d (730.2)" % (seat, n, g.s.xp[seat]), seat=seat)',
+         expect="Inactive again as soon as they have less than N"),
+
+    # ---- triggered abilities (382-388) ---------------------------------
+    dict(name="let a `me` listener hear the same event on any object",
+         file="engine/abilities.py",
+         find="""        if self.who == "me":
+            return event.get("oid") == oid""",
+         repl="""        if self.who == "me":
+            return True""",
+         expect="ignores the same event on another object"),
+    dict(name="ignore a triggered ability's once-each-turn limit",
+         file="engine/abilities.py",
+         find="        return seen < n",
+         repl="        return True",
+         expect="does not trigger again once it has been performed"),
+    dict(name="make a \"the Nth time\" ability trigger every time",
+         file="engine/abilities.py",
+         find="    return seen + 1 == n",
+         repl="    return True",
+         expect="triggers on the Nth and not before"),
+    dict(name="perform a \"you may\" trigger without asking",
+         file="engine/abilities.py",
+         find='        if ability.optional and item["sub"] != "activated":',
+         repl="        if False:",
+         expect="asks an `optional` decision during finalization"),
+    dict(name="perform a \"you may\" trigger that its controller declined",
+         file="engine/abilities.py",
+         find='        if key[0] == "skip":',
+         repl="        if False:",
+         expect="declining removes it from the Chain"),
+    dict(name="pay a triggered ability's cost without offering the decline",
+         file="engine/abilities.py",
+         find="""            if item["sub"] != "activated":
+                # 404.2: players MAY decline to pay for a Triggered Ability that""",
+         repl="""            if False:
+                # 404.2: players MAY decline to pay for a Triggered Ability that""",
+         expect="asks a `cost` decision at finalization"),
+    dict(name="finalize a triggered ability whose cost cannot be paid",
+         file="engine/abilities.py",
+         find="            if not cost.payable(g, seat, src):",
+         repl="            if False:",
+         expect="whose cost is impossible leaves the Chain"),
+    dict(name="evaluate no trigger from an object that has left the board",
+         file="engine/abilities.py",
+         find="""    if leaving is not None:
+        pool.extend(leaving_sources(g, leaving))""",
+         repl="""    if False:
+        pool.extend(leaving_sources(g, leaving))""",
+         expect="already left the Board"),
+    dict(name="put simultaneous triggers on the chain in seat order",
+         file="engine/abilities.py",
+         find="        seat = next((x for x in s.turn_order()",
+         repl="        seat = next((x for x in (0, 1)",
+         expect="Turn Player's triggers go on the Chain first"),
+    dict(name="order one controller's simultaneous triggers for them",
+         file="engine/abilities.py",
+         find="        if len(mine) > 1:",
+         repl="        if False:",
+         expect="`order` decision, one at a time"),
+    dict(name="raise a Play Effect before the permanent has entered",
+         file="engine/chain.py",
+         find="""    if unit is None:
+        return
+    abilities.emit(g, "play_self", oid=unit["id"], seat=seat,""",
+         repl="""    if unit is not None:
+        return
+    abilities.emit(g, "play_self", oid=unit["id"], seat=seat,""",
+         expect="triggers after the permanent enters the Board"),
+    dict(name="stop raising the as-played event",
+         file="engine/chain.py",
+         find="""    abilities.emit(g, "as_played", oid=item["id"], seat=seat, name=name,
+                   kind=item["kind"])""",
+         repl="",
+         expect="is raised somewhere in the kernel"),
+
+    # ---- activated abilities (376-381, 398-406) ------------------------
+    dict(name="offer an activated ability on the opponent's turn",
+         file="engine/abilities.py",
+         find='        if src["seat"] != seat or seat != s.turn_player:',
+         repl='        if src["seat"] != seat:',
+         expect="not to the other seat, whose turn it is not"),
+    dict(name="offer an activated ability whose cost cannot be paid",
+         file="engine/abilities.py",
+         find="""        if cost is not None and not cost.payable(g, seat, src):
+            continue                                       # 402.3""",
+         repl="""        if False:
+            continue                                       # 402.3""",
+         expect="whose cost cannot be paid is not offered"),
+    dict(name="make an Add ability wait on the chain like a spell",
+         file="engine/chain.py",
+         find='    if item["kind"] == "ability" and abilities.by_key(item["abil"]).adds:',
+         repl="    if False:",
+         expect="as soon as it is finalized, without passing Priority"),
+
+    # ---- delayed, linked, unless-pays (389-397) ------------------------
+    dict(name="let a delayed ability die with its source",
+         file="engine/abilities.py",
+         find="""        if record["ev"] != event["ev"]:
+            continue""",
+         repl="""        if record["ev"] != event["ev"] or not any(
+                u["id"] == record["src_id"] for u in s.units):
+            continue""",
+         expect="even though its source has left the Board"),
+    dict(name="never spend a \"the next time\" delayed ability",
+         file="engine/abilities.py",
+         find="            s.delayed.remove(record)",
+         repl="            pass",
+         expect="window is spent by firing once"),
+    dict(name="let a linked ability touch anything on the board",
+         file="engine/abilities.py",
+         find='    return g.s.links.get(key, ())',
+         repl='    return tuple(u["id"] for u in g.s.units)',
+         expect="sees exactly what its set affected"),
+    dict(name="ask \"unless they pay\" of the ability's own controller",
+         file="engine/abilities.py",
+         find='        target = item["ctrl"] if seat == "you" else 1 - item["ctrl"]',
+         repl='        target = item["ctrl"]',
+         expect="asks a `cost` decision of THAT seat"),
+
+    # ---- replacement effects (367-375, 054) ----------------------------
+    dict(name="ignore the replacements of the object that is entering",
+         file="engine/abilities.py",
+         find="""        if ability.kind not in ("enters_modified", "as_enters", "instead", "would"):
+            continue""",
+         repl="""        if True:
+            continue""",
+         expect="would enter exhausted enters ready"),
+    dict(name="apply a replacement effect to an event more than once",
+         file="engine/replacements.py",
+         find="""        if src["key"] in applied:
+            continue                                       # 370.2""",
+         repl="""        if False:
+            continue                                       # 370.2""",
+         expect="applies ONCE to an event"),
+    dict(name="order replacement effects without can't beating can",
+         file="engine/replacements.py",
+         find='    out.sort(key=lambda x: (0 if x["ab"].forbids else 1,',
+         repl="    out.sort(key=lambda x: (0,",
+         expect="forbids is applied before one that permits"),
+    dict(name="ignore a replacement effect's once-each-turn limit",
+         file="engine/replacements.py",
+         find="    return g.s.used.get(_freq_key(src), 0) < n",
+         repl="    return True",
+         expect="applies to one event and not the next"),
+    dict(name="apply an Inactive replacement effect",
+         file="engine/replacements.py",
+         find="""        if not abilities.active(g, src):
+            continue                                       # 721.2""",
+         repl="""        if False:
+            continue                                       # 721.2""",
+         expect="Inactive Replacement Effect does not apply"),
+    dict(name="drop cost replacements from the total cost",
+         file="engine/actions.py",
+         find='    cost["energy"] = max(cost["energy"] + d_energy, 0)',
+         repl='    cost["energy"] = max(cost["energy"], 0)',
+         expect="a discount moves the component it names"),
+    dict(name="let \"ignoring its Energy cost\" zero the Power cost too",
+         file="engine/replacements.py",
+         find="""            ignore_energy = ignore_energy or which in ("energy", "all")
+            ignore_power = ignore_power or which in ("power", "all")""",
+         repl="""            ignore_energy = True
+            ignore_power = True""",
+         expect="naming one component zeroes only that one"),
+
+    # ---- layers (473-480) and the states they read ---------------------
+    dict(name="let a Might assignment win over the arithmetic layer",
+         file="engine/state.py",
+         find="""        base = unit["might"] if unit["setm"] is None else unit["setm"]
+        might = base + unit["buffs"] + unit["mod"]""",
+         repl="""        might = unit["might"] + unit["buffs"] + unit["mod"]
+        if unit["setm"] is not None:
+            might = unit["setm"]""",
+         expect="whatever order they were created in"),
+    dict(name="run the layers in the reverse of the order 477 lists",
+         file="engine/layers.py",
+         find="        for layer in LAYERS:",
+         repl="        for layer in reversed(LAYERS):",
+         expect="lands one sequence later"),
+    dict(name="apply Might decreases before increases",
+         file="engine/layers.py",
+         find='        return sorted(effects, key=lambda e: (0 if e["n"] >= 0 else 1, e["ts"]))',
+         repl='        return sorted(effects, key=lambda e: e["ts"])',
+         expect="increases are applied before decreases"),
+    dict(name="apply effects in a layer newest timestamp first",
+         file="engine/layers.py",
+         find="""        return sorted(effects, key=lambda e: (0 if e["n"] >= 0 else 1, e["ts"]))
+    return sorted(effects, key=lambda e: e["ts"])""",
+         repl="""        return sorted(effects, key=lambda e: (0 if e["n"] >= 0 else 1, e["ts"]))
+    return sorted(effects, key=lambda e: -e["ts"])""",
+         expect="the later one wins"),
+    dict(name="keep a passive's timestamp while it is Inactive",
+         file="engine/abilities.py",
+         find="    for gone in [k for k in s.stamps if k not in live]:",
+         repl="    for gone in []:",
+         expect="becoming Inactive loses it"),
+    dict(name="carry the arithmetic layer over from the last recomputation",
+         file="engine/layers.py",
+         find="""        unit["mod"] = 0
+        unit["kw"] = ()""",
+         repl='        unit["kw"] = ()',
+         expect="a single time however many sequences"),
+    dict(name="expire buffs with the \"this turn\" effects",
+         file="engine/layers.py",
+         find="""    for effect in gone:
+        s.effects.remove(effect)""",
+         repl="""    for effect in gone:
+        s.effects.remove(effect)
+        for unit in s.units:
+            unit["buffs"] = 0""",
+         expect="continuous effect expires and a Buff does not"),
+    dict(name="place a second buff on a unit that already has one",
+         file="engine/actions.py",
+         find='    if unit["buffs"]:',
+         repl="    if False:",
+         expect="second Buff is not placed"),
+    dict(name="let a stunned unit contribute its might to the damage step",
+         file="engine/combat.py",
+         find='    return (sum(s.might_of(u) for u in units if not u["stunned"])',
+         repl="    return (sum(s.might_of(u) for u in units)",
+         expect="contributes no Might to the Damage Step"),
+    dict(name="claim a decision kind the slice does not emit",
+         file="engine/decisions.py",
+         find="""EMITTED = ("mulligan", "main", "chain", "target", "assign_damage",
+           "optional", "order", "cost")""",
+         repl="""EMITTED = ("mulligan", "main", "chain", "target", "assign_damage",
+           "order", "cost")""",
+         expect="are declared as emitted"),
+    dict(name="leave the hand-built abilities attached after the soak",
+         file="engine/demo.py",
+         find="""    for name in _ATTACHED:
+        abilities.REGISTRY.pop(name, None)""",
+         repl="""    for name in []:
+        abilities.REGISTRY.pop(name, None)""",
+         expect="detaches again"),
+
+    # ---- what the review of #24 found (383.3.e.1, 315.1.b, 480.3, 391) ----
+    dict(name="count a \"once each turn\" ability only when it resolves",
+         file="engine/abilities.py",
+         find="""    _count_performed(g, item["src_id"], ability)
+    item["step"] = 6""",
+         repl="    item[\"step\"] = 6",
+         expect="does not trigger again once it has been performed"),
+    dict(name="let a second instance past a spent once-each-turn allowance",
+         file="engine/abilities.py",
+         find='    if not limit_ok(g, item["src_id"], ability):',
+         repl="    if False:",
+         expect="the cap is on performances"),
+    dict(name="ready everything at Awaken without performing a Ready action",
+         file="engine/turn.py",
+         find="""        for obj in readied:
+            actions.ready(g, obj["id"], quiet=True)""",
+         repl="""        for obj in readied:
+            obj["exh"] = False""",
+         expect="readies through the Ready action"),
+    dict(name="give a Timestamp only to the passives that alter a trait",
+         file="engine/abilities.py",
+         find="""    live = set()
+    for src in sources(g):
+        if not active(g, src):""",
+         repl="""    live = set()
+    for src in sources(g, kinds=("passive",)):
+        if not active(g, src):""",
+         expect="Timestamp order and not in the order they are found"),
+    dict(name="spend every delayed window on its first firing",
+         file="engine/abilities.py",
+         find='        if record["window"] == "next":',
+         repl="        if True:",
+         expect="fires every time its condition is met inside that window"),
+    dict(name="put simultaneous triggers on the chain in the order they triggered",
+         file="engine/abilities.py",
+         find='    record = next(t for t in s.trigs if t["id"] == trig_id)',
+         repl="    record = s.trigs[0]",
+         expect="goes on the Chain first and the other second"),
+    dict(name="deal combat damage without offering it to replacement effects",
+         file="engine/combat.py",
+         find="""        event = replacements.apply(g, {"ev": "damage", "oid": oid, "n": amount,
+                                       "seat": unit["ctrl"], "name": unit["name"]})""",
+         repl="""        event = {"ev": "damage", "oid": oid, "n": amount,
+                 "seat": unit["ctrl"], "name": unit["name"]}""",
+         expect="combat damage is a replaceable event"),
+    dict(name="satisfy [Legion] by counting plays instead of comparing them",
+         file="engine/abilities.py",
+         find='            return len(played) > 1 or (len(played) == 1 and played[0] != src["name"])',
+         repl="            return len(played) > 1",
+         expect="a comparison and not a count"),
+    dict(name="expire every continuous effect when one duration ends",
+         file="engine/layers.py",
+         find="""    gone = [e for e in s.effects
+            if e["until"] == duration""",
+         repl="""    gone = [e for e in s.effects
+            if True""",
+         expect="leaves the rest standing"),
+    dict(name="read lethal damage off a unit's printed Might (423.1.c)",
+         file="engine/combat.py",
+         find="    might = s.might_of(unit)",
+         repl='    might = unit["might"]',
+         expect="needs its full CURRENT Might"),
+    dict(name="score a mirrored pair from one of its two games",
+         file="engine/selftest.py",
+         find="""        wins[a.s.winner] += 1
+        wins[b.s.winner] += 1""",
+         repl="        wins[a.s.winner] += 1",
+         expect="split one win each"),
+    dict(name="let a discount move a component it does not name",
+         file="engine/actions.py",
+         find="""    cost["power"] = max(cost["power"] + d_power, 0)""",
+         repl="""    cost["power"] = max(cost["power"] + d_power + d_energy, 0)""",
+         expect="leaves the other one alone"),
+
 ]
 
 

@@ -22,7 +22,7 @@ hidden zone SIZES are untouched, and whose hidden cards have been redealt.
 """
 import deckfile
 
-from . import actions, chain, combat, rng, turn
+from . import abilities, actions, chain, combat, rng, turn
 from .decisions import Decision, Option, terminal
 from .state import (ENDING, MAIN, OVER, SETUP, RulesError, State, loc_base,
                     loc_bf, public_view, view)
@@ -164,13 +164,39 @@ class Game:
         if ("cleanup", "") not in self.s.tasks:
             self.s.tasks.insert(0, ("cleanup", ""))
 
+    def need_triggers(self):
+        """Make "put the abilities that triggered onto the Chain" outstanding.
+
+        At the FRONT, which is 334.2.a: a Task incurred partway through a
+        process pauses that process. A trigger raised while the Chain is
+        resolving has to reach the Chain before the next FEPR step reads it, or
+        it resolves a step late and under the wrong item.
+        """
+        if ("triggers", "") not in self.s.tasks:
+            self.s.tasks.insert(0, ("triggers", ""))
+
     def board_changed(self):
         """319.6: after any number of Game Objects enter or leave the Board."""
+        self._relayer()
         self.need_cleanup()
 
     def status_changed(self):
         """319.1/319.7: a state transition, or a status change."""
+        self._relayer()
         self.need_cleanup()
+
+    def _relayer(self):
+        """476, at the moments 319 says the board has changed.
+
+        A Cleanup is queued by the same two callers and recomputes the layers
+        too, so this looks redundant — and it is not. The Cleanup runs on the
+        NEXT tick, and between the two a rule reads a Might that a continuous
+        effect has already changed: a gate that opened when a card was finalized
+        (812.1.c) leaves its passive off for one FEPR step, which is exactly the
+        staleness `invariants._layers` reported across 78 of 120 soak games.
+        """
+        from . import layers
+        layers.recompute(self)
 
     # -- asking ----------------------------------------------------------
 
@@ -314,6 +340,14 @@ class Game:
                 options.append(Option(("move", unit["id"]),
                                       "standard move %s [%s]" % (unit["name"], unit["id"])))
 
+        # 376-381: an Activated Ability of something this seat controls. 381
+        # allows it only on the controlling player's turn and during an Open
+        # State, which is what this decision is, and `activatable` refuses one
+        # whose cost cannot be paid (402.3) rather than offering it and failing.
+        for src in abilities.activatable(self, seat):
+            options.append(Option(("use", src["oid"]) + tuple(src["key"]),
+                                  "use %s: %s" % (src["name"], src["ab"].label())))
+
         # 316.9: a player who has no more Discretionary Actions they wish to
         # execute must indicate they are ending their turn.
         options.append(Option(("end",), "end the turn (316.9)"))
@@ -357,6 +391,27 @@ class Game:
             s.choosing = None
             turn.open_showdown(self, key[1], as_combat)
             self.need_cleanup()
+        elif kind == "optional" and what == "finalize_may":
+            # 383.3.a / 402.1: the "you may" a Triggered Ability asks during
+            # finalization. Declining removes it from the Chain (402.1.a).
+            item = next(c for c in s.chain if c["id"] == s.choosing["item"])
+            abilities.resume_finalize(self, item, key)
+        elif kind == "cost" and what == "finalize_cost":
+            # 404.2: a player may decline to pay for a Triggered Ability that
+            # has incurred a cost, and the ability then leaves the Chain.
+            item = next(c for c in s.chain if c["id"] == s.choosing["item"])
+            abilities.resume_finalize(self, item, key)
+        elif kind == "cost" and what == "unless_pays":
+            choice = s.choosing
+            s.choosing = None
+            abilities.finish_unless(self, choice, key)
+        elif kind == "order" and what == "order_triggers":
+            # 383.3.d: the controller of simultaneously triggered abilities
+            # chooses the order they go on the Chain, one at a time. The Task is
+            # re-queued so the rest of them are asked about too.
+            s.choosing = None
+            abilities.trigger_to_chain(self, key[1])
+            self.need_triggers()
         elif kind == "assign_damage":
             # 465.2.c, one target at a time. The continuation lives in `combat`
             # because the state it is half-way through building is combat's.
@@ -392,6 +447,8 @@ class Game:
                      [Option(("to", d), "move %s to %s" % (unit["name"], where(s, d)))
                       for d in self._move_destinations(unit)],
                      prompt="where does %s move? (144.4)" % unit["name"])
+        elif key[0] == "use":
+            abilities.activate(self, seat, key[1], (key[2], key[3]))
         elif key[0] == "end":
             self.note("seat %d ends their Main Phase (316.9)" % seat, seat=seat)
             turn.enter_phase(self, ENDING)

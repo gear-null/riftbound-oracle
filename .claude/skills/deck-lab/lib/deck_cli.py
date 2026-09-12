@@ -649,7 +649,7 @@ def cmd_engine(args):
         return 1 if problems else 0
 
     if what == "soak":
-        return _engine_soak(args.games, args.check)
+        return _engine_soak(args.games, args.check, args.abilities)
 
     if what == "bench":
         return _engine_bench(args.games or 200)
@@ -658,29 +658,48 @@ def cmd_engine(args):
     return 1
 
 
-def _engine_soak(games, check_invariants=False):
-    """Random vs random across gauntlet pairs. Every game must end by a rule."""
+def _engine_soak(games, check_invariants=False, with_abilities=False):
+    """Random vs random across gauntlet pairs. Every game must end by a rule.
+
+    `--abilities` swaps the deck sweep for the fixture pair with `engine/demo.py`'s
+    hand-built abilities attached: triggers, an activated ability, a gated
+    passive, a delayed ability and two replacement effects, played out a thousand
+    times. It is the only instrument that plays WHOLE GAMES with card text in
+    them, so a framework that deadlocks or leaves a Pending Item on the Chain has
+    nowhere else to show up.
+    """
     import collections
     import time
-    from engine import policies
+    from engine import demo, fixtures, policies
     from engine.game import Game
     paths = deckfile.available()
     total = games or 1000
     ends = collections.Counter()
     failures = []
     turns = 0
+    if with_abilities:
+        demo.attach()
+        print(f"  {len(demo.CARDS)} fixture card(s) carry hand-built abilities")
     start = time.time()
-    for i in range(total):
-        a = deckfile.load(paths[i % len(paths)])
-        b = deckfile.load(paths[(i * 7 + 3) % len(paths)])
-        game = Game.new(a, b, seed=i, hash_log=False, invariants=check_invariants)
-        try:
-            policies.play(game, policies.random_pair(i))
-        except Exception as err:                       # noqa: BLE001 — reported
-            failures.append(f"seed {i}: {a.name} vs {b.name}: {err}")
-            continue
-        turns += game.s.turn
-        ends[game.s.end_reason] += 1
+    try:
+        for i in range(total):
+            if with_abilities:
+                a, b = fixtures.pair()
+            else:
+                a = deckfile.load(paths[i % len(paths)])
+                b = deckfile.load(paths[(i * 7 + 3) % len(paths)])
+            game = Game.new(a, b, seed=i, hash_log=False, invariants=check_invariants)
+            try:
+                policies.play(game, policies.random_pair(i))
+            except Exception as err:                   # noqa: BLE001 — reported
+                failures.append(f"seed {i}: {a.name} vs {b.name}: {err}")
+                continue
+            turns += game.s.turn
+            ends[game.s.end_reason] += 1
+    finally:
+        # Always. The registry is module-global card data, so a soak that left
+        # its fixtures attached would move every perft and golden run after it.
+        demo.detach()
     elapsed = time.time() - start
     unnamed = [r for r in ends if not r]
     print(f"  {sum(ends.values())}/{total} games finished in {elapsed:.1f}s "
@@ -780,7 +799,8 @@ def cmd_help(args):
                                for every commit: perft (legal-action counts against
                                frozen goldens, --divide to bisect, --board, --depth),
                                golden (replay the recorded playthroughs), soak
-                               (--games of random self-play, --check for invariants),
+                               (--games of random self-play, --check for
+                               invariants, --abilities for the hand-built set),
                                bench (clones, decisions and games per second).
                                --write refreezes a golden — only after a rule changed
   selftest                     regression harness, table and engine
@@ -858,6 +878,7 @@ def main(argv=None):
     p.add_argument("--depth", type=int); p.add_argument("--board")
     p.add_argument("--games", type=int); p.add_argument("--divide", action="store_true")
     p.add_argument("--write", action="store_true"); p.add_argument("--check", action="store_true")
+    p.add_argument("--abilities", action="store_true")
     sub.add_parser("selftest")
     sub.add_parser("mutants")
     sub.add_parser("help")

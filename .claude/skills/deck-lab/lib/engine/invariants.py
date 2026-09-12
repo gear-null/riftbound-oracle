@@ -27,6 +27,7 @@ def check(game):
     _locations(game, bad)
     _turn_state(game, bad)
     _designations(game, bad)
+    _layers(game, bad)
     return bad
 
 
@@ -58,7 +59,11 @@ def _cards_conserved(game, bad):
         found.update(s.banished[seat])
         found.update(s.champion[seat])
         found.update(u["name"] for u in s.units if u["owner"] == seat)
-        found.update(c["name"] for c in s.chain if c["ctrl"] == seat)
+        # 401.1: an Ability on the Chain "will not have a card representing it",
+        # so its item's `name` is the name of its SOURCE and counting it would
+        # find a second copy of a card that is standing on the board.
+        found.update(c["name"] for c in s.chain
+                     if c["ctrl"] == seat and c["kind"] != "ability")
         if found != expected:
             missing = expected - found
             extra = found - expected
@@ -184,6 +189,32 @@ def _designations(game, bad):
         if unit["role"] != want:
             bad.append("%s [%s] is designated %r and 323.2 says it should be %r"
                        % (unit["name"], unit["id"], unit["role"], want))
+
+
+def _layers(game, bad):
+    """476: the derived traits are exactly what a fresh recomputation produces.
+
+    `setm`, `mod` and `kw` are caches, and a cache nobody checks is a second
+    source of truth. This is the invariant that makes them safe: if any rule has
+    written one by hand, or `recompute` has been skipped after an effect was
+    created, a recomputation moves them and this says which unit.
+    """
+    from . import layers
+    s = game.s
+    if not s.units:
+        return
+    before = [(u["id"], u["setm"], u["mod"], u["kw"], u["ctrl"]) for u in s.units]
+    # On a COPY. An invariant that repairs what it is checking is not an
+    # invariant: running the recomputation on the live state would leave a game
+    # played with `invariants=True` in a different position from the same game
+    # played without, and every golden would depend on which way it was run.
+    spare = game.clone()
+    layers.recompute(spare)
+    after = [(u["id"], u["setm"], u["mod"], u["kw"], u["ctrl"]) for u in spare.s.units]
+    for was, now in zip(before, after):
+        if was != now:
+            bad.append("%s's layered traits are stale: %r, recomputed %r (476)"
+                       % (was[0], was[1:], now[1:]))
 
 
 def _turn_state(game, bad):

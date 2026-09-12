@@ -17,7 +17,7 @@ code and each step carries its rule id.
 """
 import cards
 
-from . import actions, scoring
+from . import abilities, actions, layers, scoring
 from .state import (AWAKEN, BASE, BEGINNING, CHANNEL, DRAW, ENDING, MAIN,
                     RulesError, loc_base, loc_bf, new_battlefield)
 
@@ -86,9 +86,11 @@ def enter_phase(g, phase):
     if phase == AWAKEN:
         queued = [("awaken", None)]
     elif phase == BEGINNING:
-        # 315.2.a Beginning Step (start-of-phase effects — none in vanilla),
-        # 315.2.b Scoring Step.
-        queued = [("hold", None)]
+        # 315.2.a Beginning Step, then 315.2.b Scoring Step. The Beginning Step
+        # is where 383.1's "at" conditions sit — "at the beginning of your turn"
+        # is a Triggered Ability, so the step raises the event and the Scoring
+        # Step follows it.
+        queued = [("beginning_step", None), ("hold", None)]
     elif phase == CHANNEL:
         queued = [("channel", None)]
     elif phase == DRAW:
@@ -98,8 +100,11 @@ def enter_phase(g, phase):
         queued = [("empty_pools", None)]
     elif phase == ENDING:
         # 317.1 Ending Step, then 317.2 Expiration Step, which invokes an Ending
-        # Special Cleanup with three inserted steps.
-        queued = [("cleanup", "ending")]
+        # Special Cleanup with three inserted steps. The Ending Step is a Task of
+        # its own because 383.1's "at the end of this turn" fires in it — and it
+        # has to fire BEFORE 317.2.d retires the window that created it, which is
+        # what raising the event inside the Expiration Cleanup got backwards.
+        queued = [("ending_step", None), ("cleanup", "ending")]
 
     # 319.2: a Cleanup becomes an Outstanding Task after the game transitions
     # between phases. It goes after the phase's own Tasks: the transition is
@@ -125,6 +130,14 @@ def begin_turn(g):
     for bf in s.battlefields:
         # 470 is per turn: the record of who has scored what resets here.
         bf["scored"] = []
+    # 371.1 and 383.3.e.1 both count "each turn", and 812.1.c asks what you have
+    # played "on the same turn". Both records start the turn empty.
+    s.used = dict((k, v) for k, v in s.used.items() if not k.endswith("|turn"))
+    s.played = [[], []]
+    # 812.1.c again, in the other direction: emptying that record closes every
+    # Legion gate, and 727.1.b makes the Dependent Ability Inactive the moment
+    # the Condition stops holding — not at the first Cleanup of the new turn.
+    layers.recompute(g)
     enter_phase(g, AWAKEN)
 
 
@@ -161,15 +174,36 @@ def run_task(g, name, arg):
     elif name == "begin_game":
         # 118: begin play with the First Player taking their turn.
         begin_turn(g)
+    elif name == "ending_step":
+        # 317.1 / 383.1: the point in the turn sequence an "at the end of this
+        # turn" ability names.
+        abilities.emit(g, "end_of_turn", seat=seat, turn=s.turn)
+    elif name == "beginning_step":
+        # 315.2.a / 383.1: the point in the turn sequence an "at the beginning
+        # of" ability names. `who` on the trigger is what tells a "your turn"
+        # ability from an "each turn" one; the event carries the Turn Player.
+        abilities.emit(g, "beginning_phase", seat=seat, turn=s.turn)
     elif name == "awaken":
         # 315.1.b: the Turn Player readies all Game Objects they control.
         readied = [o for o in (s.units + s.runes) if o["ctrl"] == seat and o["exh"]]
+        # Through `actions.ready`, quietly. 315.1.b readies them as a group and
+        # one summary line is the right log, but each one is still a Ready
+        # action (415) — and setting `exh` here directly meant the `readied`
+        # event was never raised, so "when I am readied" could not fire at the
+        # one moment of the turn that readies anything.
         for obj in readied:
-            obj["exh"] = False
+            actions.ready(g, obj["id"], quiet=True)
         g.note("awaken: seat %d readies %d object(s) (315.1.b)" % (seat, len(readied)),
                seat=seat)
         if readied:
             g.status_changed()
+    elif name == "triggers":
+        # 383.3: abilities that have triggered go onto the Chain. An Outstanding
+        # Task and not a step of FEPR, because 334.2.a is exactly this: a Task
+        # incurred partway through a process pauses it, and a trigger raised
+        # while the Chain is resolving has to reach the Chain before the next
+        # FEPR step reads it.
+        abilities.put_triggers_on_chain(g)
     elif name == "hold":
         # 315.2.b.2: the Turn Player Holds all Battlefields they Control.
         scoring.hold_all(g, seat)
@@ -280,6 +314,12 @@ def cleanup_once(g, special=""):
     """One Cleanup, in the order rule 323 lists its tasks. True if it changed anything."""
     s = g.s
     changed = False
+
+    # 473-480 before anything reads a trait. 319 makes a Cleanup outstanding
+    # after every state change, so recomputing here is what makes a continuous
+    # effect continuous: 323.5's lethal check two lines below compares damage
+    # against a Might that the layers have already produced.
+    layers.recompute(g)
 
     # 323.1 (1). The victory check.
     actions.check_victory(g, "323.1")
@@ -451,8 +491,20 @@ def _ending_inserts(g):
     if healed:
         g.note("end of turn: healed %d unit(s) (317.2.b)" % len(healed))
         changed = True
-    # 3d: "this turn" effects. The vanilla kernel creates none, so there is
-    # nothing to expire — said out loud rather than left as a silent hole.
+    # 3d: all "this turn" effects expire. Three separate things end here, and
+    # each is a rule of its own: a continuous effect with a `this_turn` duration
+    # (477), a Delayed Ability whose window was this turn (391), and the Stunned
+    # status, which 423.1.a.2 names this exact step for.
+    if layers.expire(g, "this_turn"):
+        changed = True
+    if abilities.retire_delayed(g, "this_turn"):
+        changed = True
+    stunned = [u for u in s.units if u["stunned"]]
+    for unit in stunned:                                   # 423.1.a.2
+        unit["stunned"] = False
+    if stunned:
+        g.note("end of turn: %d unit(s) stop being Stunned (423.1.a.2)" % len(stunned))
+        changed = True
     for seat in s.turn_order():                            # 3e
         if s.energy[seat] or s.power[seat]:
             actions.empty_pool(g, seat)

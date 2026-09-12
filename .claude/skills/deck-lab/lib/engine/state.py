@@ -83,7 +83,42 @@ def new_unit(oid, name, controller, location, exhausted):
         #: 712-715: Bonus Damage granted to the Deal action this unit's combat
         #: damage is part of.
         "bonus": 0,
+        #: 423: a binary state. A Stunned Unit contributes no Might to the
+        #: Damage Step (423.1.b) and still needs its FULL Might in damage to die
+        #: (423.1.c), which is why this is a flag and not a Might modifier.
+        "stunned": False,
+        #: 441: the other binary state, and the condition the [Empowered]
+        #: dependent keyword gates on (828.1.c).
+        "empowered": False,
+        #: The three fields below are DERIVED — `layers.recompute` owns them and
+        #: nothing else may write them. They are cached on the unit rather than
+        #: computed per read because `might_of` is the hottest query in combat,
+        #: and they are in `canonical()` because `invariants` asserts a fresh
+        #: recomputation reproduces them exactly.
+        #:
+        #: 477.1.a.1: Might ASSIGNED by a trait-altering effect, or None.
+        "setm": None,
+        #: 477.3: the arithmetic layer's total for this unit.
+        "mod": 0,
+        #: 477.2: keywords GRANTED to this unit, as a sorted tuple of
+        #: (name, value) pairs. A tuple because `dict(u)` copies it by
+        #: reference and it must never be mutable.
+        "kw": (),
     }
+
+
+def granted(unit, keyword):
+    """477.2/807.2: how much of `keyword` this unit has been granted.
+
+    Granted instances SUM on top of the printed one (807.2, 814.2, 809.2), so
+    this returns the granted total and every caller adds the printed field
+    itself. A boolean keyword grants 1.
+    """
+    total = 0
+    for name, value in unit["kw"]:
+        if name == keyword:
+            total += value
+    return total
 
 
 def new_rune(oid, name, controller, exhausted):
@@ -134,6 +169,8 @@ class State:
         "chain", "priority", "passes", "showdown", "resolve_now",
         "tasks", "choosing", "pending", "next_id", "cleanups", "combat_recalled",
         "combat_attacker",
+        "xp", "played", "effects", "delayed", "trigs", "used", "links",
+        "stamp", "stamps",
     )
 
     def __init__(self):
@@ -194,6 +231,39 @@ class State:
         #: How many cleanups have run back to back without the state settling
         #: (322). A bound, so a rule that fights itself is a loud failure.
         self.cleanups = 0
+        #: 729-733: XP, per seat. Public Information (729.2), and the value the
+        #: [Level N] dependent keyword gates on (824.1.c).
+        self.xp = [0, 0]
+        #: 812.1.c: what each seat has FINALIZED this turn, in order. [Legion]
+        #: is short for "if you have played another card this turn", and the
+        #: gate needs the names to tell "another" from "this one".
+        self.played = [[], []]
+        #: Continuous effects created by something resolving (473-480). Each is
+        #: a dict of primitives with a layer, a timestamp and a duration; the
+        #: ones a PASSIVE ability contributes are not stored here, they are
+        #: re-derived every recomputation so a gate that turns off stops them.
+        self.effects = []
+        #: 389-392: Delayed Abilities waiting for their window. Kept on the
+        #: state and not on their source, because 392 says they execute whether
+        #: the source is still on the board or not.
+        self.delayed = []
+        #: 383.3: Triggered Abilities that have triggered and are waiting to be
+        #: put on the Chain. Ordered by their controller (383.3.d) and across
+        #: seats in Turn Order (383.3.d.1) when the `triggers` Task runs.
+        self.trigs = []
+        #: 371/383.3.e: how many times each "once each turn"/"N times each
+        #: turn" ability has been applied, keyed by a string. Cleared per turn.
+        self.used = {}
+        #: 394-397: which Game Objects each Linked Ability set has affected,
+        #: keyed by "<source>#<link name>". 397 forbids a component from
+        #: touching anything outside this record.
+        self.links = {}
+        #: 480.1: the monotone counter Timestamps are drawn from, and the
+        #: Timestamp of each currently-active passive contribution. 480.2 is why
+        #: `stamps` is a dict that entries LEAVE: text that becomes Inactive
+        #: loses its Timestamp and gets a new one when it comes back.
+        self.stamp = 0
+        self.stamps = {}
 
     # -- copying ---------------------------------------------------------
 
@@ -240,6 +310,15 @@ class State:
         s.pending = _copy_pending(self.pending)
         s.next_id = self.next_id
         s.cleanups = self.cleanups
+        s.xp = self.xp[:]
+        s.played = [self.played[0][:], self.played[1][:]]
+        s.effects = [_copy_effect(e) for e in self.effects]
+        s.delayed = [dict(d) for d in self.delayed]
+        s.trigs = [dict(t) for t in self.trigs]
+        s.used = dict(self.used)
+        s.links = dict(self.links)
+        s.stamp = self.stamp
+        s.stamps = dict(self.stamps)
         return s
 
     # -- queries ---------------------------------------------------------
@@ -285,21 +364,25 @@ class State:
         return set(u["ctrl"] for u in self.units_at(loc_bf(index)))
 
     def might_of(self, unit):
-        """Printed Might, plus buffs (703), plus Assault or Shield (807, 814).
+        """Might after the layers, plus buffs (703), plus Assault or Shield.
 
-        Damage does not reduce Might. Assault and Shield are conditional on the
-        unit's DESIGNATION and not on which side of the battlefield it happens
-        to be standing: 807.1.d and 814.1.d both say "being an attacker means
-        the Unit has gained the Attacker designation", and 807.1.d.1 keeps it in
-        effect exactly as long as the designation lasts. Reading the designation
-        is therefore the whole of the difference between a Shield 1 unit that
-        survives a combat and one that does not.
+        The layer order of 477 is applied by `layers.recompute`, which caches
+        its two results on the unit: `setm` is layer 1's ASSIGNMENT of Might
+        (477.1.a.1) and `mod` is layer 3's arithmetic total (477.3). Reading
+        them here rather than recomputing is what keeps this the cheap query it
+        has to be; `invariants` asserts a fresh recomputation reproduces both.
+
+        A buff is NOT a layer-3 effect. 702 makes it a counter on the unit and
+        703 gives each one +1 Might, so it survives every "this turn" expiry and
+        goes away only when the unit leaves play (705) — which is the whole of
+        the difference between `buff` and `give_might`.
         """
-        might = unit["might"] + unit["buffs"]
+        base = unit["might"] if unit["setm"] is None else unit["setm"]
+        might = base + unit["buffs"] + unit["mod"]
         if unit["role"] == "attacker":
-            might += unit["assault"]
+            might += unit["assault"] + granted(unit, "assault")
         elif unit["role"] == "defender":
-            might += unit["shield"]
+            might += unit["shield"] + granted(unit, "shield")
         return might
 
     def is_mighty(self, unit):
@@ -371,13 +454,15 @@ class State:
             tuple((u["id"], u["name"], u["ctrl"], u["owner"], u["loc"],
                    u["exh"], u["dmg"], u["buffs"], u["role"], u["tank"],
                    u["backline"], u["assault"], u["shield"], u["deflect"],
-                   u["bonus"]) for u in self.units),
+                   u["bonus"], u["stunned"], u["empowered"], u["setm"],
+                   u["mod"], u["kw"]) for u in self.units),
             tuple((r["id"], r["name"], r["ctrl"], r["exh"]) for r in self.runes),
             tuple((b["i"], b["name"], b["by"], b["ctrl"], b["contested"],
                    b["contested_by"], tuple(b["scored"]), b["sd_staged"],
                    b["cb_staged"]) for b in self.battlefields),
             tuple((c["id"], c["ctrl"], c["name"], c["kind"], c["pending"],
-                   c["loc"]) for c in self.chain),
+                   c["loc"], c.get("abil"), c.get("src_id", ""),
+                   c.get("ev")) for c in self.chain),
             None if self.showdown is None else (
                 self.showdown["bf"], self.showdown["combat"],
                 self.showdown["focus"], self.showdown["passes"],
@@ -386,6 +471,18 @@ class State:
             tuple(self.tasks),
             tuple(sorted(self.choosing.items())) if self.choosing else None,
             tuple(self.seat_rng), self.shared_rng,
+            # The ability framework's records. A position with a Delayed
+            # Ability waiting on it is not the position without one, and a
+            # hash that cannot tell them apart makes a golden replay agree
+            # with a game that lost its delayed triggers.
+            tuple(self.xp),
+            tuple(tuple(z) for z in self.played),
+            tuple(_flat(e) for e in self.effects),
+            tuple(_flat(d) for d in self.delayed),
+            tuple(_flat(t) for t in self.trigs),
+            tuple(sorted(self.used.items())),
+            tuple(sorted(self.links.items())),
+            self.stamp, tuple(sorted(self.stamps.items())),
         )
 
     def hash(self):
@@ -403,6 +500,34 @@ def _copy_bf(b):
     c = dict(b)
     c["scored"] = b["scored"][:]
     return c
+
+
+def _copy_effect(e):
+    """A continuous effect, with anything mutable in it copied.
+
+    Written over the values rather than over a list of known keys, for the same
+    reason `_copy_choice` is: an effect grows a field each time a new layer
+    operation is added, and a copy that knows the field names is a copy that
+    silently stops being deep the next time one appears.
+    """
+    copy = dict(e)
+    for key, value in copy.items():
+        if isinstance(value, list):
+            copy[key] = value[:]
+        elif isinstance(value, dict):
+            copy[key] = dict(value)
+    return copy
+
+
+def _flat(record):
+    """One ability-framework record as a sorted tuple of primitives.
+
+    Sorted by key rather than by insertion order, for the reason `canonical`
+    exists at all: a hash that depends on the order the fields were written
+    compares two positions by how they were built instead of by what they are.
+    """
+    return tuple(sorted(
+        (k, tuple(v) if isinstance(v, list) else v) for k, v in record.items()))
 
 
 def _copy_pending(p):
@@ -494,6 +619,12 @@ def view(state, seat):
     def public(s):
         return {
             "points": state.points[s],
+            # 729.2: the amount of XP a player has is Public Information.
+            "xp": state.xp[s],
+            # 812.3: whether a Legion ability is live is a characteristic other
+            # effects may check, so what each seat has played this turn is as
+            # public as the cards themselves were when they were played.
+            "played": state.played[s][:],
             "energy": state.energy[s],
             "power": dict(state.power[s]),
             "trash": state.trash[s][:],
@@ -523,4 +654,10 @@ def view(state, seat):
         "battlefields": [_copy_bf(b) for b in state.battlefields],
         "chain": [dict(c) for c in state.chain],
         "showdown": dict(state.showdown) if state.showdown else None,
+        # 473-480 and 389-392. A continuous effect and a Delayed Ability are
+        # both things every player can see, and a policy that cannot see the
+        # "+2 Might until end of turn" on the board is playing a different game
+        # from the one the engine is running.
+        "effects": [_copy_effect(e) for e in state.effects],
+        "delayed": [dict(d) for d in state.delayed],
     }
