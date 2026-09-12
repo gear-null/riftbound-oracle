@@ -1,0 +1,142 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Abandoned Hall",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_other"
+    ],
+    "who": "any",
+    "what": {
+     "type": "spell",
+     "side": "any"
+    }
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "seat": "controller",
+     "do": [
+      {
+       "op": "give_might",
+       "n": 1,
+       "until": "this_turn",
+       "cites": [
+        "CR:477"
+       ],
+       "what": {
+        "type": "unit",
+        "side": "friendly",
+        "at": "here",
+        "targets": true
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When a player plays a spell, they may give a unit they control here +1 :rb_might: this turn.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "either player's spell offers that player the buff",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Abandoned Hall"
+    ],
+    "seats": [
+     {
+      "seat": 0
+     },
+     {
+      "seat": 1,
+      "hand": [
+       "Mobilize"
+      ],
+      "energy": 2,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Mobilize",
+    "seat": 1
+   },
+   "choices": [
+    "yes",
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Lecturing Yordle",
+     "seat": 1,
+     "n": 3
+    }
+   ]
+  },
+  {
+   "name": "the buff reaches only units at this battlefield",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Abandoned Hall"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mobilize"
+      ],
+      "energy": 2,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Mobilize",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Lecturing Yordle",
+     "seat": 0,
+     "n": 2
+    }
+   ]
+  }
+ ],
+ "version": "sha256:f3b0c8446088981d"
+}

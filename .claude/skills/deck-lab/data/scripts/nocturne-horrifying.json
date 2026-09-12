@@ -1,0 +1,251 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Nocturne - Horrifying",
+ "source": "manual",
+ "notes": "`play ... for [A]` REPLACES the printed cost (CR 356.1.a); it does not charge one Power on top of four Energy. The cost belongs on the `play`, not on the `may`, or the interpreter pays both. The census's `reveal_trigger` atom covers 'look at' as well as 'reveal', which is why one event carries both halves of 'as you look at or reveal me'.",
+ "keywords": [
+  {
+   "keyword": "Ganking",
+   "cites": [
+    "CR:810"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:424"
+   ],
+   "trigger": {
+    "events": [
+     "reveal_trigger"
+    ],
+    "who": "you",
+    "what": {
+     "self": true
+    },
+    "zone": "top_of_deck"
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "do": [
+      {
+       "op": "banish",
+       "what": {
+        "self": true
+       },
+       "cites": [
+        "CR:427"
+       ]
+      },
+      {
+       "choice": "may",
+       "when": {
+        "cond": "if_you_do"
+       },
+       "do": [
+        {
+         "op": "play",
+         "what": {
+          "self": true
+         },
+         "cites": [
+          "CR:419",
+          "CR:356"
+         ],
+         "cost": [
+          {
+           "cost": "power_any",
+           "n": 1,
+           "cites": [
+            "CR:444"
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Ganking]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "As you look at or reveal me from the top of your deck, you may banish me.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "If you do, you may play me for [A].",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "seen off the top, it banishes itself and comes down for one Power alone",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 0,
+      "power": {
+       "Chaos": 1
+      },
+      "deck": [
+       "Nocturne - Horrifying",
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Mystic Poro",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "trigger",
+    "card": "Mystic Poro",
+    "seat": 0
+   },
+   "choices": [
+    "yes",
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Nocturne - Horrifying",
+     "n": 1
+    },
+    {
+     "expect": "power",
+     "seat": 0,
+     "domain": "Chaos",
+     "n": 0
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "with no Power at all it is banished and stays banished",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 8,
+      "deck": [
+       "Nocturne - Horrifying",
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Mystic Poro",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "trigger",
+    "card": "Mystic Poro",
+    "seat": 0
+   },
+   "choices": [
+    "yes",
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Nocturne - Horrifying",
+     "n": 0
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 8
+    }
+   ]
+  },
+  {
+   "name": "declining the banish leaves the deck as it was",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "power": {
+       "Chaos": 1
+      },
+      "deck": [
+       "Nocturne - Horrifying",
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Mystic Poro",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "trigger",
+    "card": "Mystic Poro",
+    "seat": 0
+   },
+   "choices": [
+    "no"
+   ],
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 2
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Nocturne - Horrifying",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:49f3a334144cc5d1"
+}

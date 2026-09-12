@@ -1,0 +1,121 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Seal of Unity",
+ "source": "manual",
+ "notes": "The 'Abilities that add resources can't be reacted to' line is reminder text for CR 429, not an ability of this card: CR 135.2.d.3 says reminder text has no game function, so scripting it would put a general rule on one card and nowhere else.",
+ "abilities": [
+  {
+   "kind": "activated",
+   "timing": {
+    "keyword": "Reaction",
+    "cites": [
+     "CR:813"
+    ]
+   },
+   "cites": [
+    "CR:376"
+   ],
+   "cost": [
+    {
+     "cost": "exhaust_self",
+     "cites": [
+      "CR:414"
+     ]
+    }
+   ],
+   "effect": [
+    {
+     "op": "add",
+     "power": "Order",
+     "n": 1,
+     "cites": [
+      "CR:429"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": ":rb_exhaust:: [Reaction] — [Add] :rb_rune_order:.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "it adds one Order Power to the pool",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Seal of Unity",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Seal of Unity",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "power",
+     "seat": 0,
+     "domain": "Order",
+     "n": 1
+    },
+    {
+     "expect": "state",
+     "card": "Seal of Unity",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  },
+  {
+   "name": "an exhausted Seal cannot pay its own cost again",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Seal of Unity",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Seal of Unity",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "already exhausted"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:3129d800591bb977"
+}

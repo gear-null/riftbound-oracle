@@ -1,0 +1,122 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Sunlit Guardian",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Shield",
+   "value": 1,
+   "cites": [
+    "CR:814"
+   ]
+  },
+  {
+   "keyword": "Tank",
+   "cites": [
+    "CR:815"
+   ]
+  }
+ ],
+ "abilities": [],
+ "clauses": [
+  {
+   "text": "[Shield]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Tank]",
+   "status": "implemented",
+   "node": "keywords[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "Shield is +1 Might while defending",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Sunlit Guardian",
+        "at": "battlefield",
+        "state": "defending"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Sunlit Guardian",
+     "seat": 0,
+     "n": 4
+    }
+   ]
+  },
+  {
+   "name": "and nothing while attacking",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Sunlit Guardian",
+        "at": "battlefield",
+        "state": "attacking"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Sunlit Guardian",
+     "seat": 0,
+     "n": 3
+    }
+   ]
+  }
+ ],
+ "version": "sha256:c2b9d3831d6f35e2"
+}

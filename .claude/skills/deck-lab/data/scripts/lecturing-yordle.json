@@ -1,0 +1,135 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Lecturing Yordle",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Tank",
+   "cites": [
+    "CR:815"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_self"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "draw",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Tank]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "When you play me, draw 1.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "it replaces itself",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "deck": [
+       "Back Off"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Lecturing Yordle",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "Tank takes combat damage first",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       },
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Cithria of Cloudfield",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:fe024a827cd0b7fa"
+}

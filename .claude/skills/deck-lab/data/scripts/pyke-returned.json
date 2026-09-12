@@ -1,0 +1,271 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Pyke - Returned",
+ "source": "manual",
+ "notes": "`frequency.limit` is CR 383.3.e's 'once each turn', on the ability where the rules put it. The condition is on PYKE's location, not the dying unit's. CR 184.3: the minting effect grants the token its abilities, and inside them `self` is the TOKEN.",
+ "keywords": [
+  {
+   "keyword": "Hidden",
+   "cites": [
+    "CR:811"
+   ]
+  },
+  {
+   "keyword": "Backline",
+   "cites": [
+    "CR:826"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "frequency": {
+    "limit": 1,
+    "per": "turn"
+   },
+   "trigger": {
+    "events": [
+     "die"
+    ],
+    "who": "enemy",
+    "what": {
+     "type": "unit",
+     "side": "enemy"
+    },
+    "condition": {
+     "cond": "zone_of_object",
+     "what": {
+      "self": true
+     },
+     "at": "battlefield"
+    }
+   },
+   "effect": [
+    {
+     "op": "play",
+     "enters": "exhausted",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Gold",
+       "type": "gear",
+       "abilities": [
+        {
+         "kind": "activated",
+         "timing": {
+          "keyword": "Reaction",
+          "cites": [
+           "CR:813"
+          ]
+         },
+         "cites": [
+          "CR:376"
+         ],
+         "cost": [
+          {
+           "cost": "sacrifice",
+           "what": {
+            "self": true
+           },
+           "cites": [
+            "CR:428"
+           ]
+          },
+          {
+           "cost": "exhaust_self",
+           "cites": [
+            "CR:414"
+           ]
+          }
+         ],
+         "effect": [
+          {
+           "op": "add",
+           "power": "any",
+           "n": 1,
+           "cites": [
+            "CR:429"
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Hidden]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Backline]",
+   "status": "implemented",
+   "node": "keywords[1]"
+  },
+  {
+   "text": "Once each turn, when an enemy unit dies while I'm at a battlefield, play a Gold gear token exhausted.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "an enemy unit dying while he stands out mints a Gold",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Pyke - Returned",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Cithria of Cloudfield",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 1
+    },
+    {
+     "expect": "state",
+     "card": "Gold",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  },
+  {
+   "name": "the second enemy death that turn mints nothing",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Pyke - Returned",
+        "at": "battlefield"
+       },
+       {
+        "card": "Gold",
+        "at": "base",
+        "token": true
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       },
+       {
+        "card": "Kinkou Initiate",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Kinkou Initiate",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "with Pyke at his base, nothing triggers at all",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Pyke - Returned",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Cithria of Cloudfield",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Gold",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:db42a78d0b9f4592"
+}

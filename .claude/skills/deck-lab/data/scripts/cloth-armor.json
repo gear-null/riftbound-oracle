@@ -1,0 +1,156 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Cloth Armor",
+ "source": "manual",
+ "notes": "[Quick-Draw] stays a bare keyword reference: CR 819 says what it does (this has [Reaction], and attaches on play) and the card adds nothing. [Equip] is an ability because the card adds its price.",
+ "keywords": [
+  {
+   "keyword": "Quick-Draw",
+   "cites": [
+    "CR:819"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "activated",
+   "cites": [
+    "CR:376",
+    "CR:818"
+   ],
+   "keyword": {
+    "keyword": "Equip",
+    "cites": [
+     "CR:818"
+    ]
+   },
+   "cost": [
+    {
+     "cost": "power_domain",
+     "domain": "Mind",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    }
+   ],
+   "effect": [
+    {
+     "op": "attach",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:434"
+     ],
+     "to": {
+      "type": "unit",
+      "side": "friendly",
+      "targets": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Quick-Draw]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Equip] :rb_rune_mind:",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "the Equip ability costs one Mind Power and attaches it",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "power": {
+       "Mind": 1
+      },
+      "board": [
+       {
+        "card": "Cloth Armor",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Cloth Armor",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "power",
+     "seat": 0,
+     "domain": "Mind",
+     "n": 0
+    },
+    {
+     "expect": "state",
+     "card": "Cloth Armor",
+     "seat": 0,
+     "is": "attached"
+    }
+   ]
+  },
+  {
+   "name": "with no Mind Power it cannot be equipped",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Cloth Armor",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Cloth Armor",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no Mind Power"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:830a7b692edc0772"
+}

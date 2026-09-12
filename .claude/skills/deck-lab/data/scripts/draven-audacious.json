@@ -1,0 +1,208 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Draven - Audacious",
+ "source": "manual",
+ "notes": "`frequency` sits on the ability, not inside the trigger: CR 383.1.b bounds how often the ABILITY fires, not how the event is recognised.",
+ "keywords": [
+  {
+   "keyword": "Deflect",
+   "value": 1,
+   "cites": [
+    "CR:809"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "frequency": {
+    "nth": 1,
+    "per": "turn"
+   },
+   "trigger": {
+    "events": [
+     "win_combat"
+    ],
+    "who": "me"
+   },
+   "effect": [
+    {
+     "op": "score",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:467"
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "die"
+    ],
+    "who": "me",
+    "condition": {
+     "cond": "state_of_self",
+     "state": "in_combat"
+    }
+   },
+   "effect": [
+    {
+     "op": "score",
+     "n": 1,
+     "seat": "opponent",
+     "cites": [
+      "CR:467"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Deflect]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "The first time I win a combat each turn, you score 1 point.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "When I die in combat, choose an opponent. They score 1 point.",
+   "status": "approx",
+   "node": "abilities[1]",
+   "reason": "the choice of opponent is forced in 1v1 (CR 485) and is scripted as `seat: opponent`. The vocabulary has no PLAYER selector — the census found none in the corpus to size one from — so a multiplayer mode (CR 487 FFA3) would read this card wrongly."
+  }
+ ],
+ "tests": [
+  {
+   "name": "the first combat win each turn scores, the second does not",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Draven - Audacious",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "points",
+     "seat": 0,
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "dying in combat hands the opponent a point",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Draven - Audacious",
+        "at": "battlefield",
+        "damage": 5
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "combat",
+    "seat": 1
+   },
+   "then": [
+    {
+     "expect": "points",
+     "seat": 1,
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "dying away from combat hands nothing over",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Draven - Audacious",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "kill",
+    "card": "Draven - Audacious",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "points",
+     "seat": 1,
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:f7f2447b2a0c0031"
+}

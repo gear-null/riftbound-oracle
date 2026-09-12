@@ -1,0 +1,178 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Guttural Roar",
+ "source": "manual",
+ "notes": "The `instead` node replaces the sibling instruction rather than an event, which is why its `event` field is absent: +4 REPLACES the +2, it does not stack with it.",
+ "keywords": [
+  {
+   "keyword": "Action",
+   "cites": [
+    "CR:806"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "choice": "choose_object",
+     "targets": true,
+     "bind": "it",
+     "what": {
+      "type": "unit",
+      "side": "any"
+     },
+     "do": [
+      {
+       "op": "give_might",
+       "what": {
+        "ref": "it"
+       },
+       "n": 2,
+       "until": "this_turn",
+       "cites": [
+        "CR:477"
+       ]
+      },
+      {
+       "kind": "instead",
+       "cites": [
+        "CR:369"
+       ],
+       "applies_to": {
+        "ref": "it"
+       },
+       "when": {
+        "cond": "state_of_object",
+        "what": {
+         "ref": "it"
+        },
+        "state": "empowered"
+       },
+       "do": [
+        {
+         "op": "give_might",
+         "what": {
+          "ref": "it"
+         },
+         "n": 4,
+         "until": "this_turn",
+         "cites": [
+          "CR:477"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Action]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "Give a unit +2 :rb_might: this turn.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[0]"
+  },
+  {
+   "text": "If it's [Empowered], give it +4 :rb_might: this turn instead.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a plain unit gets two",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Guttural Roar"
+      ],
+      "energy": 2,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Guttural Roar",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Lecturing Yordle",
+     "seat": 0,
+     "n": 4
+    }
+   ]
+  },
+  {
+   "name": "an Empowered unit gets four INSTEAD of two, not six",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Guttural Roar"
+      ],
+      "energy": 2,
+      "board": [
+       {
+        "card": "Punching Poro",
+        "at": "base",
+        "state": "empowered"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Guttural Roar",
+    "seat": 0
+   },
+   "choices": [
+    "Punching Poro"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Punching Poro",
+     "seat": 0,
+     "n": 7
+    }
+   ]
+  }
+ ],
+ "version": "sha256:0df057a2b4968c78"
+}

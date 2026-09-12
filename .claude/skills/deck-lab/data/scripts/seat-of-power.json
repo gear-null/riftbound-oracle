@@ -1,0 +1,132 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Seat of Power",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "conquer"
+    ],
+    "who": "you",
+    "where": "here"
+   },
+   "effect": [
+    {
+     "op": "draw",
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ],
+     "n": {
+      "for_each": {
+       "type": "battlefield",
+       "side": "friendly",
+       "another": true
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you conquer here, draw 1 for each other battlefield you or allies control.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "two other battlefields draw two",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Seat of Power",
+     "Minefield",
+     "Star Spring"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "deck": [
+       "Mobilize",
+       "Back Off",
+       "Challenge"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 2
+    }
+   ]
+  },
+  {
+   "name": "this battlefield does not count itself",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Seat of Power"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "deck": [
+       "Mobilize",
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:3d8d40c196043637"
+}

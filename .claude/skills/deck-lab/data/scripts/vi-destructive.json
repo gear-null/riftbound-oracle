@@ -1,0 +1,142 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Vi, Destructive",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Ganking",
+   "cites": [
+    "CR:810"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "activated",
+   "cites": [
+    "CR:376"
+   ],
+   "cost": [
+    {
+     "cost": "recycle_cost",
+     "n": 1,
+     "cites": [
+      "CR:416"
+     ],
+     "what": {
+      "type": "card",
+      "side": "friendly",
+      "zone": "trash"
+     }
+    }
+   ],
+   "effect": [
+    {
+     "op": "give_might",
+     "what": {
+      "self": true
+     },
+     "n": 1,
+     "until": "this_turn",
+     "cites": [
+      "CR:477"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Ganking]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "Recycle 1 from your trash: Give me +1 :rb_might: this turn.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a card from the trash buys a point of Might",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "trash": [
+       "Mobilize",
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Vi, Destructive",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Vi, Destructive",
+    "seat": 0
+   },
+   "choices": [
+    "Mobilize"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Vi, Destructive",
+     "seat": 0,
+     "n": 4
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "trash",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "an empty trash cannot pay",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Vi, Destructive",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Vi, Destructive",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "nothing in the trash to recycle"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:6bc57929af48b849"
+}

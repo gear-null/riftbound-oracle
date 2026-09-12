@@ -1,0 +1,262 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "LeBlanc - Deceiver",
+ "source": "manual",
+ "notes": "CR 477.1.b puts the copy in layer 1: the Reflection's copiable traits are REPLACED, so its printed 0 {M} is gone rather than added to. [Temporary] goes to the Reflection and nothing else — `ref` names the token this effect just made, not every token standing there.",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "conquer",
+     "hold"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "cost": [
+      {
+       "cost": "discard_cost",
+       "n": 1,
+       "cites": [
+        "CR:422"
+       ]
+      },
+      {
+       "cost": "exhaust_self",
+       "cites": [
+        "CR:414"
+       ]
+      }
+     ],
+     "do": [
+      {
+       "op": "play",
+       "to": "here",
+       "enters": "ready",
+       "bind": "clone",
+       "cites": [
+        "CR:419",
+        "CR:179"
+       ],
+       "what": {
+        "token": {
+         "name": "Reflection",
+         "type": "unit",
+         "might": 0
+        }
+       }
+      },
+      {
+       "kind": "reflexive",
+       "cites": [
+        "CR:386"
+       ],
+       "effect": [
+        {
+         "op": "become_copy",
+         "cites": [
+          "CR:438"
+         ],
+         "what": {
+          "ref": "clone"
+         },
+         "of": {
+          "type": "unit",
+          "side": "any",
+          "at": "here",
+          "another": true,
+          "targets": true
+         }
+        },
+        {
+         "op": "grant_keyword",
+         "keyword": "Temporary",
+         "until": "permanent",
+         "cites": [
+          "CR:800",
+          "CR:816"
+         ],
+         "what": {
+          "ref": "clone"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you conquer or hold, you may discard 1 and exhaust me to play a ready Reflection unit token there.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "Then do this: It becomes a copy of another unit there.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[1].effect[0]"
+  },
+  {
+   "text": "Give it [Temporary].",
+   "status": "implemented",
+   "node": "abilities[0].effect[0].do[1].effect[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "the Reflection arrives as a copy of an ally standing there",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "choices": [
+    "yes",
+    "Mobilize",
+    "Ferrous Forerunner"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Ferrous Forerunner",
+     "n": 2
+    },
+    {
+     "expect": "keyword",
+     "card": "Ferrous Forerunner",
+     "seat": 0,
+     "keyword": "Temporary"
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "an ally already standing there does not get [Temporary] as well",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       },
+       {
+        "card": "Recruit",
+        "at": "battlefield",
+        "token": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "choices": [
+    "yes",
+    "Mobilize",
+    "Cithria of Cloudfield"
+   ],
+   "then": [
+    {
+     "expect": "keyword",
+     "card": "Recruit",
+     "seat": 0,
+     "keyword": "Temporary",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "with an empty hand the cost cannot be paid",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Reflection",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:e9caa560dd6bdc51"
+}

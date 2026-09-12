@@ -1,0 +1,190 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Wind Wall",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Reaction",
+   "cites": [
+    "CR:813"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "counter",
+     "cites": [
+      "CR:425"
+     ],
+     "what": {
+      "type": "spell",
+      "side": "any",
+      "targets": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Reaction]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "Counter a spell.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a countered spell goes to its owner's trash without resolving",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "chain": [
+     {
+      "card": "Hextech Ray",
+      "seat": 1,
+      "kind": "spell"
+     }
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Wind Wall"
+      ],
+      "energy": 3,
+      "power": {
+       "Calm": 2
+      }
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Wind Wall",
+    "seat": 0
+   },
+   "choices": [
+    "Hextech Ray"
+   ],
+   "then": [
+    {
+     "expect": "zone_has",
+     "seat": 1,
+     "zone": "trash",
+     "card": "Hextech Ray"
+    },
+    {
+     "expect": "board_count",
+     "seat": 1,
+     "card": "Lecturing Yordle",
+     "n": 1
+    },
+    {
+     "expect": "chain",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "an ability on the chain is not a spell",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "chain": [
+     {
+      "card": "Arena Bar",
+      "seat": 1,
+      "kind": "ability"
+     }
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Wind Wall"
+      ],
+      "energy": 3,
+      "power": {
+       "Calm": 2
+      }
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Wind Wall",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no spell to choose"
+    }
+   ]
+  },
+  {
+   "name": "with nothing on the chain there is nothing to counter",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "chain": [],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Wind Wall"
+      ],
+      "energy": 3,
+      "power": {
+       "Calm": 2
+      }
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Wind Wall",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no spell to choose"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:0a88cd32db4f3e6c"
+}

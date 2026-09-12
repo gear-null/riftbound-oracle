@@ -1,0 +1,256 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Shurelya's Requiem",
+ "source": "manual",
+ "notes": "`all: true` and no `targets`: CR 355.10 says a programmatically selected set is not a set of Targets, so readying YOUR UNITS chooses nothing and cannot be answered with a different unit.",
+ "keywords": [
+  {
+   "keyword": "Unique",
+   "cites": [
+    "CR:825"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "activated",
+   "cites": [
+    "CR:376",
+    "CR:818"
+   ],
+   "keyword": {
+    "keyword": "Equip",
+    "cites": [
+     "CR:818"
+    ]
+   },
+   "cost": [
+    {
+     "cost": "power_any",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    }
+   ],
+   "effect": [
+    {
+     "op": "attach",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:434"
+     ],
+     "to": {
+      "type": "unit",
+      "side": "friendly",
+      "targets": true
+     }
+    }
+   ]
+  },
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_self"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "ready",
+     "cites": [
+      "CR:415"
+     ],
+     "what": {
+      "type": "unit",
+      "side": "friendly",
+      "all": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Unique]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Equip] :rb_rune_rainbow:",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "When you play this, ready your units.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "every friendly unit readies, enemies untouched",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Shurelya's Requiem"
+      ],
+      "energy": 4,
+      "power": {
+       "Calm": 1,
+       "Mind": 1
+      },
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "base",
+        "exhausted": true
+       },
+       {
+        "card": "Kinkou Initiate",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Shurelya's Requiem",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "state",
+     "card": "Lecturing Yordle",
+     "seat": 0,
+     "is": "ready"
+    },
+    {
+     "expect": "state",
+     "card": "Kinkou Initiate",
+     "seat": 0,
+     "is": "ready"
+    },
+    {
+     "expect": "state",
+     "card": "Cithria of Cloudfield",
+     "seat": 1,
+     "is": "exhausted"
+    }
+   ]
+  },
+  {
+   "name": "the Equip ability attaches it for one Power of any Domain",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "power": {
+       "Calm": 1
+      },
+      "board": [
+       {
+        "card": "Shurelya's Requiem",
+        "at": "base"
+       },
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Shurelya's Requiem",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Shurelya's Requiem",
+     "seat": 0,
+     "is": "attached"
+    }
+   ]
+  },
+  {
+   "name": "gear is not a unit",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Shurelya's Requiem"
+      ],
+      "energy": 4,
+      "power": {
+       "Calm": 1,
+       "Mind": 1
+      },
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Shurelya's Requiem",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "state",
+     "card": "Arena Bar",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:19aa1187e7987a9a"
+}

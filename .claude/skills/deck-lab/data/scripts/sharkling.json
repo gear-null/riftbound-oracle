@@ -1,0 +1,163 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Sharkling",
+ "source": "manual",
+ "notes": "The Accelerate cost is printed inside reminder text in this corpus. CR 135.2.d.3 says reminder text has no game function, so the cost is recorded on the keyword reference where the rules put it, and the `enters_modified` replacement is what the keyword DOES.",
+ "keywords": [
+  {
+   "keyword": "Accelerate",
+   "cites": [
+    "CR:805"
+   ],
+   "cost": [
+    {
+     "cost": "additional_cost",
+     "optional": true,
+     "pay": [
+      {
+       "cost": "energy",
+       "n": 1,
+       "cites": [
+        "CR:444"
+       ]
+      },
+      {
+       "cost": "power_domain",
+       "domain": "Fury",
+       "n": 1,
+       "cites": [
+        "CR:444"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "keyword": "Assault",
+   "value": 4,
+   "cites": [
+    "CR:807"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "enters_modified",
+   "cites": [
+    "CR:367"
+   ],
+   "applies_to": {
+    "self": true
+   },
+   "enters": "ready",
+   "when": {
+    "cond": "paid_additional_cost",
+    "keyword": "Accelerate"
+   }
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Accelerate]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Assault 4]",
+   "status": "implemented",
+   "node": "keywords[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "paying the Accelerate cost lands it ready",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Sharkling"
+      ],
+      "energy": 4,
+      "power": {
+       "Fury": 1
+      }
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Sharkling",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Sharkling",
+     "seat": 0,
+     "is": "ready"
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "declining it lands exhausted, as a unit normally does",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Sharkling"
+      ],
+      "energy": 4,
+      "power": {
+       "Fury": 1
+      }
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Sharkling",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "no"
+   ],
+   "then": [
+    {
+     "expect": "state",
+     "card": "Sharkling",
+     "seat": 0,
+     "is": "exhausted"
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:26c983cdae7a4d3c"
+}

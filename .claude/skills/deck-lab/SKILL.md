@@ -252,6 +252,12 @@ and `engine perft`, `engine golden`, `engine soak` and `engine bench` are the in
 that keep it honest. `docs/engine/spec.md` in the source repo says which rules it
 implements, simplifies, or does not touch.
 
+`data/scripts/` holds the card scripts that will one day give it card text: JSON over a
+closed vocabulary, cited per node and marked clause by clause. `scripts` lists them with
+their validation status and coverage, and `check <deck>` reports how many of a deck's
+distinct cards are scripted. **Nothing executes them yet** — a card's text is still
+yours to apply by hand.
+
 ## Known limits — say these out loud rather than around
 
 - **The Chain is not modelled by the table.** Reactions, counters and the FEPR process

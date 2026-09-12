@@ -1,0 +1,165 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Cithria of Cloudfield",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_other"
+    ],
+    "who": "you",
+    "what": {
+     "type": "unit",
+     "side": "friendly",
+     "another": true
+    }
+   },
+   "effect": [
+    {
+     "op": "buff",
+     "what": {
+      "self": true
+     },
+     "n": 1,
+     "cites": [
+      "CR:426",
+      "CR:701"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you play another unit, buff me.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a second unit buffs her",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Lecturing Yordle",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "buffs",
+     "card": "Cithria of Cloudfield",
+     "seat": 0,
+     "n": 1
+    },
+    {
+     "expect": "might",
+     "card": "Cithria of Cloudfield",
+     "seat": 0,
+     "n": 2
+    }
+   ]
+  },
+  {
+   "name": "playing a gear is not playing a unit",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Arena Bar"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Arena Bar",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "buffs",
+     "card": "Cithria of Cloudfield",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "she does not buff herself as she arrives",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Cithria of Cloudfield"
+      ],
+      "energy": 3
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Cithria of Cloudfield",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "buffs",
+     "card": "Cithria of Cloudfield",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:30f1400504595238"
+}

@@ -1,0 +1,153 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Sprite Call",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Hidden",
+   "cites": [
+    "CR:811"
+   ]
+  },
+  {
+   "keyword": "Action",
+   "cites": [
+    "CR:806"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "play",
+     "enters": "ready",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Sprite",
+       "type": "unit",
+       "might": 3,
+       "keywords": [
+        {
+         "keyword": "Temporary",
+         "cites": [
+          "CR:816"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Hidden]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "[Action]",
+   "status": "implemented",
+   "node": "keywords[1]"
+  },
+  {
+   "text": "Play a ready 3 :rb_might: Sprite unit token with [Temporary].",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a ready 3-Might Sprite arrives with Temporary",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Sprite Call"
+      ],
+      "energy": 3
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Sprite Call",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Sprite",
+     "n": 1
+    },
+    {
+     "expect": "state",
+     "card": "Sprite",
+     "seat": 0,
+     "is": "ready"
+    },
+    {
+     "expect": "keyword",
+     "card": "Sprite",
+     "seat": 0,
+     "keyword": "Temporary"
+    }
+   ]
+  },
+  {
+   "name": "Temporary kills it at the start of its controller's Beginning Phase",
+   "given": {
+    "turn_player": 0,
+    "phase": "beginning",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Sprite",
+        "at": "base",
+        "token": true,
+        "keywords": [
+         "Temporary"
+        ]
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "begin_turn",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Sprite",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:3f89628ebc83a9eb"
+}

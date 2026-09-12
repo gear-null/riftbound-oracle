@@ -1,0 +1,143 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Flame Chompers",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "discard_trigger"
+    ],
+    "who": "you",
+    "what": {
+     "self": true
+    }
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "cost": [
+      {
+       "cost": "power_domain",
+       "domain": "Fury",
+       "n": 1,
+       "cites": [
+        "CR:444"
+       ]
+      }
+     ],
+     "do": [
+      {
+       "op": "play",
+       "what": {
+        "self": true
+       },
+       "from": "trash",
+       "cites": [
+        "CR:419"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you discard me, you may pay :rb_rune_fury: to play me.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "discarding it offers to put it straight into play",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Flame Chompers",
+       "Chemtech Enforcer"
+      ],
+      "energy": 2,
+      "power": {
+       "Fury": 1
+      }
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "discard",
+    "card": "Flame Chompers",
+    "seat": 0
+   },
+   "choices": [
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Flame Chompers",
+     "n": 1
+    },
+    {
+     "expect": "power",
+     "seat": 0,
+     "domain": "Fury",
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "with no Fury Power the offer cannot be taken",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Flame Chompers"
+      ],
+      "energy": 2
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "discard",
+    "card": "Flame Chompers",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "zone_has",
+     "seat": 0,
+     "zone": "trash",
+     "card": "Flame Chompers"
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Flame Chompers",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:bfc900aa2381645b"
+}

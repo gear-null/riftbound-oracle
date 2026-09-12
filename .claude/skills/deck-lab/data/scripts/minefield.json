@@ -1,0 +1,145 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Minefield",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "conquer"
+    ],
+    "who": "you",
+    "where": "here"
+   },
+   "effect": [
+    {
+     "op": "put",
+     "to": "trash",
+     "cites": [
+      "CR:108"
+     ],
+     "what": {
+      "type": "card",
+      "side": "friendly",
+      "zone": "top_of_deck",
+      "count": 2
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you conquer here, put the top 2 cards of your Main Deck into your trash.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "conquering here mills two",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "deck": [
+       "Back Off",
+       "Hextech Ray",
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 1
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "trash",
+     "n": 2
+    }
+   ]
+  },
+  {
+   "name": "the opponent's conquest mills the opponent",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "deck": [
+       "Back Off",
+       "Hextech Ray"
+      ]
+     },
+     {
+      "seat": 1,
+      "deck": [
+       "Mobilize",
+       "Challenge"
+      ],
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 1,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 1,
+     "zone": "trash",
+     "n": 2
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "trash",
+     "n": 0
+    }
+   ]
+  }
+ ],
+ "version": "sha256:8202e565a5fba833"
+}

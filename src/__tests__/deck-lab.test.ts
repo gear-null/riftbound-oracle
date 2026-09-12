@@ -21,7 +21,11 @@ describe("deck-lab engine", () => {
     });
     expect(out).toMatch(/\n(\d+)\/\1 passed/);
     expect(out).not.toContain("[FAIL]");
-  });
+    // Not a unit test: this shells out to a regression suite that grows with the
+    // engine — 618 checks and a fuzz sweep over every script at the time of
+    // writing. Vitest's 5s default was a budget nobody set deliberately, and the
+    // suite crossing it would fail as a timeout rather than as a broken rule.
+  }, 120_000);
 });
 
 describe("deck-lab skill layout", () => {

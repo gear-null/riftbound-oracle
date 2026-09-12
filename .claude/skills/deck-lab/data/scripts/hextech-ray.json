@@ -1,0 +1,146 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Hextech Ray",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Action",
+   "cites": [
+    "CR:806"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "deal",
+     "n": 3,
+     "cites": [
+      "CR:417"
+     ],
+     "to": {
+      "type": "unit",
+      "side": "any",
+      "at": "battlefield",
+      "targets": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Action]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "Deal 3 to a unit at a battlefield.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "three damage kills a three-Might unit at a battlefield",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Hextech Ray"
+      ],
+      "energy": 1,
+      "power": {
+       "Fury": 1
+      }
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Hextech Ray",
+    "seat": 0
+   },
+   "choices": [
+    "Lecturing Yordle"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 1,
+     "card": "Lecturing Yordle",
+     "n": 0
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "trash",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "a unit at a base is not a legal choice",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Hextech Ray"
+      ],
+      "energy": 1,
+      "power": {
+       "Fury": 1
+      }
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "base"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Hextech Ray",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no unit at a battlefield to choose"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:db596c9ca1db88e9"
+}

@@ -1,0 +1,196 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Sun Disc",
+ "source": "manual",
+ "notes": "A delayed ability says what it WAITS FOR. `delayed_next` is the census's name for the window, not for an event: `the next unit you play this turn` is a `play_other`, bounded by a window and a frequency, and a trigger listening for `delayed_next` would name the delay and not the thing delayed.",
+ "abilities": [
+  {
+   "kind": "activated",
+   "cites": [
+    "CR:376"
+   ],
+   "gate": {
+    "keyword": "Legion",
+    "cites": [
+     "CR:812"
+    ]
+   },
+   "cost": [
+    {
+     "cost": "exhaust_self",
+     "cites": [
+      "CR:414"
+     ]
+    }
+   ],
+   "effect": [
+    {
+     "kind": "delayed",
+     "cites": [
+      "CR:389"
+     ],
+     "until": "play_other",
+     "who": "you",
+     "window": "this_turn",
+     "what": {
+      "type": "unit",
+      "side": "friendly",
+      "bind": "next"
+     },
+     "frequency": {
+      "nth": 1,
+      "per": "turn"
+     },
+     "effect": [
+      {
+       "kind": "enters_modified",
+       "cites": [
+        "CR:367"
+       ],
+       "applies_to": {
+        "ref": "next"
+       },
+       "enters": "ready"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": ":rb_exhaust:: [Legion] — The next unit you play this turn enters ready.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "with Legion live, the next unit lands ready",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "played_this_turn": [
+     {
+      "card": "Mobilize",
+      "seat": 0
+     }
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Sun Disc",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Sun Disc",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "state",
+     "card": "Sun Disc",
+     "seat": 0,
+     "is": "exhausted"
+    }
+   ]
+  },
+  {
+   "name": "only the FIRST unit after it gets the effect",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "played_this_turn": [
+     {
+      "card": "Mobilize",
+      "seat": 0
+     }
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle",
+       "Kinkou Initiate"
+      ],
+      "energy": 6,
+      "board": [
+       {
+        "card": "Sun Disc",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Sun Disc",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Sun Disc",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "with nothing played this turn, Legion is not live",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "played_this_turn": [],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Sun Disc",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Sun Disc",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "[Legion] is not live"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:6a7eb7955637c8ff"
+}

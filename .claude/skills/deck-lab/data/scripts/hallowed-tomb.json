@@ -1,0 +1,156 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Hallowed Tomb",
+ "source": "manual",
+ "notes": "CR 108.3.c.1 is the rule the `empty` condition is reading: a Chosen Champion can only be returned to the Champion Zone if there is not a card there already.",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "hold"
+    ],
+    "who": "you",
+    "where": "here"
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "do": [
+      {
+       "op": "return_to",
+       "to": "champion",
+       "seat": "you",
+       "cites": [
+        "CR:108"
+       ],
+       "what": {
+        "type": "champion",
+        "side": "friendly",
+        "zone": "trash"
+       },
+       "when": {
+        "cond": "empty",
+        "zone": "champion",
+        "seat": "you"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you hold here, you may return your Chosen Champion from your trash to your Champion Zone if it is empty.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a Hold here buys the Chosen Champion back out of the trash",
+   "given": {
+    "turn_player": 0,
+    "phase": "beginning",
+    "battlefields": [
+     "Hallowed Tomb"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "trash": [
+       "Irelia, Fervent"
+      ],
+      "champion": [],
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "hold",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "choices": [
+    "yes"
+   ],
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "champion",
+     "n": 1
+    },
+    {
+     "expect": "zone_lacks",
+     "seat": 0,
+     "zone": "trash",
+     "card": "Irelia, Fervent"
+    }
+   ]
+  },
+  {
+   "name": "with a card already in the Champion Zone, nothing returns",
+   "given": {
+    "turn_player": 0,
+    "phase": "beginning",
+    "battlefields": [
+     "Hallowed Tomb"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "trash": [
+       "Irelia, Fervent"
+      ],
+      "champion": [
+       "Irelia, Fervent"
+      ],
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "hold",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "champion",
+     "n": 1
+    },
+    {
+     "expect": "zone_has",
+     "seat": 0,
+     "zone": "trash",
+     "card": "Irelia, Fervent"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:567cc4247c77664f"
+}

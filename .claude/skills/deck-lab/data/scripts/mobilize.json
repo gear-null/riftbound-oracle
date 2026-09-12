@@ -1,0 +1,129 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Mobilize",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "channel",
+     "n": 1,
+     "exhausted": true,
+     "seat": "you",
+     "cites": [
+      "CR:430"
+     ]
+    },
+    {
+     "op": "draw",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ],
+     "when": {
+      "cond": "cant"
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "Channel 1 rune exhausted.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
+  },
+  {
+   "text": "If you can't, draw 1.",
+   "status": "implemented",
+   "node": "abilities[0].effect[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "an empty Rune Deck turns the channel into a draw",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mobilize"
+      ],
+      "energy": 2,
+      "deck": [
+       "Back Off"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Mobilize",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "with a rune available it channels and does not draw",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Mobilize"
+      ],
+      "energy": 2,
+      "deck": [
+       "Back Off"
+      ],
+      "runes": [
+       "Body Rune"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Mobilize",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Body Rune",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:cfa4d275d1438639"
+}

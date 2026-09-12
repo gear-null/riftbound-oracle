@@ -1,0 +1,201 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Star Spring",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "frequency": {
+    "nth": 1,
+    "per": "turn"
+   },
+   "trigger": {
+    "events": [
+     "play_other"
+    ],
+    "who": "any",
+    "where": "here",
+    "what": {
+     "type": "unit",
+     "side": "any",
+     "not": {
+      "type": "token"
+     }
+    }
+   },
+   "effect": [
+    {
+     "choice": "may",
+     "seat": "controller",
+     "do": [
+      {
+       "op": "move",
+       "to": "base",
+       "cites": [
+        "CR:420"
+       ],
+       "what": {
+        "type": "unit",
+        "side": "friendly",
+        "at": "here",
+        "another": true,
+        "targets": true
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "The first time a player plays a non-token unit here each turn, they may move another unit they control here to its base.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "the first non-token unit here each turn offers a retreat",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Star Spring"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Lecturing Yordle",
+    "seat": 0,
+    "to": "battlefield"
+   },
+   "choices": [
+    "yes",
+    "Cithria of Cloudfield"
+   ],
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Cithria of Cloudfield",
+     "at": "base",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "a token unit does not count as the first",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Star Spring"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Sprite Call"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Sprite Call",
+    "seat": 0,
+    "to": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Cithria of Cloudfield",
+     "at": "battlefield",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "the second unit that turn offers nothing",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Star Spring"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 6,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       },
+       {
+        "card": "Kinkou Initiate",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Lecturing Yordle",
+    "seat": 0,
+    "to": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Cithria of Cloudfield",
+     "at": "battlefield",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:586f26feb90b1eec"
+}

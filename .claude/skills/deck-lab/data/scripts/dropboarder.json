@@ -1,0 +1,133 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Dropboarder",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_self"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "ready",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:415"
+     ],
+     "when": {
+      "cond": "controls",
+      "op": ">=",
+      "n": 2,
+      "what": {
+       "side": "friendly",
+       "type": "gear",
+       "count": 2
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you play me, if you control two or more gear, ready me.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "two gear ready it as it lands",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Dropboarder"
+      ],
+      "energy": 4,
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base"
+       },
+       {
+        "card": "Poro Snax",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Dropboarder",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "state",
+     "card": "Dropboarder",
+     "seat": 0,
+     "is": "ready"
+    }
+   ]
+  },
+  {
+   "name": "one gear is not two",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Dropboarder"
+      ],
+      "energy": 4,
+      "board": [
+       {
+        "card": "Arena Bar",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Dropboarder",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Dropboarder",
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:eee8ba8615fc29b4"
+}

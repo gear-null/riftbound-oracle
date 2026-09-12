@@ -1,0 +1,228 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Poro Snax",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_self"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "draw",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "activated",
+   "cites": [
+    "CR:376"
+   ],
+   "cost": [
+    {
+     "cost": "energy",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    },
+    {
+     "cost": "power_domain",
+     "domain": "Calm",
+     "n": 1,
+     "cites": [
+      "CR:444"
+     ]
+    },
+    {
+     "cost": "exhaust_self",
+     "cites": [
+      "CR:414"
+     ]
+    },
+    {
+     "cost": "sacrifice",
+     "what": {
+      "self": true
+     },
+     "cites": [
+      "CR:428"
+     ]
+    }
+   ],
+   "effect": [
+    {
+     "op": "draw",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:413"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you play this, draw 1.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": ":rb_energy_1::rb_rune_calm:, :rb_exhaust:, Kill this: Draw 1.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "playing it draws, and cashing it in draws again",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Poro Snax"
+      ],
+      "energy": 3,
+      "power": {
+       "Calm": 2
+      },
+      "deck": [
+       "Back Off",
+       "Hextech Ray",
+       "Mobilize"
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Poro Snax",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    },
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Poro Snax",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "the ability kills it as part of the cost",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 1,
+      "power": {
+       "Calm": 1
+      },
+      "deck": [
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Poro Snax",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Poro Snax",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Poro Snax",
+     "n": 0
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 1
+    },
+    {
+     "expect": "energy",
+     "seat": 0,
+     "n": 0
+    }
+   ]
+  },
+  {
+   "name": "without the Calm Power the cost cannot be paid",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "energy": 1,
+      "deck": [
+       "Back Off"
+      ],
+      "board": [
+       {
+        "card": "Poro Snax",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "activate",
+    "card": "Poro Snax",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "no Calm Power"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:9da177c926969221"
+}

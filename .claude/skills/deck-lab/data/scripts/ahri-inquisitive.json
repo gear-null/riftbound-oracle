@@ -1,0 +1,141 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Ahri, Inquisitive",
+ "source": "manual",
+ "notes": "The min-clamp is not decoration: the prior C++ engine's gap audit lists min-clamped Might modifiers among its documented failures, and CR 477.3.b snapshots the limit at the time it applies.",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "attack",
+     "defend"
+    ],
+    "who": "me"
+   },
+   "effect": [
+    {
+     "op": "give_might",
+     "n": -2,
+     "min": 1,
+     "until": "this_turn",
+     "cites": [
+      "CR:477"
+     ],
+     "what": {
+      "type": "unit",
+      "side": "enemy",
+      "at": "here",
+      "targets": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When I attack or defend, give an enemy unit here -2 :rb_might: this turn, to a minimum of 1 :rb_might:.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "attacking shrinks an enemy here by two",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Ahri, Inquisitive",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "attack",
+    "card": "Ahri, Inquisitive",
+    "seat": 0
+   },
+   "choices": [
+    "Ferrous Forerunner"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Ferrous Forerunner",
+     "seat": 1,
+     "n": 4
+    }
+   ]
+  },
+  {
+   "name": "the clamp stops a small unit going below one",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Ahri, Inquisitive",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "defend",
+    "card": "Ahri, Inquisitive",
+    "seat": 0
+   },
+   "choices": [
+    "Cithria of Cloudfield"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Cithria of Cloudfield",
+     "seat": 1,
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:9dc91e15b4d1cd00"
+}

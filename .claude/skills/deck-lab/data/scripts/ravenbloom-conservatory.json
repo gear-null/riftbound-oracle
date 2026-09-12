@@ -1,0 +1,186 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Ravenbloom Conservatory",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "defend"
+    ],
+    "who": "you",
+    "where": "here"
+   },
+   "effect": [
+    {
+     "op": "reveal",
+     "n": 1,
+     "from": "deck",
+     "position": "top",
+     "bind": "seen",
+     "cites": [
+      "CR:424"
+     ]
+    },
+    {
+     "op": "put",
+     "what": {
+      "ref": "seen"
+     },
+     "to": "hand",
+     "cites": [
+      "CR:108"
+     ],
+     "when": {
+      "cond": "is_type",
+      "what": {
+       "ref": "seen"
+      },
+      "type": "spell"
+     }
+    },
+    {
+     "op": "recycle",
+     "what": {
+      "ref": "seen"
+     },
+     "cites": [
+      "CR:416"
+     ],
+     "when": {
+      "cond": "is_type",
+      "what": {
+       "ref": "seen"
+      },
+      "type": "spell",
+      "negated": true
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you defend here, reveal the top card of your Main Deck.",
+   "status": "implemented",
+   "node": "abilities[0].effect[0]"
+  },
+  {
+   "text": "If it's a spell, put it in your hand.",
+   "status": "implemented",
+   "node": "abilities[0].effect[1]"
+  },
+  {
+   "text": "Otherwise, recycle it.",
+   "status": "implemented",
+   "node": "abilities[0].effect[2]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "a revealed spell goes to hand",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Ravenbloom Conservatory"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "deck": [
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Lecturing Yordle",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "defend",
+    "card": "Lecturing Yordle",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "zone_has",
+     "seat": 0,
+     "zone": "hand",
+     "card": "Mobilize"
+    }
+   ]
+  },
+  {
+   "name": "anything else goes to the bottom of the deck",
+   "given": {
+    "turn_player": 1,
+    "phase": "main",
+    "battlefields": [
+     "Ravenbloom Conservatory"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "deck": [
+       "Lecturing Yordle",
+       "Mobilize"
+      ],
+      "board": [
+       {
+        "card": "Kinkou Initiate",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Ferrous Forerunner",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "defend",
+    "card": "Kinkou Initiate",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "hand",
+     "n": 0
+    },
+    {
+     "expect": "zone_count",
+     "seat": 0,
+     "zone": "deck",
+     "n": 2
+    }
+   ]
+  }
+ ],
+ "version": "sha256:3dcf9928a7753fae"
+}

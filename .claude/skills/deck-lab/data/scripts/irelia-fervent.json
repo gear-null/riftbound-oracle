@@ -1,0 +1,154 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Irelia, Fervent",
+ "source": "manual",
+ "keywords": [
+  {
+   "keyword": "Deflect",
+   "value": 1,
+   "cites": [
+    "CR:809"
+   ]
+  }
+ ],
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "targeted",
+     "readied"
+    ],
+    "who": "me"
+   },
+   "effect": [
+    {
+     "op": "give_might",
+     "what": {
+      "self": true
+     },
+     "n": 1,
+     "until": "this_turn",
+     "cites": [
+      "CR:477"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Deflect]",
+   "status": "implemented",
+   "node": "keywords[0]"
+  },
+  {
+   "text": "When you choose or ready me, give me +1 :rb_might: this turn.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "being chosen by your own spell grows her",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Hextech Ray"
+      ],
+      "energy": 1,
+      "power": {
+       "Fury": 1
+      },
+      "board": [
+       {
+        "card": "Irelia, Fervent",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Hextech Ray",
+    "seat": 0
+   },
+   "choices": [
+    "Irelia, Fervent"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Irelia, Fervent",
+     "seat": 0,
+     "n": 5
+    },
+    {
+     "expect": "damage",
+     "card": "Irelia, Fervent",
+     "seat": 0,
+     "n": 3
+    }
+   ]
+  },
+  {
+   "name": "being readied grows her too",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "First Mate"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Irelia, Fervent",
+        "at": "base",
+        "exhausted": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "First Mate",
+    "seat": 0,
+    "to": "base"
+   },
+   "choices": [
+    "Irelia, Fervent"
+   ],
+   "then": [
+    {
+     "expect": "might",
+     "card": "Irelia, Fervent",
+     "seat": 0,
+     "n": 5
+    }
+   ]
+  }
+ ],
+ "version": "sha256:74685d3fc4cc3b50"
+}

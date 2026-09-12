@@ -1,0 +1,113 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Ahri - Alluring",
+ "source": "manual",
+ "notes": "`who: me` and not `you`: CR 383.4.d.2 makes `When I hold` fire only from a unit present at the battlefield during the Hold, where `When you hold` fires from anything referencing the player. Same words on two different cards, two different subscriptions.",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "hold"
+    ],
+    "who": "me"
+   },
+   "effect": [
+    {
+     "op": "score",
+     "n": 1,
+     "seat": "you",
+     "cites": [
+      "CR:467"
+     ]
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When I hold, you score 1 point.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "holding a battlefield she stands at scores a point",
+   "given": {
+    "turn_player": 0,
+    "phase": "beginning",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Ahri - Alluring",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "hold",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "points",
+     "seat": 0,
+     "n": 2
+    }
+   ]
+  },
+  {
+   "name": "a Hold at a battlefield she is not at scores only the Hold",
+   "given": {
+    "turn_player": 0,
+    "phase": "beginning",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Ahri - Alluring",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "hold",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "points",
+     "seat": 0,
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "version": "sha256:7e72a1736d95e120"
+}

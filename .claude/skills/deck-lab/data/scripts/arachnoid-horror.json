@@ -1,0 +1,251 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Arachnoid Horror",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:823"
+   ],
+   "keyword": {
+    "keyword": "Hunt",
+    "value": 2,
+    "cites": [
+     "CR:823"
+    ]
+   },
+   "trigger": {
+    "events": [
+     "conquer",
+     "hold"
+    ],
+    "who": "me",
+    "keyword": {
+     "keyword": "Hunt",
+     "value": 2
+    }
+   },
+   "effect": [
+    {
+     "op": "gain_xp",
+     "n": 2,
+     "seat": "you",
+     "cites": [
+      "CR:728"
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "permission",
+     "who": {
+      "self": true
+     },
+     "may": "play_to_occupied_battlefield",
+     "cites": [
+      "CR:364"
+     ],
+     "when": {
+      "cond": "alone",
+      "what": {
+       "type": "unit",
+       "side": "enemy"
+      },
+      "where": "here"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "permission",
+     "may": "play_to_occupied_battlefield",
+     "cites": [
+      "CR:364"
+     ],
+     "who": {
+      "type": "unit",
+      "side": "friendly"
+     },
+     "when": {
+      "cond": "alone",
+      "what": {
+       "type": "unit",
+       "side": "enemy"
+      },
+      "where": "here"
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "[Hunt 2]",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "I can be played to an occupied battlefield if an enemy unit is alone there.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  },
+  {
+   "text": "Friendly units can be played to an occupied battlefield if an enemy unit is alone there.",
+   "status": "implemented",
+   "node": "abilities[2]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "conquering banks two XP",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "xp": 0,
+      "board": [
+       {
+        "card": "Arachnoid Horror",
+        "at": "battlefield"
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "conquer",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "xp",
+     "seat": 0,
+     "n": 2
+    }
+   ]
+  },
+  {
+   "name": "a lone enemy opens the battlefield to friendly units",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Arachnoid Horror",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Lecturing Yordle",
+    "seat": 0,
+    "to": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Lecturing Yordle",
+     "at": "battlefield",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "name": "two enemies there and nobody is alone",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Lecturing Yordle"
+      ],
+      "energy": 3,
+      "board": [
+       {
+        "card": "Arachnoid Horror",
+        "at": "base"
+       }
+      ]
+     },
+     {
+      "seat": 1,
+      "board": [
+       {
+        "card": "Cithria of Cloudfield",
+        "at": "battlefield"
+       },
+       {
+        "card": "Kinkou Initiate",
+        "at": "battlefield"
+       }
+      ]
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Lecturing Yordle",
+    "seat": 0,
+    "to": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "refused",
+     "reason": "the battlefield is occupied"
+    }
+   ]
+  }
+ ],
+ "version": "sha256:bb524d83b40b2564"
+}

@@ -1,0 +1,209 @@
+{
+ "schema": "riftbound-card-script/1",
+ "card": "Illaoi, Prophet of the Great Kraken",
+ "source": "manual",
+ "abilities": [
+  {
+   "kind": "triggered",
+   "cites": [
+    "CR:382",
+    "CR:383"
+   ],
+   "trigger": {
+    "events": [
+     "play_self",
+     "score_trigger"
+    ],
+    "who": "you"
+   },
+   "effect": [
+    {
+     "op": "play",
+     "cites": [
+      "CR:419",
+      "CR:179"
+     ],
+     "what": {
+      "token": {
+       "name": "Tentacle",
+       "type": "unit",
+       "might": 1,
+       "tags": [
+        "Bilgewater"
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "kind": "passive",
+   "cites": [
+    "CR:363"
+   ],
+   "effect": [
+    {
+     "op": "give_might",
+     "what": {
+      "self": true
+     },
+     "until": "permanent",
+     "cites": [
+      "CR:477"
+     ],
+     "n": {
+      "for_each": {
+       "type": "token",
+       "side": "friendly"
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "clauses": [
+  {
+   "text": "When you play me or when I score, play a :rb_energy_1: :rb_might: Tentacle unit token from Bilgewater.",
+   "status": "implemented",
+   "node": "abilities[0]"
+  },
+  {
+   "text": "I have +1 :rb_might: for each token unit you control.",
+   "status": "implemented",
+   "node": "abilities[1]"
+  }
+ ],
+ "tests": [
+  {
+   "name": "playing her makes a Tentacle, which then feeds her",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "hand": [
+       "Illaoi, Prophet of the Great Kraken"
+      ],
+      "energy": 6
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "play",
+    "card": "Illaoi, Prophet of the Great Kraken",
+    "seat": 0,
+    "to": "base"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Tentacle",
+     "n": 1
+    },
+    {
+     "expect": "might",
+     "card": "Illaoi, Prophet of the Great Kraken",
+     "seat": 0,
+     "n": 5
+    }
+   ]
+  },
+  {
+   "name": "scoring makes a second one",
+   "given": {
+    "turn_player": 0,
+    "phase": "beginning",
+    "battlefields": [
+     "Minefield"
+    ],
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Illaoi, Prophet of the Great Kraken",
+        "at": "battlefield"
+       },
+       {
+        "card": "Tentacle",
+        "at": "base",
+        "token": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "hold",
+    "seat": 0,
+    "at": "battlefield"
+   },
+   "then": [
+    {
+     "expect": "board_count",
+     "seat": 0,
+     "card": "Tentacle",
+     "n": 2
+    }
+   ]
+  },
+  {
+   "name": "three tokens are three more Might",
+   "given": {
+    "turn_player": 0,
+    "phase": "main",
+    "seats": [
+     {
+      "seat": 0,
+      "board": [
+       {
+        "card": "Illaoi, Prophet of the Great Kraken",
+        "at": "base"
+       },
+       {
+        "card": "Recruit",
+        "at": "base",
+        "token": true
+       },
+       {
+        "card": "Recruit",
+        "at": "base",
+        "token": true
+       },
+       {
+        "card": "Recruit",
+        "at": "base",
+        "token": true
+       }
+      ]
+     },
+     {
+      "seat": 1
+     }
+    ]
+   },
+   "when": {
+    "do": "resolve",
+    "card": "Illaoi, Prophet of the Great Kraken",
+    "seat": 0
+   },
+   "then": [
+    {
+     "expect": "might",
+     "card": "Illaoi, Prophet of the Great Kraken",
+     "seat": 0,
+     "n": 7
+    }
+   ]
+  }
+ ],
+ "version": "sha256:1a162dff77ccddde"
+}
