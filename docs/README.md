@@ -43,6 +43,15 @@ with an analogy.
 | [Testing the kernel](engine/testing.md) | perft, golden playthroughs, conservation invariants, the perfect-symmetry test |
 | [Content and licensing](content-and-licensing.md) | What is committed, artwork policy, crawling etiquette |
 
+## Plans
+
+Multi-session efforts, written as decisions, gates and tracer-bullet issues so several
+agents can pick them up. Tracked on GitHub under the label named in each plan.
+
+| | |
+|---|---|
+| [The Riftbound engine](plans/riftbound-engine.md) | From deck-lab's table to a Stockfish-style simulator: kernel, card scripts, search, evaluation, and where LLMs still earn their tokens (label `engine`) |
+
 ## Decision records
 
 Why the system is built the way it is. Each records what was measured, not just what was
@@ -58,3 +67,4 @@ chosen.
 | [0006](adr/0006-derive-the-symbol-legend.md) | Derive the symbol legend from the rules |
 | [0007](adr/0007-the-table-not-the-player.md) | Simulate the table, not the player |
 | [0008](adr/0008-two-document-kinds.md) | Two document kinds (ruling, primer), one verification core |
+| [0009](adr/0009-the-engine-plays.md) | The engine plays; card text is executed from verified scripts (proposed) |

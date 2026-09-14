@@ -35,6 +35,16 @@ The repository banner, `riftbound-oracle.png`, is not an exception: it is drawn 
 project's own design system by `docs/banner.html`, and the only Riot content on it is one
 rule quotation already committed to the corpus.
 
+## The engine is a private deck-building tool
+
+Riot's Riftbound developer policy prohibits, for holders of a Riot API key, automated rule
+enforcement, standalone clients and retaining metagame-defining data. **This project holds
+no Riot key.** Card data comes from Riftcodex under Riot's fan content policy, as before.
+The engine described in [ADR 0009](adr/0009-the-engine-plays.md) is a private research
+and deck-building tool: it is not a client, it enforces nothing for anyone, and the
+matchup tables it produces are the output of self-play simulation, framed as such rather
+than as observed metagame data. Nothing about the artwork policy above changes.
+
 ## Community content is neither redistributed nor fetched
 
 A community Q&A corpus was crawled, evaluated and dropped — see
