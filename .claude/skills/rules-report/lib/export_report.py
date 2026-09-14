@@ -39,6 +39,29 @@ class ExportRefused(Exception):
     """Something could not be inlined, so nothing is written."""
 
 
+def attach_portable(html, stem, rules_html, fetch=None):
+    from render_report import PORTABLE_SLOT, portable_link, portable_note
+    """Build the portable sibling for a rendered report, and wire the button.
+
+    Returns (report_html, portable_html, reason). `portable_html` is None when
+    the export REFUSED, and `reason` says why; the report is still returned,
+    with its control set to the "not built" note rather than a dead link.
+
+    A refusal is not an error here. `report` must keep working offline — a
+    ruling is finished when it is verified and rendered, and the portable copy
+    is a convenience on top. But it must also never advertise a file it did not
+    write, which is what a link to a missing sibling would be.
+    """
+    try:
+        portable = export(html, rules_html, fetch=fetch)
+    except ExportRefused as err:
+        return _must_replace(html, PORTABLE_SLOT, portable_note(stem),
+                             "the masthead's portable-copy slot"), None, str(err)
+    upgraded = _must_replace(html, PORTABLE_SLOT, portable_link(f"{stem}.portable.html"),
+                             "the masthead's portable-copy slot")
+    return upgraded, portable, None
+
+
 def _must_replace(text, find, repl, what):
     """Replace exactly once, or refuse.
 
@@ -259,6 +282,24 @@ def remaining_escapes(html):
     })
 
 
+def assert_pieces_arrived(out):
+    """Refuse a finished document that is missing a piece it must carry.
+
+    A function of its own so it can be handed a document with a piece torn out
+    and watched refuse. Inside `export` it is a backstop: nothing that produces
+    `out` correctly can trip it, so no single mutation of correct code reaches
+    it, and a battery would report it covered while it was defended by nothing.
+    """
+    from render_report import PORTABLE_BADGE
+    for probe, what in (
+        ('id="rb-doc"', "the embedded rulebook"),
+        ("fr.srcdoc=doc", "the overlay's portable loader"),
+        (PORTABLE_BADGE, "the portable-copy badge"),
+    ):
+        if probe not in out:
+            raise ExportRefused(f"{what} is missing from the finished file")
+
+
 def export(html, rules_html, fetch=None):
     """A rendered report in, one portable document out. Raises, or succeeds."""
     if fetch is None:
@@ -310,6 +351,11 @@ def export(html, rules_html, fetch=None):
         '<span class="rb-pop" id="rb-pop">cited rules only</span>',
         "the overlay's full-page link",
     )
+    # The same reasoning for the portable-copy control: a portable file that
+    # links to a sibling it may have travelled without is a broken link wearing
+    # a feature's clothes. It becomes a badge saying what this file IS.
+    from render_report import PORTABLE_BADGE, PORTABLE_SLOT
+    out = _must_replace(out, PORTABLE_SLOT, PORTABLE_BADGE, "the portable-copy control")
 
     escapes = remaining_escapes(out)
     if escapes:
@@ -325,12 +371,7 @@ def export(html, rules_html, fetch=None):
     # file with no rulebook, no artwork and no argument — deleting content
     # makes that check greener, which is the definition of a check pointing the
     # wrong way. Every assertion below fails when a piece is MISSING.
-    for probe, what in (
-        ('id="rb-doc"', "the embedded rulebook"),
-        ("fr.srcdoc=doc", "the overlay's portable loader"),
-    ):
-        if probe not in out:
-            raise ExportRefused(f"{what} is missing from the finished file")
+    assert_pieces_arrived(out)
     # PRESENCE IS NOT COMPLETENESS. `id="CR-829.1"` being in the document is
     # satisfied by an opening tag with the rule's text sliced off after it, and
     # a truncated rule is the worst possible payload here: the reader follows a
